@@ -160,6 +160,37 @@ SPanel {
             icon: "tether"; name: qsTr("Tether station")
             readonly property var _s: pp.tetherStatus()
             statusText: _s.t; statusLevel: _s.l
+            property int  torqueLevel: 0
+            property bool torqueLevelKnown: false
+            property bool torqueReferenceIsApplied: false
+            property bool _prevRemote: false
+            function syncTorqueReference() {
+                if (!tc.ctrl) { torqueLevelKnown = false; torqueReferenceIsApplied = false }
+                else if (pp._st.torqueRemote && pp._st.torqueSetpointAvailable) {
+                    torqueLevel = Math.max(0, Math.min(10, Math.round(pp._st.torquePercent / 10)))
+                    torqueLevelKnown = true
+                    torqueReferenceIsApplied = pp._st.activeFrameVersion === "Extended V1" && pp._st.torquePercent === pp._st.appliedTorquePercent
+                } else if (pp._st.activeFrameVersion === "Extended V1") {
+                    torqueLevel = Math.max(0, Math.min(10, Math.round(pp._st.appliedTorquePercent / 10)))
+                    torqueLevelKnown = true; torqueReferenceIsApplied = true
+                } else { torqueLevelKnown = false; torqueReferenceIsApplied = false }
+            }
+            function selectTorqueLevel(level) {
+                if (!tc.ctrl || !pp._st.torqueRemote) return
+                torqueLevel = Math.max(0, Math.min(10, level)); torqueLevelKnown = true; torqueReferenceIsApplied = false
+                pp._st.setTorquePercent(torqueLevel * 10)
+            }
+            onCtrlChanged: syncTorqueReference()
+            Component.onCompleted: { _prevRemote = pp._st.torqueRemote; syncTorqueReference() }
+            Connections {
+                target: pp._st
+                // a change of automatic torque re-reads the reference; while it is off the applied value follows the station
+                function onControlChanged() {
+                    if (tc._prevRemote !== pp._st.torqueRemote) { tc._prevRemote = pp._st.torqueRemote; tc.syncTorqueReference() }
+                    else if (!pp._st.torqueRemote) tc.syncTorqueReference()
+                }
+                function onTelemetryChanged() { if (!pp._st.torqueRemote) tc.syncTorqueReference() }
+            }
             Row {
                 spacing: SimpleTheme.px(12)
                 SButton {
@@ -184,19 +215,39 @@ SPanel {
                     onToggled: pp._st.setTorqueRemote(checked)
                 }
             }
-            Row {
-                spacing: SimpleTheme.px(10)
-                visible: pp._st.torqueRemote
-                Repeater {
-                    model: [0, 30, 100]
-                    SButton {
-                        designHeight: 72; textSize: 24; text: modelData + " %"
-                        kind: pp._st.torqueSetpointAvailable && pp._st.torquePercent === modelData ? "primary" : "secondary"
-                        onClicked: pp._st.setTorquePercent(modelData)
+            // Torque in 0–10 steps of 10 % (#317, same rules as the classic panel). The shown step is only a
+            // reference and never sends a command: the set value while automatic torque is on and known,
+            // otherwise the applied value (Extended V1 only, "≈"); unknown = "—" and ‹ › start from 0 (‹ = 0, › = 1).
+            Item {
+                width: parent.width; height: SimpleTheme.px(72)
+                visible: pp._st.torqueRemote || tc.ctrl
+                Row {
+                    id: tqRow
+                    spacing: SimpleTheme.px(10)
+                    anchors.verticalCenter: parent.verticalCenter
+                    SButton { designHeight: 72; textSize: 30; text: "‹"
+                              enabled_: tc.ctrl && pp._st.torqueRemote && (!tc.torqueLevelKnown || tc.torqueLevel > 0)
+                              onClicked: if (enabled_) tc.selectTorqueLevel(tc.torqueLevelKnown ? tc.torqueLevel - 1 : 0) }
+                    Rectangle {
+                        width: SimpleTheme.px(150); height: SimpleTheme.px(72); radius: SimpleTheme.px(16)
+                        color: SimpleTheme.surfaceControl
+                        SText { anchors.centerIn: parent; size: 26; bold: true
+                                text: tc.torqueLevelKnown ? (tc.torqueReferenceIsApplied ? "≈ " : "") + tc.torqueLevel + " / 10" : "— / 10" }
                     }
+                    SButton { designHeight: 72; textSize: 30; text: "›"
+                              enabled_: tc.ctrl && pp._st.torqueRemote && (!tc.torqueLevelKnown || tc.torqueLevel < 10)
+                              onClicked: if (enabled_) tc.selectTorqueLevel(tc.torqueLevelKnown ? tc.torqueLevel + 1 : 1) }
                 }
-                SText { anchors.verticalCenter: parent.verticalCenter; size: 22; color: SimpleTheme.textSecondary
-                        text: qsTr("applied %1 %").arg(pp._st.hasMonitoring ? Math.round(pp._st.appliedTorquePercent) : "—") }
+                SText { anchors.left: tqRow.right; anchors.leftMargin: SimpleTheme.px(16); anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter; size: 22; color: SimpleTheme.textSecondary; elide: Text.ElideRight
+                        text: qsTr("applied %1 %").arg(pp._st.hasMonitoring && pp._st.activeFrameVersion === "Extended V1" ? Math.round(pp._st.appliedTorquePercent) : "—") }
+            }
+            SText {
+                width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.warn
+                visible: !tc.ctrl || !pp._st.torqueRemote || !tc.torqueLevelKnown
+                text: !tc.ctrl ? qsTr("Torque is locked until the station link is connected.")
+                    : !pp._st.torqueRemote ? qsTr("Turn on automatic torque to change the torque.")
+                    : qsTr("The station does not report the torque. ‹ sets 0, › sets 1 of 10.")
             }
             SText {
                 width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textSecondary

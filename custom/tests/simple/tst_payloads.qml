@@ -31,6 +31,13 @@ Item {
         property int torquePercent: 0; property real appliedTorquePercent: 0
         property real powerWatts: 1200; property real cableLength: 40.5; property real spoolTemperature: 31
         property bool alarmActive: false; property string alarmSummary: ""
+        property string activeFrameVersion: "Extended V1"
+        property int lastTorque: -1
+        signal controlChanged()
+        signal telemetryChanged()
+        function setTorquePercent(v) { lastTorque = v }
+        function setTorqueRemote(on) { torqueRemote = on; controlChanged() }
+        function setPowerOn(on) {}
     }
     QtObject {
         id: lidar
@@ -108,6 +115,52 @@ TestCase {
         veh.hasGripper = true
         var p = createTemporaryObject(panelComp, root, { vs: null })
         compare(p.count, 0)
+    }
+    function findTether(item) {
+        if (item && item.selectTorqueLevel !== undefined) return item
+        var kids = item ? item.children : []
+        for (var i = 0; i < kids.length; i++) { var r = findTether(kids[i]); if (r) return r }
+        return null
+    }
+    function resetStation() {
+        station.torqueRemote = false; station.torqueSetpointAvailable = false; station.torquePercent = 0
+        station.appliedTorquePercent = 0; station.activeFrameVersion = "Extended V1"; station.lastTorque = -1
+        station.hasMonitoring = true; station.connected = true; station.frameVersionDetected = true
+    }
+    // #317: torque in 0–10 steps; the shown step is a reference (set value, else applied value on Extended V1)
+    function test_tether_torque_steps_follow_set_value() {
+        resetStation(); station.enabled = true
+        station.torqueRemote = true; station.torqueSetpointAvailable = true; station.torquePercent = 30; station.appliedTorquePercent = 30
+        var p = createTemporaryObject(panelComp, root, { vs: vsd })
+        var t = findTether(p); verify(t !== null)
+        compare(t.torqueLevelKnown, true); compare(t.torqueLevel, 3); compare(t.torqueReferenceIsApplied, true)
+        t.selectTorqueLevel(4)
+        compare(station.lastTorque, 40); compare(t.torqueLevel, 4); compare(t.torqueReferenceIsApplied, false)
+        t.selectTorqueLevel(12)                      // clamped to 10 steps
+        compare(station.lastTorque, 100)
+        resetStation(); station.enabled = false
+    }
+    function test_tether_torque_off_shows_applied_value() {
+        resetStation(); station.enabled = true
+        var p = createTemporaryObject(panelComp, root, { vs: vsd })
+        var t = findTether(p); verify(t !== null)
+        station.appliedTorquePercent = 50; station.telemetryChanged()
+        compare(t.torqueLevel, 5); compare(t.torqueReferenceIsApplied, true)
+        t.selectTorqueLevel(6)                       // automatic torque off: no command
+        compare(station.lastTorque, -1)
+        resetStation(); station.enabled = false
+    }
+    function test_tether_torque_unknown_and_locked() {
+        resetStation(); station.enabled = true
+        station.activeFrameVersion = "Standard"; station.torqueRemote = true    // no setpoint, no applied value
+        var p = createTemporaryObject(panelComp, root, { vs: vsd })
+        var t = findTether(p); verify(t !== null)
+        compare(t.torqueLevelKnown, false)
+        station.hasMonitoring = false                // link not ready: locked, no command
+        compare(t.ctrl, false)
+        t.selectTorqueLevel(1); compare(station.lastTorque, -1)
+        compare(t.torqueLevelKnown, false)
+        resetStation(); station.enabled = false
     }
     function test_tether_status() {
         station.enabled = true

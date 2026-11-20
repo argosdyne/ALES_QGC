@@ -4309,6 +4309,18 @@
         <source>line %1 of %2</source>
         <translation>%2개 중 %1번째 라인</translation>
     </message>
+    <message>
+        <source>Torque is locked until the station link is connected.</source>
+        <translation>스테이션 링크가 연결될 때까지 토크를 바꿀 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Turn on automatic torque to change the torque.</source>
+        <translation>토크를 바꾸려면 자동 토크를 켜세요.</translation>
+    </message>
+    <message>
+        <source>The station does not report the torque. ‹ sets 0, › sets 1 of 10.</source>
+        <translation>스테이션이 토크 값을 알려 주지 않습니다. ‹는 0단계, ›는 1단계로 설정합니다.</translation>
+    </message>
 </context>
 <context>
     <name>SimpleCameraRail</name>
