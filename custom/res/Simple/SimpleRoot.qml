@@ -149,13 +149,15 @@ Item {
         vs: vs
     }
 
-    // Restart toast (S36 toast style, on every page)
+    // Restart toast (S36 toast style, on every page). Fly screen: above the telemetry bar; other pages: near the bottom
+    // edge, so it does not cover the row being edited (Figma S60 / S101 notes, 2026-11-20)
     Rectangle {
         id: restartToast
         property string text: ""
         visible: false
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(24 + 120 + 16 + 104 + 16)
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: simpleRoot.page === "fly" ? SimpleTheme.px(24 + 120 + 16 + 104 + 16) : SimpleTheme.px(24)
         width: Math.min(restartToastText.implicitWidth + SimpleTheme.px(56), parent.width - SimpleTheme.px(80))
         height: SimpleTheme.px(72); radius: height / 2
         color: SimpleTheme.withAlpha(SimpleTheme.surfaceRaised, 0.97)
