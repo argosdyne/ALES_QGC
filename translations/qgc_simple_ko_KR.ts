@@ -1481,6 +1481,54 @@
         <source>Tether power</source>
         <translation>테더 전원</translation>
     </message>
+    <message>
+        <source>GPS has no good position yet. Wait in the open, away from buildings.</source>
+        <translation>GPS 위치가 아직 정확하지 않습니다. 건물에서 떨어진 트인 곳에서 기다리세요.</translation>
+    </message>
+    <message>
+        <source>GPS position is not accurate enough yet. Wait a little.</source>
+        <translation>GPS 위치 정확도가 아직 부족합니다. 잠시 기다리세요.</translation>
+    </message>
+    <message>
+        <source>The drone is still working out its position. Wait for GPS.</source>
+        <translation>드론이 아직 위치를 계산하고 있습니다. GPS를 기다리세요.</translation>
+    </message>
+    <message>
+        <source>The compass needs calibrating (Vehicle setup › Sensors).</source>
+        <translation>나침반 보정이 필요합니다(기체 설정 › 센서).</translation>
+    </message>
+    <message>
+        <source>The compass reading is off. Move away from metal or calibrate it.</source>
+        <translation>나침반 값이 맞지 않습니다. 금속에서 떨어지거나 보정하세요.</translation>
+    </message>
+    <message>
+        <source>The accelerometer needs calibrating (Vehicle setup › Sensors).</source>
+        <translation>가속도계 보정이 필요합니다(기체 설정 › 센서).</translation>
+    </message>
+    <message>
+        <source>Motion sensor (IMU) problem. Keep the drone still or restart it.</source>
+        <translation>자세 센서(IMU) 문제입니다. 드론을 움직이지 말거나 다시 켜세요.</translation>
+    </message>
+    <message>
+        <source>Barometer problem. Restart the drone.</source>
+        <translation>기압계 문제입니다. 드론을 다시 켜세요.</translation>
+    </message>
+    <message>
+        <source>The controller is not ready. Check the controller and its calibration.</source>
+        <translation>조종기가 준비되지 않았습니다. 조종기와 보정을 확인하세요.</translation>
+    </message>
+    <message>
+        <source>The drone&apos;s battery check failed.</source>
+        <translation>드론 배터리 점검에 실패했습니다.</translation>
+    </message>
+    <message>
+        <source>Geofence problem. Check Settings › Safety.</source>
+        <translation>지오펜스 문제입니다. 설정 › 안전을 확인하세요.</translation>
+    </message>
+    <message>
+        <source>Flight log problem (SD card in the drone).</source>
+        <translation>비행 로그 문제입니다(드론의 SD 카드).</translation>
+    </message>
 </context>
 <context>
     <name>SimpleSettings</name>

@@ -97,5 +97,7 @@ QtObject {
     // Situations that always bring the user back to the fly screen (layer rule 1, 02 Flows D).
     // Link lost counts only in flight (last known state armed or flying): on the ground the user may be
     // swapping the battery or restarting the radio, so Plan / Settings stay open (2026-11-15).
-    readonly property bool   critical:      (lost && (armed || flying)) || (returning && !isNaN(batteryPct) && batteryPct <= 20)
+    readonly property bool   lostInFlight:  lost && (armed || flying)
+    readonly property bool   lostOnGround:  lost && !lostInFlight
+    readonly property bool   critical:      lostInFlight || (returning && !isNaN(batteryPct) && batteryPct <= 20)
 }

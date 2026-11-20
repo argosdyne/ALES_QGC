@@ -16,14 +16,35 @@ SPanel {
     title: qsTr("Pre-flight check")
     titleIcon: "check"
 
+    // ST-07 (payload test 2026-11-20 #54): the FC PreArm text in plain words, under the item it is about (GPS texts under
+    // GPS, not under Sensors). Unknown texts are shown without the "PreArm: " prefix.
+    readonly property string _pa: vs.vehicle && vs.vehicle.prearmError ? String(vs.vehicle.prearmError).replace(/^PreArm:\s*/, "") : ""
+    readonly property bool   _paGps: /GPS|GNSS|HDOP|Need Position|position estimate|waiting for home|EKF.*(origin|position)/i.test(_pa)
+    function plainPrearm(t) {
+        if (/Bad fix|GPS.*(no fix|not fixed)|waiting for 3D fix/i.test(t)) return qsTr("GPS has no good position yet. Wait in the open, away from buildings.")
+        if (/HDOP|horiz.*(pos|accuracy)|GPS.*accuracy/i.test(t))           return qsTr("GPS position is not accurate enough yet. Wait a little.")
+        if (/Need Position|position estimate|waiting for home|EKF/i.test(t)) return qsTr("The drone is still working out its position. Wait for GPS.")
+        if (/Compass.*(calib|offsets)|mag.*calib/i.test(t))                 return qsTr("The compass needs calibrating (Vehicle setup › Sensors).")
+        if (/Compass|mag field|magnet/i.test(t))                            return qsTr("The compass reading is off. Move away from metal or calibrate it.")
+        if (/Accel.*calib|3D Accel/i.test(t))                               return qsTr("The accelerometer needs calibrating (Vehicle setup › Sensors).")
+        if (/Accel|Gyro|INS|IMU/i.test(t))                                  return qsTr("Motion sensor (IMU) problem. Keep the drone still or restart it.")
+        if (/Baro/i.test(t))                                                return qsTr("Barometer problem. Restart the drone.")
+        if (/RC |Radio|Throttle/i.test(t))                                  return qsTr("The controller is not ready. Check the controller and its calibration.")
+        if (/Batt/i.test(t))                                                return qsTr("The drone's battery check failed.")
+        if (/Fence/i.test(t))                                               return qsTr("Geofence problem. Check Settings › Safety.")
+        if (/Logging|SD card/i.test(t))                                 return qsTr("Flight log problem (SD card in the drone).")
+        return t
+    }
+
     readonly property var _items: [
         { ok: vs.connected, warn: false, title: qsTr("Drone connected"), detail: vs.connected ? qsTr("Radio link is working") : qsTr("Turn on the drone and the controller") },
-        { ok: vs.gpsLock >= 3, warn: vs.gpsLock >= 3 && vs.gpsQuality === qsTr("Weak"), title: qsTr("GPS"),
-          detail: vs.gpsLock >= 3 ? qsTr("%1 satellites · %2").arg(vs.gpsCount).arg(vs.gpsQuality) : qsTr("Waiting for GPS — move away from buildings and metal") },
+        { ok: vs.gpsLock >= 3 && !(_paGps && !vs.sensorsOk), warn: vs.gpsLock >= 3 && vs.gpsQuality === qsTr("Weak"), title: qsTr("GPS"),
+          detail: _paGps && !vs.sensorsOk ? plainPrearm(_pa)
+                : vs.gpsLock >= 3 ? qsTr("%1 satellites · %2").arg(vs.gpsCount).arg(vs.gpsQuality) : qsTr("Waiting for GPS — move away from buildings and metal") },
         { ok: isNaN(vs.batteryPct) || vs.batteryPct > 30, warn: !isNaN(vs.batteryPct) && vs.batteryPct <= 50 && vs.batteryPct > 30, title: qsTr("Battery"),
           detail: isNaN(vs.batteryPct) ? qsTr("Battery level not reported") : qsTr("%1 % — at least 30 % needed to take off").arg(Math.round(vs.batteryPct)) },
-        { ok: vs.sensorsOk, warn: false, title: qsTr("Sensors (compass, IMU)"),
-          detail: vs.sensorsOk ? qsTr("All sensors healthy") : (vs.vehicle && vs.vehicle.prearmError !== "" ? vs.vehicle.prearmError : qsTr("A sensor needs attention")) , fix: !vs.sensorsOk },
+        { ok: vs.sensorsOk || _paGps, warn: false, title: qsTr("Sensors (compass, IMU)"),
+          detail: vs.sensorsOk || _paGps ? qsTr("All sensors healthy") : (_pa !== "" ? plainPrearm(_pa) : qsTr("A sensor needs attention")), fix: !vs.sensorsOk && !_paGps },
         { ok: vs.homeSet, warn: false, title: qsTr("Home point"), detail: vs.homeSet ? qsTr("Set at the take-off position") : qsTr("Set automatically once GPS is good") },
         { ok: !vs.ridAvailable || vs.ridGood, warn: !vs.ridAvailable, title: qsTr("Remote ID"),
           detail: !vs.ridAvailable ? qsTr("Not enabled on this tablet") : vs.ridGood ? qsTr("Broadcasting")

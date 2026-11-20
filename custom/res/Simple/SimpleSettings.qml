@@ -306,9 +306,13 @@ Rectangle {
             SSettingRow {
                 title: qsTr("Maximum altitude"); sub: qsTr("Above take-off point · EU and most countries: 120 m")
                 locked: !safety._canEdit; lockReason: safety._lockMsg
+                // the drone's FENCE_ALT_MAX when it is connected (ST-11: shown value = FC parameter; payload test 2026-11-20
+                // #64 showed the app's 120 m while the drone had 100 m), the app setting otherwise
                 SStepper {
-                    unit: "m"; step: 5; from: 10; to: 120
-                    value: Number(page._flyView.guidedMaximumAltitude.rawValue)
+                    readonly property real _shown: safety._fenceAlt ? Math.round(Number(safety._fenceAlt.rawValue))
+                                                                    : Number(page._flyView.guidedMaximumAltitude.rawValue)
+                    unit: "m"; step: 5; from: 10; to: Math.max(120, _shown)
+                    value: _shown
                     onEdited: {
                         page._flyView.guidedMaximumAltitude.rawValue = value
                         if (safety._fenceAlt) safety._fenceAlt.rawValue = value

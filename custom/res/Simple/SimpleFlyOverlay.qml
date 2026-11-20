@@ -88,6 +88,10 @@ Item {
                                          || fly.sheet === "gohere" || fly.sheet === "sethome" || fly.sheet === "altitude")) fly.closeSheet()
         // Go here / change altitude only while flying (not returning, landing or on the ground)
         if (vs.state !== "flying" && (fly.sheet === "gohere" || fly.sheet === "altitude")) fly.closeSheet()
+        // Return home / Land only while up; Take off / Start mission only on the ground (a sheet left open across
+        // landing still sent RTL to the landed drone: payload test 2026-11-20 #58)
+        if (vs.state === "ground" && (fly.sheet === "rtl" || fly.sheet === "land")) fly.closeSheet()
+        if (vs.state !== "ground" && (fly.sheet === "takeoff" || fly.sheet === "mission")) fly.closeSheet()
     }
     Connections {
         target: vs
@@ -118,17 +122,25 @@ Item {
         id: actions
         x: SimpleTheme.px(SimpleTheme.actionX)
         y: SimpleTheme.px(SimpleTheme.actionY0)
-        spacing: SimpleTheme.px(SimpleTheme.actionStep - 148)
+        // Figma step (200) while it fits; with four buttons (Advanced mode "More") the step shrinks so the last button
+        // stays above the telemetry bar (1920 x 1080: "More" was half under it, payload test 2026-11-20 #28)
+        readonly property real _kidsHeight: { var h = 0; for (var i = 0; i < visibleChildren.length; i++) h += visibleChildren[i].height; return h }
+        spacing: {
+            var d = SimpleTheme.px(SimpleTheme.actionStep - 148), n = visibleChildren.length
+            if (n < 2) return d
+            var room = telemetryBar.y - SimpleTheme.px(16) - y - _kidsHeight
+            return Math.max(SimpleTheme.px(4), Math.min(d, room / (n - 1)))
+        }
         visible: vs.present
 
         SActionButton {
-            visible: vs.state === "ground"
+            visible: (vs.state === "ground" || vs.lostOnGround)
             text: qsTr("Take off"); icon: "takeoff"
             fill: vs.readyToTakeOff ? SimpleTheme.brandGreen : SimpleTheme.withAlpha(SimpleTheme.surfaceGlass, 0.92)
             onClicked: fly.openSheet(vs.readyToTakeOff ? "takeoff" : "preflight")
         }
         SActionButton {
-            visible: vs.state === "ground" && vs.hasMission
+            visible: (vs.state === "ground" || vs.lostOnGround) && vs.hasMission
             text: qsTr("Start mission"); icon: "play"
             fill: vs.readyToTakeOff ? SimpleTheme.brandGreen : SimpleTheme.withAlpha(SimpleTheme.surfaceGlass, 0.92)
             onClicked: fly.openSheet(vs.readyToTakeOff ? "mission" : "preflight")
@@ -140,20 +152,20 @@ Item {
             onClicked: fly._act(fly._guided.actionContinueMission)
         }
         SActionButton {
-            visible: (vs.state === "flying" && !vs.tethered) || vs.state === "lost"
-            enabled_: vs.state !== "lost"
+            visible: (vs.state === "flying" && !vs.tethered) || vs.lostInFlight
+            enabled_: !vs.lost
             text: qsTr("Return home"); icon: "home"
             onClicked: fly.openSheet("rtl")
         }
         SActionButton {
-            visible: vs.state === "flying" || vs.state === "returning" || vs.state === "lost"
-            enabled_: vs.state !== "lost" && !vs.landing
+            visible: vs.state === "flying" || vs.state === "returning" || vs.lostInFlight
+            enabled_: !vs.lost && !vs.landing
             text: qsTr("Land"); icon: "land"
             onClicked: fly.openSheet("land")
         }
         SActionButton {
-            visible: (vs.state === "flying" && !vs.paused && !vs.tethered) || vs.state === "returning" || vs.state === "lost"
-            enabled_: vs.state !== "lost" && _veh && _veh.pauseVehicleSupported && vs.gpsLock >= 3   // QA F6
+            visible: (vs.state === "flying" && !vs.paused && !vs.tethered) || vs.state === "returning" || vs.lostInFlight
+            enabled_: !vs.lost && _veh && _veh.pauseVehicleSupported && vs.gpsLock >= 3   // QA F6
             text: qsTr("Pause"); icon: "pause"
             onClicked: fly._act(fly._guided.actionPause)
         }
@@ -283,6 +295,7 @@ Item {
 
     //------------------------------------------------------------------ Telemetry bar (x = 24, bottom 24)
     STelemetryBar {
+        id: telemetryBar
         x: SimpleTheme.px(SimpleTheme.telemetryX)
         anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(24)
         vehicle: fly._veh
@@ -530,7 +543,8 @@ Item {
         // S91 / S92 mission result after landing (replaces the classic "Flight Plan complete" popup)
         SimpleMissionResult { id: missionResult; vs: fly.vs; onToast: fly.toast(text) }
         SBanner {
-            visible: vs.state === "lost"
+            // in flight only (02 Flows D): on the ground the red status chip is enough and nothing is flying a failsafe
+            visible: vs.lostInFlight
             level: "danger"; icon: "signal"
             title: qsTr("Radio signal lost — the drone follows its failsafe (usually Return home)")
             detail: qsTr("Move closer or raise the controller antenna. Controls return when the signal is back.")
@@ -542,7 +556,8 @@ Item {
             readonly property bool _ask: fly._st && fly._st.noPowerPrompt && !fly._st.noPowerVehicleNeedsConfirmation
             readonly property bool _confirm: !!fly._st && fly._st.noPowerPrompt && fly._st.noPowerVehicleNeedsConfirmation
                                              && !!fly._veh && !fly._veh.vehicleLinkManager.communicationLost
-            visible: !!fly._st && fly._st.noPower
+            // only while the drone is up (armed or flying): on the ground S02 / the tether chip already block take-off
+            visible: !!fly._st && fly._st.noPower && (vs.armed || vs.flying)
             level: "danger"; icon: "tether"
             title: qsTr("Tether power lost — the drone is on its onboard battery")
             detail: !fly._st ? "" : fly._st.noPowerVehicleNeedsConfirmation
@@ -663,7 +678,8 @@ Item {
         // Battery warning (decision 2026-11-15): flying at 30 % or less shows a banner, not only the orange chip.
         // At 20 % or less while the drone is not yet returning, it turns red. Returning has its own banner below.
         SBanner {
-            visible: vs.state === "flying" && !vs.paused && !isNaN(vs.batteryPct) && vs.batteryPct <= 30
+            // paused included: a hovering drone still drains the battery (payload test 2026-11-20 #57)
+            visible: vs.state === "flying" && !isNaN(vs.batteryPct) && vs.batteryPct <= 30
             readonly property real _red: vs.tethered ? 15 : 20
             level: vs.batteryPct <= _red ? "danger" : "warn"; icon: "battery"
             title: vs.tethered ? (vs.batteryPct <= _red ? qsTr("Backup battery very low (%1 %) — land now").arg(Math.round(vs.batteryPct))
@@ -870,10 +886,11 @@ Item {
         visible: false
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(24 + 120 + 16 + 104 + 16)
-        width: toastText.implicitWidth + SimpleTheme.px(56); height: SimpleTheme.px(72); radius: height / 2
+        width: Math.min(toastText.implicitWidth + SimpleTheme.px(56), parent.width - SimpleTheme.px(160)); height: SimpleTheme.px(72); radius: height / 2
         color: level === "danger" ? SimpleTheme.danger : level === "ok" ? SimpleTheme.brandGreen : SimpleTheme.withAlpha(SimpleTheme.surfaceRaised, 0.97)
         border.width: level === "info" ? SimpleTheme.px(1) : 0; border.color: SimpleTheme.line
-        SText { id: toastText; anchors.centerIn: parent; text: toastBox.text; size: 26; medium: true }
+        SText { id: toastText; anchors.centerIn: parent; width: Math.min(implicitWidth, toastBox.width - SimpleTheme.px(56)); elide: Text.ElideRight
+                text: toastBox.text; size: 26; medium: true }
         Timer { id: toastTimer; interval: 4000; onTriggered: toastBox.visible = false }
         MouseArea { anchors.fill: parent; onClicked: toastBox.visible = false }
     }

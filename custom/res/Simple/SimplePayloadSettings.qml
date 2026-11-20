@@ -69,7 +69,11 @@ Column {
         if (!_veh || !vs.paramsReady) return { t: qsTr("Drone not connected"), l: "off" }
         return _veh.hasGripper ? { t: qsTr("Fitted"), l: "ok" } : { t: qsTr("Not fitted"), l: "off" }
     }
+    // MAVLink camera on the drone (e.g. R3: the camera rail uses it); the IP payload controller below is only Gremsy / NextVision
+    readonly property var _mavCamMgr: _veh ? _veh.cameraManager : null
+    readonly property var _mavCam: _mavCamMgr && _mavCamMgr.cameras.count > 0 ? _mavCamMgr.cameras.get(_mavCamMgr.currentCamera) : null
     function cameraStatus() {
+        if (_mavCam && !(_cam && _cam.connected)) return { t: qsTr("Connected"), l: "ok" }
         if (!_cam) return { t: qsTr("Not available"), l: "off" }
         if (_cam.connected) return { t: qsTr("Connected"), l: "ok" }
         if (_cam.connecting) return { t: qsTr("Connecting…"), l: "info" }
@@ -142,7 +146,8 @@ Column {
                     { key: "lidar",  icon: "lidar",  title: qsTr("YellowScan LiDAR"),
                       sub: pl._custom.ysModel.enumStringValue + " · " + pl._custom.ysCamera.enumStringValue },
                     { key: "camera", icon: "camera", title: qsTr("Camera & gimbal"),
-                      sub: pl._cam ? (pl._cam.displayName + (pl._cam.ip !== "" ? " · " + pl._cam.ip : "")) : "" },
+                      sub: pl._mavCam && !(pl._cam && pl._cam.connected) ? pl._mavCam.modelName
+                         : pl._cam ? (pl._cam.displayName + (pl._cam.ip !== "" ? " · " + pl._cam.ip : "")) : "" },
                     { key: "tether", icon: "power",  title: qsTr("Tether station (SAFE-T)"),
                       sub: pl._st ? pl._st.stationAddress : "" },
                     { key: "visionlidar", icon: "locate",  title: qsTr("Vision LiDAR"),    sub: qsTr("BirdCom obstacle detection") },
