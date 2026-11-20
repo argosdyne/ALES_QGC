@@ -416,12 +416,17 @@ Item {
         }
     }
 
+    // AQGC Simple UI: the map PiP sits bottom-right of the video (400 x 226 at 24 px, Figma 1920 x 1080) and the camera
+    // rail / Payloads button on the right, so the IR tools go above the PiP, left of the rail (Tuleap bug #27474: they
+    // were hidden behind the PiP).
+    readonly property bool _simpleLayout: typeof mainWindow !== "undefined" && !!mainWindow.simpleUI
+    readonly property real _designScale: Math.min(width / 1920, height / 1080)
     RowLayout {
         id: irToolsPanel
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: ScreenTools.defaultFontPixelWidth * 1.5
+        anchors.bottomMargin: _simpleLayout ? _designScale * (24 + 226 + 24) : ScreenTools.defaultFontPixelWidth * 1.5
         anchors.right: parent.right
-        anchors.rightMargin: ScreenTools.defaultFontPixelWidth
+        anchors.rightMargin: _simpleLayout ? _designScale * (24 + 128 + 24) : ScreenTools.defaultFontPixelWidth
         visible: _factoryCali ? !_factoryCali.value : true
 
         PseudocolorBar {
