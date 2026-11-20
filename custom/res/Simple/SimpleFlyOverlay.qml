@@ -233,7 +233,7 @@ Item {
     SimplePayloadPanel {
         id: payloadPanel
         visible: fly.payloadsOpen && vs.present
-        anchors.right: rail.left; anchors.rightMargin: SimpleTheme.px(16)
+        anchors.right: rail.left; anchors.rightMargin: SimpleTheme.px(16) + fly.sideToolsWidth
         y: topBar.height + SimpleTheme.px(16)
         maxHeight: SimpleTheme.px(810) - y          // above the video PiP (top at 830)
         vs: fly.vs
@@ -242,7 +242,7 @@ Item {
     }
     SimpleCameraSheet {
         visible: fly.cameraOpen && vs.present
-        anchors.right: rail.left; anchors.rightMargin: SimpleTheme.px(16)
+        anchors.right: rail.left; anchors.rightMargin: SimpleTheme.px(16) + fly.sideToolsWidth
         y: topBar.height + SimpleTheme.px(16)
         maxHeight: SimpleTheme.px(810) - y
         vehicle: fly._veh
@@ -296,6 +296,10 @@ Item {
 
     //------------------------------------------------------------------ Video main (S18) and waiting for video (S49)
     // Video is the main view after a tap on the PiP (FlyView). Map overlays are hidden then; camera info is shown.
+    // video main: zoom column and gimbal angles sit left of the rail; panels opened from the rail go left of them
+    // (the S43 camera sheet covered the zoom buttons, Tuleap bug #27681)
+    readonly property real sideToolsWidth: zoomBox.visible || gimbalAngles.visible
+        ? Math.max(zoomBox.visible ? zoomBox.width : 0, gimbalAngles.visible ? gimbalAngles.width : 0) + SimpleTheme.px(16) : 0
     readonly property bool videoMain:   typeof flightView !== "undefined" && !flightView._mainWindowIsMap
     readonly property var  _camMgr:     _veh ? _veh.cameraManager : null
     readonly property var  _cam:        _camMgr && _camMgr.cameras.count > 0 ? _camMgr.cameras.get(_camMgr.currentCamera) : null
@@ -356,6 +360,7 @@ Item {
 
     // Gimbal angles under the camera rail
     Rectangle {
+        id: gimbalAngles
         visible: fly.videoMain && !!fly._veh && fly._veh.gimbalData
         anchors.right: rail.left; anchors.rightMargin: SimpleTheme.px(16)
         y: rail.y + rail.height - height

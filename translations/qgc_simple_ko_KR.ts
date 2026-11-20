@@ -2522,6 +2522,10 @@
         <source>Advanced</source>
         <translation>고급</translation>
     </message>
+    <message>
+        <source>%1 items to fix</source>
+        <translation>해결할 항목 %1개</translation>
+    </message>
 </context>
 <context>
     <name>SimpleVehicleState</name>
@@ -4339,6 +4343,10 @@
     <message>
         <source>SD card full</source>
         <translation>SD 카드 가득 참</translation>
+    </message>
+    <message>
+        <source>Align</source>
+        <translation>정렬</translation>
     </message>
 </context>
 <context>

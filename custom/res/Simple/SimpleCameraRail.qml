@@ -27,6 +27,21 @@ Rectangle {
         return ""
     }
     readonly property bool _canShoot: _sdProblem === ""
+    // Photo feedback (Tuleap bug #27537): the shutter shows a red square while the camera reports a capture
+    // (single or interval). Cameras that do not report it still flash for a moment after the tap.
+    readonly property bool _capturing: !!_cam && !_video && (_cam.photoStatus === QGCCameraControl.PHOTO_CAPTURE_IN_PROGRESS
+                                                            || _cam.photoStatus === QGCCameraControl.PHOTO_CAPTURE_INTERVAL_IN_PROGRESS)
+    readonly property bool _interval: !!_cam && !_video && (_cam.photoStatus === QGCCameraControl.PHOTO_CAPTURE_INTERVAL_IDLE
+                                                            || _cam.photoStatus === QGCCameraControl.PHOTO_CAPTURE_INTERVAL_IN_PROGRESS)
+    property bool _flash: false
+    Timer { id: flashTimer; interval: 400; onTriggered: rail._flash = false }
+    // Gimbal align (Tuleap bug #27594): same order as the classic refresh icon (#315): R3 also resets the zoom
+    function alignGimbal() {
+        if (_cam && typeof _cam.resetGimbalAndZoom === "function") { _cam.resetGimbalAndZoom(); _cam.centerGimbal() }
+        else if (_cam && typeof _cam.centerGimbal === "function") _cam.centerGimbal()
+        else if (vehicle && vehicle.gimbalController) vehicle.gimbalController.centerGimbal()
+        alignAnim.restart()
+    }
 
     width:  SimpleTheme.px(128)
     height: settingsBtn.y + settingsBtn.height + SimpleTheme.px(20)
@@ -72,19 +87,22 @@ Rectangle {
             border.width: SimpleTheme.px(5); border.color: SimpleTheme.textPrimary
             opacity: rail._canShoot || rail._rec ? 1 : 0.4      // stopping a recording is always allowed
             Rectangle {
+                readonly property bool _busy: rail._rec || rail._capturing || rail._interval || rail._flash
                 anchors.centerIn: parent
-                width: rail._rec ? SimpleTheme.px(40) : SimpleTheme.px(80)
+                width: _busy ? SimpleTheme.px(40) : SimpleTheme.px(80)
                 height: width
-                radius: rail._rec ? SimpleTheme.px(8) : width / 2
-                color: rail._video ? SimpleTheme.danger : SimpleTheme.textPrimary
+                radius: _busy ? SimpleTheme.px(8) : width / 2
+                color: rail._video || _busy ? SimpleTheme.danger : SimpleTheme.textPrimary
+                Behavior on width { NumberAnimation { duration: 120 } }
             }
             MouseArea {
                 anchors.fill: parent
                 enabled: !!rail._cam && !rail.blocked
                 onClicked: {
                     if (rail._rec) { rail._cam.stopVideo(); return }
+                    if (rail._interval) { rail._cam.stopTakePhoto(); return }     // auto photos (S43): tap stops them
                     if (!rail._canShoot) { sdBlink.restart(); return }
-                    if (!rail._video) rail._cam.takePhoto()
+                    if (!rail._video) { rail._cam.takePhoto(); rail._flash = true; flashTimer.restart() }
                     else rail._cam.startVideo()
                 }
             }
@@ -105,15 +123,24 @@ Rectangle {
                 NumberAnimation { target: sdLabel; property: "opacity"; to: 1;   duration: 150 }
             }
         }
-        // Gimbal pitch readout
-        Column {
+        // Gimbal: tap = align (pitch 0, yaw ahead; R3 also zoom 1×). Pitch and yaw are shown (pitch · yaw)
+        Item {
             anchors.horizontalCenter: parent.horizontalCenter
-            SIcon { anchors.horizontalCenter: parent.horizontalCenter; name: "gimbal"; size: 40 }
-            SText {
+            width: SimpleTheme.px(112); height: gimbalCol.height
+            Column {
+                id: gimbalCol
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: rail.vehicle && rail.vehicle.gimbalData ? Math.round(rail.vehicle.gimbalPitch) + "°" : "—"
-                size: 22; color: SimpleTheme.textSecondary
+                SIcon { id: gimbalIcon; anchors.horizontalCenter: parent.horizontalCenter; name: "gimbal"; size: 40
+                        RotationAnimation on rotation { id: alignAnim; running: false; from: 0; to: 360; duration: 500 } }
+                SText {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: rail.vehicle && rail.vehicle.gimbalData
+                          ? Math.round(rail.vehicle.gimbalPitch) + "° · " + Math.round(rail.vehicle.gimbalYaw) + "°" : "—"
+                    size: 20; color: SimpleTheme.textSecondary
+                }
+                SText { anchors.horizontalCenter: parent.horizontalCenter; text: qsTr("Align"); size: 18; color: SimpleTheme.textSecondary }
             }
+            MouseArea { anchors.fill: parent; anchors.margins: -SimpleTheme.px(8); enabled: !!rail._cam || !!(rail.vehicle && rail.vehicle.gimbalData); onClicked: rail.alignGimbal() }
         }
     }
     // S43: camera settings (works without a MAVLink camera too: the sheet then says what is available)
