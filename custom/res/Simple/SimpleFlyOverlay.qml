@@ -549,6 +549,24 @@ Item {
             title: qsTr("Radio signal lost — the drone follows its failsafe (usually Return home)")
             detail: qsTr("Move closer or raise the controller antenna. Controls return when the signal is back.")
         }
+        // Drone restarted / mission kept or cleared on reboot (ArduPilot MIS_OPTIONS, APMMissionResetMonitor #294).
+        // Replaces the classic MissionResetBanner dialog in the Simple UI (Tuleap bug #28564).
+        SBanner {
+            readonly property var  _m: fly._veh && fly._veh.missionResetMonitor ? fly._veh.missionResetMonitor : null
+            readonly property bool _reboot: !!_m && _m.rebootBannerVisible
+            visible: !!_m && (_m.rebootBannerVisible || _m.bannerVisible)
+            level: _reboot || (!!_m && _m.bannerIsWarning) ? "warn" : "info"; icon: "warn"
+            title: _reboot ? qsTr("The drone restarted — check the mission") : qsTr("Mission on the drone")
+            detail: !_m ? "" : [_reboot ? _m.rebootBannerText : "", _m.bannerVisible ? _m.bannerText : ""]
+                                .filter(function(t) { return t !== "" }).join(" ")
+            readonly property bool _settings: !!_m && _m.showMissionActions
+            actions: _settings ? [qsTr("Mission settings"), qsTr("OK")] : [qsTr("OK")]
+            onActionAt: {
+                if (_settings && index === 0) simpleRoot.showVehicleSetup("mission")
+                _m.dismissBanner()
+                _m.dismissRebootBanner()
+            }
+        }
         // S50 tether power lost (classic SAFE-T no-power rules: failsafe 0 recommend land, 1 warn only, 2 auto land)
         // The active drone changed (or was not known) since the incident: the pilot first confirms that the drone on
         // screen is the one on the tether (classic ElistairStationPanel "Confirm tethered vehicle"; sends nothing).

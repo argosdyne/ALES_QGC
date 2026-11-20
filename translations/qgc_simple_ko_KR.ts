@@ -671,6 +671,18 @@
         <source>LiDAR warning</source>
         <translation>LiDAR 주의</translation>
     </message>
+    <message>
+        <source>The drone restarted — check the mission</source>
+        <translation>드론이 다시 시작됨 — 임무를 확인하세요</translation>
+    </message>
+    <message>
+        <source>Mission on the drone</source>
+        <translation>드론의 임무</translation>
+    </message>
+    <message>
+        <source>Mission settings</source>
+        <translation>임무 설정</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
