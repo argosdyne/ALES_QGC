@@ -2711,10 +2711,6 @@
         <translation>드론 네트워크에서 카메라의 IP 주소</translation>
     </message>
     <message>
-        <source>The tablet must be on the station's network (e.g. 192.168.0.10)</source>
-        <translation>태블릿이 스테이션 네트워크에 있어야 합니다(예: 192.168.0.10)</translation>
-    </message>
-    <message>
         <source>%1 flights in total</source>
         <translation>총 %1회 비행</translation>
     </message>
@@ -2969,14 +2965,6 @@
     <message>
         <source>Not used</source>
         <translation>사용 안 함</translation>
-    </message>
-    <message>
-        <source>OK · S/N %1</source>
-        <translation>정상 · S/N %1</translation>
-    </message>
-    <message>
-        <source>OK · connected</source>
-        <translation>정상 · 연결됨</translation>
     </message>
     <message>
         <source>OK</source>
@@ -3383,10 +3371,6 @@
         <translation>이 설정은 스테이션 프레임 버전 Extended V1에서만 바꿀 수 있습니다</translation>
     </message>
     <message>
-        <source>Set on the station by an administrator</source>
-        <translation>관리자가 스테이션에서 설정합니다</translation>
-    </message>
-    <message>
         <source>Gimbal type, servo outputs and angle ranges: Vehicle setup › Gimbal ›</source>
         <translation>짐벌 종류, 서보 출력, 각도 범위: 기체 설정 › 짐벌 ›</translation>
     </message>
@@ -3401,6 +3385,90 @@
     <message>
         <source>Auto</source>
         <translation>자동</translation>
+    </message>
+    <message>
+        <source>Connection type</source>
+        <translation>연결 방식</translation>
+    </message>
+    <message>
+        <source>Station Wi-Fi uses TCP</source>
+        <translation>스테이션 Wi-Fi는 TCP</translation>
+    </message>
+    <message>
+        <source>Wi-Fi 192.168.4.1 · Ethernet 192.168.1.120</source>
+        <translation>Wi-Fi 192.168.4.1 · 이더넷 192.168.1.120</translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation>포트</translation>
+    </message>
+    <message>
+        <source>Usually 23232 (some stations 7158)</source>
+        <translation>보통 23232 (일부 스테이션 7158)</translation>
+    </message>
+    <message>
+        <source>Connect when the app starts</source>
+        <translation>앱 시작 시 연결</translation>
+    </message>
+    <message>
+        <source>Off: tap Test to connect</source>
+        <translation>끄면 시험을 눌러 연결</translation>
+    </message>
+    <message>
+        <source>Frame version</source>
+        <translation>프레임 버전</translation>
+    </message>
+    <message>
+        <source>Advanced mode only · Auto finds it</source>
+        <translation>고급 모드 전용 · 자동이면 앱이 찾음</translation>
+    </message>
+    <message>
+        <source>Extended V1</source>
+        <translation>Extended V1</translation>
+    </message>
+    <message>
+        <source>Extended V0</source>
+        <translation>Extended V0</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>Standard</translation>
+    </message>
+    <message>
+        <source>Changed in Advanced mode</source>
+        <translation>고급 모드에서 변경</translation>
+    </message>
+    <message>
+        <source>What the app does when the station loses ground power</source>
+        <translation>스테이션 지상 전원이 끊겼을 때 앱의 동작</translation>
+    </message>
+    <message>
+        <source>Auto land sends Land without asking when the cable has no power. Use it only for the drone tethered to this station.</source>
+        <translation>자동 착륙은 케이블 전원이 없으면 묻지 않고 착륙 명령을 보냅니다. 이 스테이션에 묶인 드론에만 쓰세요.</translation>
+    </message>
+    <message>
+        <source>Use auto land</source>
+        <translation>자동 착륙 사용</translation>
+    </message>
+    <message>
+        <source>S/N %1</source>
+        <translation>S/N %1</translation>
+    </message>
+    <message>
+        <source>Turn on the tether station first</source>
+        <translation>먼저 테더 스테이션을 켜세요</translation>
+    </message>
+    <message>
+        <source>No reply · trying again (%1)</source>
+        <translation>응답 없음 · 다시 시도 중 (%1)</translation>
+    </message>
+    <message>
+        <source>No reply from the station</source>
+        <translation>스테이션 응답 없음</translation>
+    </message>
+    <message>
+        <source>The tablet must be on the station's network</source>
+        <translation>태블릿이 스테이션 네트워크에 연결되어 있어야 합니다</translation>
     </message>
 </context>
 <context>

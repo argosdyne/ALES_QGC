@@ -303,6 +303,22 @@ Column {
                 draft.powerAlert = Number(dPower); draft.lengthAlarm = Number(dLength); draft.antiEntrapment = dEntrap
                 pl._st.writeSettings(draft)
             }
+            readonly property bool connLocked: vs.armed
+            readonly property bool adv: QGroundControl.corePlugin.advancedMode
+            readonly property var  frameNames: ["Auto", "Extended V1", "Extended V0", "Standard"]   // manager values (not translated)
+            readonly property var  failsafeNames: [qsTr("Recommend landing"), qsTr("Warn only"), qsTr("Auto land")]
+            property bool confirmAutoLand: false
+            readonly property string connText: {
+                if (!pl._st) return ""
+                if (pl._st.connected && pl._st.hasMonitoring)
+                    return [qsTr("OK"), pl._st.transport, pl._st.activeFrameVersion].concat(_set.serialNumber !== undefined ? [qsTr("S/N %1").arg(_set.serialNumber)] : []).join(" · ")
+                if (pl._st.lastError !== "") return pl._st.lastError
+                if (!pl._st.enabled) return qsTr("Turn on the tether station first")
+                if (pl._st.linkLost || pl._st.reconnectAttempt > 0) return qsTr("No reply · trying again (%1)").arg(pl._st.reconnectAttempt)
+                if (pl._st.noReply) return qsTr("No reply from the station")
+                return qsTr("The tablet must be on the station's network")
+            }
+            function validPort(v) { return /^\d{1,5}$/.test(String(v).trim()) && Number(v) >= 1 && Number(v) <= 65535 }
             function validIp(v) { var p = v.trim().split("."); if (p.length !== 4) return false
                                   for (var i = 0; i < 4; i++) { if (!/^\d{1,3}$/.test(p[i]) || Number(p[i]) > 255) return false } return true }
             Connections { target: pl._st; ignoreUnknownSignals: true; function onStationSettingsChanged() { if (!tt.dirty) tt.load() } }
@@ -321,34 +337,109 @@ Column {
                 CardRow {
                     title: qsTr("Use tether station"); sub: qsTr("For tethered flights")
                     SToggle { id: stToggle; checked: !!pl._st && pl._st.enabled
+                              enabled: !tt.connLocked; opacity: enabled ? 1 : 0.4
                               onToggled: { if (pl._st) pl._st.enabled = stToggle.checked; stToggle.checked = Qt.binding(function() { return !!pl._st && pl._st.enabled }) } }
                 }
-                Item {
-                    width: parent.width; height: ipField.height
-                    STextField {
-                        id: ipField; designWidth: 360; label: qsTr("Station IP"); text: tt.ipText; maximumLength: 15
-                        error: !tt.validIp(currentText)
-                        onEdited: if (tt.validIp(text) && pl._st) pl._st.stationAddress = text.trim()
-                    }
-                    Column {
-                        anchors.left: ipField.right; anchors.leftMargin: SimpleTheme.px(24); anchors.right: testBtn.left; anchors.rightMargin: SimpleTheme.px(16)
-                        anchors.bottom: parent.bottom
-                        SText { width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textSecondary
-                                text: pl._st && pl._st.connected && pl._st.hasMonitoring
-                                      ? (tt._set.serialNumber !== undefined ? qsTr("OK · S/N %1").arg(tt._set.serialNumber) : qsTr("OK · connected"))
-                                      : pl._st && pl._st.lastError !== "" ? pl._st.lastError : qsTr("The tablet must be on the station's network (e.g. 192.168.0.10)") }
-                    }
-                    SButton {
-                        id: testBtn; anchors.right: parent.right; anchors.bottom: parent.bottom
-                        designHeight: 72; textSize: 26; text: qsTr("Test")
-                        enabled_: !!pl._st && pl._st.enabled && tt.validIp(ipField.currentText)
-                        onClicked: if (enabled_) { pl._st.stationAddress = ipField.currentText.trim(); if (!pl._st.connected && !pl._st.hasMonitoring) pl._st.connectStation() }
+                // Connection (#317: SAFE-T over TCP or UDP). Every change is saved at once and restarts a running
+                // connection (ElistairStationManager), so the rows are locked while the motors are on.
+                CardRow {
+                    title: qsTr("Connection type"); sub: qsTr("Station Wi-Fi uses TCP")
+                    SSegmented {
+                        id: trSeg; designWidth: 240
+                        enabled: !tt.connLocked && !!pl._st; opacity: enabled ? 1 : 0.4
+                        model: ["TCP", "UDP"]
+                        currentIndex: pl._st && pl._st.transport === "UDP" ? 1 : 0
+                        onActivated: { if (pl._st) pl._st.transport = ["TCP", "UDP"][index]
+                                       trSeg.currentIndex = Qt.binding(function() { return pl._st && pl._st.transport === "UDP" ? 1 : 0 }) }
                     }
                 }
                 CardRow {
+                    title: qsTr("Station IP"); sub: qsTr("Wi-Fi 192.168.4.1 · Ethernet 192.168.1.120")
+                    STextField {
+                        id: ipField; designWidth: 300; text: tt.ipText; maximumLength: 15
+                        enabled_: !tt.connLocked
+                        error: !tt.validIp(currentText)
+                        onEdited: if (tt.validIp(text) && pl._st) pl._st.stationAddress = text.trim()
+                    }
+                }
+                CardRow {
+                    title: qsTr("Port"); sub: qsTr("Usually 23232 (some stations 7158)")
+                    STextField {
+                        id: portField; designWidth: 180; numeric: true; text: pl._st ? String(pl._st.stationPort) : ""
+                        enabled_: !tt.connLocked
+                        error: !tt.validPort(currentText)
+                        onEdited: if (tt.validPort(text) && pl._st) pl._st.stationPort = Number(text)
+                    }
+                }
+                CardRow {
+                    title: qsTr("Connect when the app starts"); sub: qsTr("Off: tap Test to connect")
+                    SToggle { id: acToggle; checked: !!pl._st && pl._st.autoConnect
+                              enabled: !!pl._st && pl._st.enabled; opacity: enabled ? 1 : 0.4
+                              onToggled: { if (pl._st) pl._st.autoConnect = acToggle.checked; acToggle.checked = Qt.binding(function() { return !!pl._st && pl._st.autoConnect }) } }
+                }
+                CardRow {
+                    title: qsTr("Test connection"); sub: tt.connText
+                    SButton {
+                        designHeight: 72; textSize: 26; icon: "play"; text: qsTr("Test")
+                        enabled_: !!pl._st && pl._st.enabled && !tt.connLocked && tt.validIp(ipField.currentText) && tt.validPort(portField.currentText)
+                        onClicked: if (enabled_) {
+                            pl._st.stationAddress = ipField.currentText.trim()
+                            pl._st.stationPort = Number(portField.currentText)
+                            if (!pl._st.connected && !pl._st.hasMonitoring) pl._st.connectStation()
+                        }
+                    }
+                }
+                // Advanced mode only: the frame version (Auto probes Extended V1 → V0 → Standard)
+                CardRow {
+                    visible: tt.adv
+                    title: qsTr("Frame version"); sub: qsTr("Advanced mode only · Auto finds it")
+                    SComboBox {
+                        designWidth: 300
+                        enabled: !tt.connLocked && !!pl._st; opacity: enabled ? 1 : 0.4
+                        model: [qsTr("Auto"), qsTr("Extended V1"), qsTr("Extended V0"), qsTr("Standard")]
+                        currentIndex: pl._st ? Math.max(0, tt.frameNames.indexOf(pl._st.frameVersion)) : 0
+                        onActivated: if (pl._st) pl._st.frameVersion = tt.frameNames[index]
+                    }
+                }
+                CardRow {
+                    visible: !tt.adv
                     title: qsTr("If ground power is lost")
-                    sub: qsTr("Set on the station by an administrator")
-                    SText { text: !pl._st ? "—" : [qsTr("Recommend landing"), qsTr("Warn only"), qsTr("Auto land")][pl._st.noPowerFailsafe] || "—"; size: 26; bold: true }
+                    sub: qsTr("Changed in Advanced mode")
+                    SText { text: tt.failsafeNames[pl._st ? pl._st.noPowerFailsafe : -1] || "—"; size: 26; bold: true }
+                }
+                // Advanced mode: 0 = recommend landing, 1 = warn only, 2 = auto land (sends Land without a
+                // confirmation when the station reports cable integrity 2, so it asks first)
+                CardRow {
+                    visible: tt.adv
+                    title: qsTr("If ground power is lost")
+                    sub: tt.confirmAutoLand ? "" : qsTr("What the app does when the station loses ground power")
+                    SSegmented {
+                        id: fsSeg; designWidth: 640
+                        enabled: !tt.connLocked && !!pl._st; opacity: enabled ? 1 : 0.4
+                        model: tt.failsafeNames
+                        currentIndex: pl._st ? pl._st.noPowerFailsafe : 0
+                        onActivated: {
+                            if (index === 2) tt.confirmAutoLand = true
+                            else if (pl._st) { tt.confirmAutoLand = false; pl._st.noPowerFailsafe = index }
+                            fsSeg.currentIndex = Qt.binding(function() { return pl._st ? pl._st.noPowerFailsafe : 0 })
+                        }
+                    }
+                }
+                Item {
+                    visible: tt.adv && tt.confirmAutoLand
+                    width: parent.width; height: visible ? Math.max(alText.implicitHeight, alButtons.height) : 0
+                    SText {
+                        id: alText; anchors.left: parent.left; anchors.right: alButtons.left; anchors.rightMargin: SimpleTheme.px(20)
+                        anchors.verticalCenter: parent.verticalCenter; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.warn
+                        text: qsTr("Auto land sends Land without asking when the cable has no power. Use it only for the drone tethered to this station.")
+                    }
+                    Row {
+                        id: alButtons; anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+                        spacing: SimpleTheme.px(12)
+                        SButton { designHeight: 72; textSize: 26; text: qsTr("Cancel"); onClicked: tt.confirmAutoLand = false }
+                        SButton { designHeight: 72; textSize: 26; kind: "primary"; text: qsTr("Use auto land")
+                                  onClicked: { tt.confirmAutoLand = false; if (pl._st) pl._st.noPowerFailsafe = 2 } }
+                    }
                 }
             }
             SText { text: qsTr("MAINTENANCE"); size: 24; medium: true; color: SimpleTheme.textTertiary }
