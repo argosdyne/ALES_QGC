@@ -12,6 +12,8 @@ Rectangle {
     id: page
     property var    vs
     property string category: "general"
+    // a new category starts at its top (it kept the previous scroll: Payloads opened scrolled down, SITL test 2026-11-20)
+    onCategoryChanged: content.contentY = 0
     readonly property bool _adv: QGroundControl.corePlugin.advancedMode
     on_AdvChanged: if (!_adv && ["flyscreen", "video", "plan", "datalogs", "devices", "gamepad"].indexOf(category) >= 0) category = "general"
     property bool   mapDownload: false     // S46 › Download new area (full screen)

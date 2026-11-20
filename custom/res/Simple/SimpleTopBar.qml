@@ -24,7 +24,7 @@ Rectangle {
         case "lost":            return qsTr("Signal lost")
         case "returning":       return vs.landing ? qsTr("Landing") : qsTr("Returning home")
         case "flying":          return vs.paused ? qsTr("Paused · hovering") : vs.missionActive ? qsTr("Flying · mission") : vs.tethered ? qsTr("Flying · tethered") : qsTr("Flying")
-        default:                return vs.readyToTakeOff ? qsTr("Ready to fly") : qsTr("1 item to fix")
+        default:                return vs.readyToTakeOff ? qsTr("Ready to fly") : vs.takeoffBlockers > 1 ? qsTr("%1 items to fix").arg(vs.takeoffBlockers) : qsTr("1 item to fix")
         }
     }
     readonly property color _statusColor: {

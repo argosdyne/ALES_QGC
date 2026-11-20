@@ -72,6 +72,10 @@ QtObject {
 
     readonly property bool   readyToTakeOff: connected && !armed && sensorsOk && gpsLock >= 3 && (isNaN(batteryPct) || batteryPct > 30)
                                              && (!ridAvailable || ridGood) && !zoneBlocked && (!tethered || tetherPowerOk)
+    // red rows of the S02 pre-flight check (same conditions as readyToTakeOff; top bar "%n items to fix")
+    readonly property int    takeoffBlockers: (connected ? 0 : 1) + (gpsLock >= 3 ? 0 : 1) + (isNaN(batteryPct) || batteryPct > 30 ? 0 : 1)
+                                             + (sensorsOk ? 0 : 1) + (!ridAvailable || ridGood ? 0 : 1) + (zoneBlocked ? 1 : 0)
+                                             + (tethered && !tetherPowerOk ? 1 : 0)
 
     // QA F5: the drone's last warning (STATUSTEXT, severity WARNING or worse) in the last 60 s, e.g. why it lands
     property string recentWarning: ""

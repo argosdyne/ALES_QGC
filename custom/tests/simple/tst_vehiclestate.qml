@@ -113,6 +113,15 @@ TestCase {
         return [ { tag: "31", p: 31, ok: true }, { tag: "30", p: 30, ok: false }, { tag: "NaN", p: NaN, ok: true } ]
     }
     function test_takeoff_battery_gate(d) { v.pct = d.p; compare(s.readyToTakeOff, d.ok) }
+    // top bar "%1 items to fix" counts the red S02 rows (SITL test 2026-11-20: GPS off showed "1 item" with 2 red rows)
+    function test_takeoff_blockers_count() {
+        compare(s.takeoffBlockers, 0)
+        v.gps.lock.rawValue = 0;     compare(s.takeoffBlockers, 1); verify(!s.readyToTakeOff)
+        v.sensorsUnhealthyBits = 1;  compare(s.takeoffBlockers, 2)
+        v.pct = 20;                  compare(s.takeoffBlockers, 3)
+        v.gps.lock.rawValue = 3; v.sensorsUnhealthyBits = 0; v.pct = 80
+        compare(s.takeoffBlockers, 0); verify(s.readyToTakeOff)
+    }
     function test_battery_unknown_minus_one() {
         // ArduPilot reports battery_remaining = -1 when unknown. QGC turns that into NaN, but if -1 ever reaches here:
         v.pct = -1
