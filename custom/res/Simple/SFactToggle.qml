@@ -12,6 +12,5 @@ SToggle {
     checked: _value
     onToggled: {
         if (fact) fact.rawValue = invert ? !checked : checked
-        tg.checked = Qt.binding(function() { return tg._value })
     }
 }

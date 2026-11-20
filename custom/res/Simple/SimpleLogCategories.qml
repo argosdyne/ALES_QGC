@@ -52,7 +52,7 @@ SSheet {
             }
             SToggle { id: tg; objectName: "logGroup_" + index; anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
                       checked: lc.groupOn(modelData.c)
-                      onToggled: { lc.setOn(parent.cats, checked); checked = Qt.binding(function() { return lc.groupOn(modelData.c) }) } }
+                      onToggled: { lc.setOn(parent.cats, checked) } }
         }
     }
     ListView {
@@ -64,7 +64,7 @@ SSheet {
             SText { anchors.verticalCenter: parent.verticalCenter; text: modelData; size: 24 }
             SToggle { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter; scale: 0.8; transformOrigin: Item.Right
                       checked: lc.isOn(modelData)
-                      onToggled: { lc.setOn([modelData], checked); checked = Qt.binding(function() { return lc.isOn(modelData) }) } }
+                      onToggled: { lc.setOn([modelData], checked) } }
         }
     }
     Item {

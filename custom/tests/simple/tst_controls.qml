@@ -16,6 +16,11 @@ TestCase {
     Component { id: slideComp;   SSlideConfirm { width: 640; text: "Slide to start" } }
     Component { id: segComp;     SSegmented { designWidth: 338; model: ["Metric", "Imperial"] } }
     Component { id: toggleComp;  SToggle { } }
+    // owner pattern: checked bound to a device state, onToggled writes the request (ignored when `ignore`)
+    Component { id: boundToggleComp
+                SToggle { property bool state_: false; property bool ignore: false
+                          checked: state_; onToggled: if (!ignore) state_ = checked } }
+    Component { id: spyComp;     SignalSpy { } }
     Component { id: buttonComp;  SButton { text: "OK" } }
     Component { id: rowComp;     SSettingRow { width: 900; title: "Legal & licenses"; sub: "x" } }
     SignalSpy { id: spy }
@@ -135,9 +140,20 @@ TestCase {
     function test_toggle() {
         var t = createTemporaryObject(toggleComp, root, { x: 100, y: 100 })
         spy.target = null; spy.signalName = "toggled"; spy.target = t
-        mouseClick(t); verify(t.checked); mouseClick(t); verify(!t.checked)
-        compare(spy.count, 2)
-        mouseClick(t, -10, t.height / 2); verify(t.checked, "touch area extends 20 px around the toggle")
+        mouseClick(t); compare(spy.count, 1); compare(spy.signalArguments[0][0], true)
+        verify(!t.checked, "a tap only asks for the new value; the owner sets checked")
+        t.checked = true
+        mouseClick(t); compare(spy.signalArguments[1][0], false)
+        mouseClick(t, -10, t.height / 2); compare(spy.count, 3, "touch area extends 20 px around the toggle")
+    }
+    // A switch bound to a device state keeps following it after a tap (payload test 2026-11-20: searchlight and
+    // auto torque stopped following the device once the tap had assigned checked).
+    function test_toggle_keeps_binding() {
+        var t = createTemporaryObject(boundToggleComp, root, { x: 100, y: 100 })
+        mouseClick(t); verify(t.checked, "owner wrote the state, the binding shows it")
+        t.state_ = false; verify(!t.checked, "device turned it off: the switch follows")
+        t.ignore = true; mouseClick(t); verify(!t.checked, "a refused request leaves the switch as the device reports")
+        t.state_ = true; verify(t.checked, "and it still follows the device")
     }
     function test_button_disabled() {
         var b = createTemporaryObject(buttonComp, root, { enabled_: false })
@@ -157,15 +173,17 @@ TestCase {
         var t = toggleComp.createObject(r.children[r.children.length - 1])   // into the control slot (ctl), as `SSettingRow { SToggle {} }` does
         spy.target = null; spy.signalName = "clicked"; spy.target = r
         var p = t.mapToItem(r, t.width / 2, t.height / 2)
+        var ts = createTemporaryObject(spyComp, root, { target: t, signalName: "toggled" })
         mouseClick(r, p.x, p.y)
-        verify(t.checked, "the control on the right still gets its tap")
+        compare(ts.count, 1, "the control on the right still gets its tap")
         compare(spy.count, 0, "and the row does not open at the same time")
     }
     // ---- stress: rapid taps
     function test_stress_rapid_taps() {
-        var t = createTemporaryObject(toggleComp, root, { x: 100, y: 100 })
+        var t = createTemporaryObject(boundToggleComp, root, { x: 100, y: 100 })
         for (var i = 0; i < 500; i++) mouseClick(t)
-        verify(!t.checked)
+        verify(!t.checked); verify(!t.state_)
+        mouseClick(t); verify(t.checked, "binding still alive after 501 taps")
     }
 }
 }

@@ -37,7 +37,7 @@ Flickable {
             SToggle {
                 id: clearT
                 checked: ctl.clearOnReboot
-                onToggled: { ctl.setClearOnReboot(clearT.checked); clearT.checked = Qt.binding(function() { return ctl.clearOnReboot }) }
+                onToggled: { ctl.setClearOnReboot(checked) }
             }
         }
         SSettingRow {
@@ -48,7 +48,7 @@ Flickable {
             SToggle {
                 id: contT
                 checked: ctl.continueAfterLand
-                onToggled: { ctl.setContinueAfterLand(contT.checked); contT.checked = Qt.binding(function() { return ctl.continueAfterLand }) }
+                onToggled: { ctl.setContinueAfterLand(checked) }
             }
         }
 

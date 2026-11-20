@@ -81,7 +81,6 @@ Rectangle {
                     checked: an._dev
                     onToggled: {
                         an._custom.simpleDeveloperTools.rawValue = checked
-                        devToggle.checked = Qt.binding(function() { return an._dev })
                     }
                 }
             }

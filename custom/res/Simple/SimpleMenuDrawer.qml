@@ -120,7 +120,6 @@ Item {
                     onToggled: {
                         QGroundControl.corePlugin.advancedMode = checked
                         drawer.advancedOpen = checked
-                        advToggle.checked = Qt.binding(function() { return drawer._adv })
                     }
                 }
             }

@@ -112,7 +112,7 @@ Flickable {
                     checked: parent.on
                     opacity: parent.thr && !parent.on ? 0.4 : 1
                     enabled: !(parent.thr && !parent.on) && !(rd._veh && rd._veh.armed)
-                    onToggled: { parent.fact.rawValue = checked ? 1 : 0; checked = Qt.binding(function() { return parent.on }) }
+                    onToggled: { parent.fact.rawValue = checked ? 1 : 0 }
                 }
             }
         }

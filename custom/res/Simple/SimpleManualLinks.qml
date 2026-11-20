@@ -229,7 +229,7 @@ Rectangle {
 
         Row {
             spacing: SimpleTheme.px(16)
-            SToggle { id: autoToggle; anchors.verticalCenter: parent.verticalCenter; onToggled: if (editor.cfg) editor.cfg.autoConnect = checked }
+            SToggle { id: autoToggle; anchors.verticalCenter: parent.verticalCenter; onToggled: { autoToggle.checked = checked; if (editor.cfg) editor.cfg.autoConnect = checked } }
             SText { text: qsTr("Connect when the app starts"); size: 24; anchors.verticalCenter: parent.verticalCenter }
         }
 

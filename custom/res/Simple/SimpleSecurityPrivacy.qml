@@ -177,7 +177,6 @@ Item {
                         checked: locRow._fact.rawValue !== 0
                         onToggled: {
                             locRow._fact.rawValue = checked ? 2 : 0
-                            locToggle.checked = Qt.binding(function() { return locRow._fact.rawValue !== 0 })
                         }
                     }
                 }

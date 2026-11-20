@@ -1,6 +1,9 @@
 import QtQuick 2.12
 import "."
 
+// A tap does not change `checked`: it only emits toggled(newValue). Bind `checked` to the real state (device, setting,
+// parameter) and write that state in onToggled, so the switch keeps following it (assigning `checked` here broke the
+// caller's binding: the searchlight and auto-torque switches stopped following the device after one tap).
 Rectangle {
     id: tg
     property bool checked: false
@@ -16,5 +19,5 @@ Rectangle {
         color: SimpleTheme.textPrimary
         Behavior on x { NumberAnimation { duration: 120 } }
     }
-    MouseArea { anchors.fill: parent; anchors.margins: -SimpleTheme.px(20); onClicked: { tg.checked = !tg.checked; tg.toggled(tg.checked) } }
+    MouseArea { anchors.fill: parent; anchors.margins: -SimpleTheme.px(20); onClicked: tg.toggled(!tg.checked) }
 }

@@ -88,11 +88,10 @@ Column {
                     checked: !!gp._veh && gp._veh.joystickEnabled && gp._calOk
                     onToggled: {
                         if (gp._calOk && gp._veh) {
-                            gp._veh.joystickEnabled = useToggle.checked
+                            gp._veh.joystickEnabled = checked
                             gp._veh.saveJoystickSettings()
-                            if (useToggle.checked) QGroundControl.settingsManager.appSettings.virtualJoystick.rawValue = false
+                            if (checked) QGroundControl.settingsManager.appSettings.virtualJoystick.rawValue = false
                         }
-                        useToggle.checked = Qt.binding(function() { return !!gp._veh && gp._veh.joystickEnabled && gp._calOk })
                     }
                 }
                 SText { anchors.verticalCenter: parent.verticalCenter; size: 24; medium: true; text: qsTr("Use the gamepad for this drone") }

@@ -139,7 +139,7 @@ Flickable {
                             id: revT
                             anchors.horizontalCenter: parent.horizontalCenter
                             checked: !!sr.rv && Number(sr.rv.rawValue) !== 0
-                            onToggled: { sr.rv.value = revT.checked ? 1 : 0; revT.checked = Qt.binding(function() { return !!sr.rv && Number(sr.rv.rawValue) !== 0 }) }
+                            onToggled: { sr.rv.value = checked ? 1 : 0 }
                         }
                         SText { anchors.horizontalCenter: parent.horizontalCenter; text: qsTr("Reverse"); size: 18; color: SimpleTheme.textSecondary }
                     }

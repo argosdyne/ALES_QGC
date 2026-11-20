@@ -200,7 +200,7 @@ Column {
                 CardRow {
                     title: qsTr("Use YellowScan LiDAR"); sub: qsTr("Shows the LiDAR panel and checks in flight")
                     SToggle { id: ysToggle; checked: !!pl._custom.ysEnable.rawValue
-                              onToggled: { pl._custom.ysEnable.rawValue = ysToggle.checked; ysToggle.checked = Qt.binding(function() { return !!pl._custom.ysEnable.rawValue }) } }
+                              onToggled: { pl._custom.ysEnable.rawValue = checked } }
                 }
                 CardRow {
                     title: qsTr("Model"); sub: qsTr("Pick it here — the LiDAR cannot report it")
@@ -338,7 +338,7 @@ Column {
                     title: qsTr("Use tether station"); sub: qsTr("For tethered flights")
                     SToggle { id: stToggle; checked: !!pl._st && pl._st.enabled
                               enabled: !tt.connLocked; opacity: enabled ? 1 : 0.4
-                              onToggled: { if (pl._st) pl._st.enabled = stToggle.checked; stToggle.checked = Qt.binding(function() { return !!pl._st && pl._st.enabled }) } }
+                              onToggled: { if (pl._st) pl._st.enabled = checked } }
                 }
                 // Connection (#317: SAFE-T over TCP or UDP). Every change is saved at once and restarts a running
                 // connection (ElistairStationManager), so the rows are locked while the motors are on.
@@ -375,7 +375,7 @@ Column {
                     title: qsTr("Connect when the app starts"); sub: qsTr("Off: tap Test to connect")
                     SToggle { id: acToggle; checked: !!pl._st && pl._st.autoConnect
                               enabled: !!pl._st && pl._st.enabled; opacity: enabled ? 1 : 0.4
-                              onToggled: { if (pl._st) pl._st.autoConnect = acToggle.checked; acToggle.checked = Qt.binding(function() { return !!pl._st && pl._st.autoConnect }) } }
+                              onToggled: { if (pl._st) pl._st.autoConnect = checked } }
                 }
                 CardRow {
                     title: qsTr("Test connection"); sub: tt.connText
@@ -474,7 +474,7 @@ Column {
                 CardRow {
                     title: qsTr("Anti-entrapment"); sub: qsTr("Keep on — stops the winch if the cable snags")
                     SToggle { id: entrapToggle; checked: tt.dEntrap; opacity: !tt.locked && tt._haveSet ? 1 : 0.4; enabled: !tt.locked && tt._haveSet
-                              onToggled: { tt.dEntrap = entrapToggle.checked; entrapToggle.checked = Qt.binding(function() { return tt.dEntrap }) } }
+                              onToggled: { tt.dEntrap = checked } }
                 }
             }
             Row {
@@ -609,8 +609,7 @@ Column {
                 CardRow {
                     title: qsTr("Use megaphone"); sub: qsTr("Shows the megaphone card on the flight screen")
                     SToggle { id: megaToggle; checked: !!pl._fly.enableAudioController.rawValue
-                              onToggled: { pl._fly.enableAudioController.rawValue = megaToggle.checked
-                                           megaToggle.checked = Qt.binding(function() { return !!pl._fly.enableAudioController.rawValue }) } }
+                              onToggled: { pl._fly.enableAudioController.rawValue = checked } }
                 }
                 CardRow {
                     title: qsTr("Max volume *")
@@ -625,8 +624,7 @@ Column {
                 CardRow {
                     title: qsTr("Stop sound on landing")
                     SToggle { id: muteToggle; checked: SimplePayloadPrefs.megaphoneStopOnLanding
-                              onToggled: { SimplePayloadPrefs.megaphoneStopOnLanding = muteToggle.checked
-                                           muteToggle.checked = Qt.binding(function() { return SimplePayloadPrefs.megaphoneStopOnLanding }) } }
+                              onToggled: { SimplePayloadPrefs.megaphoneStopOnLanding = checked } }
                 }
             }
             SText { width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textSecondary
@@ -671,11 +669,10 @@ Column {
                     SToggle { id: vlOn; checked: vl._on
                               onToggled: {
                                   if (vl._canSend) {
-                                      if (vlOn.checked) { vl._mc.setVisionLidar(1); vl._mc.setVisionLidarValue(1); vl._mc.getVisionLidarOBAMode() }
+                                      if (checked) { vl._mc.setVisionLidar(1); vl._mc.setVisionLidarValue(1); vl._mc.getVisionLidarOBAMode() }
                                       else              { vl._mc.setVisionLidarValue(0); vl._mc.setVisionLidar(0) }
                                       vl.sent()
                                   }
-                                  vlOn.checked = Qt.binding(function() { return vl._on })
                               } }
                 }
                 CardRow {
@@ -683,8 +680,7 @@ Column {
                     opacity: vl._on ? 1 : 0.4
                     SToggle { id: vlStop; checked: !!vl._mc && vl._mc.vlOBAValue === 0
                               onToggled: {
-                                  if (vl._canSend && vl._on) { vl._mc.setVisionLidarOBAMode(vlStop.checked ? 0 : 1); vl.sent() }
-                                  vlStop.checked = Qt.binding(function() { return !!vl._mc && vl._mc.vlOBAValue === 0 })
+                                  if (vl._canSend && vl._on) { vl._mc.setVisionLidarOBAMode(checked ? 0 : 1); vl.sent() }
                               } }
                 }
                 CardRow {
@@ -719,8 +715,7 @@ Column {
                 CardRow {
                     title: qsTr("Use BirdCom searchlight"); sub: qsTr("Also shows the life jacket drop on the flight screen")
                     SToggle { id: lightToggle; checked: !!pl._custom.lifeJacketEnable.rawValue
-                              onToggled: { pl._custom.lifeJacketEnable.rawValue = lightToggle.checked
-                                           lightToggle.checked = Qt.binding(function() { return !!pl._custom.lifeJacketEnable.rawValue }) } }
+                              onToggled: { pl._custom.lifeJacketEnable.rawValue = checked } }
                 }
                 CardRow {
                     title: qsTr("Max brightness *")
@@ -730,14 +725,12 @@ Column {
                 CardRow {
                     title: qsTr("Allow strobe *")
                     SToggle { id: strobeToggle; checked: SimplePayloadPrefs.lightStrobe
-                              onToggled: { SimplePayloadPrefs.lightStrobe = strobeToggle.checked
-                                           strobeToggle.checked = Qt.binding(function() { return SimplePayloadPrefs.lightStrobe }) } }
+                              onToggled: { SimplePayloadPrefs.lightStrobe = checked } }
                 }
                 CardRow {
                     title: qsTr("Turn off on landing")
                     SToggle { id: offToggle; checked: SimplePayloadPrefs.lightOffOnLanding
-                              onToggled: { SimplePayloadPrefs.lightOffOnLanding = offToggle.checked
-                                           offToggle.checked = Qt.binding(function() { return SimplePayloadPrefs.lightOffOnLanding }) } }
+                              onToggled: { SimplePayloadPrefs.lightOffOnLanding = checked } }
                 }
             }
             SText { width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textSecondary

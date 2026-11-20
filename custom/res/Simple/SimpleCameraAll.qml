@@ -64,7 +64,7 @@ SSheet {
                     id: tg
                     visible: setRow.isBool
                     checked: !!setRow.f && !!setRow.f.value
-                    onToggled: { setRow.f.value = tg.checked ? 1 : 0; tg.checked = Qt.binding(function() { return !!setRow.f && !!setRow.f.value }) }
+                    onToggled: { setRow.f.value = checked ? 1 : 0 }
                 }
                 SFactField { visible: !setRow.isBool && !setRow.isText; fact: setRow.isBool || setRow.isText ? null : setRow.f; designWidth: 420 }
                 STextField {

@@ -148,7 +148,7 @@ SPanel {
                     id: gridToggle
                     anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
                     checked: !!cs._grid.rawValue
-                    onToggled: { cs._grid.rawValue = gridToggle.checked; gridToggle.checked = Qt.binding(function() { return !!cs._grid.rawValue }) }
+                    onToggled: { cs._grid.rawValue = checked }
                 }
             }
             // SD card

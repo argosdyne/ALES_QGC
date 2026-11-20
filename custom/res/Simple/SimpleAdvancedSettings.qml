@@ -234,7 +234,7 @@ Column {
                           STextField { designWidth: 380; text: adv._app.forwardMavlinkHostName.rawValue; onEdited: adv._app.forwardMavlinkHostName.rawValue = text } }
             SSettingRow { title: qsTr("NMEA GPS input · UDP"); sub: qsTr("Position from an external GPS receiver.")
                           SToggle { id: nmeaT; checked: dv.nmeaOn
-                                    onToggled: { adv._auto.autoConnectNmeaPort.rawValue = checked ? "UDP Port" : "Disabled"; nmeaT.checked = Qt.binding(function() { return dv.nmeaOn }) } } }
+                                    onToggled: { adv._auto.autoConnectNmeaPort.rawValue = checked ? "UDP Port" : "Disabled" } } }
             SSettingRow { visible: dv.nmeaOn; title: qsTr("NMEA UDP port"); sub: qsTr("Port the GPS sends to"); SFactField { fact: adv._auto.nmeaUdpPort; designWidth: 360 } }
             SSettingRow { title: qsTr("ADSB traffic server · TCP"); sub: qsTr("Aircraft positions from a local ADSB receiver."); SFactToggle { fact: adv._adsb.adsbServerConnectEnabled } }
             SSettingRow { visible: !!adv._adsb.adsbServerConnectEnabled.rawValue; title: qsTr("ADSB server"); sub: qsTr("Address and port")
@@ -251,7 +251,7 @@ Column {
             SSettingRow { visible: !!adv._auto.autoConnectRTKGPS.rawValue; title: qsTr("Survey-in time"); sub: qsTr("Shortest time the base measures")
                           SFactField { fact: adv._rtk.surveyInMinObservationDuration; designWidth: 380 } }
             SSettingRow { title: qsTr("Serial auto-connect · USB"); sub: qsTr("Connects to a flight controller or radio plugged in by USB.")
-                          SToggle { id: serT; checked: dv.serialOn; onToggled: { dv.setSerial(checked); serT.checked = Qt.binding(function() { return dv.serialOn }) } } }
+                          SToggle { id: serT; checked: dv.serialOn; onToggled: { dv.setSerial(checked) } } }
             SSettingRow {
                 readonly property var _joy: typeof joystickManager !== "undefined" ? joystickManager.activeJoystick : null
                 title: qsTr("USB gamepad")

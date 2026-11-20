@@ -674,7 +674,7 @@ Rectangle {
                             id: serToggle
                             anchors.verticalCenter: parent.verticalCenter
                             checked: !!conn._ser
-                            onToggled: { conn.serialOn(serToggle.checked); serToggle.checked = Qt.binding(function() { return !!conn._ser }) }
+                            onToggled: { conn.serialOn(checked) }
                         }
                         SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Use RTK correction"); size: 26 }
                     }
@@ -722,8 +722,7 @@ Rectangle {
                             anchors.verticalCenter: parent.verticalCenter
                             checked: conn.want
                             onToggled: {
-                                if (rtkToggle.checked) conn.rtkOn(); else conn.rtkOff()
-                                rtkToggle.checked = Qt.binding(function() { return conn.want })   // SToggle sets checked itself on tap
+                                if (checked) conn.rtkOn(); else conn.rtkOff()
                             }
                         }
                         SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Use RTK correction"); size: 26 }
@@ -964,8 +963,7 @@ Rectangle {
                     id: emergToggle
                     checked: rid._emerg
                     onToggled: {
-                        if (rid._veh) rid._veh.remoteIDManager.setEmergency(emergToggle.checked)
-                        emergToggle.checked = Qt.binding(function() { return rid._emerg })
+                        if (rid._veh) rid._veh.remoteIDManager.setEmergency(checked)
                     }
                 }
             }

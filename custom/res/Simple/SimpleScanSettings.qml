@@ -137,7 +137,7 @@ SPanel {
                 }
                 SToggle { id: ipToggle; objectName: "initPaths"; anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
                           checked: sp.initPaths
-                          onToggled: { sp.initPathsRequested(ipToggle.checked); ipToggle.checked = Qt.binding(function() { return sp.initPaths }) } }
+                          onToggled: { sp.initPathsRequested(checked) } }
             }
             SText {
                 visible: !sp.initPaths

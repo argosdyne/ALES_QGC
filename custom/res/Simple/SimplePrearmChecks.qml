@@ -78,7 +78,7 @@ SSheet {
         }
         SToggle { objectName: "prearmAll"; anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
                   checked: pa.company; enabled: !pa.company && !pa.armed; opacity: enabled || pa.company ? 1 : 0.4
-                  onToggled: { if (checked) pa.write(pa.refValue, "Company setting"); checked = Qt.binding(function() { return pa.company }) } }
+                  onToggled: { if (checked) pa.write(pa.refValue, "Company setting") } }
     }
     Rectangle {
         width: pa.innerWidth; height: grid.height + SimpleTheme.px(16); radius: SimpleTheme.px(20)
@@ -100,7 +100,7 @@ SSheet {
                     SToggle { id: t; objectName: "prearm_" + modelData.bit; anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
                               scale: 0.8; transformOrigin: Item.Right
                               checked: pa.isOn(modelData.bit); enabled: !pa.armed
-                              onToggled: { pa.setItem(modelData.bit, checked); checked = Qt.binding(function() { return pa.isOn(modelData.bit) }) } }
+                              onToggled: { pa.setItem(modelData.bit, checked) } }
                 }
             }
         }
