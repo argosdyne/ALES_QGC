@@ -11,6 +11,7 @@ import "."
 Item {
     id: fly
     property var vs
+    readonly property bool toastShown: toastBox.visible     // S36 toast is up (SimpleRoot stacks the restart toast above it)
     readonly property var  _veh:    vs.vehicle
     readonly property var  _guided: globals.guidedControllerFlyView
     readonly property real _W:      width

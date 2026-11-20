@@ -11,6 +11,9 @@ import "."
 
 Flickable {
     id: fr
+    // this page says itself that the drone restarts (no restart toast for FRAME_CLASS / FRAME_TYPE)
+    Component.onCompleted:   SimpleTheme.ownRestartHints++
+    Component.onDestruction: SimpleTheme.ownRestartHints--
     contentHeight: col.height
     clip: true
     FactPanelController { id: fpc }

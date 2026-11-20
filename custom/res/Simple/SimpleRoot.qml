@@ -149,15 +149,17 @@ Item {
         vs: vs
     }
 
-    // Restart toast (S36 toast style, on every page). Fly screen: above the telemetry bar; other pages: near the bottom
-    // edge, so it does not cover the row being edited (Figma S60 / S101 notes, 2026-11-20)
+    // Restart toast (S36 toast style, on every page; Figma S60 / S101 notes, 2026-11-20). Fly screen: above the telemetry
+    // bar, stacked over the fly S36 toast when that one is up; full-screen video: near the bottom edge; other pages: under
+    // the header, where no page has buttons or editing hints. It takes no taps (closes on its timer).
     Rectangle {
         id: restartToast
         property string text: ""
         visible: false
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: simpleRoot.page === "fly" ? SimpleTheme.px(24 + 120 + 16 + 104 + 16) : SimpleTheme.px(24)
+        y: flyOverlay.visible ? parent.height - height - SimpleTheme.px(24 + 120 + 16 + 104 + 16) - (flyOverlay.toastShown ? height + SimpleTheme.px(12) : 0)
+         : simpleRoot.page === "fly" ? parent.height - height - SimpleTheme.px(24)
+         : SimpleTheme.px(104 + 16)
         width: Math.min(restartToastText.implicitWidth + SimpleTheme.px(56), parent.width - SimpleTheme.px(80))
         height: SimpleTheme.px(72); radius: height / 2
         color: SimpleTheme.withAlpha(SimpleTheme.surfaceRaised, 0.97)
@@ -165,7 +167,6 @@ Item {
         SText { id: restartToastText; anchors.centerIn: parent; width: Math.min(implicitWidth, restartToast.width - SimpleTheme.px(56))
                 elide: Text.ElideRight; text: restartToast.text; size: 26; medium: true }
         Timer { id: restartToastTimer; interval: 6000; onTriggered: restartToast.visible = false }
-        MouseArea { anchors.fill: parent; onClicked: restartToast.visible = false }
     }
 
     // S57 first-start welcome (language & units) — shown once, replaces the classic first-run prompts
