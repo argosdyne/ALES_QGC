@@ -79,8 +79,12 @@
   앱에서 열 수 없지만 파일은 남아 있습니다. 지우려면 C++ 참조를 끊어야 해서 코어 수정이 커집니다. 지금 할지, 개발자 리뷰 뒤로 미룰지.
   `reach.py --cpp-roots`(4장)로 대상 목록을 다시 뽑을 수 있습니다.
 
-- **Elistair TCP/UDP 연결 화면** (#317, 2026-11-19 병합): C++(`ElistairStationManager`)만 들어옴. 연결 방식 선택 화면
-  (클래식 설정은 삭제됨)이 Simple S52/S16에 필요. Figma 먼저.
+  **사용자 결정(2026-11-20): D2는 PR #311 개발자 리뷰 뒤로 미룸.**
+
+- ~~**Elistair TCP/UDP 연결 화면**~~ (#317) — 2026-11-20 완료: Figma S54 + UX 노트, `SimplePayloadSettings.qml` S54에
+  연결 방식 TCP/UDP · IP · 포트 · 앱 시작 시 연결 · 연결 시험, 고급 모드에서 프레임 버전 · 지상 전원 상실 시 동작(자동 착륙은 확인 후).
+  시동 중 잠금. 실제 SAFE-T 스테이션 연결 시험은 아직 못 함(3장 C에 추가).
+- 남은 질문: #317은 클래식 패널 토크를 0–10 단계(‹ ›)로 바꾸고 0/30/100 % 프리셋을 껐음. Simple S16 카드는 아직 0/30/100 % 프리셋. 맞출지 사용자에게 물어볼 것.
 
 **B. 작은 정리 — 2026-11-19 완료**
 1. ~~재부팅 필요 메시지 상자~~ → Simple 토스트(`b918c52e5`, Figma S60/S101 노트). S101·S60은 자체 안내만 표시. 실기·SITL에서 토스트 표시는 아직 화면으로 확인하지 않음.
@@ -90,10 +94,9 @@
 
 **C. 실기·장비 시험 (SITL로 못 한 것)**
 - USB 게임패드(S95), Vision LiDAR(S99), RTK 시리얼 데이터, SAFE-T 전원 상실 시 "예, 이 드론입니다"(S50),
-  실제 회사 카메라(R3 등)에서 S100과 SD 포맷.
+  실제 회사 카메라(R3 등)에서 S100과 SD 포맷, SAFE-T 스테이션 TCP(Wi-Fi 192.168.4.1:23232)·UDP 연결(S54).
 
-**D. PR #311 리뷰 준비**
-- 변경 요약 + 시험 체크리스트(C 항목 포함)를 개발자에게 넘길 문서로 정리.
+**D. PR #311 리뷰 준비** — 2026-11-19 완료(AGD-DEV-ALQGC-401 D01, Claude Docs). 이후 변경(S54 연결 등)은 리뷰 문서에 덧붙일 것.
 
 추천 순서: B → D → (리뷰 결과를 보고) A. C는 장비가 있는 사람에게 D의 체크리스트로 부탁.
 
@@ -110,7 +113,7 @@ git clone <원격 URL> ales_qgc        # 또는 기존 클론에서 git fetch &&
 
 | 파일 | 용도 |
 |---|---|
-| `build_rel.bat` | Release 빌드(`rbuild\`). 저장소를 `subst Q:`로 잡아 빌드(경로에 공백이 있어서) |
+| `build_rel.bat` | Release 빌드(`rbuild\`). 저장소를 `subst Q:`로 잡아 빌드(경로에 공백이 있어서). **주의:** 스크립트의 기본 subst 경로는 예전 클론 `AQGC_Simple\ales_qgc`(11-18 상태). 이 저장소를 빌드하려면 먼저 `subst Q: "<이 저장소>"`(tests.bat도 같음) |
 | `tests.bat` | Simple UI Qt Quick 테스트 → `tests.txt`. **PowerShell에서 `cmd /c ...\tests.bat`로 실행**(Git Bash의 `cmd //c`로는 실행되지 않고 옛 결과가 남은 적 있음). 끝난 뒤 `tests.txt` 시각 확인 |
 | `ui.ps1` | UI 구동: `start [args\|none] [name]`, `pin`, `tap x y`, `drag`, `slide`, `type`, `key`, `shot name`, `stop`. 스크린샷·로그는 `runs\` |
 | `sitl.sh`, `aqgc-sitl.parm` | WSL(Ubuntu-22.04)에서 회사 ArduCopter SITL 실행(`~/APM4.5` 빌드 필요, 4시간 제한). Git Bash: `MSYS_NO_PATHCONV=1 wsl -d Ubuntu-22.04 -- bash /mnt/c/.../sitl.sh run` |

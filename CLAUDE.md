@@ -337,6 +337,10 @@ Reply to the user in Korean unless they write in English.
   LiDAR answered once in this connection. S53 Manual / Auto = `ysMissionStartStop`. The app sends status requests as
   system 1 / component 25 (the LiDAR's own ids); test with SITL + `aqgc-build/fakelidar.py` (TCP 5762, control file
   fakelidar.json: silent, USB low/full, overheating, Start reject).
+- Elistair SAFE-T connection (2026-11-20, #317, Figma S54): S54 has connection type TCP / UDP, station IP, port,
+  "Connect when the app starts" (autoConnect) and Test; each value is saved by ElistairStationManager at once and
+  restarts a running connection, so the connection rows are locked while armed. Advanced mode only: frame version
+  (Auto default) and the ground-power action (noPowerFailsafe; Auto land asks first). The classic Station Setup is gone.
 - QML (Qt 5.15): a RegExp kept in a `property var` is not a RegExp any more (TypeError on .test): keep it inside a
   function. Do not name a QML function `valueOf` (or other Object.prototype names): calls resolve to the built-in.
 - The NTRIP source writes the caster table to `rtk_data.xml` in the working directory (git-ignored).
