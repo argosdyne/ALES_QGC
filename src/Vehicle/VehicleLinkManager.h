@@ -81,6 +81,7 @@ private:
     typedef struct LinkInfo {
         SharedLinkInterfacePtr  link;
         bool                    commLost = false;
+        bool                    autopilotSeen = true;   // false: so far only other components (e.g. a camera) on this link
         QElapsedTimer           heartbeatElapsedTimer;
     } LinkInfo_t;
 

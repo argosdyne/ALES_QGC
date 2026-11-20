@@ -57,6 +57,13 @@ Item {
         return true
     }
 
+    // Link state messages from the core (link error, failed connect, primary link switched; QGCApplication::showLinkMessage):
+    // a toast instead of the classic message box. The top-bar chip and the link-lost banner already show the state.
+    function showLinkMessage(text) {
+        flyOverlay.toast(text, "info")
+        return true
+    }
+
     // LiDAR critical / auto Start-Stop messages from the YellowScan watchers (MainRootWindow.showLiDARCriticalMessage):
     // red banner on the fly screen, queued (Figma S102). Returns true = handled.
     function showLidarCritical(message) {

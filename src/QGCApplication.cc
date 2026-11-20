@@ -887,6 +887,26 @@ void QGCApplication::showRebootNotice(bool vehicle, const QString& name, const Q
     showRebootAppMessage(fallbackMessage);
 }
 
+void QGCApplication::linkMessageOnMainThread(const QString& /*title*/, const QString& msg)
+{
+    showLinkMessage(msg);
+}
+
+void QGCApplication::showLinkMessage(const QString& message)
+{
+    // AQGC Simple UI: classic message boxes stacked over the fly screen on every link loss (payload test 2026-11-20,
+    // Tuleap bug #28562). The root returns false when no Simple UI handles it.
+    QObject* rootQmlObject = _rootQmlObject();
+    if (rootQmlObject && rootQmlObject->metaObject()->indexOfMethod("_showLinkMessage(QVariant)") != -1) {
+        QVariant varReturn;
+        QMetaObject::invokeMethod(rootQmlObject, "_showLinkMessage", Q_RETURN_ARG(QVariant, varReturn), Q_ARG(QVariant, message));
+        if (varReturn.toBool()) {
+            return;
+        }
+    }
+    showAppMessage(message);
+}
+
 void QGCApplication::_showDelayedAppMessages(void)
 {
     if (_rootQmlObject()) {

@@ -116,6 +116,10 @@ public slots:
     /// You can connect to this slot to show a critical message box from a different thread.
     void criticalMessageBoxOnMainThread(const QString& title, const QString& msg);
 
+    /// Link state message (link error, failed connect, primary link switched). The AQGC Simple UI shows it as a toast
+    /// (its chip / banner already show the link state); otherwise the classic message box.
+    void linkMessageOnMainThread(const QString& title, const QString& msg);
+
     void showSetupView();
 
     void qmlAttemptWindowClose();
@@ -143,6 +147,9 @@ public slots:
 
     /// Show modal application message to the user
     void showAppMessage(const QString& message, const QString& title = QString());
+
+    /// Show a link state message: a toast in the AQGC Simple UI, else showAppMessage
+    void showLinkMessage(const QString& message);
 
     /// Show modal application message to the user about the need for a reboot. Multiple messages will be supressed if they occur
     /// one after the other.

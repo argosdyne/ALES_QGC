@@ -196,6 +196,11 @@ ApplicationWindow {
 
     // Called by QGCApplication::showRebootNotice: a value that needs a drone / app restart was changed.
     // The Simple UI shows a short toast (Figma S60 / S101 notes, 2026-11-19); false = show the classic message.
+    // Called by QGCApplication::showLinkMessage: the Simple UI shows link messages as a toast; false = classic message box
+    function _showLinkMessage(text) {
+        return simpleUILoader.item ? simpleUILoader.item.showLinkMessage(text) : false
+    }
+
     function _showRebootNotice(vehicle, name) {
         return simpleUILoader.item ? simpleUILoader.item.showRestartNotice(vehicle, name) : false
     }

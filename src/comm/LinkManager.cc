@@ -154,7 +154,7 @@ bool LinkManager::createConnectedLink(SharedLinkConfigurationPtr& config, bool i
         _rgLinks.append(link);
         config->setLink(link);
 
-        connect(link.get(), &LinkInterface::communicationError,  _app,                &QGCApplication::criticalMessageBoxOnMainThread);
+        connect(link.get(), &LinkInterface::communicationError,  _app,                &QGCApplication::linkMessageOnMainThread);
         connect(link.get(), &LinkInterface::bytesReceived,       _mavlinkProtocol,    &MAVLinkProtocol::receiveBytes);
         connect(link.get(), &LinkInterface::bytesSent,           _mavlinkProtocol,    &MAVLinkProtocol::logSentBytes);
         connect(link.get(), &LinkInterface::disconnected,        this,                &LinkManager::_linkDisconnected);
@@ -216,7 +216,7 @@ void LinkManager::_linkDisconnected(void)
         return;
     }
 
-    disconnect(link, &LinkInterface::communicationError,  _app,                &QGCApplication::criticalMessageBoxOnMainThread);
+    disconnect(link, &LinkInterface::communicationError,  _app,                &QGCApplication::linkMessageOnMainThread);
     disconnect(link, &LinkInterface::bytesReceived,       _mavlinkProtocol,    &MAVLinkProtocol::receiveBytes);
     disconnect(link, &LinkInterface::bytesSent,           _mavlinkProtocol,    &MAVLinkProtocol::logSentBytes);
     disconnect(link, &LinkInterface::disconnected,        this,                &LinkManager::_linkDisconnected);
