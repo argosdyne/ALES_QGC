@@ -1,6 +1,6 @@
 # 작업 인계 (handoff) — AQGC Simple UI
 
-다른 PC에서 이어서 작업하기 위한 현황 정리입니다. **2026-11-19 기준**입니다.
+다른 PC에서 이어서 작업하기 위한 현황 정리입니다. **2026-11-20 기준**입니다.
 작업 규칙과 결정 사항의 원본은 `CLAUDE.md`, 고급 모드 개편 기록은 `custom/docs/TASK-advanced-mode-redesign.md`,
 화면별 파일 목록은 `custom/res/Simple/README.md`입니다. 이 문서는 그 위에 "지금 어디까지 왔고 무엇이 남았는지"만 적습니다.
 
@@ -12,7 +12,7 @@
 |---|---|
 | 작업 브랜치 | `feature/aqgc-simple-v1` (원격과 같음, 최신 커밋은 이 문서를 넣은 커밋) |
 | PR | **#311** → `Argos_Stable4.4`, **draft**. 병합하지 않습니다(사용자 지시) |
-| CI | `4e145e35d` 기준 Windows Release, Android 32/64-bit Release **성공**. "Deploy Docs"는 매번 실패하는 기존 문제(옛 upload-artifact v3) |
+| CI | `de4606db9` 기준 Windows Release, Android 32/64-bit Release **성공**(그 뒤 커밋은 PR #311 Actions에서 확인). "Deploy Docs"는 매번 실패하는 기존 문제(옛 upload-artifact v3) |
 | 기반 브랜치 동기화 | 2026-11-18 `Argos_Stable4.4`의 #308–#310, #314, #315를 병합(`c17723f3c`). 충돌은 `PhotoVideoControl.qml` 1개 — 클래식 UI 삭제로 없앤 파일이라 삭제 유지 |
 | #316 (2026-11-19) | SD 카드 없을 때 촬영·녹화 시작 거부(`CodevCameraControl.cc`)만 cherry-pick(`13502145f`). Simple 카메라 레일에 SD 상태 표시(`0d908aa8a`, Figma 99 Components "ui/CameraRail · state: No SD card") |
 | 2026-11-19 병합 | `Argos_Stable4.4`의 #312, #317–#320 병합. 충돌 9개: 지운 클래식 파일(Elistair 패널·설정, LiDAR 패널·표시기·연결 페이지, `FlyViewOverlay.qml`)은 삭제 유지, `custom.qrc`·`FlyView.qml`·`MainRootWindow.qml`은 우리 쪽 유지 |
@@ -27,7 +27,22 @@
 - 새 QML 파일은 `custom/custom.qrc`(prefix `/simple`)와 `custom/res/Simple/qmldir` 두 곳에 등록.
 - 빌드가 실제로 쓰는 qrc는 **`custom/qgroundcontrol.qrc`**(손으로 고친 파일). `custom/updateqrc.py`로 다시 만들지 마세요.
 
-## 2. 2026-11-19 세션에서 한 일
+## 2. 2026-11-20 세션에서 한 일
+
+| 커밋 | Figma | 내용 |
+|---|---|---|
+| `29b880d72` | S54 | 설정 › 페이로드 › 유선 스테이션: SAFE-T 연결 방식 TCP/UDP · 스테이션 IP · 포트 · 앱 시작 시 연결 · 연결 시험(#317). 고급 모드에서만 프레임 버전과 지상 전원 상실 시 동작(자동 착륙은 확인 후). 시동 중 연결 행 잠금. 정비 카드는 Figma에서 오른쪽 열로 이동 |
+| `0ce79def1` | S16 | 비행 화면 테더 카드: 토크 0–10 단계(‹ ›, 1단계 = 10 %), 클래식 #317과 같은 기준값 규칙. 0/30/100 % 프리셋 삭제. Qt Quick 시험 3개 추가 |
+| `6f9b004cb` | — | 설정 › 장치(S69): ADSB 서버 포트가 "30003.000"으로 보이던 문제(설정이 문자열 타입) → 일반 포트 입력 |
+| `cfa8f42e7` `de4606db9` `accd22db2` | — | CLAUDE.md / handoff.md / README 갱신 |
+
+- 사용자 결정: D2는 PR #311 리뷰 뒤로 미룸. S16 토크는 단계식으로 맞춤.
+- 리뷰·인계서 AGD-DEV-ALQGC-401(Claude Docs)에 S54 · S16 · D2 결정 반영(변경 요약표, 장비 체크리스트, 제한 표, 다음 단계).
+- 재부팅 토스트를 앱 화면에서 확인(설정 › 장치 ADSB 스위치: 표시 후 6초 뒤 사라짐). Figma S101 노트 제목은 이미 맞았음.
+- 시험: 로컬 Release 빌드 오류 없음, Qt Quick 시험 149개 통과, 정적 검사 실패 0. S54 · S16은 스테이션 없이 화면 · 잠금 상태만 앱에서 확인.
+- 로컬 도구: `build_rel.bat` / `tests.bat`의 `subst Q:`를 이 클론(`ALES_QGC`)으로 바꿈. 도구 묶음 `aqgc-claude-code-handoff_2026-11-20.zip`을 새로 만듦(4장).
+
+## 2-0. 2026-11-19 세션에서 한 일
 
 | 커밋 | 내용 |
 |---|---|
@@ -74,32 +89,22 @@
 
 ## 3. 남은 일
 
-**A. 결정 대기 (사용자에게 물어볼 것)**
-- **D2**: C++가 아직 이름으로 가리키는 클래식 QML 페이지(APM 기체 설정 페이지, 설정·분석 페이지, 미션 항목 편집기, 툴바 표시기)는
-  앱에서 열 수 없지만 파일은 남아 있습니다. 지우려면 C++ 참조를 끊어야 해서 코어 수정이 커집니다. 지금 할지, 개발자 리뷰 뒤로 미룰지.
-  `reach.py --cpp-roots`(4장)로 대상 목록을 다시 뽑을 수 있습니다.
+**A. 리뷰 뒤에 할 일**
+- **D2** (사용자 결정 2026-11-20: PR #311 개발자 리뷰 뒤로 미룸): C++가 아직 이름으로 가리키는 클래식 QML 페이지(APM 기체 설정 페이지,
+  설정·분석 페이지, 미션 항목 편집기, 툴바 표시기)는 앱에서 열 수 없지만 파일은 남아 있습니다. 지우려면 C++ 참조를 끊어야 해서 코어 수정이 커집니다.
+  `tools/reach.py --cpp-roots`(4장)로 대상 목록을 다시 뽑을 수 있습니다.
+- 리뷰 의견 반영(PR #311 또는 리뷰 문서 AGD-DEV-ALQGC-401 댓글).
 
-  **사용자 결정(2026-11-20): D2는 PR #311 개발자 리뷰 뒤로 미룸.**
+**B. 실기·장비 시험 (SITL로 못 한 것)** — 리뷰 문서 6장 체크리스트로 장비가 있는 사람에게 부탁
+- USB 게임패드(S95), Vision LiDAR(S99), RTK 시리얼 데이터, 실제 회사 카메라(R3 등)에서 S100과 SD 포맷.
+- SAFE-T: 전원 상실 시 "예, 이 드론입니다"(S50), TCP(Wi-Fi 192.168.4.1:23232) · UDP 연결(S54), 토크 단계 조절(S16).
+- 드론 재부팅이 필요한 매개변수를 바꿀 때의 토스트(S60 / S101 밖 화면). 앱 재시작 쪽 토스트는 확인함.
 
-- ~~**Elistair TCP/UDP 연결 화면**~~ (#317) — 2026-11-20 완료: Figma S54 + UX 노트, `SimplePayloadSettings.qml` S54에
-  연결 방식 TCP/UDP · IP · 포트 · 앱 시작 시 연결 · 연결 시험, 고급 모드에서 프레임 버전 · 지상 전원 상실 시 동작(자동 착륙은 확인 후).
-  시동 중 잠금. 실제 SAFE-T 스테이션 연결 시험은 아직 못 함(3장 C에 추가).
-- ~~S16 토크 0–10 단계~~ — 2026-11-20 완료(사용자 결정): #317처럼 ‹ 단계 › + 적용값, 0/30/100 % 프리셋 삭제. 실제 스테이션에서 단계 조절은 미시험.
+**C. 참고**
+- 끝난 정리: 재부팅 토스트(`b918c52e5`), mainWindow 패널 플래그 삭제, CodevCameraVisual TypeError, Elistair 연결 화면(S54), S16 토크 단계, ADSB 포트 표시.
+- 토스트는 비행 화면 기준 높이에 떠서 설정 화면에서는 입력 칸 일부를 6초 동안 가림(눌러서 닫힘). 바꿀지는 미정.
 
-**B. 작은 정리 — 2026-11-19 완료**
-1. ~~재부팅 필요 메시지 상자~~ → Simple 토스트(`b918c52e5`, Figma S60/S101 노트). S101·S60은 자체 안내만 표시. 2026-11-20 앱 화면 확인: 설정 › 장치 ADSB 스위치(앱 재시작 설정)에서 토스트 표시·6초 뒤 사라짐. 드론 재부팅 매개변수 쪽 토스트는 SITL 기체를 바꾸게 되어 화면 확인 안 함.
-2. ~~`mainWindow` 패널 플래그~~ 삭제(`a04d43456`). `ysOpenPanelOnConnect` 설정은 남김(이제 효과 없음).
-3. ~~`CodevCameraVisual.qml` TypeError~~ 수정(`bc7e41c94`): 일반 MAVLink 카메라에서는 Codev 전용 값을 읽지 않음.
-- ~~Figma "UX notes · S101" 제목~~: 2026-11-20 확인, 이미 "S101 고급 · 기체 설정 › Gimbal › 서보 짐벌 출력"으로 맞음.
-4. ~~설정 › 장치 ADSB 포트가 "30003.000"으로 표시~~(설정이 문자열 타입): 2026-11-20 일반 포트 입력으로 수정.
-
-**C. 실기·장비 시험 (SITL로 못 한 것)**
-- USB 게임패드(S95), Vision LiDAR(S99), RTK 시리얼 데이터, SAFE-T 전원 상실 시 "예, 이 드론입니다"(S50),
-  실제 회사 카메라(R3 등)에서 S100과 SD 포맷, SAFE-T 스테이션 TCP(Wi-Fi 192.168.4.1:23232)·UDP 연결(S54).
-
-**D. PR #311 리뷰 준비** — 2026-11-19 완료(AGD-DEV-ALQGC-401 D01, Claude Docs). 2026-11-20: S54 연결 · S16 토크 단계 · D2 결정을 변경 요약표, 장비 체크리스트, 제한 표, 다음 단계에 반영.
-
-추천 순서: B → D → (리뷰 결과를 보고) A. C는 장비가 있는 사람에게 D의 체크리스트로 부탁.
+추천 순서: 리뷰 결과를 기다리는 동안 B(장비 시험 의뢰) → 리뷰 의견 반영 → A의 D2.
 
 ## 4. 다른 PC에서 시작하기
 
@@ -109,12 +114,12 @@ git clone <원격 URL> ales_qgc        # 또는 기존 클론에서 git fetch &&
 ```
 
 **로컬 빌드·시험 도구는 저장소에 없습니다.** 이 PC의 `C:\Users\<사용자>\aqgc-build` 폴더에 있던 스크립트를
-`aqgc-claude-code-handoff_2026-11-18.zip`(저장소 밖, `works` 폴더)으로 묶었습니다. 새 PC의 같은 위치에 풀고,
+`aqgc-claude-code-handoff_2026-11-20.zip`(저장소 밖, `works` 폴더)으로 묶었습니다(11-18 묶음 + `fakelidar.*`, 안내 `README_KO.txt`). 새 PC의 같은 위치에 풀고,
 사용자 이름이나 저장소 경로가 다르면 각 스크립트 첫 줄의 경로(`set B=...`, `subst Q: ...`, `/mnt/c/Users/...`)를 고치세요.
 
 | 파일 | 용도 |
 |---|---|
-| `build_rel.bat` | Release 빌드(`rbuild\`). 저장소를 `subst Q:`로 잡아 빌드(경로에 공백이 있어서). **주의:** 스크립트의 기본 subst 경로는 예전 클론 `AQGC_Simple\ales_qgc`(11-18 상태). 이 저장소를 빌드하려면 먼저 `subst Q: "<이 저장소>"`(tests.bat도 같음) |
+| `build_rel.bat` | Release 빌드(`rbuild\`). 저장소를 `subst Q:`로 잡아 빌드(경로에 공백이 있어서). 2026-11-20부터 `subst` 경로는 이 클론(`...\code review\ALES_QGC`). `Q:`가 이미 다른 곳을 가리키면 `subst Q: /d` 후 다시 실행 |
 | `tests.bat` | Simple UI Qt Quick 테스트 → `tests.txt`. **PowerShell에서 `cmd /c ...\tests.bat`로 실행**(Git Bash의 `cmd //c`로는 실행되지 않고 옛 결과가 남은 적 있음). 끝난 뒤 `tests.txt` 시각 확인 |
 | `ui.ps1` | UI 구동: `start [args\|none] [name]`, `pin`, `tap x y`, `drag`, `slide`, `type`, `key`, `shot name`, `stop`. 스크린샷·로그는 `runs\` |
 | `sitl.sh`, `aqgc-sitl.parm` | WSL(Ubuntu-22.04)에서 회사 ArduCopter SITL 실행(`~/APM4.5` 빌드 필요, 4시간 제한). Git Bash: `MSYS_NO_PATHCONV=1 wsl -d Ubuntu-22.04 -- bash /mnt/c/.../sitl.sh run` |
@@ -134,5 +139,5 @@ WSL Ubuntu-22.04 + 회사 ArduPilot 트리(`~/APM4.5`, `./waf configure --board 
 
 **Claude Code 시작 지시 예**
 ```
-handoff.md와 CLAUDE.md를 읽고, 3장 "남은 일"의 B부터 진행해 줘. D2(3장 A)는 먼저 나에게 물어봐.
+handoff.md와 CLAUDE.md를 읽고 3장 "남은 일"을 확인해 줘. 리뷰 의견이 있으면 그것부터, D2(3장 A)는 먼저 나에게 물어봐.
 ```
