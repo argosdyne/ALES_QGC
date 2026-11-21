@@ -69,8 +69,9 @@ Item {
                 return { text: qsTr("The way crosses %1 — choose another point").arg(way.zoneName !== "" ? way.zoneName : qsTr("a prohibited zone")), red: true }
         }
         if (_fence && _fence.fenceLoaded) {
-            var reason = _fence.goToTargetBlockReason(coordinate)
-            if (reason !== "") return { text: reason, red: true }
+            // the core text is not translated in the Simple UI (Tuleap bug #28581): own words
+            if (_fence.goToTargetBlockReason(coordinate) !== "")
+                return { text: qsTr("Outside the geofence — choose a point inside it"), red: true }
         }
         var maxD = Number(_fly.maxGoToLocationDistance.rawValue)
         if (maxD > 0 && distance > maxD)    return { text: qsTr("Too far — Go here reaches up to %1").arg(hDist(maxD)), red: true }

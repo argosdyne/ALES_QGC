@@ -2645,6 +2645,42 @@
         <source>Station lost</source>
         <translation>스테이션 끊김</translation>
     </message>
+    <message>
+        <source>Crash detected</source>
+        <translation>충돌 감지</translation>
+    </message>
+    <message>
+        <source>GPS or position lost</source>
+        <translation>GPS 또는 위치 정보 상실</translation>
+    </message>
+    <message>
+        <source>Battery low</source>
+        <translation>배터리 부족</translation>
+    </message>
+    <message>
+        <source>Controller signal lost</source>
+        <translation>조종기 신호 끊김</translation>
+    </message>
+    <message>
+        <source>App link lost</source>
+        <translation>앱 연결 끊김</translation>
+    </message>
+    <message>
+        <source>Geofence reached</source>
+        <translation>지오펜스 도달</translation>
+    </message>
+    <message>
+        <source>Terrain data problem</source>
+        <translation>지형 데이터 문제</translation>
+    </message>
+    <message>
+        <source>Strong vibration</source>
+        <translation>심한 진동</translation>
+    </message>
+    <message>
+        <source>Strong wind</source>
+        <translation>강한 바람</translation>
+    </message>
 </context>
 <context>
     <name>SimpleWelcome</name>
@@ -4137,6 +4173,10 @@
     <message>
         <source>Type latitude / longitude</source>
         <translation>위도 / 경도 입력</translation>
+    </message>
+    <message>
+        <source>Outside the geofence — choose a point inside it</source>
+        <translation>지오펜스 밖입니다 — 안쪽 지점을 고르세요</translation>
     </message>
 </context>
 <context>

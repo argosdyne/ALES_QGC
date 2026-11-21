@@ -714,7 +714,7 @@ Item {
             visible: vs.state === "returning"
             level: "warn"; icon: vs.landing ? "land" : "home"
             title: vs.landing ? qsTr("Landing") : (!isNaN(vs.batteryPct) && vs.batteryPct <= 20 ? qsTr("Battery low — returning home") : qsTr("Returning home"))
-            detail: [vs.recentWarning !== "" ? qsTr("Drone: %1").arg(vs.recentWarning) : "",          // QA F5: why it returns / lands
+            detail: [vs.recentReason !== "" ? qsTr("Drone: %1").arg(vs.recentReason) : "",          // QA F5: why it returns / lands
                      vs.gpsLock < 3 ? (vs.landing ? "" : qsTr("Land lands here."))                         // QA F6: no pause without GPS
                      : vs.landing ? qsTr("Pause stops the drone in place.") : qsTr("Pause stops the drone in place. Land lands here.")]
                     .filter(function(t) { return t !== "" }).join(" · ")

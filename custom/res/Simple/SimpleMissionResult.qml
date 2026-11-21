@@ -56,7 +56,7 @@ Rectangle {
                 distance = vs.vehicle.flightDistance.valueString + " " + vs.vehicle.flightDistance.units
                 photos = vs.vehicle.missionImageCount >= 0 ? vs.vehicle.missionImageCount : vs.vehicle.cameraTriggerPoints.count
                 battStart = _battAtArm; battEnd = vs.batteryPct
-                reason = vs.recentWarning
+                reason = vs.recentReason
                 decide.restart()                       // showResumeMission settles a moment after the disarm
             }
             _wasArmed = false; _wasInMission = false

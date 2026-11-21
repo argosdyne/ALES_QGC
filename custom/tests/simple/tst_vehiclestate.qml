@@ -47,6 +47,7 @@ TestCase {
             property bool   readyToFlyAvailable: false
             property bool   readyToFly: true
             property int    sensorsUnhealthyBits: 0
+            signal textMessageReceived(int uasid, int componentid, int severity, string text, string description)
         }
     }
     Component { id: stateComp; SimpleVehicleState { } }
@@ -193,6 +194,22 @@ TestCase {
     }
 
     // ---- random: invariants over random vehicle states
+    // ---- reason for return / landing / mission stop (payload test 2026-11-21 #32/#33)
+    function test_cause_plain_words_and_rank() {
+        compare(s.recentReason, "")
+        v.textMessageReceived(1, 1, 6, "Mission: 3 WP", "")               // info: ignored
+        v.textMessageReceived(1, 1, 4, "PreArm: GPS 1: Bad fix", "")      // pre-arm: ignored
+        compare(s.recentReason, "")
+        v.textMessageReceived(1, 1, 2, "EKF Failsafe", "")
+        compare(s.recentCause, "GPS or position lost")
+        v.textMessageReceived(1, 1, 4, "Something unrelated", "")         // no known cause: kept
+        compare(s.recentCause, "GPS or position lost")
+        v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")            // lower rank: kept
+        compare(s.recentCause, "GPS or position lost")
+        v.textMessageReceived(1, 1, 2, "Crash: Disarming", "")            // higher rank: replaces
+        compare(s.recentCause, "Crash detected")
+        verify(s.recentReason.indexOf("Crash detected") === 0)
+    }
     function test_random_states() {
         var modes = ["Loiter", "RTL", "Smart RTL", "Land", "Auto", "Brake", "Stabilize", ""]
         var allowed = ["disconnected", "lost", "returning", "flying", "ground"]

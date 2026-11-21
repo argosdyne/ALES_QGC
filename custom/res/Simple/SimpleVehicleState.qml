@@ -77,15 +77,39 @@ QtObject {
                                              + (sensorsOk ? 0 : 1) + (!ridAvailable || ridGood ? 0 : 1) + (zoneBlocked ? 1 : 0)
                                              + (tethered && !tetherPowerOk ? 1 : 0)
 
-    // QA F5: the drone's last warning (STATUSTEXT, severity WARNING or worse) in the last 60 s, e.g. why it lands
+    // QA F5: why the drone returns / lands / stopped a mission, in plain words. Only FC warnings (STATUSTEXT, severity
+    // WARNING or worse) that name a known cause are used; the most serious cause in the last 60 s wins, so a later
+    // unrelated line ("EKF primary changed", "SmartRTL deactivated") does not replace it (Tuleap bug #28582).
+    // recentWarning keeps the raw FC text (Advanced mode shows it after the plain cause).
     property string recentWarning: ""
-    property Timer _warnTimer: Timer { interval: 60000; onTriggered: recentWarning = "" }
+    property string recentCause: ""
+    property int    _causeRank: 0
+    property Timer _warnTimer: Timer { interval: 60000; onTriggered: { recentWarning = ""; recentCause = ""; _causeRank = 0 } }
+    function _causeOf(t) {          // [rank, plain text]; rank 0 = not a cause
+        if (/crash/i.test(t))                                                     return [9, qsTr("Crash detected")]
+        if (/EKF|GPS|position|Need Position|Glitch|variance|compass/i.test(t))   return [8, qsTr("GPS or position lost")]
+        if (/batt|voltage|capacity/i.test(t))                                    return [7, qsTr("Battery low")]
+        if (/radio|RC |throttle failsafe|RC failsafe/i.test(t))                  return [6, qsTr("Controller signal lost")]
+        if (/GCS|telemetry|link/i.test(t))                                       return [5, qsTr("App link lost")]
+        if (/fence/i.test(t))                                                    return [4, qsTr("Geofence reached")]
+        if (/terrain|rangefinder/i.test(t))                                      return [3, qsTr("Terrain data problem")]
+        if (/vibration/i.test(t))                                                return [3, qsTr("Strong vibration")]
+        if (/wind/i.test(t))                                                     return [2, qsTr("Strong wind")]
+        return [0, ""]
+    }
     property Connections _warnConn: Connections {
         target: present ? vehicle : null
         function onTextMessageReceived(uasid, componentid, severity, text, description) {
-            if (severity <= 4 && text !== "" && text.indexOf("PreArm") !== 0) { recentWarning = text; _warnTimer.restart() }
+            if (severity > 4 || text === "" || text.indexOf("PreArm") === 0) return
+            var c = s._causeOf(text)
+            if (c[0] === 0) return
+            if (c[0] >= s._causeRank || s.recentCause === "") { s.recentCause = c[1]; s.recentWarning = text; s._causeRank = c[0] }
+            s._warnTimer.restart()
         }
     }
+    // reason line for banners and the S92 card: plain cause; Advanced mode adds the FC text
+    readonly property string recentReason: recentCause === "" ? ""
+                                         : (QGroundControl.corePlugin.advancedMode ? recentCause + " (" + recentWarning + ")" : recentCause)
 
     // Overall state name used by the UI rules
     readonly property string state: !present ? "disconnected"
