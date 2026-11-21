@@ -22,6 +22,8 @@ Reply to the user in Korean unless they write in English.
    `simpleMode` / `mainWindow.simpleUI`, so Advanced mode (classic alesQGC) behaves as before.
    Exception (user 2026-11-17): fixes of real bugs in core QGC code (e.g. the mission-load leak, ArduPilot structure-scan
    ROI, Init Path loading) may apply to both modes, unguarded. Keep them small, in their own commit, and say so.
+   Exception (user 2026-11-21): small read-only core accessors the Simple UI needs (e.g. `Vehicle.defaultComponentId`,
+   `Vehicle.fenceStatusBreached()`) may be added unguarded, in their own commit, with no behaviour change.
 3. New QML or icon files must be added to `custom/custom.qrc` (prefix `/simple`) **and** `custom/res/Simple/qmldir`.
 4. Do not duplicate flight logic: call `GuidedActionsController.executeAction()`, `PlanMasterController`,
    and FC parameters via `FactPanelController`.
@@ -373,4 +375,5 @@ Reply to the user in Korean unless they write in English.
    safety** (flight commands, plan send / block, failsafe behaviour). Display-only importants and nits are Pass and go
    to Tuleap as Low bugs for the next image. Round 12 (47a0985b3..4251bf27d) = Pass; BT01 = tag
    `simple_ui_v1_2026112102`. Core read-only additions for the Simple UI (`Vehicle.defaultComponentId`,
-   `Vehicle.fenceStatusBreached()`) are not bug fixes: ask the user to confirm them as a rule-2 exception.
+   `Vehicle.fenceStatusBreached()`) are an approved rule-2 exception (user 2026-11-21): small read-only core
+   accessors the Simple UI needs may be added unguarded, in their own "Core:" commit, with no behaviour change.
