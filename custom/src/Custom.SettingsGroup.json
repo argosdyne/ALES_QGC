@@ -94,6 +94,54 @@
     "enumStrings":      "Manual only,Auto",
     "enumValues":       "0,1",
     "default":          0
+},
+{
+    "name":             "simpleAdvancedMode",
+    "shortDesc":        "Simple UI: Advanced mode was on when the app closed (no PIN; the last mode is kept over restarts)",
+    "type":             "bool",
+    "default":          false
+},
+{
+    "name":             "simpleWelcomeShown",
+    "shortDesc":        "Simple UI: first-start welcome (language & units) has been completed",
+    "type":             "bool",
+    "default":          false
+},
+{
+    "name":             "simpleLargeText",
+    "shortDesc":        "Simple UI: larger text on flight screens",
+    "type":             "bool",
+    "default":          false
+},
+{
+    "name":             "simpleStartScreen",
+    "shortDesc":        "Simple UI: screen shown at start",
+    "type":             "uint32",
+    "enumStrings":      "Fly,Plan",
+    "enumValues":       "0,1",
+    "default":          0
+},
+{
+    "name":             "simpleGimbalSpeed",
+    "shortDesc":        "Simple UI: gimbal speed (applied to the Gremsy / NextVision payload controller)",
+    "type":             "uint32",
+    "enumStrings":      "Slow,Normal,Fast",
+    "enumValues":       "0,1,2",
+    "default":          1
+},
+{
+    "name":             "simpleProductProfile",
+    "shortDesc":        "Simple UI: product profile",
+    "type":             "uint32",
+    "enumStrings":      "Inspection / Surveillance,Mapping,Tether,Cleaning",
+    "enumValues":       "0,1,2,3",
+    "default":          0
+},
+{
+    "name":             "simpleDeveloperTools",
+    "shortDesc":        "Simple UI: show the developer tools (MAVLink Inspector, App log) in Analyze tools (S63)",
+    "type":             "bool",
+    "default":          false
 }
 ]
 }

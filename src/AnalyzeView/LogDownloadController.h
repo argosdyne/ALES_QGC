@@ -72,6 +72,8 @@ class QGCLogEntry : public QObject {
     Q_PROPERTY(bool         received    READ received                       NOTIFY receivedChanged)
     Q_PROPERTY(bool         selected    READ selected   WRITE setSelected   NOTIFY selectedChanged)
     Q_PROPERTY(QString      status      READ status                         NOTIFY statusChanged)
+    /// AQGC (S61): 0..1 while downloading, 1 when downloaded, -1 otherwise
+    Q_PROPERTY(qreal        progress    READ progress                       NOTIFY progressChanged)
 
 public:
     QGCLogEntry(uint logId, const QDateTime& dateTime = QDateTime(), uint logSize = 0, bool received = false);
@@ -83,6 +85,7 @@ public:
     bool        received    () const { return _received; }
     bool        selected    () const { return _selected; }
     QString     status      () const { return _status; }
+    qreal       progress    () const { return _progress; }
 
     void        setId       (uint id_)          { _logID = id_; }
     void        setSize     (uint size_)        { _logSize = size_;     emit sizeChanged(); }
@@ -90,6 +93,7 @@ public:
     void        setReceived (bool rec_)         { _received = rec_;     emit receivedChanged(); }
     void        setSelected (bool sel_)         { _selected = sel_;     emit selectedChanged(); }
     void        setStatus   (QString stat_)     { _status = stat_;      emit statusChanged(); }
+    void        setProgress (qreal p)           { if (p != _progress) { _progress = p; emit progressChanged(); } }
 
 signals:
     void        idChanged       ();
@@ -98,6 +102,7 @@ signals:
     void        receivedChanged ();
     void        selectedChanged ();
     void        statusChanged   ();
+    void        progressChanged ();
 
 private:
     uint        _logID;
@@ -106,6 +111,7 @@ private:
     bool        _received;
     bool        _selected;
     QString     _status;
+    qreal       _progress = -1;
 };
 
 //-----------------------------------------------------------------------------

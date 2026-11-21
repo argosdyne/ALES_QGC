@@ -45,4 +45,11 @@ public:
     Q_INVOKABLE void setFilePathRawValue(QString filePath);
     Q_INVOKABLE void setOnlinePathRawValue(QString onlinePath);
     Q_INVOKABLE void setOnlineLicenseKeyRawValue(QString onlineLicenseKey);
+
+    /// AQGC: true when this build carries the company Altitude Angel key (tagged CI builds only)
+    Q_PROPERTY(bool builtInAltitudeAngelKey READ builtInAltitudeAngelKey CONSTANT)
+    bool builtInAltitudeAngelKey() const;
+    /// AQGC: key to send to Altitude Angel: the one the user entered (secure store), else the built-in one.
+    /// Never log it or show it in the UI.
+    QString altitudeAngelKey();
 };

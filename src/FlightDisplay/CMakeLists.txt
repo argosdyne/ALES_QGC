@@ -6,35 +6,18 @@ add_custom_target(FligthDisplayQml
 		FlightDisplayViewDummy.qml
 		FlightDisplayViewUVC.qml
 		FlightDisplayViewVideo.qml
-		FlightDisplayViewWidgets.qml
 		FlyViewCustomLayer.qml
-		FlyViewInstrumentPanel.qml
 		FlyViewMap.qml
-		FlyViewMissionCompleteDialog.qml
-		FlyViewPreFlightChecklistPopup.qml
 		FlyView.qml
-		FlyViewToolStripActionList.qml
-		FlyViewToolStrip.qml
 		FlyViewVideo.qml
-		FlyViewWidgetLayer.qml
 		FlyViewOverlay.qml
-		GuidedActionActionList.qml
 		GuidedActionConfirm.qml
-		GuidedActionLand.qml
 		GuidedActionList.qml
-		GuidedActionPause.qml
-		GuidedActionRTL.qml
 		GuidedActionsController.qml
-		GuidedActionTakeoff.qml
-		GuidedActionGripper.qml
-		GripperMenu.qml
 		GuidedValueSlider.qml
-		GuidedToolStripAction.qml
 		MultiRotorChecklist.qml
-		MultiVehicleList.qml
 		PreFlightBatteryCheck.qml
 		PreFlightCheckList.qml
-		PreFlightCheckListShowAction.qml
 		PreFlightGPSCheck.qml
 		PreFlightRCCheck.qml
 		PreFlightSensorsHealthCheck.qml
@@ -43,9 +26,6 @@ add_custom_target(FligthDisplayQml
 		ProximityRadarVideoView.qml
 		RoverChecklist.qml
 		SubChecklist.qml
-		TelemetryValuesBar.qml
-		TerrainProgress.qml
-		VehicleWarnings.qml
 		VirtualJoystick.qml
 		VTOLChecklist.qml
 		ObstacleDistanceOverlay.qml

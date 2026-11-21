@@ -25,6 +25,8 @@ TCPLink::TCPLink(SharedLinkConfigurationPtr& config)
     , _socketIsConnected(false)
 {
     Q_ASSERT(_tcpConfig);
+    _reconnectTimer.setInterval(2000);
+    QObject::connect(&_reconnectTimer, &QTimer::timeout, this, &TCPLink::_tryReconnect);
 }
 
 TCPLink::~TCPLink()
@@ -87,9 +89,11 @@ void TCPLink::_readBytes()
 
 void TCPLink::disconnect(void)
 {
+    _reconnectTimer.stop();
+    _reconnecting = false;
     if (_socket) {
         // This prevents stale signal from calling the link after it has been deleted
-        QObject::disconnect(_socket, &QIODevice::readyRead, this, &TCPLink::_readBytes);
+        QObject::disconnect(_socket, nullptr, this, nullptr);
         _socketIsConnected = false;
         _socket->disconnectFromHost(); // Disconnect tcp
         _socket->deleteLater(); // Make sure delete happens on correct thread
@@ -132,13 +136,42 @@ bool TCPLink::_hardwareConnect()
         return false;
     }
     _socketIsConnected = true;
+    QObject::connect(_socket, &QAbstractSocket::disconnected, this, &TCPLink::_socketDisconnected);
+    QObject::connect(_socket, &QAbstractSocket::connected, this, [this]() {
+        if (_reconnecting) {
+            qDebug() << "TCPLink: reconnected" << _config->name();
+            _reconnecting = false;
+            _reconnectTimer.stop();
+        }
+    });
     emit connected();
     return true;
+}
+
+void TCPLink::_socketDisconnected(void)
+{
+    // Only the other side gets here: disconnect() removes this connection before closing the socket
+    if (!_socket || _reconnecting) {
+        return;
+    }
+    qDebug() << "TCPLink: remote closed, reconnecting" << _config->name();
+    _reconnecting = true;
+    _reconnectTimer.start();
+}
+
+void TCPLink::_tryReconnect(void)
+{
+    if (_socket && _socket->state() == QAbstractSocket::UnconnectedState) {
+        _socket->connectToHost(_tcpConfig->host(), _tcpConfig->port());
+    }
 }
 
 void TCPLink::_socketError(QAbstractSocket::SocketError socketError)
 {
     Q_UNUSED(socketError);
+    if (_reconnecting) {
+        return;     // a failed reconnect try: the link state is already shown, retried every 2 s
+    }
     emit communicationError(tr("Link Error"), tr("Error on link %1. Error on socket: %2.").arg(_config->name()).arg(_socket->errorString()));
 }
 

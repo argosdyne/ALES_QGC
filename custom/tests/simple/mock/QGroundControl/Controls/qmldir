@@ -1,0 +1,2 @@
+module QGroundControl.Controls
+QGCColoredImage 1.0 QGCColoredImage.qml

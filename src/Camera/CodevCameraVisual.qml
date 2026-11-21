@@ -65,6 +65,10 @@ Item {
                                        _cameraModelUpper.indexOf("IR 1") !== -1 ||
                                        _cameraModelUpper.indexOf("LR1") !== -1)
 
+    // A generic MAVLink camera (QGCCameraControl) also loads this file but has none of the Codev-only properties
+    // (spot metering, temperatures): reading them threw TypeErrors. Use them only on a Codev camera.
+    property bool _codev: !!_camera && _camera.spotMeteringArea !== undefined
+
     property bool _hasLaserRangefinder: !_isSonyIR1 && !!_tofEN && (!_tofEN.readOnly || !!_tofEN.value || (_camera && _camera.targetDistance > 0))
 
     function _ensureTrackingDefaults() {
@@ -228,11 +232,11 @@ Item {
         AreaFrame {
             width: parent.width / 15
             height: parent.height / 15
-            x: _camera.spotMeteringArea.x * parent.width - width / 2
-            y: _camera.spotMeteringArea.y * parent.height - height / 2
+            x: _codev ? _camera.spotMeteringArea.x * parent.width - width / 2 : 0
+            y: _codev ? _camera.spotMeteringArea.y * parent.height - height / 2 : 0
             color: qgcPal.colorOrange
             icon: "qrc:/qmlimages/sun.svg"
-            visible: _camera.spotMeteringArea.x !== 0 || _camera.spotMeteringArea.y !== 0
+            visible: _codev && (_camera.spotMeteringArea.x !== 0 || _camera.spotMeteringArea.y !== 0)
         }
 
         TouchSelectArea {
@@ -311,8 +315,8 @@ Item {
 
         Rectangle {
             id: minTempRect
-            x: _camera ? (_camera.minTempX * parent.width - width / 2) : 0
-            y: _camera ? (_camera.minTempY * parent.height - height / 2)  : 0
+            x: _codev ? (_camera.minTempX * parent.width - width / 2) : 0
+            y: _codev ? (_camera.minTempY * parent.height - height / 2)  : 0
             width: ScreenTools.defaultFontPixelWidth
             radius: width / 2
             height: width
@@ -323,7 +327,7 @@ Item {
 
             QGCLabel {
                 property bool useRight: _camera.minTempX < 0.67
-                text: _camera ? _camera.minTemp.toFixed(1) : ""
+                text: _codev ? _camera.minTemp.toFixed(1) : ""
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: useRight ? parent.right : undefined
                 anchors.right: useRight ? undefined : parent.left
@@ -335,8 +339,8 @@ Item {
         }
         Rectangle {
             id: maxTempRect
-            x: _camera ? (_camera.maxTempX * parent.width - width / 2) : 0
-            y: _camera ? (_camera.maxTempY * parent.height - height / 2) : 0
+            x: _codev ? (_camera.maxTempX * parent.width - width / 2) : 0
+            y: _codev ? (_camera.maxTempY * parent.height - height / 2) : 0
             width: ScreenTools.defaultFontPixelWidth
             radius: width / 2
             height: width
@@ -347,7 +351,7 @@ Item {
 
             QGCLabel {
                 property bool useRight: _camera.maxTempX < 0.67
-                text: _camera ? _camera.maxTemp.toFixed(1) : ""
+                text: _codev ? _camera.maxTemp.toFixed(1) : ""
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: useRight ? parent.right : undefined
                 anchors.right: useRight ? undefined : parent.left
@@ -358,14 +362,14 @@ Item {
             }
         }
         Rectangle {
-            x: _camera.rectTempX1 * parent.width
-            y: _camera.rectTempY1 * parent.height
-            width: (_camera.rectTempX2 - _camera.rectTempX1) * parent.width
-            height: (_camera.rectTempY2 - _camera.rectTempY1) * parent.height
+            x: _codev ? _camera.rectTempX1 * parent.width : 0
+            y: _codev ? _camera.rectTempY1 * parent.height : 0
+            width: _codev ? (_camera.rectTempX2 - _camera.rectTempX1) * parent.width : 0
+            height: _codev ? (_camera.rectTempY2 - _camera.rectTempY1) * parent.height : 0
             color: "transparent"
             border.width: 1
             border.color: "white"
-            visible: _thermometry && _thermometry.value && _camera.tempType === 4
+            visible: _codev && _thermometry && _thermometry.value && _camera.tempType === 4
         }
 
         TouchSelectArea {
@@ -412,12 +416,17 @@ Item {
         }
     }
 
+    // AQGC Simple UI: the map PiP sits bottom-right of the video (400 x 226 at 24 px, Figma 1920 x 1080) and the camera
+    // rail / Payloads button on the right, so the IR tools go above the PiP, left of the rail (Tuleap bug #27474: they
+    // were hidden behind the PiP).
+    readonly property bool _simpleLayout: typeof mainWindow !== "undefined" && !!mainWindow.simpleUI
+    readonly property real _designScale: Math.min(width / 1920, height / 1080)
     RowLayout {
         id: irToolsPanel
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: ScreenTools.defaultFontPixelWidth * 1.5
+        anchors.bottomMargin: _simpleLayout ? _designScale * (24 + 226 + 24) : ScreenTools.defaultFontPixelWidth * 1.5
         anchors.right: parent.right
-        anchors.rightMargin: ScreenTools.defaultFontPixelWidth
+        anchors.rightMargin: _simpleLayout ? _designScale * (24 + 128 + 24) : ScreenTools.defaultFontPixelWidth
         visible: _factoryCali ? !_factoryCali.value : true
 
         PseudocolorBar {
@@ -503,7 +512,7 @@ Item {
         ToolRadioButton {
             id: spotAERadioButton
             Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter
-            checked: _camera.spotMeteringArea.x !== 0 || _camera.spotMeteringArea.y !== 0 || spotMeteringEnable
+            checked: (_codev && (_camera.spotMeteringArea.x !== 0 || _camera.spotMeteringArea.y !== 0)) || spotMeteringEnable
             visible: _spotAE
             source: "qrc:/qmlimages/sun.svg"
             onClicked: {

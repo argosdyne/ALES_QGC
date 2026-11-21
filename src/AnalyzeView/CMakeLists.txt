@@ -29,7 +29,6 @@ add_library(AnalyzeView
 add_custom_target(AnalyzeViewQml
 	SOURCES
 		AnalyzePage.qml
-		AnalyzeView.qml
 		GeoTagPage.qml
 		LogDownloadPage.qml
 		MavlinkConsolePage.qml

@@ -16,16 +16,6 @@ add_library(VehicleSetup
 
 add_custom_target(VehicleSetupQml
 	SOURCES
-		FirmwareUpgrade.qml
-		JoystickConfigAdvanced.qml
-		JoystickConfigButtons.qml
-		JoystickConfigCalibration.qml
-		JoystickConfigGeneral.qml
-		JoystickConfig.qml
-		PX4FlowSensor.qml
-		SetupParameterEditor.qml
-		SetupView.qml
-		VehicleSummary.qml
 )
 
 target_link_libraries(VehicleSetup

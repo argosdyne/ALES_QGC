@@ -32,6 +32,7 @@
 #include "QGCLoggingCategory.h"
 #include "MultiVehicleManager.h"
 #include "SettingsManager.h"
+#include "MAVLinkSigning.h"
 
 Q_DECLARE_METATYPE(mavlink_message_t)
 
@@ -209,6 +210,12 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
     for (int position = 0; position < b.size(); position++) {
         if (mavlink_parse_char(mavlinkChannel, static_cast<uint8_t>(b[position]), &_message, &_status)) {
             // Got a valid message
+            // AQGC: MAVLink 2 signing (protected link: drop unsigned packets and packets signed with another key)
+            if (!MAVLinkSigning::packetReceived(mavlinkChannel, _message)) {
+                memset(&_status,  0, sizeof(_status));
+                memset(&_message, 0, sizeof(_message));
+                continue;
+            }
             if (!link->decodedFirstMavlinkPacket()) {
                 link->setDecodedFirstMavlinkPacket(true);
                 mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(mavlinkChannel);

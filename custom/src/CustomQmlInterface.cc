@@ -1,5 +1,6 @@
 #include "CustomQmlInterface.h"
 #include "CustomPlugin.h"
+#include "QGCApplication.h"
 #include "LinkManager.h"
 #include "CodevRTCMManager.h"
 #include "AVIATORInterface.h"
@@ -570,6 +571,11 @@ bool _containsSourceOrTranslation(const QString& message, const char* sourceText
 
 void CustomQmlInterface::geoAwarenessMessage(const QString& message)
 {
+    // AQGC Simple UI: flight zone warnings are the Simple banner (FlightZoneManager::zoneStatus) and import errors are
+    // shown in Settings > Map & flight zones, so the classic GeoAwareness message box is not used there.
+    if (!qgcApp()->toolbox()->corePlugin()->showAdvancedUI()) {
+        return;
+    }
 
     // qInfo() << "geoAwareness Messag e== " << message;
     // qInfo() << "_geoAwarenessMessageShown == " << _geoAwarenessInsideMessageShown;

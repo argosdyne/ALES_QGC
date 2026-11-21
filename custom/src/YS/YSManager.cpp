@@ -382,10 +382,14 @@ void YSManager::_sendCommand(MAV_CMD command, float param1, float param2)
         _acqRequests.append(param1 > 0.5f);
     }
     _lastReceivedMessage.clear();
+    // AQGC: pack on the vehicle link channel so the packet is MAVLink-signed when the link uses signing
+    SharedLinkInterfacePtr signLink = _vehicle ? _vehicle->vehicleLinkManager()->primaryLink().lock() : SharedLinkInterfacePtr();
+    const uint8_t packChan = signLink ? signLink->mavlinkChannel() : static_cast<uint8_t>(MAVLINK_COMM_0);
     mavlink_message_t msg{};
-    mavlink_msg_command_long_pack(
+    mavlink_msg_command_long_pack_chan(
         kYellowScanSysId,
         _compId(),
+        packChan,
         &msg,
         kYellowScanSysId,
         _compId(),
@@ -417,10 +421,14 @@ void YSManager::_sendCommand(MAV_CMD command, float param1, float param2)
 void YSManager::_sendNamedValueInt(const char* name, int32_t value)
 {
     _lastReceivedMessage.clear();
+    // AQGC: pack on the vehicle link channel so the packet is MAVLink-signed when the link uses signing
+    SharedLinkInterfacePtr signLink = _vehicle ? _vehicle->vehicleLinkManager()->primaryLink().lock() : SharedLinkInterfacePtr();
+    const uint8_t packChan = signLink ? signLink->mavlinkChannel() : static_cast<uint8_t>(MAVLINK_COMM_0);
     mavlink_message_t msg{};
-    mavlink_msg_named_value_int_pack(
+    mavlink_msg_named_value_int_pack_chan(
         kYellowScanSysId,
         _compId(),
+        packChan,
         &msg,
         0,
         name,

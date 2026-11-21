@@ -350,6 +350,8 @@ FlightMap {
     property real   _toolButtonTopMargin:       parent.height - mainWindow.height + (ScreenTools.defaultFontPixelHeight / 2)
     property real   _toolsMargin:               ScreenTools.defaultFontPixelWidth * 0.75
     property var    _flyViewSettings:           QGroundControl.settingsManager.flyViewSettings
+    property bool   simpleShowTrail:            true    // AQGC Simple UI: S30 Layers › Flight trail
+    signal simpleMapClicked(var coordinate)             // AQGC Simple UI: map tap (S15 zone details)
     property bool   _keepMapCenteredOnVehicle:  _flyViewSettings.keepMapCenteredOnVehicle.rawValue
 
     property bool   _disableVehicleTracking:    false
@@ -558,7 +560,7 @@ FlightMap {
         z:          QGroundControl.zOrderTrajectoryLines
         // During GoTo the dedicated overlay below is used, so the pre-GoTo
         // armed-flight history does not look like part of this command.
-        visible:    !pipMode && !_root.gotoProgressActive
+        visible:    !pipMode && !_root.gotoProgressActive && _root.simpleShowTrail
 
         Connections {
             target:                 QGroundControl.multiVehicleManager
@@ -989,6 +991,11 @@ FlightMap {
                 _root.setGotoDraftCoordinate(_root.toCoordinate(Qt.point(mouse.x, mouse.y), false), false)
                 return
             }
+            // Simple UI has no map tap menu yet (Figma S35, v2); a tap shows flight zone details (S15).
+            if (mainWindow.simpleUI) {
+                _root.simpleMapClicked(_root.toCoordinate(Qt.point(mouse.x, mouse.y), false))
+                return
+            }
             if (!globals.guidedControllerFlyView.guidedUIVisible && 
                 (globals.guidedControllerFlyView.showGotoLocation || globals.guidedControllerFlyView.showOrbit || globals.guidedControllerFlyView.showROI || globals.guidedControllerFlyView.showSetHome || globals.guidedControllerFlyView.showSetEstimatorOrigin)) {
                 orbitMapCircle.hide()
@@ -1006,6 +1013,9 @@ FlightMap {
         Popup {
             id: mapClickMenu
             modal: true
+
+            // Created with createObject() on every tap: free it when it closes.
+            onClosed: destroy()
 
             property var coord
             property var contentItemComponent

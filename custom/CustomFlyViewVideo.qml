@@ -53,6 +53,14 @@ Item {
         onTriggered:  QGroundControl.videoManager.startVideo()
     }
 
+    // AQGC Simple UI: opaque dark base so the PiP never shows the map through it
+    // (no GStreamer stream, or a UVC source without a camera)
+    Rectangle {
+        anchors.fill:   parent
+        visible:        mainWindow.simpleUI
+        color:          "#0f1216"
+    }
+
     //-- Video Streaming
     FlightDisplayViewVideo {
         id:             videoStreaming

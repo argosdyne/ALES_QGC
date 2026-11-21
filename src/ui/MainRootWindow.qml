@@ -37,98 +37,31 @@ ApplicationWindow {
             width   = ScreenTools.isMobile ? Screen.width  : Math.min(250 * Screen.pixelDensity, Screen.width)
             height  = ScreenTools.isMobile ? Screen.height : Math.min(150 * Screen.pixelDensity, Screen.height)
         }
-
-        // Start the sequence of first run prompt(s)
-        firstRunPromptManager.nextPrompt()
-    }
-
-    QtObject {
-        id: firstRunPromptManager
-
-        property var currentDialog:     null
-        property var rgPromptIds:       QGroundControl.corePlugin.firstRunPromptsToShow()
-        property int nextPromptIdIndex: 0
-
-        function clearNextPromptSignal() {
-            if (currentDialog) {
-                currentDialog.closed.disconnect(nextPrompt)
-            }
-        }
-
-        function nextPrompt() {
-            if (nextPromptIdIndex < rgPromptIds.length) {
-                var component = Qt.createComponent(QGroundControl.corePlugin.firstRunPromptResource(rgPromptIds[nextPromptIdIndex]));
-                currentDialog = component.createObject(mainWindow)
-                currentDialog.closed.connect(nextPrompt)
-                currentDialog.open()
-                nextPromptIdIndex++
-            } else {
-                currentDialog = null
-                showPreFlightChecklistIfNeeded()
-            }
-        }
+        // The classic first-run prompts are not used: the Simple UI shows its own welcome (SimpleWelcome.qml)
     }
 
     property var                _rgPreventViewSwitch:       [ false ]
 
-    // Cross-file flag for the Life Jacket / Searchlight panel in the Fly view
-    property bool               lifeVestPanelVisible:       false
-
-    // Cross-file flag for the SAFE-T tether panel in the Fly view
-    property bool               tetherPanelVisible:         false
-    Connections {
-        target: QGroundControl.corePlugin.elistairStationManager
-        onConnectionSettingsChanged: {
-            if (!target.enabled) mainWindow.tetherPanelVisible = false
-        }
-    }
-
-    // Cross-file flag for the YellowScan LiDAR panel in the Fly view (toolstrip [LiDAR] / toolbar LiDAR indicator)
-    property bool               lidarPanelVisible:          false
-    // LiDAR and Tether panels share the top-right corner: only one is open at a time
-    onLidarPanelVisibleChanged:  if (lidarPanelVisible) tetherPanelVisible = false
-    onTetherPanelVisibleChanged: if (tetherPanelVisible) lidarPanelVisible = false
-    readonly property bool      lidarPanelShown:            lidarPanelVisible && (QGroundControl.corePlugin.settings ? QGroundControl.corePlugin.settings.ysEnable.rawValue : false)
-    // YS-04 acquisition Start / Stop watcher: kept loaded while the LiDAR panel is closed (ACK, reject, Data logging check)
-    readonly property var       lidarAcquisition:           lidarAcquisitionLoader.item
-    Loader {
-        id:     lidarAcquisitionLoader
-        active: !!QGroundControl.corePlugin.ysManager
-        source: "qrc:/qml/LiDARAcquisition.qml"
-    }
-    // YS-05 warning / critical / no-response watcher: kept loaded while the LiDAR panel is closed
-    readonly property var       lidarAlerts:                lidarAlertsLoader.item
-    Loader {
-        id:     lidarAlertsLoader
-        active: !!QGroundControl.corePlugin.ysManager
-        source: "qrc:/qml/LiDARAlerts.qml"
-    }
-    // YS-08 elapsed time from the Start ACK and recorded track: kept loaded while the LiDAR panel is closed
-    readonly property var       lidarTrack:                 lidarTrackLoader.item
-    Loader {
-        id:     lidarTrackLoader
-        active: !!QGroundControl.corePlugin.ysManager
-        source: "qrc:/qml/LiDARTrackRecorder.qml"
-    }
-    // YS-09 mission auto Start / Stop at the first / last survey waypoint: kept loaded while the LiDAR panel is closed
-    readonly property var       lidarMissionAuto:           lidarMissionAutoLoader.item
-    Loader {
-        id:     lidarMissionAutoLoader
-        active: !!QGroundControl.corePlugin.ysManager
-        source: "qrc:/qml/LiDARMissionAuto.qml"
-    }
-    Connections {
-        target: QGroundControl.multiVehicleManager
-        onActiveVehicleChanged: {
-            var s = QGroundControl.corePlugin.settings
-            // Auto-open must not close an open Tether panel (only a user open does)
-            if (activeVehicle && s && s.ysEnable.rawValue && s.ysOpenPanelOnConnect.rawValue && !mainWindow.tetherPanelVisible) {
-                mainWindow.lidarPanelVisible = true
-            }
-        }
-    }
 
     readonly property real      _topBottomMargins:          ScreenTools.defaultFontPixelHeight * 0.5
+
+    /// AQGC: the Simple UI is the only UI (2026-11-18: the classic toolbar, tool pages and tool drawer are removed).
+    /// Kept as a constant because core fly / plan files still check it.
+    readonly property bool      simpleUI:                   true
+    // AQGC Simple UI: Layers › Flight zones (S30 / S15), saved as SimpleShowFlightZones
+    property bool               simpleShowFlightZones:      QGroundControl.loadBoolGlobalSetting("SimpleShowFlightZones", true)
+    readonly property var       flightZoneManager:          _flightzoneManager
+    // YS LiDAR phase 2 watchers (#318 / #319): always loaded while a YellowScan manager exists, so Start / Stop
+    // ACKs, alerts, the recorded track and the mission auto Start / Stop work with any screen open. The Simple
+    // fly screen shows them (Figma S17, S51, S102, S103, S53). No UI of their own.
+    readonly property var       lidarAcquisition:           lidarAcquisitionLoader.item
+    readonly property var       lidarAlerts:                lidarAlertsLoader.item
+    readonly property var       lidarTrack:                 lidarTrackLoader.item
+    readonly property var       lidarMissionAuto:           lidarMissionAutoLoader.item
+    Loader { id: lidarAcquisitionLoader; active: !!QGroundControl.corePlugin.ysManager; source: "qrc:/qml/LiDARAcquisition.qml" }
+    Loader { id: lidarAlertsLoader;      active: !!QGroundControl.corePlugin.ysManager; source: "qrc:/qml/LiDARAlerts.qml" }
+    Loader { id: lidarTrackLoader;       active: !!QGroundControl.corePlugin.ysManager; source: "qrc:/qml/LiDARTrackRecorder.qml" }
+    Loader { id: lidarMissionAutoLoader; active: !!QGroundControl.corePlugin.ysManager; source: "qrc:/qml/LiDARMissionAuto.qml" }
 
     //-------------------------------------------------------------------------
     //-- Global Scope Variables
@@ -202,25 +135,21 @@ ApplicationWindow {
         return _rgPreventViewSwitch[_rgPreventViewSwitch.length - 1]
     }
 
-    function viewSwitch(currentToolbar) {
-        toolDrawer.visible      = false
-        toolDrawer.toolSource   = ""
+    function viewSwitch() {
         flightView.visible      = false
         planView.visible        = false
-        _geoZoneMakeView.visible = false
-        toolbar.currentToolbar  = currentToolbar
     }
 
     function showFlyView() {
         if (!flightView.visible) {
             mainWindow.showPreFlightChecklistIfNeeded()
         }
-        viewSwitch(toolbar.flyViewToolbar)
+        viewSwitch()
         flightView.visible = true
     }
 
     function showPlanView() {
-        viewSwitch(toolbar.planViewToolbar)
+        viewSwitch()
         planView.visible = true
     }
 
@@ -232,62 +161,14 @@ ApplicationWindow {
         }
     }
 
-    // show GeoZoneMakeView
-    function showGeoZoneMakeView(){
-        //viewSwitch(toolbar.planViewToolbar)
-        _geoZoneMakeView.visible = true
-    }
-
-    function showTool(toolTitle, toolSource, toolIcon) {
-        toolDrawer.backIcon     = flightView.visible ? "/qmlimages/PaperPlane.svg" : "/qmlimages/Plan.svg"
-        toolDrawer.toolTitle    = toolTitle
-        toolDrawer.toolSource   = toolSource
-        toolDrawer.toolIcon     = toolIcon
-        toolDrawer.visible      = true
-    }
-
-    function showAnalyzeTool() {
-        showTool(qsTr("Analyze Tools"), "AnalyzeView.qml", "/qmlimages/Analyze.svg")
-    }
-
+    // Called by the APM plugin when setup is not complete (QGCApplication::showSetupView, after its app message).
+    // The Simple UI does not jump away from the fly screen: Vehicle setup › Summary (Advanced mode) shows what is
+    // missing, and the drone's own pre-arm checks still refuse to arm.
     function showSetupTool() {
-        showTool(qsTr("Vehicle Setup"), "SetupView.qml", "/qmlimages/Gears.svg")
     }
-
+    // Mission reset notice (MissionResetBanner "Settings") → Vehicle setup › Mission (S97)
     function showSetupMission() {
-        showSetupTool()
-        Qt.callLater(_openSetupMissionPanel)
-    }
-
-    function _openSetupMissionPanel() {
-        var setup = toolDrawerLoader.item
-        var vehicle = QGroundControl.multiVehicleManager.activeVehicle
-        if (!setup || !setup.showVehicleComponentPanel || !vehicle || !vehicle.autopilot) {
-            return
-        }
-        var components = vehicle.autopilot.vehicleComponents
-        for (var i = 0; i < components.length; i++) {
-            var setupSource = components[i].setupSource.toString()
-            if (setupSource.indexOf("APMMissionComponent.qml") !== -1) {
-                setup.showVehicleComponentPanel(components[i])
-                return
-            }
-        }
-    }
-
-    function showSettingsTool() {
-        showTool(qsTr("Application Settings"), "AppSettings.qml", "/res/QGCLogoWhite")
-    }
-
-    function showStationSetupTool() {
-        showTool(qsTr("Station Setup"), "ElistairStationSettings.qml", "/res/SafeTStation.svg")
-    }
-    function showLidarSetupTool() {
-        showTool(qsTr("LiDAR Setup"), "LidarSetupView.qml", "/res/QGCLogoWhite")
-    }
-
-    function showAboutTool() {
-        aboutDialogComponent.createObject(mainWindow).open()
+        if (simpleUILoader.item) simpleUILoader.item.showVehicleSetup("mission")
     }
 
     //-------------------------------------------------------------------------
@@ -313,117 +194,21 @@ ApplicationWindow {
         showMessageDialog(dialogTitle, dialogText)
     }
 
+    // Called by QGCApplication::showRebootNotice: a value that needs a drone / app restart was changed.
+    // The Simple UI shows a short toast (Figma S60 / S101 notes, 2026-11-19); false = show the classic message.
+    // Called by QGCApplication::showLinkMessage: the Simple UI shows link messages as a toast; false = classic message box
+    function _showLinkMessage(text) {
+        return simpleUILoader.item ? simpleUILoader.item.showLinkMessage(text) : false
+    }
+
+    function _showRebootNotice(vehicle, name) {
+        return simpleUILoader.item ? simpleUILoader.item.showRestartNotice(vehicle, name) : false
+    }
+
     Component {
         id: simpleMessageDialogComponent
 
         QGCSimpleMessageDialog {
-        }
-    }
-
-    Component {
-        id: aboutDialogComponent
-
-        QGCPopupDialog {
-            id:         aboutDialog
-            title:      qsTr("About")
-            buttons:    StandardButton.Close
-
-            property string _companyName:           "Argosdyne"
-            property string _productDisplayName:    QGroundControl.appName
-            property string _productVersion:        QGroundControl.qgcVersion
-
-            ColumnLayout {
-                width:                   Math.min(ScreenTools.defaultFontPixelWidth * 60, aboutDialog._maxContentWidth)
-                spacing:                 ScreenTools.defaultFontPixelHeight * 0.7
-
-                    ColumnLayout {
-                        Layout.fillWidth:   true
-                        spacing:            ScreenTools.defaultFontPixelHeight * 0.25
-
-                        QGCLabel {
-                            Layout.fillWidth:   true
-                            text:               qsTr("AlesQGC Smart Controller v1.0")
-                            font.pointSize:     ScreenTools.largeFontPointSize
-                            font.family:        ScreenTools.demiboldFontFamily
-                            wrapMode:           Text.WordWrap
-                        }
-
-                        QGCLabel {
-                            Layout.fillWidth:   true
-                            text:               qsTr("Copyright © 2024 %1. All rights reserved.").arg(aboutDialog._companyName)
-                            color:              qgcPal.text
-                            opacity:            0.75
-                            wrapMode:           Text.WordWrap
-                        }
-                }
-
-                Rectangle {
-                    Layout.fillWidth:   true
-                    Layout.preferredHeight: 1
-                    color:              qgcPal.text
-                    opacity:            0.15
-                }
-
-                Text {
-                    Layout.fillWidth:   true
-                    color:              qgcPal.text
-                    wrapMode:           Text.WordWrap
-                    textFormat:         Text.RichText
-                    font.pointSize:     ScreenTools.defaultFontPointSize
-                    font.family:        ScreenTools.normalFontFamily
-                    text:               qsTr("This product includes software developed by the QGroundControl project <br/> (<a href=\"https://qgroundcontrol.com\" style=\"color:%1;text-decoration:underline;\">https://qgroundcontrol.com</a>).").arg(qgcPal.text)
-                    onLinkActivated:    Qt.openUrlExternally(link)
-                }
-
-                QGCLabel {
-                    Layout.fillWidth:   true
-                    text:               qsTr("QGroundControl is licensed under the Apache License, Version 2.0.")
-                    wrapMode:           Text.WordWrap
-                }
-
-                Text {
-                    Layout.fillWidth:   true
-                    color:              qgcPal.text
-                    wrapMode:           Text.WordWrap
-                    textFormat:         Text.RichText
-                    font.pointSize:     ScreenTools.defaultFontPointSize
-                    font.family:        ScreenTools.normalFontFamily
-                    text:               qsTr("You may obtain a copy of the Apache License at:<br><a href=\"https://www.apache.org/licenses/LICENSE-2.0\" style=\"color:%1;text-decoration:underline;\">https://www.apache.org/licenses/LICENSE-2.0</a>").arg(qgcPal.text)
-                    onLinkActivated:    Qt.openUrlExternally(link)
-                }
-
-                ColumnLayout {
-                    Layout.fillWidth:   true
-                    visible:            ScreenTools.isAndroid
-                    spacing:            ScreenTools.defaultFontPixelHeight * 0.25
-
-                    property string _androidVersionText: ScreenTools.androidVersion === "" ? qsTr("Unknown") : qsTr("Android %1").arg(ScreenTools.androidVersion)
-                    property string _androidSecurityPatchText: _formattedAndroidSecurityPatch()
-
-                    function _formattedAndroidSecurityPatch() {
-                        if (ScreenTools.androidSecurityPatch === "") {
-                            return qsTr("Unknown")
-                        }
-
-                        var patchDate = Date.fromLocaleString(Qt.locale(), ScreenTools.androidSecurityPatch, "yyyy-MM-dd")
-                        return isNaN(patchDate.getTime()) ? ScreenTools.androidSecurityPatch : Qt.formatDate(patchDate, "yyyy/MM/dd")
-                    }
-
-                    QGCLabel {
-                        Layout.fillWidth:   true
-                        text:               qsTr("Develope under: %1 - Security patch %2").arg(parent._androidVersionText).arg(parent._androidSecurityPatchText)
-                        color:              qgcPal.text
-                        opacity:            0.75
-                        wrapMode:           Text.WordWrap
-                    }
-                }
-
-                Item {
-                    Layout.fillWidth:       true
-                    Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 0.7
-                }
-
-            }
         }
     }
 
@@ -438,7 +223,6 @@ ApplicationWindow {
         _forceClose = true
         // For some reason on the Qml side Qt doesn't automatically disconnect a signal when an object is destroyed.
         // So we have to do it ourselves otherwise the signal flows through on app shutdown to an object which no longer exists.
-        firstRunPromptManager.clearNextPromptSignal()
         QGroundControl.linkManager.shutdown()
         QGroundControl.videoManager.stopVideo();
         mainWindow.close()
@@ -500,251 +284,37 @@ ApplicationWindow {
         anchors.fill:   parent
     }
 
-    //-------------------------------------------------------------------------
-    /// Toolbar
-    header: MainToolBar {
-        id:         toolbar
-        height:     ScreenTools.toolbarHeight
-        visible:    !(QGroundControl.videoManager.fullScreen && flightView.visible)
-    }
-
     footer: LogReplayStatusBar {
         visible: QGroundControl.settingsManager.flyViewSettings.showLogReplayStatusBar.rawValue
     }
 
-    function showToolSelectDialog() {
-        if (!mainWindow.preventViewSwitch()) {
-            toolSelectDialogComponent.createObject(mainWindow).open()
-        }
-    }
-
-    Component {
-        id: toolSelectDialogComponent
-
-        QGCPopupDialog {
-            id:         toolSelectDialog
-            title:      qsTr("Select Tool")
-            buttons:    StandardButton.Close
-
-            property real _toolButtonHeight:    ScreenTools.defaultFontPixelHeight * 3
-            property real _margins:             ScreenTools.defaultFontPixelWidth
-
-            ColumnLayout {
-                width:  innerLayout.width + (toolSelectDialog._margins * 2)
-                height: innerLayout.height + (toolSelectDialog._margins * 2)
-
-                ColumnLayout {
-                    id:             innerLayout
-                    Layout.margins: toolSelectDialog._margins
-                    spacing:        ScreenTools.defaultFontPixelWidth
-
-                    SubMenuButton {
-                        id:                 setupButton
-                        height:             toolSelectDialog._toolButtonHeight
-                        Layout.fillWidth:   true
-                        text:               qsTr("Vehicle Setup")
-                        imageColor:         qgcPal.text
-                        imageResource:      "/qmlimages/Gears.svg"
-                        onClicked: {
-                            if (!mainWindow.preventViewSwitch()) {
-                                toolSelectDialog.close()
-                                mainWindow.showSetupTool()
-                            }
-                        }
-                    }
-
-                    SubMenuButton {
-                        id:                 analyzeButton
-                        height:             toolSelectDialog._toolButtonHeight
-                        Layout.fillWidth:   true
-                        text:               qsTr("Analyze Tools")
-                        imageResource:      "/qmlimages/Analyze.svg"
-                        imageColor:         qgcPal.text
-                        visible:            QGroundControl.corePlugin.showAdvancedUI
-                        onClicked: {
-                            if (!mainWindow.preventViewSwitch()) {
-                                toolSelectDialog.close()
-                                mainWindow.showAnalyzeTool()
-                            }
-                        }
-                    }
-
-                    SubMenuButton {
-                        id:                 settingsButton
-                        height:             toolSelectDialog._toolButtonHeight
-                        Layout.fillWidth:   true
-                        text:               qsTr("Application Settings")
-                        imageResource:      "/res/QGCLogoFull"
-                        imageColor:         "transparent"
-                        visible:            !QGroundControl.corePlugin.options.combineSettingsAndSetup
-                        onClicked: {
-                            if (!mainWindow.preventViewSwitch()) {
-                                toolSelectDialog.close()
-                                mainWindow.showSettingsTool()
-                            }
-                        }
-                    }
-
-                    SubMenuButton {
-                        id:                 aboutButton
-                        height:             toolSelectDialog._toolButtonHeight
-                        Layout.fillWidth:   true
-                        text:               qsTr("About")
-                        imageResource:      "/custom/img/about.svg"
-                        imageColor:         "transparent"
-                        onClicked: {
-                            toolSelectDialog.close()
-                            mainWindow.showAboutTool()
-                        }
-                    }
-
-                    SubMenuButton {
-                        id:                 stationSetupButton
-                        height:             toolSelectDialog._toolButtonHeight
-                        Layout.fillWidth:   true
-                        text:               qsTr("Station Setup")
-                        imageResource:      "/res/SafeTStation.svg"
-                        imageColor:         qgcPal.text
-                        visible:            QGroundControl.corePlugin.elistairStationManager !== null
-                        onClicked: {
-                            toolSelectDialog.close()
-                            mainWindow.showStationSetupTool()
-                        }
-                    }
-
-                    SubMenuButton {
-                        id:                 lidarSetupButton
-                        height:             toolSelectDialog._toolButtonHeight
-                        Layout.fillWidth:   true
-                        text:               qsTr("LiDAR Setup")
-                        imageResource:      "/custom/img/png/YSLidar.png"
-                        imageColor:         "transparent"
-                        visible:            QGroundControl.corePlugin.settings ? QGroundControl.corePlugin.settings.ysEnable.rawValue : false
-                        onClicked: {
-                            if (!mainWindow.preventViewSwitch()) {
-                                toolSelectDialog.close()
-                                mainWindow.showLidarSetupTool()
-                            }
-                        }
-                    }
-
-                    ColumnLayout {
-                        width:                  innerLayout.width
-                        spacing:                0
-                        Layout.alignment:       Qt.AlignHCenter
-
-                        QGCLabel {
-                            id:                     versionLabel
-                            text:                   qsTr("%1 Version").arg(QGroundControl.appName)
-                            font.pointSize:         ScreenTools.smallFontPointSize
-                            wrapMode:               QGCLabel.WordWrap
-                            Layout.maximumWidth:    parent.width
-                            Layout.alignment:       Qt.AlignHCenter
-                        }
-
-                        QGCLabel {
-                            text:                   QGroundControl.qgcVersion
-                            font.pointSize:         ScreenTools.smallFontPointSize
-                            wrapMode:               QGCLabel.WrapAnywhere
-                            Layout.maximumWidth:    parent.width
-                            Layout.alignment:       Qt.AlignHCenter
-
-                            QGCMouseArea {
-                                id:                 easterEggMouseArea
-                                anchors.topMargin:  -versionLabel.height
-                                anchors.fill:       parent
-
-                                onClicked: {
-                                    if (ScreenTools.isMobile){
-                                        if(!QGroundControl.corePlugin.showAdvancedUI) {
-                                            advancedModeOnConfirmation.open()
-                                        } else {
-                                            advancedModeOffConfirmation.open()
-                                        }
-                                    }
-                                    else {
-                                        if (mouse.modifiers & Qt.ControlModifier) {
-                                            QGroundControl.corePlugin.showTouchAreas = !QGroundControl.corePlugin.showTouchAreas
-                                        } else if (mouse.modifiers & Qt.ShiftModifier) {
-                                            if(!QGroundControl.corePlugin.showAdvancedUI) {
-                                                advancedModeOnConfirmation.open()
-                                            } else {
-                                                QGroundControl.corePlugin.showAdvancedUI = false
-                                            }
-                                        }
-                                    }
-                                }
-                                    // This allows you to change this on mobile
-                                onPressAndHold: {
-                                    QGroundControl.corePlugin.showTouchAreas = !QGroundControl.corePlugin.showTouchAreas
-                                    showTouchAreasNotification.open()
-                                }
-
-                                MessageDialog {
-                                    id:                 showTouchAreasNotification
-                                    title:              qsTr("Debug Touch Areas")
-                                    text:               qsTr("Touch Area display toggled")
-                                    standardButtons:    StandardButton.Ok
-                                }
-
-                                QGCPopupDialog {
-                                    id:                 advancedModeOnConfirmation
-                                    title:              qsTr("Advanced Mode")
-                                    buttons:            StandardButton.Yes | StandardButton.No
-
-                                    ColumnLayout {
-                                        QGCLabel {
-                                            text:               QGroundControl.corePlugin.showAdvancedUIMessage
-                                            Layout.maximumWidth: mainWindow.width / (ScreenTools.isMobile ? 2 : 3)
-                                            wrapMode:           Text.WordWrap
-                                        }
-                                    }
-
-                                    onAccepted: {
-                                        QGroundControl.corePlugin.showAdvancedUI = true
-                                    }
-                                }
-
-                                QGCPopupDialog {
-                                    id:                 advancedModeOffConfirmation
-                                    title:              qsTr("Advanced Mode")
-                                    buttons:            StandardButton.Yes | StandardButton.No
-
-                                    ColumnLayout {
-                                        QGCLabel {
-                                            text:               qsTr("Turn off Advanced Mode?")
-                                            Layout.maximumWidth: mainWindow.width / (ScreenTools.isMobile ? 2 : 3)
-                                            wrapMode:           Text.WordWrap
-                                        }
-                                    }
-
-                                    onAccepted: {
-                                        QGroundControl.corePlugin.showAdvancedUI = false
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
     MissionResetBanner {
         width:  0
         height: 0
+        noticeInSimpleUI: !!simpleUILoader.item
     }
 
     FlyView {
         id:             flightView
         anchors.fill:   parent
+        simpleMode:     true
     }
 
     PlanView {
         id:             planView
         anchors.fill:   parent
         visible:        false
+        simpleMode:     true
+    }
+
+    //-------------------------------------------------------------------------
+    /// AQGC Simple UI (custom/res/Simple): the screens above the fly / plan views
+    Loader {
+        id:             simpleUILoader
+        anchors.fill:   parent
+        z:              QGroundControl.zOrderTopMost
+        active:         true
+        source:         "qrc:/simple/SimpleRoot.qml"
     }
 
     FlightZoneManager {
@@ -754,107 +324,6 @@ ApplicationWindow {
 
             }
         }
-
-    GeoZoneMakeView {
-        id: _geoZoneMakeView
-        anchors.fill: parent
-        visible: false
-    }
-
-    Drawer {
-        id:             toolDrawer
-        width:          mainWindow.width
-        height:         mainWindow.height
-        edge:           Qt.LeftEdge
-        dragMargin:     0
-        closePolicy:    Drawer.NoAutoClose
-        interactive:    false
-        visible:        false
-
-        property alias backIcon:    backIcon.source
-        property alias toolTitle:   toolbarDrawerText.text
-        property alias toolSource:  toolDrawerLoader.source
-        property alias toolIcon:    toolIcon.source
-
-        // Unload the loader only after closed, otherwise we will see a "blank" loader in the meantime
-        onClosed: {
-            toolDrawer.toolSource = ""
-        }
-        
-        Rectangle {
-            id:             toolDrawerToolbar
-            anchors.left:   parent.left
-            anchors.right:  parent.right
-            anchors.top:    parent.top
-            height:         ScreenTools.toolbarHeight
-            color:          qgcPal.toolbarBackground
-
-            RowLayout {
-                anchors.leftMargin: ScreenTools.defaultFontPixelWidth
-                anchors.left:       parent.left
-                anchors.top:        parent.top
-                anchors.bottom:     parent.bottom
-                spacing:            ScreenTools.defaultFontPixelWidth
-
-                QGCColoredImage {
-                    id:                     backIcon
-                    width:                  ScreenTools.defaultFontPixelHeight * 2
-                    height:                 ScreenTools.defaultFontPixelHeight * 2
-                    fillMode:               Image.PreserveAspectFit
-                    mipmap:                 true
-                    color:                  qgcPal.text
-                }
-
-                QGCLabel {
-                    id:     backTextLabel
-                    text:   qsTr("Back")
-                }
-
-                QGCLabel {
-                    font.pointSize: ScreenTools.largeFontPointSize
-                    text:           "<"
-                }
-
-                QGCColoredImage {
-                    id:                     toolIcon
-                    width:                  ScreenTools.defaultFontPixelHeight * 2
-                    height:                 ScreenTools.defaultFontPixelHeight * 2
-                    fillMode:               Image.PreserveAspectFit
-                    mipmap:                 true
-                    color:                  qgcPal.text
-                }
-
-                QGCLabel {
-                    id:             toolbarDrawerText
-                    font.pointSize: ScreenTools.largeFontPointSize
-                }
-            }
-
-            QGCMouseArea {
-                anchors.top:        parent.top
-                anchors.bottom:     parent.bottom
-                x:                  parent.mapFromItem(backIcon, backIcon.x, backIcon.y).x
-                width:              (backTextLabel.x + backTextLabel.width) - backIcon.x
-                onClicked: {
-                    toolDrawer.visible      = false
-                }
-            }
-        }
-
-        Loader {
-            id:             toolDrawerLoader
-            anchors.left:   parent.left
-            anchors.right:  parent.right
-            anchors.top:    toolDrawerToolbar.bottom
-            anchors.bottom: parent.bottom
-
-            Connections {
-                target:                 toolDrawerLoader.item
-                ignoreUnknownSignals:   true
-                onPopout:               toolDrawer.visible = false
-            }
-        }
-    }
 
     //-------------------------------------------------------------------------
     //-- Critical Vehicle Message Popup
@@ -883,6 +352,10 @@ ApplicationWindow {
     property var _lidarCriticalQueue: []
 
     function showLiDARCriticalMessage(message) {
+        // Simple UI: red LiDAR banner on the fly screen (Figma S102), queued there
+        if (simpleUILoader.item && simpleUILoader.item.showLidarCritical(message)) {
+            return
+        }
         if (criticalVehicleMessagePopup.visible || QGroundControl.videoManager.fullScreen) {
             if (_lidarCriticalQueue.indexOf(message) === -1) {
                 _lidarCriticalQueue.push(message)
@@ -993,7 +466,6 @@ ApplicationWindow {
                 if (criticalVehicleMessagePopup.dropMessageIndicatorOnClose) {
                     criticalVehicleMessagePopup.dropMessageIndicatorOnClose = false;
                     QGroundControl.multiVehicleManager.activeVehicle.resetErrorLevelMessages();
-                    toolbar.dropMessageIndicatorTool();
                 }
             }
         }
@@ -1196,44 +668,6 @@ ApplicationWindow {
         onClosed: {
             loader.sourceComponent = null
             indicatorPopup.currentIndicator = null
-        }
-    }
-
-    // We have to create the popup windows for the Analyze pages here so that the creation context is rooted
-    // to mainWindow. Otherwise if they are rooted to the AnalyzeView itself they will die when the analyze viewSwitch
-    // closes.
-
-    function createrWindowedAnalyzePage(title, source) {
-        var windowedPage = windowedAnalyzePage.createObject(mainWindow)
-        windowedPage.title = title
-        windowedPage.source = source
-    }
-
-    Component {
-        id: windowedAnalyzePage
-
-        Window {
-            width:      ScreenTools.defaultFontPixelWidth  * 100
-            height:     ScreenTools.defaultFontPixelHeight * 40
-            visible:    true
-
-            property alias source: loader.source
-
-            Rectangle {
-                color:          QGroundControl.globalPalette.window
-                anchors.fill:   parent
-
-                Loader {
-                    id:             loader
-                    anchors.fill:   parent
-                    onLoaded:       item.popped = true
-                }
-            }
-
-            onClosing: {
-                visible = false
-                source = ""
-            }
         }
     }
 

@@ -3,6 +3,7 @@
 #include <QJsonObject>
 #include <QNetworkAccessManager>     // http client
 #include <QNetworkReply>             // response object
+#include <QSslError>
 #include <QTimer>                    // loop/pooling
 #include "QGCLoggingCategory.h"
 #include "QGCToolbox.h"
@@ -97,6 +98,19 @@ public:
     Q_INVOKABLE void enableRemote24G();
     Q_INVOKABLE void enableRemote58G();
 
+    // AQGC Link security S66 (CE RED / EN 18031, 2026-11-17; not tested on a Doodle Labs radio yet):
+    // radio login password (factory password still in use?), certificate pinning, radio encryption
+    Q_PROPERTY(bool     doodleFactoryPassword READ doodleFactoryPassword NOTIFY doodleSecurityChanged)
+    Q_PROPERTY(bool     doodleCertMismatch    READ doodleCertMismatch    NOTIFY doodleSecurityChanged)
+    Q_PROPERTY(QString  doodleEncryption      READ doodleEncryption      NOTIFY doodleSecurityChanged)   ///< "" unknown | "aes" | "on" | "off"
+    Q_PROPERTY(QString  doodlePasswordResult  READ doodlePasswordResult  NOTIFY doodleSecurityChanged)   ///< "" | "busy" | "ok" | "failed"
+    bool    doodleFactoryPassword () const { return _doodleFactory; }
+    bool    doodleCertMismatch    () const { return _doodleCertMismatch; }
+    QString doodleEncryption      () const { return _doodleEncryption; }
+    QString doodlePasswordResult  () const { return _doodlePwResult; }
+    /// set a new login password on the radio (on the ground), then keep it in the secure store
+    Q_INVOKABLE void changeDoodlePassword(const QString& newPassword);
+
 signals:
     void                mountedChanged();
     void                connectedChanged();
@@ -105,6 +119,7 @@ signals:
     void                rssiChanged();
     void                distanceChanged();
     void                ackFromDevice(quint16 cmd);
+    void                doodleSecurityChanged();
 
 private slots:
     void _received_message(quint16 cmd, QByteArray message);
@@ -113,6 +128,7 @@ private slots:
     void _pollDoodleInfo();                          // timer callback, decides login vs info request
     void _handleDoodleReply(QNetworkReply* reply);   // prcoess all HTTP responses
     void _handleLegacyMountedChanged(bool mounted);  // Prevents conflicting state updates between old and new systems
+    void _doodleSslErrors(QNetworkReply* reply, const QList<QSslError>& errors);   // certificate pinning
 
 private:
     void _handle_device_info(const QByteArray& message);
@@ -143,6 +159,16 @@ private:
     QTimer _doodlePollTimer;                            // Timer for periodically polling Doodle device status
     QString _doodleDeviceIP;                              // Loaded from settings (default: 192.168.2.72)
     QString _rpcSession;                                // Session/token used for authenticated API communication
+    // AQGC link security
+    QString _doodlePassword() const;                    // stored password, or the factory one
+    QNetworkRequest _doodleRequest() const;             // https://<ip>/ubus/ with the pinned-certificate check
+    bool    _doodleFactory{false};
+    bool    _doodleLoginWithFactory{false};
+    bool    _doodleCertMismatch{false};
+    bool    _doodleStoredFailed{false};                 // the stored password was refused: try the factory one once
+    QString _doodleEncryption;
+    QString _doodlePwResult;
+    QString _doodlePendingPassword;
             
     static const char* _bbConn;
     static const char* _brFreq;

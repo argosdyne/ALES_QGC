@@ -46,10 +46,20 @@ void VehicleLinkManager::mavlinkMessageReceived(LinkInterface* link, mavlink_mes
 {
     // Radio status messages come from Sik Radios directly. It doesn't indicate there is any life on the other end.
     if (message.msgid != MAVLINK_MSG_ID_RADIO_STATUS) {
+        // Only the autopilot keeps a link alive: a camera with the vehicle's system id on its own link (e.g. an IP
+        // camera) must not become the primary link or hide a lost flight controller link (Tuleap bug #28552).
+        // Other components' messages still add the link (camera traffic) and are processed by the vehicle.
+        const bool fromAutopilot = message.compid == _vehicle->compId();
         int linkIndex = _containsLinkIndex(link);
         if (linkIndex == -1) {
             _addLink(link);
             linkIndex = _containsLinkIndex(link);
+            if (linkIndex != -1 && !fromAutopilot) {
+                _rgLinkInfo[linkIndex].commLost = true;
+                _rgLinkInfo[linkIndex].autopilotSeen = false;
+                _updatePrimaryLink();
+                emit linkStatusesChanged();
+            }
             qCWarning(VehicleLinkManagerLog) << "Vehicle accepted MAVLink message on new link"
                                              << "vehicleId" << _vehicle->id()
                                              << "msgid" << static_cast<int>(message.msgid)
@@ -58,8 +68,9 @@ void VehicleLinkManager::mavlinkMessageReceived(LinkInterface* link, mavlink_mes
                                              << "link" << _vehicleLinkLogName(link)
                                              << _vehicleLinkLogPtr(link)
                                              << "allLinks:" << _logLinkSummary(_primaryLink.lock().get());
-        } else {
+        } else if (fromAutopilot) {
             LinkInfo_t& linkInfo = _rgLinkInfo[linkIndex];
+            linkInfo.autopilotSeen = true;
             linkInfo.heartbeatElapsedTimer.restart();
             if (!linkInfo.commLost) {
                 _totalCommLossElapsedTimer.invalidate();
@@ -164,7 +175,7 @@ void VehicleLinkManager::_commLostCheck(void)
 
             // Notify the user of individual link communication loss
             bool isPrimaryLink = linkInfo.link.get() == _primaryLink.lock().get();
-            if (_rgLinkInfo.count() > 1) {
+            if (_rgLinkInfo.count() > 1 && linkInfo.autopilotSeen) {
                 QString msg = tr("%1Communication lost on %2 link.").arg(_vehicle->_vehicleIdSpeech()).arg(isPrimaryLink ? tr("primary") : tr("secondary"));
                 _vehicle->_say(msg);
             }
@@ -178,7 +189,7 @@ void VehicleLinkManager::_commLostCheck(void)
     if (_updatePrimaryLink()) {
         QString msg = tr("%1Switching communication to secondary link.").arg(_vehicle->_vehicleIdSpeech());
         _vehicle->_say(msg);
-        qgcApp()->showAppMessage(msg);
+        qgcApp()->showLinkMessage(msg);
     }
 
     // Check for total communication loss

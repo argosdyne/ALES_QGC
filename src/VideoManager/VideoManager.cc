@@ -50,7 +50,10 @@ static const char* kFileExtension[VideoReceiver::FILE_FORMAT_MAX - VideoReceiver
     "mov",
     "mp4"
 };
+#endif
 
+// RTSP endpoint helpers. Used by _updateSettings(), which is built with and without GStreamer
+// (e.g. the Android CI build has no GStreamer), so they must not be inside QGC_GST_STREAMING.
 static bool isPrivateRtspHost(const QString& host)
 {
     QHostAddress address(host);
@@ -117,7 +120,6 @@ static bool sameRtspEndpoint(const QString& a, const QString& b)
             && urlA.port() == urlB.port()
             && normalizedPath(urlA.path()).compare(normalizedPath(urlB.path()), Qt::CaseInsensitive) == 0;
 }
-#endif
 
 //-----------------------------------------------------------------------------
 VideoManager::VideoManager(QGCApplication* app, QGCToolbox* toolbox)

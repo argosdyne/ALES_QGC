@@ -173,6 +173,11 @@ Item {
             if (!points || points.length === 0) {
                 continue
             }
+            // Init Path figure 8 (YellowScanInitPathComplexItem: corridor line + turn radius) is recorded but is not a
+            // survey line: not counted in "n of m survey lines" (Tuleap bug #28589, user 2026-11-21)
+            if (item.corridorPolyline !== undefined && item.turnRadius !== undefined) {
+                continue
+            }
             var stride = item.turnAroundDistance.rawValue !== 0 ? 4 : 2
             var lines = Math.floor(points.length / stride)
             total += lines
