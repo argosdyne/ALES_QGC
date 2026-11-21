@@ -50,6 +50,8 @@ TestCase {
             signal textMessageReceived(int uasid, int componentid, int severity, string text, string description)
             signal geoFenceAlertTierChanged(int tier)
             property int    defaultComponentId: 1
+            property bool   fcFenceBreach: true
+            function fenceStatusBreached() { return fcFenceBreach }
         }
     }
     Component { id: stateComp; SimpleVehicleState { } }
@@ -372,6 +374,22 @@ TestCase {
         v.flightMode = "Loiter"                                           // pilot takes over, flies on
         s._causes["other"].t = Date.now() - 30000; s._causes["other"].h = Date.now() - 30000
         v.flightMode = "RTL"                                              // manual return 30 s later
+        compare(s.recentCause, "")
+    }
+    // round 11: a paused return is the same return; an app-only geofence breach is not a cause
+    function test_cause_round11() {
+        v.armed = true; v.flying = true
+        v.textMessageReceived(1, 1, 2, "Battery 1 is low", "")
+        v.flightMode = "RTL"
+        s._causes["battery"].t = Date.now() - 60000
+        v.flightMode = "Brake"                                            // pilot pauses the return
+        v.flightMode = "RTL"                                              // and returns again
+        compare(s.recentCause, "Battery low")
+        v.flightMode = "Loiter"
+        s._clearCause()
+        v.fcFenceBreach = false
+        v.geoFenceAlertTierChanged(3)
+        v.textMessageReceived(1, 1, 3, "GeoFence breach: boundary", "")
         compare(s.recentCause, "")
     }
     function test_random_states() {

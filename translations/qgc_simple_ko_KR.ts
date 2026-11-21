@@ -1152,16 +1152,16 @@
         <translation>드론이 미션을 받지 않았습니다. 메시지를 확인하고 미션을 고친 뒤 다시 보내세요.</translation>
     </message>
     <message>
-        <source>Farthest point %1 m (limit %2 m). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
-        <translation>가장 먼 지점 %1 m (제한 %2 m). 영역을 줄이거나 설정 › 안전에서 최대 거리를 늘리세요.</translation>
+        <source>Over the limit: %1 m (limit %2 m). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
+        <translation>제한 초과: %1 m (제한 %2 m). 영역을 줄이거나 설정 › 안전에서 최대 거리를 늘리세요.</translation>
     </message>
     <message>
-        <source>Farthest point %1 m — over Maximum distance %2 m (geofence off: not enforced)</source>
-        <translation>가장 먼 지점 %1 m — 최대 거리 %2 m 초과 (지오펜스 꺼짐: 제한 없음)</translation>
+        <source>Not enforced (geofence off): %1 m, limit %2 m</source>
+        <translation>적용 안 됨(지오펜스 꺼짐): %1 m, 제한 %2 m</translation>
     </message>
     <message>
-        <source>Farthest point %1 m — over Maximum distance %2 m (the drone's fence has no distance limit: not enforced)</source>
-        <translation>가장 먼 지점 %1 m — 최대 거리 %2 m 초과 (드론 펜스에 거리 제한 없음: 적용 안 됨)</translation>
+        <source>Not enforced (no distance limit in the drone's fence): %1 m, limit %2 m</source>
+        <translation>적용 안 됨(드론 펜스에 거리 제한 없음): %1 m, 제한 %2 m</translation>
     </message>
 </context>
 <context>

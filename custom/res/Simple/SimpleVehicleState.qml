@@ -96,7 +96,18 @@ QtObject {
     property string recentCause: ""
     property int    _causeRank: 0
     property int    _appTier: -1                             // the next text is the app's geofence alert of this tier
-    readonly property bool   _holdCauses: armed && (returning || landing)
+    // a Pause during a return (and Land from it) is the same return: the latch keeps the hold until the drone flies
+    // in another mode or disarms (code review 2026-11-21)
+    property bool            _returnLatch: false
+    function _updateReturnLatch() {
+        if (!armed) _returnLatch = false
+        else if (returning || landing) _returnLatch = true
+        else if (!paused) _returnLatch = false
+    }
+    onReturningChanged: _updateReturnLatch()
+    onLandingChanged:   _updateReturnLatch()
+    onPausedChanged:    _updateReturnLatch()
+    readonly property bool   _holdCauses: armed && (returning || landing || (paused && _returnLatch))
     property real            _holdSince: 0                   // when the return / landing began
     readonly property int    _holdWindowMs: 15000            // only causes from the 15 s before it are held
     function _now() { return Date.now() }
@@ -125,7 +136,8 @@ QtObject {
             // while returning / landing the other causes are dropped at once, so they cannot outrank the real one
             if (_holdCauses) {
                 // in this hold: arrived in the window before it, or already held since it began (not in an earlier hold)
-                if (e.t >= _holdSince - _holdWindowMs || (e.h !== undefined && e.h >= _holdSince))
+                // (held until up to 5 s before: the same return across a mode switch, not an earlier return)
+                if (e.t >= _holdSince - _holdWindowMs || (e.h !== undefined && e.h >= _holdSince - 5000))
                     c[k] = { rank: e.rank, cause: e.cause, text: e.text, t: e.t, h: now }
                 else changed = true
             }
@@ -172,9 +184,14 @@ QtObject {
     function _onFcWarning(componentid, severity, text) {
         var tier = _appTier
         _appTier = -1
-        // The app's geofence texts: a breach / contingency comes from the FC's FENCE_STATUS, so it is the fence cause
+        // The app's geofence texts: a breach / contingency the FC reported (FENCE_STATUS) is the fence cause
         // (the text may be translated, so no regex); margin, altitude warning and exit lines are not causes.
-        if (tier >= 3) { _addCause("fence", 4, qsTr("Geofence reached"), text); return }
+        if (tier >= 3) {
+            // only a breach the FC reported (FENCE_STATUS), not one from the app's own geometry check
+            if (present && typeof vehicle.fenceStatusBreached === "function" && vehicle.fenceStatusBreached())
+                _addCause("fence", 4, qsTr("Geofence reached"), text)
+            return
+        }
         if (tier >= 0 || _isC2Message(text)) return
         var fc = present && vehicle.defaultComponentId !== undefined ? vehicle.defaultComponentId : _autopilotComponent
         if (componentid !== fc || text === "" || text.indexOf("PreArm") === 0) return

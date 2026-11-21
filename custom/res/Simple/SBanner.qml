@@ -40,7 +40,7 @@ Rectangle {
     readonly property bool _squeeze: _stack && multi.visible && _rowW + SimpleTheme.px(40) > _baseW
     readonly property real _squeezeW: Math.floor((_baseW - SimpleTheme.px(40) - Math.max(0, multiRep.count - 1) * SimpleTheme.px(16))
                                                  / Math.max(1, multiRep.count))
-    width:  Math.max(_baseW, _holdW + SimpleTheme.px(40))
+    width:  _baseW                       // the hold button is limited to it (below), so it never widens the banner
     height: _stack ? txt.height + SimpleTheme.px(32 + 92 * _rows)
                    : Math.max(SimpleTheme.px(120), txt.height + SimpleTheme.px(32))     // a long detail wraps to 2 lines
     radius: SimpleTheme.px(20)
@@ -73,7 +73,7 @@ Rectangle {
         anchors.rightMargin: SimpleTheme.px(!bn._stack2 && (btn.visible || multi.visible) ? 16 : 20)
         anchors.verticalCenter: parent.verticalCenter
         anchors.verticalCenterOffset: bn._stack ? (parent.height - SimpleTheme.px(80)) / 2 - SimpleTheme.px(16) - (bn._stack2 ? SimpleTheme.px(92) : 0) : 0
-        width: implicitWidth
+        width: Math.min(implicitWidth, bn._baseW - SimpleTheme.px(40))
         designHeight: 80
         fillColor: SimpleTheme.bgBase
         text: bn.holdText

@@ -26,7 +26,8 @@ Rectangle {
         radius: parent.radius
         color: hb.fillColor
     }
-    SText { id: label; anchors.centerIn: parent; text: hb.text; size: 26; bold: true }
+    SText { id: label; anchors.centerIn: parent; text: hb.text; size: 26; bold: true
+            width: Math.min(implicitWidth, Math.max(0, hb.width - SimpleTheme.px(56))); elide: Text.ElideRight }
 
     NumberAnimation {
         id: fill

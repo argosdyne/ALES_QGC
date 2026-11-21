@@ -91,10 +91,10 @@ SPanel {
         { lvl: _alt > maxAlt ? 2 : 0, t: qsTr("Height"), d: qsTr("%1 m (limit %2 m)").arg(Math.round(_alt)).arg(maxAlt) },
         { lvl: _maxDist > _distLimit ? (_fenceOn ? 2 : 1) : 0, t: qsTr("Distance"),
           d: _maxDist <= _distLimit ? qsTr("Farthest point %1 m (limit %2 m)").arg(Math.round(_maxDist)).arg(Math.round(_distLimit))
-           : _fenceOn ? qsTr("Farthest point %1 m (limit %2 m). Make the area smaller or raise Maximum distance in Settings › Safety.").arg(Math.round(_maxDist)).arg(Math.round(_distLimit))
+           : _fenceOn ? qsTr("Over the limit: %1 m (limit %2 m). Make the area smaller or raise Maximum distance in Settings › Safety.").arg(Math.round(_maxDist)).arg(Math.round(_distLimit))
            : _fenceEn && (Number(_fenceEn.rawValue) !== 0 || _fenceCanTurnOn())
-             ? qsTr("Farthest point %1 m — over Maximum distance %2 m (the drone's fence has no distance limit: not enforced)").arg(Math.round(_maxDist)).arg(Math.round(_distLimit))
-             : qsTr("Farthest point %1 m — over Maximum distance %2 m (geofence off: not enforced)").arg(Math.round(_maxDist)).arg(Math.round(_distLimit)) },
+             ? qsTr("Not enforced (no distance limit in the drone's fence): %1 m, limit %2 m").arg(Math.round(_maxDist)).arg(Math.round(_distLimit))
+             : qsTr("Not enforced (geofence off): %1 m, limit %2 m").arg(Math.round(_maxDist)).arg(Math.round(_distLimit)) },
         { lvl: _batteries > 1 ? 1 : 0, t: qsTr("Battery"), d: _batteries > 1 ? qsTr("Needs %1 batteries — the drone returns to swap").arg(_batteries) : _batteries === 1 ? qsTr("Fits one battery") : qsTr("Not estimated for this drone") },
         { lvl: _zoneLvl, t: qsTr("Flight zones"),
           d: !_zm ? qsTr("Check the zones on the map yourself")
