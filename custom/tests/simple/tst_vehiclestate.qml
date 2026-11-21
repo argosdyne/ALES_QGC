@@ -194,7 +194,7 @@ TestCase {
     }
 
     // ---- random: invariants over random vehicle states
-    // ---- reason for return / landing / mission stop (payload test 2026-11-21 #32/#33)
+    // ---- reason for return / landing / mission stop (payload test 2026-11-21 #32/#33, code review 2026-11-21)
     function test_cause_plain_words_and_rank() {
         compare(s.recentReason, "")
         v.textMessageReceived(1, 1, 6, "Mission: 3 WP", "")               // info: ignored
@@ -202,32 +202,60 @@ TestCase {
         compare(s.recentReason, "")
         v.textMessageReceived(1, 1, 2, "EKF Failsafe", "")
         compare(s.recentCause, "GPS or position lost")
-        v.textMessageReceived(1, 1, 4, "Something unrelated", "")         // no known cause: kept
+        v.textMessageReceived(1, 1, 4, "Something unrelated", "")         // unknown: kept at the lowest rank
         compare(s.recentCause, "GPS or position lost")
-        v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")            // lower rank: kept
+        v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")            // lower rank: kept, not shown
         compare(s.recentCause, "GPS or position lost")
-        v.textMessageReceived(1, 1, 2, "Crash: Disarming", "")            // higher rank: replaces
+        v.textMessageReceived(1, 1, 2, "Crash: Disarming", "")            // higher rank: shown
         compare(s.recentCause, "Crash detected")
         verify(s.recentReason.indexOf("Crash detected") === 0)
     }
-    // code review 2026-11-21: recovery / switch-over lines are not a cause; lower-rank lines do not restart the 60 s;
-    // a new arm clears the last flight's cause
-    function test_cause_benign_timer_and_arm() {
-        var benign = ["EKF primary changed:1", "GPS Glitch cleared", "SmartRTL deactivated", "Battery 1 OK", "EKF3 IMU0 is using GPS"]
+    function test_cause_only_from_the_autopilot() {
+        v.textMessageReceived(1, 25, 4, "GPS not fixed", "")              // YellowScan LiDAR (component 25)
+        v.textMessageReceived(1, 236, 2, "Battery low", "")               // Remote ID module
+        compare(s.recentCause, "")
+        v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")
+        compare(s.recentCause, "Battery low")
+    }
+    function test_cause_benign_and_cleared() {
+        var benign = ["EKF primary changed:1", "SmartRTL deactivated", "Battery 1 OK", "EKF3 IMU0 is using GPS"]
         for (var i = 0; i < benign.length; i++) v.textMessageReceived(1, 1, 4, benign[i], "")
         compare(s.recentCause, "")
-        v.textMessageReceived(1, 1, 4, "Bad compass health", "")            // "OK" only as a word
+        v.textMessageReceived(1, 1, 4, "Bad compass health", "")          // "OK" only as a word
         compare(s.recentCause, "GPS or position lost")
-        s._warnTimer.stop()
-        v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")              // lower rank: neither shown nor restarts
-        verify(!s._warnTimer.running)
+        v.textMessageReceived(1, 1, 4, "GPS Glitch", "")
+        v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")            // kept below the GPS cause
         compare(s.recentCause, "GPS or position lost")
-        v.textMessageReceived(1, 1, 2, "Crash: Disarming", "")
-        verify(s._warnTimer.running)
-        v.armed = true                                                      // next flight
-        compare(s.recentCause, ""); compare(s.recentReason, ""); verify(!s._warnTimer.running)
-        v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")              // a low cause shows again after the reset
+        v.textMessageReceived(1, 1, 4, "GPS Glitch cleared", "")          // GPS reported gone: the battery shows
         compare(s.recentCause, "Battery low")
+        compare(s.recentWarning, "Battery 1 is low")
+    }
+    function test_cause_unknown_warning_keeps_text() {
+        v.textMessageReceived(1, 1, 2, "Dead Reckoning failsafe", "")
+        compare(s.recentCause, "Warning — see the messages (bell)")
+        compare(s.recentWarning, "Dead Reckoning failsafe")
+        v.textMessageReceived(1, 1, 2, "Lost manual control", "")
+        compare(s.recentCause, "Controller signal lost")
+    }
+    function test_cause_expiry_hold_and_arm() {
+        v.armed = true; v.flying = true
+        v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")
+        verify(s._warnTimer.running)
+        v.flightMode = "RTL"                                              // returning: never expires
+        verify(s._holdCauses)
+        s._causes[7].t = Date.now() - 600000
+        s._expireCauses()
+        compare(s.recentCause, "Battery low")
+        verify(Date.now() - s._causes[7].t < 5000)                        // refreshed while held
+        v.flying = false; v.armed = false; v.flightMode = "Loiter"        // landed: 60 s from the last hold
+        verify(!s._holdCauses)
+        compare(s.recentCause, "Battery low")                             // the S92 card still reads it at disarm
+        s._causes[7].t = Date.now() - 61000
+        s._expireCauses()
+        compare(s.recentCause, ""); verify(!s._warnTimer.running)
+        v.textMessageReceived(1, 1, 2, "EKF Failsafe", "")
+        v.armed = true                                                    // next flight starts clean
+        compare(s.recentCause, ""); compare(s.recentReason, "")
     }
     function test_random_states() {
         var modes = ["Loiter", "RTL", "Smart RTL", "Land", "Auto", "Brake", "Stabilize", ""]

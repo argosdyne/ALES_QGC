@@ -691,6 +691,10 @@
         <source>Dismiss all</source>
         <translation>모두 확인</translation>
     </message>
+    <message>
+        <source>Review mission</source>
+        <translation>임무 보기</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -2606,6 +2610,10 @@
 <context>
     <name>SimpleVehicleState</name>
     <message>
+        <source>Warning — see the messages (bell)</source>
+        <translation>경고 — 메시지(종)를 확인하세요</translation>
+    </message>
+    <message>
         <source>No fix</source>
         <translation>수신 안 됨</translation>
     </message>
@@ -3587,8 +3595,8 @@
         <translation>태블릿이 스테이션 네트워크에 연결되어 있어야 합니다</translation>
     </message>
     <message>
-        <source>Starts at the Init Path figure 8 before the survey and stops after the figure 8 at the end. Start / Stop on the flight screen still works.</source>
-        <translation>측량 전 초기화 경로(8자 비행)에서 시작하고 마지막 8자 비행이 끝나면 정지합니다. 비행 화면의 시작·정지도 그대로 쓸 수 있습니다.</translation>
+        <source>Starts at the first scan item (the Init Path figure 8 in a LiDAR plan) and stops after the last one. Start / Stop on the flight screen still works.</source>
+        <translation>첫 스캔 항목(LiDAR 계획에서는 초기화 경로 8자 비행)에서 시작하고 마지막 항목이 끝나면 정지합니다. 비행 화면의 시작·정지도 그대로 쓸 수 있습니다.</translation>
     </message>
 </context>
 <context>
@@ -8996,6 +9004,10 @@
 </context>
 <context>
     <name>SimpleRoot</name>
+    <message>
+        <source>The drone restarted — check the mission on the fly screen</source>
+        <translation>드론이 다시 시작됨 — 비행 화면에서 임무를 확인하세요</translation>
+    </message>
     <message>
         <source>%1 saved. Restart the drone to use the new value.</source>
         <translation>%1 저장함. 새 값을 쓰려면 드론을 다시 시작하세요.</translation>

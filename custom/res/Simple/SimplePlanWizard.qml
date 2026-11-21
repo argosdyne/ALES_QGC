@@ -31,9 +31,12 @@ Item {
              sourceComponent: Component { FactPanelController { } } }
     function _param(n) { var f = fenceFpc.item; return f && f.parameterExists(-1, n) ? f.getParameterFact(-1, n, false) : null }
     function _fenceRadius() {           // 0 = no fence radius to respect
-        var en = _param("FENCE_ENABLE"), rad = _param("FENCE_RADIUS"), typ = _param("FENCE_TYPE")
+        var en = _param("FENCE_ENABLE"), rad = _param("FENCE_RADIUS"), typ = _param("FENCE_TYPE"), auto = _param("FENCE_AUTOENABLE")
         var circle = !typ || (Number(typ.rawValue) & 2) !== 0     // FENCE_TYPE bit 2 = circle fence
-        return en && rad && circle && Number(en.rawValue) !== 0 && Number(rad.rawValue) > 0 ? Number(rad.rawValue) : 0
+        // on now, or can be turned on in flight (auto-enable, RC switch RCn_OPTION = 11), as in the S39 check
+        var on = en && Number(en.rawValue) !== 0 || auto && Number(auto.rawValue) !== 0
+        for (var n = 1; !on && n <= 16; n++) { var o = _param("RC" + n + "_OPTION"); on = !!o && Number(o.rawValue) === 11 }
+        return on && rad && circle && Number(rad.rawValue) > 0 ? Number(rad.rawValue) : 0
     }
     // Scale of the default area so that the area plus extra (Init Path figure 8: 30 m line + 10 m turn ≈ 50 m) stays
     // inside 90 % of the fence radius around home (or the area centre without a home). 1 = the 200 m x 150 m default.
@@ -42,6 +45,9 @@ Item {
         if (r <= 0) return 1
         var home = _veh && _veh.homePosition && _veh.homePosition.isValid ? _veh.homePosition : c
         var room = 0.9 * r - extra - home.distanceTo(c)
+        // the map centre is outside the fence (planning a far site): shrinking cannot help, keep the default size
+        // and let the S39 check report the distance (code review 2026-11-21)
+        if (room <= 0) return 1
         return Math.max(0.2, Math.min(1, room / 125))      // 125 m = half diagonal of 200 x 150
     }
 

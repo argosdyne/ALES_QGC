@@ -81,7 +81,7 @@ Rectangle {
 
     visible: shown
     // narrower when the banner column is narrowed by a right panel (code review 2026-11-21, bug #28587)
-    width: parent && parent.bannerWidth > 0 ? Math.min(SimpleTheme.px(1000), parent.bannerWidth) : SimpleTheme.px(1000)
+    width: parent && parent.bannerWidth > 0 ? Math.min(SimpleTheme.px(1000), Math.max(SimpleTheme.px(640), parent.bannerWidth)) : SimpleTheme.px(1000)   // 4 values need 640
     height: col.height + SimpleTheme.px(48)
     radius: SimpleTheme.px(26)
     color: SimpleTheme.withAlpha(SimpleTheme.surfaceGlass, 0.95)

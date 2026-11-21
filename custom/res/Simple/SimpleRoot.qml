@@ -84,6 +84,19 @@ Item {
         else if (purpose === "settings")   showSettings("flyscreen")
     }
 
+    // Drone restarted / mission cleared (bug #28564): the banner lives on the fly screen; on other pages a toast points
+    // there, so the notice is not missed while planning or in Settings (code review 2026-11-21)
+    Connections {
+        target: vs.present && vs.vehicle.missionResetMonitor ? vs.vehicle.missionResetMonitor : null
+        ignoreUnknownSignals: true
+        function onRebootStateChanged() {
+            if (simpleRoot.page === "fly" || !vs.vehicle.missionResetMonitor.rebootBannerVisible) return
+            restartToast.text = qsTr("The drone restarted — check the mission on the fly screen")
+            restartToast.visible = true
+            restartToastTimer.restart()
+        }
+    }
+
     // Layer rule 1: critical alerts bring the user back to the fly screen
     Connections {
         target: vs

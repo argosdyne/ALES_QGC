@@ -77,25 +77,57 @@ QtObject {
                                              + (sensorsOk ? 0 : 1) + (!ridAvailable || ridGood ? 0 : 1) + (zoneBlocked ? 1 : 0)
                                              + (tethered && !tetherPowerOk ? 1 : 0)
 
-    // QA F5: why the drone returns / lands / stopped a mission, in plain words. Only FC warnings (STATUSTEXT, severity
-    // WARNING or worse) that name a known cause are used; the most serious cause in the last 60 s wins, so a later
-    // unrelated line ("EKF primary changed", "SmartRTL deactivated") does not replace it (Tuleap bug #28582).
-    // recentWarning keeps the raw FC text (Advanced mode shows it after the plain cause).
+    // QA F5: why the drone returns / lands / stopped a mission, in plain words (Tuleap bug #28582, code review 2026-11-21).
+    // - Only the flight controller's warnings count (STATUSTEXT from component 1, severity WARNING or worse, no PreArm):
+    //   a LiDAR, Remote ID module or camera on the same system must not name the cause.
+    // - Each kind of cause is kept on its own (by rank); the most serious one still kept is shown, so a newer lower-rank
+    //   cause appears when the higher one expires or is reported cleared ("GPS Glitch cleared").
+    // - Lines that report a normal switch-over ("EKF primary changed", "SmartRTL deactivated", "Battery OK", "using GPS")
+    //   are ignored; FC warnings with no known cause are kept as "Warning — see the messages" (lowest rank) with their text.
+    // - A cause is kept 60 s, but never expires while the drone is returning or landing (the S92 card reads it at
+    //   disarm); arming clears the last flight's causes.
+    // recentWarning keeps the raw FC text of the shown cause (Advanced mode shows it after the plain cause).
+    readonly property int    _autopilotComponent: 1         // MAV_COMP_ID_AUTOPILOT1
+    readonly property int    _causeKeepMs: 60000
+    property var             _causes: ({})                   // rank -> { cause, text, t }
     property string recentWarning: ""
     property string recentCause: ""
     property int    _causeRank: 0
-    property Timer _warnTimer: Timer { interval: 60000; onTriggered: s._clearCause() }
-    function _clearCause() { recentWarning = ""; recentCause = ""; _causeRank = 0; _warnTimer.stop() }
-    // a new flight starts without the cause of the last one (the S92 card after landing reads it before the next arm)
+    readonly property bool   _holdCauses: armed && (returning || landing)
+    function _now() { return Date.now() }
+    function _clearCause() { _causes = ({}); _refreshCause() }
+    function _refreshCause() {
+        var best = 0
+        for (var k in _causes) if (Number(k) > best) best = Number(k)
+        _causeRank = best
+        recentCause = best > 0 ? _causes[best].cause : ""
+        recentWarning = best > 0 ? _causes[best].text : ""
+    }
+    // drops causes older than 60 s (kept fresh while returning / landing)
+    function _expireCauses() {
+        var now = _now(), c = {}, changed = false
+        for (var k in _causes) {
+            var e = _causes[k]
+            if (_holdCauses) { c[k] = { cause: e.cause, text: e.text, t: now } }
+            else if (now - e.t < _causeKeepMs) c[k] = e
+            else changed = true
+        }
+        _causes = c
+        if (changed) _refreshCause()
+    }
+    property Timer _warnTimer: Timer {
+        interval: 1000; repeat: true
+        running: s._causeRank > 0
+        onTriggered: s._expireCauses()
+    }
+    // a new flight starts without the causes of the last one
     onArmedChanged: if (armed) _clearCause()
+    on_HoldCausesChanged: _expireCauses()
     function _causeOf(t) {          // [rank, plain text]; rank 0 = not a cause
-        // lines that report a problem going away or a normal switch-over are not a cause
-        // ("EKF primary changed", "GPS Glitch cleared", "SmartRTL deactivated", "Battery OK", "EKF3 IMU0 is using GPS")
-        if (/clear|changed|deactivat|restored|recovered|resolved|\bOK\b|using GPS/i.test(t)) return [0, ""]
         if (/crash/i.test(t))                                                     return [9, qsTr("Crash detected")]
         if (/EKF|GPS|position|Need Position|Glitch|variance|compass/i.test(t))   return [8, qsTr("GPS or position lost")]
         if (/batt|voltage|capacity/i.test(t))                                    return [7, qsTr("Battery low")]
-        if (/radio|RC |throttle failsafe|RC failsafe/i.test(t))                  return [6, qsTr("Controller signal lost")]
+        if (/radio|RC |throttle failsafe|RC failsafe|manual control/i.test(t))   return [6, qsTr("Controller signal lost")]
         if (/GCS|telemetry|link/i.test(t))                                       return [5, qsTr("App link lost")]
         if (/fence/i.test(t))                                                    return [4, qsTr("Geofence reached")]
         if (/terrain|rangefinder/i.test(t))                                      return [3, qsTr("Terrain data problem")]
@@ -103,18 +135,31 @@ QtObject {
         if (/wind/i.test(t))                                                     return [2, qsTr("Strong wind")]
         return [0, ""]
     }
+    function _onFcWarning(componentid, severity, text) {
+        if (componentid !== _autopilotComponent || severity > 4 || text === "" || text.indexOf("PreArm") === 0) return
+        // a problem reported gone: forget that cause ("GPS Glitch cleared", "Radio failsafe cleared")
+        if (/clear|restored|recovered|resolved/i.test(text)) {
+            var gone = _causeOf(text.replace(/clear\w*|restored|recovered|resolved/ig, ""))
+            if (gone[0] > 0 && _causes[gone[0]] !== undefined) {
+                var c0 = {}
+                for (var k0 in _causes) if (Number(k0) !== gone[0]) c0[k0] = _causes[k0]
+                _causes = c0; _refreshCause()
+            }
+            return
+        }
+        // a normal switch-over is not a cause
+        if (/changed|deactivat|\bOK\b|using GPS/i.test(text)) return
+        var c = _causeOf(text)
+        if (c[0] === 0) c = [1, qsTr("Warning — see the messages (bell)")]
+        var n = {}
+        for (var k in _causes) n[k] = _causes[k]
+        n[c[0]] = { cause: c[1], text: text, t: _now() }
+        _causes = n
+        _refreshCause()
+    }
     property Connections _warnConn: Connections {
         target: present ? vehicle : null
-        function onTextMessageReceived(uasid, componentid, severity, text, description) {
-            if (severity > 4 || text === "" || text.indexOf("PreArm") === 0) return
-            var c = s._causeOf(text)
-            if (c[0] === 0) return
-            // only the shown cause (or a more serious one) restarts the 60 s: lower-rank lines do not keep an old cause
-            if (c[0] >= s._causeRank || s.recentCause === "") {
-                s.recentCause = c[1]; s.recentWarning = text; s._causeRank = c[0]
-                s._warnTimer.restart()
-            }
-        }
+        function onTextMessageReceived(uasid, componentid, severity, text, description) { s._onFcWarning(componentid, severity, text) }
     }
     // reason line for banners and the S92 card: plain cause; Advanced mode adds the FC text
     readonly property string recentReason: recentCause === "" ? ""

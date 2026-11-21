@@ -56,7 +56,25 @@ SPanel {
     // FENCE_TYPE bit 2 = circle (FENCE_RADIUS): with only the polygon / altitude fence on, the radius is not enforced
     readonly property var  _fenceType: _fenceEn && fpcLoader.item.parameterExists(-1, "FENCE_TYPE")
                                        ? fpcLoader.item.getParameterFact(-1, "FENCE_TYPE", false) : null
-    readonly property bool _fenceOn:  !_fenceEn || (Number(_fenceEn.rawValue) !== 0 && (!_fenceType || (Number(_fenceType.rawValue) & 2) !== 0))
+    // FENCE_ENABLE is only the ground-time state: the fence also counts as on when it can be turned on in flight
+    // (FENCE_AUTOENABLE, an RC switch RCn_OPTION = 11, or a DO_FENCE_ENABLE item in this mission) (code review 2026-11-21)
+    function _fenceCanTurnOn() {
+        var f = fpcLoader.item
+        if (!f) return false
+        if (f.parameterExists(-1, "FENCE_AUTOENABLE") && Number(f.getParameterFact(-1, "FENCE_AUTOENABLE", false).rawValue) !== 0) return true
+        for (var n = 1; n <= 16; n++) {
+            var o = "RC" + n + "_OPTION"
+            if (f.parameterExists(-1, o) && Number(f.getParameterFact(-1, o, false).rawValue) === 11) return true
+        }
+        var items = _mission ? _mission.visualItems : null
+        if (items) for (var i = 0; i < items.count; i++) {
+            var it = items.get(i)
+            if (it && it.command === 207) return true                // MAV_CMD_DO_FENCE_ENABLE
+        }
+        return false
+    }
+    readonly property bool _fenceOn:  !_fenceEn || ((Number(_fenceEn.rawValue) !== 0 || _fenceCanTurnOn())
+                                                    && (!_fenceType || (Number(_fenceType.rawValue) & 2) !== 0))
 
     // level: 0 ok, 1 caution, 2 blocked
     readonly property var _checks: [
