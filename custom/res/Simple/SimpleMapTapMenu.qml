@@ -71,7 +71,7 @@ Item {
         if (_fence && _fence.fenceLoaded) {
             // the core text is not translated in the Simple UI (Tuleap bug #28581): own words
             if (_fence.goToTargetBlockReason(coordinate) !== "")
-                return { text: qsTr("Outside the geofence — choose a point inside it"), red: true }
+                return { text: qsTr("Outside the geofence or in an excluded area — choose another point"), red: true }
         }
         var maxD = Number(_fly.maxGoToLocationDistance.rawValue)
         if (maxD > 0 && distance > maxD)    return { text: qsTr("Too far — Go here reaches up to %1").arg(hDist(maxD)), red: true }

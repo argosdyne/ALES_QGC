@@ -210,6 +210,25 @@ TestCase {
         compare(s.recentCause, "Crash detected")
         verify(s.recentReason.indexOf("Crash detected") === 0)
     }
+    // code review 2026-11-21: recovery / switch-over lines are not a cause; lower-rank lines do not restart the 60 s;
+    // a new arm clears the last flight's cause
+    function test_cause_benign_timer_and_arm() {
+        var benign = ["EKF primary changed:1", "GPS Glitch cleared", "SmartRTL deactivated", "Battery 1 OK", "EKF3 IMU0 is using GPS"]
+        for (var i = 0; i < benign.length; i++) v.textMessageReceived(1, 1, 4, benign[i], "")
+        compare(s.recentCause, "")
+        v.textMessageReceived(1, 1, 4, "Bad compass health", "")            // "OK" only as a word
+        compare(s.recentCause, "GPS or position lost")
+        s._warnTimer.stop()
+        v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")              // lower rank: neither shown nor restarts
+        verify(!s._warnTimer.running)
+        compare(s.recentCause, "GPS or position lost")
+        v.textMessageReceived(1, 1, 2, "Crash: Disarming", "")
+        verify(s._warnTimer.running)
+        v.armed = true                                                      // next flight
+        compare(s.recentCause, ""); compare(s.recentReason, ""); verify(!s._warnTimer.running)
+        v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")              // a low cause shows again after the reset
+        compare(s.recentCause, "Battery low")
+    }
     function test_random_states() {
         var modes = ["Loiter", "RTL", "Smart RTL", "Land", "Auto", "Brake", "Stabilize", ""]
         var allowed = ["disconnected", "lost", "returning", "flying", "ground"]

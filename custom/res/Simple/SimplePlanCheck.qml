@@ -53,7 +53,10 @@ SPanel {
     // Go here allowed 364 m). PX4 has no fence on/off parameter here: treated as on.
     readonly property var  _fenceEn:  vs.present && vs.vehicle.apmFirmware && fpcLoader.item && fpcLoader.item.parameterExists(-1, "FENCE_ENABLE")
                                       ? fpcLoader.item.getParameterFact(-1, "FENCE_ENABLE", false) : null
-    readonly property bool _fenceOn:  !_fenceEn || Number(_fenceEn.rawValue) !== 0
+    // FENCE_TYPE bit 2 = circle (FENCE_RADIUS): with only the polygon / altitude fence on, the radius is not enforced
+    readonly property var  _fenceType: _fenceEn && fpcLoader.item.parameterExists(-1, "FENCE_TYPE")
+                                       ? fpcLoader.item.getParameterFact(-1, "FENCE_TYPE", false) : null
+    readonly property bool _fenceOn:  !_fenceEn || (Number(_fenceEn.rawValue) !== 0 && (!_fenceType || (Number(_fenceType.rawValue) & 2) !== 0))
 
     // level: 0 ok, 1 caution, 2 blocked
     readonly property var _checks: [

@@ -664,6 +664,10 @@
         <translation>LiDAR — 지금 확인하세요</translation>
     </message>
     <message>
+        <source>(%1 older not shown)</source>
+        <translation>(이전 %1개 표시 안 함)</translation>
+    </message>
+    <message>
         <source>Hold to stop LiDAR</source>
         <translation>길게 눌러 LiDAR 정지</translation>
     </message>
@@ -4191,8 +4195,8 @@
         <translation>위도 / 경도 입력</translation>
     </message>
     <message>
-        <source>Outside the geofence — choose a point inside it</source>
-        <translation>지오펜스 밖입니다 — 안쪽 지점을 고르세요</translation>
+        <source>Outside the geofence or in an excluded area — choose another point</source>
+        <translation>지오펜스 밖이거나 제외 구역입니다 — 다른 지점을 고르세요</translation>
     </message>
 </context>
 <context>

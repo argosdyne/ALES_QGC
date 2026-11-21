@@ -82,7 +82,8 @@ Item {
     function pushLidarCritical(message) {
         if (lidarCriticalQueue.indexOf(message) !== -1) return
         var q = lidarCriticalQueue.slice(); q.push(message)
-        while (q.length > _lidarQueueMax) { q.shift(); lidarCriticalDropped++ }
+        // drop the oldest waiting message, never the one on screen (index 0)
+        while (q.length > _lidarQueueMax) { q.splice(1, 1); lidarCriticalDropped++ }
         lidarCriticalQueue = q
     }
     function popLidarCritical() { lidarCriticalQueue = lidarCriticalQueue.slice(1); if (lidarCriticalQueue.length === 0) lidarCriticalDropped = 0 }
@@ -551,7 +552,8 @@ Item {
         readonly property real _panelLeft: payloadPanel.visible ? payloadPanel.x : camSheet.visible ? camSheet.x : parent.width
         readonly property bool _narrow: _panelLeft < parent.width
         readonly property real _left: SimpleTheme.px(200)
-        readonly property real bannerWidth: _narrow ? Math.min(SimpleTheme.px(1395), _panelLeft - SimpleTheme.px(16) - _left)
+        // at least 600 px: below that the banner text and buttons do not fit (the banner may then reach under the panel)
+        readonly property real bannerWidth: _narrow ? Math.max(SimpleTheme.px(600), Math.min(SimpleTheme.px(1395), _panelLeft - SimpleTheme.px(16) - _left))
                                                     : SimpleTheme.px(1395)
         x: _narrow ? _left + Math.max(0, (_panelLeft - SimpleTheme.px(16) - _left - bannerWidth) / 2) : (parent.width - bannerWidth) / 2
         y: topBar.height + SimpleTheme.px(24)
@@ -575,7 +577,8 @@ Item {
             title: _reboot ? qsTr("The drone restarted — check the mission") : qsTr("Mission on the drone")
             detail: !_m ? "" : [_reboot ? _m.rebootBannerText : "", _m.bannerVisible ? _m.bannerText : ""]
                                 .filter(function(t) { return t !== "" }).join(" ")
-            readonly property bool _settings: !!_m && _m.showMissionActions
+            // Vehicle setup › Mission exists in Advanced mode only and is locked while armed: the button only then
+            readonly property bool _settings: !!_m && _m.showMissionActions && QGroundControl.corePlugin.advancedMode && !vs.armed
             actions: _settings ? [qsTr("Mission settings"), qsTr("OK")] : [qsTr("OK")]
             onActionAt: {
                 if (_settings && index === 0) simpleRoot.showVehicleSetup("mission")
@@ -628,8 +631,9 @@ Item {
         SBanner {
             visible: fly.lidarCriticalQueue.length > 0
             level: "danger"; icon: "lidar"
-            title: fly.lidarCriticalQueue.length > 1 ? qsTr("LiDAR — check now (%1 more)").arg(fly.lidarCriticalQueue.length - 1)
-                                                     : qsTr("LiDAR — check now")
+            title: (fly.lidarCriticalQueue.length > 1 ? qsTr("LiDAR — check now (%1 more)").arg(fly.lidarCriticalQueue.length - 1)
+                                                      : qsTr("LiDAR — check now"))
+                   + (fly.lidarCriticalDropped > 0 ? " " + qsTr("(%1 older not shown)").arg(fly.lidarCriticalDropped) : "")
             detail: fly.lidarCriticalQueue.length > 0 ? fly.lidarCriticalQueue[0] : ""
             holdText: !!fly._lidarAcq && fly._lidarAcq.recording ? qsTr("Hold to stop LiDAR") : ""
             actionText: fly.lidarCriticalQueue.length > 1 ? "" : qsTr("OK")

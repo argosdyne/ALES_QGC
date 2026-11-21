@@ -84,8 +84,14 @@ QtObject {
     property string recentWarning: ""
     property string recentCause: ""
     property int    _causeRank: 0
-    property Timer _warnTimer: Timer { interval: 60000; onTriggered: { recentWarning = ""; recentCause = ""; _causeRank = 0 } }
+    property Timer _warnTimer: Timer { interval: 60000; onTriggered: s._clearCause() }
+    function _clearCause() { recentWarning = ""; recentCause = ""; _causeRank = 0; _warnTimer.stop() }
+    // a new flight starts without the cause of the last one (the S92 card after landing reads it before the next arm)
+    onArmedChanged: if (armed) _clearCause()
     function _causeOf(t) {          // [rank, plain text]; rank 0 = not a cause
+        // lines that report a problem going away or a normal switch-over are not a cause
+        // ("EKF primary changed", "GPS Glitch cleared", "SmartRTL deactivated", "Battery OK", "EKF3 IMU0 is using GPS")
+        if (/clear|changed|deactivat|restored|recovered|resolved|\bOK\b|using GPS/i.test(t)) return [0, ""]
         if (/crash/i.test(t))                                                     return [9, qsTr("Crash detected")]
         if (/EKF|GPS|position|Need Position|Glitch|variance|compass/i.test(t))   return [8, qsTr("GPS or position lost")]
         if (/batt|voltage|capacity/i.test(t))                                    return [7, qsTr("Battery low")]
@@ -103,8 +109,11 @@ QtObject {
             if (severity > 4 || text === "" || text.indexOf("PreArm") === 0) return
             var c = s._causeOf(text)
             if (c[0] === 0) return
-            if (c[0] >= s._causeRank || s.recentCause === "") { s.recentCause = c[1]; s.recentWarning = text; s._causeRank = c[0] }
-            s._warnTimer.restart()
+            // only the shown cause (or a more serious one) restarts the 60 s: lower-rank lines do not keep an old cause
+            if (c[0] >= s._causeRank || s.recentCause === "") {
+                s.recentCause = c[1]; s.recentWarning = text; s._causeRank = c[0]
+                s._warnTimer.restart()
+            }
         }
     }
     // reason line for banners and the S92 card: plain cause; Advanced mode adds the FC text

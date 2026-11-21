@@ -31,8 +31,9 @@ Item {
              sourceComponent: Component { FactPanelController { } } }
     function _param(n) { var f = fenceFpc.item; return f && f.parameterExists(-1, n) ? f.getParameterFact(-1, n, false) : null }
     function _fenceRadius() {           // 0 = no fence radius to respect
-        var en = _param("FENCE_ENABLE"), rad = _param("FENCE_RADIUS")
-        return en && rad && Number(en.rawValue) !== 0 && Number(rad.rawValue) > 0 ? Number(rad.rawValue) : 0
+        var en = _param("FENCE_ENABLE"), rad = _param("FENCE_RADIUS"), typ = _param("FENCE_TYPE")
+        var circle = !typ || (Number(typ.rawValue) & 2) !== 0     // FENCE_TYPE bit 2 = circle fence
+        return en && rad && circle && Number(en.rawValue) !== 0 && Number(rad.rawValue) > 0 ? Number(rad.rawValue) : 0
     }
     // Scale of the default area so that the area plus extra (Init Path figure 8: 30 m line + 10 m turn ≈ 50 m) stays
     // inside 90 % of the fence radius around home (or the area centre without a home). 1 = the 200 m x 150 m default.
