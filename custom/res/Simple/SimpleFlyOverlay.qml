@@ -578,16 +578,19 @@ Item {
             visible: !!_m && (_m.rebootBannerVisible || _m.bannerVisible)
             level: _reboot || (!!_m && _m.bannerIsWarning) ? "warn" : "info"; icon: "warn"
             title: _reboot ? qsTr("The drone restarted — check the mission") : qsTr("Mission on the drone")
-            detail: !_m ? "" : [_reboot ? _m.rebootBannerText : "", _m.bannerVisible ? _m.bannerText : ""]
-                                .filter(function(t) { return t !== "" }).join(" ")
+            // the title already says the drone restarted: the detail is the mission sentence (kept / cleared), so it is
+            // not cut off in a narrow banner (2 lines)
+            detail: !_m ? "" : _m.bannerVisible ? _m.bannerText : (_reboot ? _m.rebootBannerText : "")
             // The drone's mission is on this screen's map (the classic "Review Mission" is not needed). Vehicle setup ›
             // Mission exists in Advanced mode only and is locked while armed, so "Mission settings" only then.
             readonly property bool _settings: !!_m && _m.showMissionActions && !vs.armed && QGroundControl.corePlugin.advancedMode
             actions: _settings ? [qsTr("Mission settings"), qsTr("OK")] : [qsTr("OK")]
             onActionAt: {
+                // decide before dismissing: dismissBanner() turns showMissionActions (and _settings) off at once
+                var openSettings = _settings && index === 0
                 _m.dismissBanner()
                 _m.dismissRebootBanner()
-                if (_settings && index === 0) simpleRoot.showVehicleSetup("mission")
+                if (openSettings) simpleRoot.showVehicleSetup("mission")
             }
         }
         // S50 tether power lost (classic SAFE-T no-power rules: failsafe 0 recommend land, 1 warn only, 2 auto land)

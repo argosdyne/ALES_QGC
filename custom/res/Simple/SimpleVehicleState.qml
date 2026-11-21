@@ -116,7 +116,8 @@ QtObject {
         for (var k in _causes) {
             var e = _causes[k]
             // t stays the arrival time (newest wins a tie); h = last time it was held, the 60 s count from there
-            if (_holdCauses) c[k] = { rank: e.rank, cause: e.cause, text: e.text, t: e.t, h: now }
+            // an unrecognised warning ("other") is not held: it should not be named the reason for a manual return
+            if (_holdCauses && e.rank > 1) c[k] = { rank: e.rank, cause: e.cause, text: e.text, t: e.t, h: now }
             else if (now - Math.max(e.t, e.h || 0) < _causeKeepMs) c[k] = e
             else changed = true
         }
@@ -140,7 +141,7 @@ QtObject {
         if (/EKF|variance/i.test(t))                              return r("ekf", 8, qsTr("GPS or position lost"))
         if (/compass|mag\b|magnet/i.test(t))                      return r("compass", 8, qsTr("Compass problem"))
         if (/batt|voltage|capacity/i.test(t))                     return r("battery", 7, qsTr("Battery low"))
-        if (/radio|RC |throttle failsafe|RC failsafe|manual control/i.test(t)) return r("rc", 6, qsTr("Controller signal lost"))
+        if (/radio|throttle failsafe|manual control/i.test(t) || /\bRC\d*\b/.test(t)) return r("rc", 6, qsTr("Controller signal lost"))
         if (/GCS|telemetry|link/i.test(t))                        return r("gcs", 5, qsTr("App link lost"))
         if (/fence/i.test(t))                                     return r("fence", 4, qsTr("Geofence reached"))
         if (/terrain|rangefinder/i.test(t))                       return r("terrain", 3, qsTr("Terrain data problem"))
@@ -179,7 +180,7 @@ QtObject {
         if (severity > 4) return
         // a normal switch-over is not a cause
         // exact phrases only: "EKF Failsafe: changed to Land Mode" is a real cause (code review 2026-11-21)
-        if (/EKF primary changed|SmartRTL deactivated|is using GPS|\bOK\b/i.test(text)) return
+        if (/EKF primary changed|SmartRTL deactivated|is using GPS/i.test(text) || /^Battery ?\d* OK\b/.test(text)) return
         var c = _causeOf(text)
         if (c.rank === 0) c = { kind: "other", rank: 1, cause: qsTr("Warning — see the messages (bell)") }
         _addCause(c.kind, c.rank, c.cause, text)

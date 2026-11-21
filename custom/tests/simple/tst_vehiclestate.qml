@@ -322,6 +322,24 @@ TestCase {
         compare(s._causes["terrain"] !== undefined, true)
         compare(s._causes["battery"] !== undefined, true)
     }
+    // round 7: "RC" only as a word; "OK" only in "Battery n OK"; an unrecognised warning is not held
+    function test_cause_round7() {
+        v.textMessageReceived(1, 1, 4, "Arc fault on ESC", "")
+        compare(s.recentCause, "Warning — see the messages (bell)")
+        v.textMessageReceived(1, 1, 4, "RC3 failsafe", "")
+        compare(s.recentCause, "Controller signal lost")
+        s._clearCause()
+        v.textMessageReceived(1, 1, 4, "Battery 1 OK", "")
+        compare(s.recentCause, "")
+        v.textMessageReceived(1, 1, 4, "GPS 1: ok, glitch", "")
+        compare(s.recentCause, "GPS or position lost")
+        s._clearCause()
+        v.armed = true; v.flying = true
+        v.textMessageReceived(1, 1, 4, "Something unrelated", "")
+        s._causes["other"].t = Date.now() - 61000
+        v.flightMode = "RTL"                                              // held: but not the "other" warning
+        compare(s.recentCause, "")
+    }
     function test_random_states() {
         var modes = ["Loiter", "RTL", "Smart RTL", "Land", "Auto", "Brake", "Stabilize", ""]
         var allowed = ["disconnected", "lost", "returning", "flying", "ground"]
