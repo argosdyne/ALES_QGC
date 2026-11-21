@@ -4238,7 +4238,10 @@ QString Vehicle::brandImageOutdoor() const
 void Vehicle::setOfflineEditingDefaultComponentId(int defaultComponentId)
 {
     if (_offlineEditingVehicle) {
-        _defaultComponentId = defaultComponentId;
+        if (_defaultComponentId != defaultComponentId) {
+            _defaultComponentId = defaultComponentId;
+            emit defaultComponentIdChanged();
+        }
     } else {
         qCWarning(VehicleLog) << "Call to Vehicle::setOfflineEditingDefaultComponentId on vehicle which is not offline";
     }
