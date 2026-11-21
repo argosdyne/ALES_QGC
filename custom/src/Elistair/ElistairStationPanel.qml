@@ -74,6 +74,9 @@ Rectangle {
                 root.syncTorqueReference()
             }
         }
+        // The applied torque ("≈" marker) and the frame version also change the shown level
+        function onTelemetryChanged() { root.syncTorqueReference() }
+        function onConnectionSettingsChanged() { root.syncTorqueReference() }
     }
     readonly property var flightVehicle: QGroundControl.multiVehicleManager.activeVehicle
     Controls2.Dialog {
@@ -287,7 +290,7 @@ Rectangle {
             opacity: enabled ? 1.0 : 0.55
             Rectangle {
                 x: ScreenTools.defaultFontPixelHeight * 0.55; width: parent.width - 2 * x
-                anchors.verticalCenter: parent.verticalCenter; height: 3; color: "#69717b"
+                anchors.verticalCenter: parent.verticalCenter; height: Math.max(1, Math.round(ScreenTools.defaultFontPixelHeight * 0.15)); color: "#69717b"
                 Rectangle { width: root.torqueLevelKnown ? parent.width * root.torqueLevel / 10 : 0; height: parent.height; color: root.blue }
             }
             Repeater {
@@ -327,13 +330,13 @@ Rectangle {
             visible: !root.controlsAvailable || !station.torqueRemote
             text: !root.controlsAvailable ? qsTr("Torque locked until the station link is connected.")
                                           : qsTr("Turn on Automatic Torque Control to send torque commands.")
-            color: "#f4b244"; wrapMode: Text.WordWrap; font.pointSize: ScreenTools.smallFontPointSize
+            color: qgcPal.colorOrange; wrapMode: Text.WordWrap; font.pointSize: ScreenTools.smallFontPointSize
         }
         QGCLabel {
             Layout.fillWidth: true
             visible: root.controlsAvailable && station.torqueRemote && !root.torqueLevelKnown
             text: qsTr("Torque feedback unavailable. Select an absolute level before using +/-.")
-            color: "#f4b244"; wrapMode: Text.WordWrap; font.pointSize: ScreenTools.smallFontPointSize
+            color: qgcPal.colorOrange; wrapMode: Text.WordWrap; font.pointSize: ScreenTools.smallFontPointSize
         }
 
         }
