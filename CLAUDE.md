@@ -94,7 +94,7 @@ Reply to the user in Korean unless they write in English.
   IDs, ~104). Apply to every connected ArduCopter (screen says "Reference: AQUILA-3F"; per-product files later).
   S84: the reference ARMING_CHECK = 32254 (rangefinder, camera, aux auth, visual odometry, FFT, airspeed off) is
   normal: green "Company setting"; orange only for checks off beyond the reference; the "All checks" switch becomes
-  "Company setting". Reference also has FS_GCS_ENABLE 0, FENCE_ENABLE 0, BATT_MONITOR 3 (voltage only).
+  "Company setting". Reference also has FS_GCS_ENABLE 0, BATT_MONITOR 3 (voltage only). FENCE_ENABLE = 1 (user 2026-11-21: EU drones have the fence on by default; the file had 0), so the S39 distance limit blocks on company drones.
 - Simple UI is the default; Advanced mode = classic UI, admin PIN 6 digits (default `000000`), 5 wrong tries = 5 min lock.
   The try count and lock are kept over restarts (`simpleAdminFailures`, `simpleAdminLockUntil`); a stored PIN that is
   not 6 digits is reset to the default (2026-11-14). Since 2026-11-16 the PIN is stored as a PBKDF2-SHA256 hash
