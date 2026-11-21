@@ -27,6 +27,8 @@ Item {
     readonly property real _maxAlt: Number(QGroundControl.settingsManager.flyViewSettings.guidedMaximumAltitude.rawValue)
     // drone geofence (ArduPilot FENCE_ENABLE / FENCE_RADIUS) for the default area size (Tuleap bug #28585)
     readonly property var  _veh:    QGroundControl.multiVehicleManager.activeVehicle
+    // FactPanelController binds to the vehicle it is created with: create it again for another active drone
+    on_VehChanged: { fenceFpc.active = false; fenceFpc.active = Qt.binding(function() { return !!wiz._veh && wiz._veh.parameterManager.parametersReady }) }
     Loader { id: fenceFpc; visible: false; active: !!wiz._veh && wiz._veh.parameterManager.parametersReady
              sourceComponent: Component { FactPanelController { } } }
     function _param(n) { var f = fenceFpc.item; return f && f.parameterExists(-1, n) ? f.getParameterFact(-1, n, false) : null }
@@ -158,11 +160,28 @@ Item {
         kind = "editor"
         step = "edit"
     }
-    // "Review mission" after a drone restart (bug #28564): show the mission that is in Plan now (the drone's mission)
-    // in its editor instead of the new-plan choice; an empty plan starts as usual
+    // "Review mission" after a drone restart (bug #28564): read the mission from the drone and show it in its editor.
+    // An unsent plan being edited is replaced only after a confirm (code review 2026-11-21). No drone: new-plan choice.
+    property bool _awaitVehicle: false
     function reviewLoaded() {
-        if (_mission && _mission.visualItems.count > 1) { interrupted = false; _plan.fitViewportToItems(); _routeToEditor() }
+        interrupted = false
+        if (!_plan || _plan.offline) { start(); return }
+        if (_plan.dirty && _mission.visualItems.count > 1) { _pending = { vehicle: true }; replaceSheet.visible = true; return }
+        _loadVehicleMission()
+    }
+    function _loadVehicleMission() {
+        _awaitVehicle = true
+        _plan.loadFromVehicle()
+        if (!_plan.syncInProgress) _afterVehicleLoad()
+    }
+    function _afterVehicleLoad() {
+        _awaitVehicle = false
+        if (_mission.visualItems.count > 1) { _plan.fitViewportToItems(); _routeToEditor() }
         else start()
+    }
+    Connections {
+        target: wiz._plan
+        function onSyncInProgressChanged() { if (wiz._awaitVehicle && !wiz._plan.syncInProgress) wiz._afterVehicleLoad() }
     }
     // S24: open a saved mission in the matching editor (area, waypoint) or straight in the check (other kinds)
     // The plan being edited is replaced by Open / Import: ask first when it is not saved on this tablet.
@@ -174,6 +193,7 @@ Item {
         var p = _pending; _pending = null
         if (p && p.open) openFile(p.open)
         else if (p && p.imp) importFile(p.imp)
+        else if (p && p.vehicle) _loadVehicleMission()
     }
     function openFile(path) {
         _plan.loadFromFile(path)

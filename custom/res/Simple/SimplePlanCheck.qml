@@ -44,6 +44,11 @@ SPanel {
     // FactPanelController binds to the active vehicle when it is created, so create it only once
     // the vehicle's parameters are ready (and again for a new vehicle).
     Loader { id: fpcLoader; visible: false; active: vs.paramsReady; sourceComponent: Component { FactPanelController { } } }
+    // created again for another active drone (FactPanelController keeps the vehicle it was created with)
+    Connections {
+        target: vs
+        function onVehicleChanged() { fpcLoader.active = false; fpcLoader.active = Qt.binding(function() { return vs.paramsReady }) }
+    }
     readonly property string _fenceName: vs.present && vs.vehicle.apmFirmware ? "FENCE_RADIUS" : "GF_MAX_HOR_DIST"
     readonly property var _fenceRad: fpcLoader.item && fpcLoader.item.parameterExists(-1, _fenceName)
                                      ? fpcLoader.item.getParameterFact(-1, _fenceName, false) : null

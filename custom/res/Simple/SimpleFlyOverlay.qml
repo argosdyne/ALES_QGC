@@ -552,8 +552,9 @@ Item {
         readonly property real _panelLeft: payloadPanel.visible ? payloadPanel.x : camSheet.visible ? camSheet.x : parent.width
         readonly property bool _narrow: _panelLeft < parent.width
         readonly property real _left: SimpleTheme.px(200)
-        // at least 400 px; a banner whose buttons do not fit beside the text puts them on a second row (SBanner._stack)
-        readonly property real bannerWidth: _narrow ? Math.max(SimpleTheme.px(400), Math.min(SimpleTheme.px(1395), _panelLeft - SimpleTheme.px(16) - _left))
+        // the space really free left of the panel (at least 320 px); a banner whose buttons do not fit beside the text
+        // puts them on rows under it (SBanner._stack / _stack2), so it stays inside this width
+        readonly property real bannerWidth: _narrow ? Math.max(SimpleTheme.px(320), Math.min(SimpleTheme.px(1395), _panelLeft - SimpleTheme.px(16) - _left))
                                                     : SimpleTheme.px(1395)
         // centred on its real width (a mission result card alone is 1000 px, not 1395); next to a panel it stays in
         // the space between the flight buttons (_left) and the panel

@@ -94,8 +94,14 @@ Item {
     Connections {
         target: vs.present && vs.vehicle.missionResetMonitor ? vs.vehicle.missionResetMonitor : null
         ignoreUnknownSignals: true
+        // only when the notice first appears (the monitor also signals "Clearing Mission" etc.), and never over
+        // another toast that is still showing (e.g. "Restart the drone to use the new value")
+        property bool _shown: false
         function onRebootStateChanged() {
-            if (simpleRoot.page === "fly" || !vs.vehicle.missionResetMonitor.rebootBannerVisible) return
+            var on = !!vs.vehicle && vs.vehicle.missionResetMonitor.rebootBannerVisible
+            var first = on && !_shown
+            _shown = on
+            if (!first || simpleRoot.page === "fly" || restartToast.visible) return
             restartToast.text = qsTr("The drone restarted — check the mission on the fly screen")
             restartToast.visible = true
             restartToastTimer.restart()

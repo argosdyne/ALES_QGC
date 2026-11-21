@@ -248,11 +248,12 @@ TestCase {
         s._causes["battery"].t = Date.now() - 600000
         s._expireCauses()
         compare(s.recentCause, "Battery low")
-        verify(Date.now() - s._causes["battery"].t < 5000)                // refreshed while held
+        verify(Date.now() - s._causes["battery"].h < 5000)                // hold time refreshed, arrival time kept
+        verify(Date.now() - s._causes["battery"].t > 500000)
         v.flying = false; v.armed = false; v.flightMode = "Loiter"        // landed: 60 s from the last hold
         verify(!s._holdCauses)
         compare(s.recentCause, "Battery low")                             // the S92 card still reads it at disarm
-        s._causes["battery"].t = Date.now() - 61000
+        s._causes["battery"].t = Date.now() - 61000; s._causes["battery"].h = Date.now() - 61000
         s._expireCauses()
         compare(s.recentCause, ""); verify(!s._warnTimer.running)
         v.textMessageReceived(1, 1, 2, "EKF Failsafe", "")
@@ -277,6 +278,30 @@ TestCase {
         compare(s.recentCause, "Geofence reached")
         s.vehicle = createTemporaryObject(vehicleComp, tc)                 // another active drone
         compare(s.recentCause, "")
+    }
+    // code review round 4: real ArduCopter strings
+    function test_cause_real_arducopter_strings() {
+        v.textMessageReceived(1, 1, 2, "GPS Glitch or Compass error", "")
+        compare(s.recentCause, "GPS or position lost")
+        v.textMessageReceived(1, 1, 2, "Glitch cleared", "")
+        compare(s.recentCause, "")
+        v.textMessageReceived(1, 1, 2, "EKF Failsafe: changed to Land Mode", "")
+        compare(s.recentCause, "GPS or position lost")
+        compare(s.recentWarning, "EKF Failsafe: changed to Land Mode")
+        v.textMessageReceived(1, 1, 4, "EKF primary changed:1", "")
+        compare(s.recentWarning, "EKF Failsafe: changed to Land Mode")
+    }
+    // round 4: equal-rank causes keep their arrival order across a hold
+    function test_cause_tie_after_hold() {
+        v.armed = true; v.flying = true
+        v.textMessageReceived(1, 1, 2, "EKF variance", "")
+        s._causes["ekf"].t = Date.now() - 5000
+        v.textMessageReceived(1, 1, 2, "GPS Glitch or Compass error", "")
+        v.flightMode = "RTL"
+        s._expireCauses()
+        v.flying = false; v.armed = false; v.flightMode = "Loiter"
+        s._refreshCause()
+        compare(s.recentWarning, "GPS Glitch or Compass error")        // the newest of rank 8
     }
     function test_random_states() {
         var modes = ["Loiter", "RTL", "Smart RTL", "Land", "Auto", "Brake", "Stabilize", ""]

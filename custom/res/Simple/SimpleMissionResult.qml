@@ -126,7 +126,8 @@ Rectangle {
                     { l: qsTr("BATTERY"),     v: isNaN(mr.battStart) || isNaN(mr.battEnd) ? "—" : Math.round(mr.battStart) + " → " + Math.round(mr.battEnd), u: isNaN(mr.battEnd) ? "" : "%" }
                 ]
                 Rectangle {
-                    width: mr._narrow ? (col.width - SimpleTheme.px(12)) / 2 : (col.width - 3 * SimpleTheme.px(12)) / 4
+                    // floor: a Flow wraps when the widths add up to a hair more than its own width
+                    width: Math.floor(mr._narrow ? (col.width - SimpleTheme.px(12)) / 2 : (col.width - 3 * SimpleTheme.px(12)) / 4)
                     height: SimpleTheme.px(90); radius: SimpleTheme.px(16)
                     color: SimpleTheme.surfaceRaised
                     Column {
@@ -151,8 +152,8 @@ Rectangle {
         Flow {
             width: parent.width
             spacing: SimpleTheme.px(12)
-            readonly property real _w: mr._narrow ? col.width
-                                     : mr.finished || mr.resumed ? (col.width - SimpleTheme.px(12)) / 2 : (col.width - 2 * SimpleTheme.px(12)) / 3
+            readonly property real _w: Math.floor(mr._narrow ? col.width
+                                     : mr.finished || mr.resumed ? (col.width - SimpleTheme.px(12)) / 2 : (col.width - 2 * SimpleTheme.px(12)) / 3)
             SButton {
                 objectName: "missionRemove"
                 visible: mr.vs && mr.vs.connected
