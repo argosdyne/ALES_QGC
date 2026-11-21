@@ -208,6 +208,18 @@
 <context>
     <name>SimpleFlyOverlay</name>
     <message>
+        <source>The drone keeps its mission after a restart. Check it before starting.</source>
+        <translation>드론은 다시 시작해도 임무를 유지합니다. 시작하기 전에 확인하세요.</translation>
+    </message>
+    <message>
+        <source>The drone clears its mission at a restart. Send the mission again before flying.</source>
+        <translation>드론이 다시 시작하면 임무가 지워집니다. 비행 전에 임무를 다시 보내세요.</translation>
+    </message>
+    <message>
+        <source>Check the mission on the drone again.</source>
+        <translation>드론의 임무를 다시 확인하세요.</translation>
+    </message>
+    <message>
         <source>Take off</source>
         <translation>이륙</translation>
     </message>

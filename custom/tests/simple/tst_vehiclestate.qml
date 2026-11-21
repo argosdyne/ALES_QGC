@@ -362,6 +362,18 @@ TestCase {
         v.flightMode = "RTL"
         compare(s.recentCause, "Battery low")
     }
+    // round 10: an unrecognised failsafe at the return is held; a cause held in an earlier return is not re-held
+    function test_cause_round10() {
+        v.armed = true; v.flying = true
+        v.textMessageReceived(1, 1, 2, "Dead Reckoning failsafe", "")
+        v.flightMode = "RTL"
+        compare(s.recentCause, "Warning — see the messages (bell)")
+        compare(s.recentWarning, "Dead Reckoning failsafe")
+        v.flightMode = "Loiter"                                           // pilot takes over, flies on
+        s._causes["other"].t = Date.now() - 30000; s._causes["other"].h = Date.now() - 30000
+        v.flightMode = "RTL"                                              // manual return 30 s later
+        compare(s.recentCause, "")
+    }
     function test_random_states() {
         var modes = ["Loiter", "RTL", "Smart RTL", "Land", "Auto", "Brake", "Stabilize", ""]
         var allowed = ["disconnected", "lost", "returning", "flying", "ground"]

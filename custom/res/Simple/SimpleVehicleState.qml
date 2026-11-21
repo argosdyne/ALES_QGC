@@ -120,12 +120,12 @@ QtObject {
         for (var k in _causes) {
             var e = _causes[k]
             // t stays the arrival time (newest wins a tie); h = last time it was held, the 60 s count from there
-            // an unrecognised warning ("other") is not held: it should not be named the reason for a manual return
             // only causes that came shortly before the return began (or during it) explain it: an earlier unrelated
             // warning is not named the reason of a manual Return home (code review 2026-11-21)
             // while returning / landing the other causes are dropped at once, so they cannot outrank the real one
             if (_holdCauses) {
-                if (e.rank > 1 && (e.h !== undefined || e.t >= _holdSince - _holdWindowMs))
+                // in this hold: arrived in the window before it, or already held since it began (not in an earlier hold)
+                if (e.t >= _holdSince - _holdWindowMs || (e.h !== undefined && e.h >= _holdSince))
                     c[k] = { rank: e.rank, cause: e.cause, text: e.text, t: e.t, h: now }
                 else changed = true
             }

@@ -579,8 +579,12 @@ Item {
             level: _reboot || (!!_m && _m.bannerIsWarning) ? "warn" : "info"; icon: "warn"
             title: _reboot ? qsTr("The drone restarted — check the mission") : qsTr("Mission on the drone")
             // the title already says the drone restarted: the detail is the mission sentence (kept / cleared), so it is
-            // not cut off in a narrow banner (2 lines)
-            detail: !_m ? "" : _m.bannerVisible ? _m.bannerText : (_reboot ? _m.rebootBannerText : "")
+            // not cut off in a narrow banner (2 lines). Own words: the core texts are not translated (like #28581).
+            // showMissionActions = mission kept on restart (MIS_OPTIONS clear bit off).
+            detail: !_m ? "" : _m.bannerVisible
+                    ? (_m.showMissionActions ? qsTr("The drone keeps its mission after a restart. Check it before starting.")
+                                             : qsTr("The drone clears its mission at a restart. Send the mission again before flying."))
+                    : (_reboot ? qsTr("Check the mission on the drone again.") : "")
             // The drone's mission is on this screen's map (the classic "Review Mission" is not needed). Vehicle setup ›
             // Mission exists in Advanced mode only and is locked while armed, so "Mission settings" only then.
             readonly property bool _settings: !!_m && _m.showMissionActions && !vs.armed && QGroundControl.corePlugin.advancedMode
