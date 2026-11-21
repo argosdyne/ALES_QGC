@@ -48,11 +48,20 @@ SPanel {
     readonly property var _fenceRad: fpcLoader.item && fpcLoader.item.parameterExists(-1, _fenceName)
                                      ? fpcLoader.item.getParameterFact(-1, _fenceName, false) : null
     readonly property real _distLimit: _fenceRad && _fenceRad.rawValue > 0 ? _fenceRad.rawValue : 500
+    // The distance limit blocks sending only when the drone's geofence is on: the FC enforces it then, and Go here uses
+    // the same rule. With the fence off it is a caution (Tuleap bug #28586: the check blocked at 300 m while
+    // Go here allowed 364 m). PX4 has no fence on/off parameter here: treated as on.
+    readonly property var  _fenceEn:  vs.present && vs.vehicle.apmFirmware && fpcLoader.item && fpcLoader.item.parameterExists(-1, "FENCE_ENABLE")
+                                      ? fpcLoader.item.getParameterFact(-1, "FENCE_ENABLE", false) : null
+    readonly property bool _fenceOn:  !_fenceEn || Number(_fenceEn.rawValue) !== 0
 
     // level: 0 ok, 1 caution, 2 blocked
     readonly property var _checks: [
         { lvl: _alt > maxAlt ? 2 : 0, t: qsTr("Height"), d: qsTr("%1 m (limit %2 m)").arg(Math.round(_alt)).arg(maxAlt) },
-        { lvl: _maxDist > _distLimit ? 2 : 0, t: qsTr("Distance"), d: qsTr("Farthest point %1 m (limit %2 m)").arg(Math.round(_maxDist)).arg(Math.round(_distLimit)) },
+        { lvl: _maxDist > _distLimit ? (_fenceOn ? 2 : 1) : 0, t: qsTr("Distance"),
+          d: _maxDist <= _distLimit ? qsTr("Farthest point %1 m (limit %2 m)").arg(Math.round(_maxDist)).arg(Math.round(_distLimit))
+           : _fenceOn ? qsTr("Farthest point %1 m (limit %2 m). Make the area smaller or raise Maximum distance in Settings › Safety.").arg(Math.round(_maxDist)).arg(Math.round(_distLimit))
+           : qsTr("Farthest point %1 m — over Maximum distance %2 m (geofence off: not enforced)").arg(Math.round(_maxDist)).arg(Math.round(_distLimit)) },
         { lvl: _batteries > 1 ? 1 : 0, t: qsTr("Battery"), d: _batteries > 1 ? qsTr("Needs %1 batteries — the drone returns to swap").arg(_batteries) : _batteries === 1 ? qsTr("Fits one battery") : qsTr("Not estimated for this drone") },
         { lvl: _zoneLvl, t: qsTr("Flight zones"),
           d: !_zm ? qsTr("Check the zones on the map yourself")

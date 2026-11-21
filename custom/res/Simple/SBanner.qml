@@ -17,7 +17,8 @@ Rectangle {
     signal held()
     signal actionAt(int index)
 
-    width:  SimpleTheme.px(1395)
+    // the banner column can narrow the banners (bannerWidth) when a panel is open on the right (Tuleap bug #28587)
+    width:  parent && parent.bannerWidth > 0 ? parent.bannerWidth : SimpleTheme.px(1395)
     height: Math.max(SimpleTheme.px(120), txt.height + SimpleTheme.px(32))     // a long detail wraps to 2 lines
     radius: SimpleTheme.px(20)
     color:  level === "danger" ? SimpleTheme.danger : level === "warn" ? SimpleTheme.warn : SimpleTheme.withAlpha(SimpleTheme.surfaceGlass, 0.97)
@@ -42,7 +43,7 @@ Rectangle {
     SHoldButton {
         id: hold
         visible: bn.holdText !== ""
-        anchors.right: btn.visible ? btn.left : parent.right; anchors.rightMargin: SimpleTheme.px(btn.visible ? 16 : 20)
+        anchors.right: btn.visible ? btn.left : multi.visible ? multi.left : parent.right; anchors.rightMargin: SimpleTheme.px(btn.visible || multi.visible ? 16 : 20)
         anchors.verticalCenter: parent.verticalCenter
         width: implicitWidth
         designHeight: 80

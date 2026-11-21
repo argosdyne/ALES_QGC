@@ -74,12 +74,19 @@ Item {
     // YellowScan phase 2 watchers (MainRootWindow; #318 / #319): Figma S102 alerts, S103 no response
     readonly property var _lidarAcq:    typeof mainWindow !== "undefined" ? mainWindow.lidarAcquisition : null
     readonly property var _lidarAlerts: typeof mainWindow !== "undefined" ? mainWindow.lidarAlerts : null
+    // S102 critical LiDAR messages, shown one at a time. At most 5 are kept (the oldest are dropped: a long flight with a
+    // faulty LiDAR piled up "15 more"), and "Dismiss all" clears them (Tuleap bug #28588)
+    readonly property int _lidarQueueMax: 5
     property var lidarCriticalQueue: []
+    property int lidarCriticalDropped: 0
     function pushLidarCritical(message) {
         if (lidarCriticalQueue.indexOf(message) !== -1) return
-        var q = lidarCriticalQueue.slice(); q.push(message); lidarCriticalQueue = q
+        var q = lidarCriticalQueue.slice(); q.push(message)
+        while (q.length > _lidarQueueMax) { q.shift(); lidarCriticalDropped++ }
+        lidarCriticalQueue = q
     }
-    function popLidarCritical() { lidarCriticalQueue = lidarCriticalQueue.slice(1) }
+    function popLidarCritical() { lidarCriticalQueue = lidarCriticalQueue.slice(1); if (lidarCriticalQueue.length === 0) lidarCriticalDropped = 0 }
+    function clearLidarCritical() { lidarCriticalQueue = []; lidarCriticalDropped = 0 }
     Timer { id: lidarRefusalTimer; interval: 10000; onTriggered: fly.lidarRefusal = "" }
 
     // Layer rule 1: a critical alert closes confirm sheets; so does a lost link on the ground (nothing can be sent)
@@ -253,6 +260,7 @@ Item {
         onLidarRefused: { fly.lidarRefusal = reason; lidarRefusalTimer.restart() }
     }
     SimpleCameraSheet {
+        id: camSheet
         visible: fly.cameraOpen && vs.present
         anchors.right: rail.left; anchors.rightMargin: SimpleTheme.px(16) + fly.sideToolsWidth
         y: topBar.height + SimpleTheme.px(16)
@@ -537,7 +545,15 @@ Item {
 
     //------------------------------------------------------------------ Banners (S34 paused, S05/S33 returning, S37 lost)
     Column {
-        anchors.horizontalCenter: parent.horizontalCenter
+        id: bannerCol
+        // a panel on the right (Payloads, camera settings) narrows the banners to the space left of it, so they do
+        // not cover the panel header (Tuleap bug #28587)
+        readonly property real _panelLeft: payloadPanel.visible ? payloadPanel.x : camSheet.visible ? camSheet.x : parent.width
+        readonly property bool _narrow: _panelLeft < parent.width
+        readonly property real _left: SimpleTheme.px(200)
+        readonly property real bannerWidth: _narrow ? Math.min(SimpleTheme.px(1395), _panelLeft - SimpleTheme.px(16) - _left)
+                                                    : SimpleTheme.px(1395)
+        x: _narrow ? _left + Math.max(0, (_panelLeft - SimpleTheme.px(16) - _left - bannerWidth) / 2) : (parent.width - bannerWidth) / 2
         y: topBar.height + SimpleTheme.px(24)
         spacing: SimpleTheme.px(12)
         // S91 / S92 mission result after landing (replaces the classic "Flight Plan complete" popup)
@@ -616,9 +632,11 @@ Item {
                                                      : qsTr("LiDAR — check now")
             detail: fly.lidarCriticalQueue.length > 0 ? fly.lidarCriticalQueue[0] : ""
             holdText: !!fly._lidarAcq && fly._lidarAcq.recording ? qsTr("Hold to stop LiDAR") : ""
-            actionText: qsTr("OK")
+            actionText: fly.lidarCriticalQueue.length > 1 ? "" : qsTr("OK")
+            actions: fly.lidarCriticalQueue.length > 1 ? [qsTr("Dismiss all"), qsTr("OK")] : []
             onHeld: fly._lidarAcq.stop()
             onAction: fly.popLidarCritical()
+            onActionAt: { if (index === 0) fly.clearLidarCritical(); else fly.popLidarCritical() }
         }
         // S102 LiDAR warnings (10 s, recording continues)
         SBanner {

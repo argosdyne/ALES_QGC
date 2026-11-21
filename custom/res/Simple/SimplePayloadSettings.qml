@@ -226,7 +226,7 @@ Column {
                 CardRow {
                     title: qsTr("Start recording")
                     sub: pl._custom.ysMissionStartStop.rawValue === 1
-                         ? qsTr("Starts at the first survey line of a mission and stops at the last. Start / Stop on the flight screen still works.")
+                         ? qsTr("Starts at the Init Path figure 8 before the survey and stops after the figure 8 at the end. Start / Stop on the flight screen still works.")
                          : qsTr("From the LiDAR panel on the flight screen")
                     SSegmented {
                         designWidth: 300

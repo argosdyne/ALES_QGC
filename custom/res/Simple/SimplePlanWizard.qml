@@ -7,6 +7,7 @@ import QtPositioning 5.3
 import QtLocation 5.3
 import QGroundControl 1.0
 import QGroundControl.Controllers 1.0
+import QGroundControl.FactSystem 1.0
 import "."
 import "SimpleMissionInfo.js" as MissionInfo
 
@@ -24,6 +25,24 @@ Item {
     readonly property var _mission: _plan ? _plan.missionController : null
     readonly property var _cam:     survey ? survey.cameraCalc : null
     readonly property real _maxAlt: Number(QGroundControl.settingsManager.flyViewSettings.guidedMaximumAltitude.rawValue)
+    // drone geofence (ArduPilot FENCE_ENABLE / FENCE_RADIUS) for the default area size (Tuleap bug #28585)
+    readonly property var  _veh:    QGroundControl.multiVehicleManager.activeVehicle
+    Loader { id: fenceFpc; visible: false; active: !!wiz._veh && wiz._veh.apmFirmware && wiz._veh.parameterManager.parametersReady
+             sourceComponent: Component { FactPanelController { } } }
+    function _param(n) { var f = fenceFpc.item; return f && f.parameterExists(-1, n) ? f.getParameterFact(-1, n, false) : null }
+    function _fenceRadius() {           // 0 = no fence radius to respect
+        var en = _param("FENCE_ENABLE"), rad = _param("FENCE_RADIUS")
+        return en && rad && Number(en.rawValue) !== 0 && Number(rad.rawValue) > 0 ? Number(rad.rawValue) : 0
+    }
+    // Scale of the default area so that the area plus extra (Init Path figure 8: 30 m line + 10 m turn ≈ 50 m) stays
+    // inside 90 % of the fence radius around home (or the area centre without a home). 1 = the 200 m x 150 m default.
+    function _defaultAreaScale(c, extra) {
+        var r = _fenceRadius()
+        if (r <= 0) return 1
+        var home = _veh && _veh.homePosition && _veh.homePosition.isValid ? _veh.homePosition : c
+        var room = 0.9 * r - extra - home.distanceTo(c)
+        return Math.max(0.2, Math.min(1, room / 125))      // 125 m = half diagonal of 200 x 150
+    }
 
     property bool interrupted: false        // set when a critical alert took the user to the fly screen
 
@@ -79,20 +98,21 @@ Item {
         return null
     }
 
-    function createAreaMapping() {
+    function createAreaMapping(extra) {
         kind = "area"
         _plan.removeAll()
         var c = planView.mapCenter()
+        var k = _defaultAreaScale(c, extra === undefined ? 0 : extra)
         _mission.insertTakeoffItem(c, 1, false)
         var item = _mission.insertComplexMissionItem(_mission.surveyComplexItemName, c, 2, true)
         _mission.insertLandItem(c, 3, false)
         if (item && item.surveyAreaPolygon.count === 0) {
-            // Default 200 m x 150 m (stays inside a 300 m geofence) area around the map centre
-            var p = []
-            p.push(c.atDistanceAndAzimuth(100, -90).atDistanceAndAzimuth(75, 0))
-            p.push(c.atDistanceAndAzimuth(100,  90).atDistanceAndAzimuth(75, 0))
-            p.push(c.atDistanceAndAzimuth(100,  90).atDistanceAndAzimuth(75, 180))
-            p.push(c.atDistanceAndAzimuth(100, -90).atDistanceAndAzimuth(75, 180))
+            // Default 200 m x 150 m area around the map centre, smaller when the drone's geofence is smaller
+            var hx = 100 * k, hy = 75 * k, p = []
+            p.push(c.atDistanceAndAzimuth(hx, -90).atDistanceAndAzimuth(hy, 0))
+            p.push(c.atDistanceAndAzimuth(hx,  90).atDistanceAndAzimuth(hy, 0))
+            p.push(c.atDistanceAndAzimuth(hx,  90).atDistanceAndAzimuth(hy, 180))
+            p.push(c.atDistanceAndAzimuth(hx, -90).atDistanceAndAzimuth(hy, 180))
             item.surveyAreaPolygon.appendVertices(p)
         }
         if (item && item.cameraCalc) item.cameraCalc.distanceToSurface.rawValue = Math.min(80, _maxAlt)
@@ -217,7 +237,7 @@ Item {
     // S42: area survey with the YellowScan "camera" (line spacing from height, line overlap and scanner FOV)
     // and a figure-8 Init Path before and after it (YellowScanInitPathComplexItem, settles the INS)
     function createLidarSurvey() {
-        createAreaMapping()
+        createAreaMapping(50)                  // room for the Init Path figure 8 before and after the survey
         kind = "lidar"
         var cc = survey ? survey.cameraCalc : null
         if (!cc) return

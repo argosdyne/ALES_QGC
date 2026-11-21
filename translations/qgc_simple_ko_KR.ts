@@ -683,6 +683,10 @@
         <source>Mission settings</source>
         <translation>임무 설정</translation>
     </message>
+    <message>
+        <source>Dismiss all</source>
+        <translation>모두 확인</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -1130,6 +1134,14 @@
     <message>
         <source>The drone did not accept the mission. Check the message, change the mission and send again.</source>
         <translation>드론이 미션을 받지 않았습니다. 메시지를 확인하고 미션을 고친 뒤 다시 보내세요.</translation>
+    </message>
+    <message>
+        <source>Farthest point %1 m (limit %2 m). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
+        <translation>가장 먼 지점 %1 m (제한 %2 m). 영역을 줄이거나 설정 › 안전에서 최대 거리를 늘리세요.</translation>
+    </message>
+    <message>
+        <source>Farthest point %1 m — over Maximum distance %2 m (geofence off: not enforced)</source>
+        <translation>가장 먼 지점 %1 m — 최대 거리 %2 m 초과 (지오펜스 꺼짐: 제한 없음)</translation>
     </message>
 </context>
 <context>
@@ -3569,6 +3581,10 @@
     <message>
         <source>The tablet must be on the station's network</source>
         <translation>태블릿이 스테이션 네트워크에 연결되어 있어야 합니다</translation>
+    </message>
+    <message>
+        <source>Starts at the Init Path figure 8 before the survey and stops after the figure 8 at the end. Start / Stop on the flight screen still works.</source>
+        <translation>측량 전 초기화 경로(8자 비행)에서 시작하고 마지막 8자 비행이 끝나면 정지합니다. 비행 화면의 시작·정지도 그대로 쓸 수 있습니다.</translation>
     </message>
 </context>
 <context>
