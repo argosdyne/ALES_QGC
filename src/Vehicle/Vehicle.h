@@ -651,6 +651,8 @@ public:
     bool            messageTypeError            () { return _currentMessageType == MessageError; }
     bool            geoFenceMarginWarning       () const { return _geoFenceMarginWarning; }
     bool            geoFenceBreached            () const { return _geoFenceBreached; }
+    /// true while the flight controller's FENCE_STATUS reports a breach (not the app's own geometry check)
+    Q_INVOKABLE bool fenceStatusBreached        () const { return _fenceStatusBreached; }
     int             geoFenceAlertTier           () const { return _geoFenceAlertTier; }
     bool            geoFenceLoaded              () const { return _geoFenceLoaded; }
     bool            geoFenceActive              () const { return _geoFenceActive; }
