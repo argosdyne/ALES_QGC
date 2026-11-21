@@ -1,6 +1,6 @@
 # 작업 인계 (handoff) — AQGC Simple UI
 
-다른 PC에서 이어서 작업하기 위한 현황 정리입니다. **2026-11-20 기준**입니다.
+다른 PC에서 이어서 작업하기 위한 현황 정리입니다. **2026-11-21 기준**입니다.
 작업 규칙과 결정 사항의 원본은 `CLAUDE.md`, 고급 모드 개편 기록은 `custom/docs/TASK-advanced-mode-redesign.md`,
 화면별 파일 목록은 `custom/res/Simple/README.md`입니다. 이 문서는 그 위에 "지금 어디까지 왔고 무엇이 남았는지"만 적습니다.
 
@@ -27,7 +27,27 @@
 - 새 QML 파일은 `custom/custom.qrc`(prefix `/simple`)와 `custom/res/Simple/qmldir` 두 곳에 등록.
 - 빌드가 실제로 쓰는 qrc는 **`custom/qgroundcontrol.qrc`**(손으로 고친 파일). `custom/updateqrc.py`로 다시 만들지 마세요.
 
-## 2. 2026-11-20 세션에서 한 일
+## 2. 2026-11-21 세션에서 한 일
+
+- **SITL 시험 → Bug 21건 수정** (#28551–#28564, #28581, #28582, #28585–#28589): 모두 In QA, SITL 재시험 PASS.
+  시험 결과서 AGD-TRP-ALQGC-400 R00(Word, 사내 보관).
+- **code-review high 12회**(범위 47a0985b3..4251bf27d): 1–11차 important 모두 수정, 12차 **Pass**.
+  Pass 기준(사용자 결정): 비행 안전에 영향을 주는 important 0건. 남은 표시 지적은 Bug #28594, #28595(Low, BT02).
+  6차에서 재부팅 배너의 "임무 보기" 동작은 뺌(기체 임무는 비행 화면 지도에 이미 보임).
+- **코어 추가**(규칙 2 예외 승인): `Vehicle.defaultComponentId`(NOTIFY), `Vehicle.fenceStatusBreached()` — 읽기 전용, 동작 변화 없음.
+- **회사 기준 파라미터 FENCE_ENABLE = 1**(EU 기본값, 사용자 결정): S60 비교와 S39 거리 차단이 펜스 켜짐 기준.
+- **BT01 = 태그 `simple_ui_v1_2026112102`**(0c3e09c37), CI Windows·Android 성공. Tuleap Image Release **#28597 V02.00.00BT01**
+  (SW Milestone #28591 하위, superseded #27469, delivers Story 8건, Bug 21건 fixed_in) → **In Verification(QA 제출)**.
+  첨부: 코드 리뷰 결과, 릴리스 노트(md), SHA256SUMS. 바이너리는 사내 빌드 폴더 `builds/simple_ui_v1_2026112102`.
+  같은 날 먼저 만든 태그 `simple_ui_v1_2026112101`은 리뷰 수정 전 빌드라 쓰지 않음.
+- **Tuleap**: #28591 연결 Feature → Testing, Story ST-01–12 → Review(#20603 다국어는 미구현이라 New 유지).
+  Launch #28590 / SW Milestone #28591(AQGC V02.00.00) 배정 정리.
+- **Figma** UX 노트 추가(S05 귀환 원인·재부팅 배너, S10 좁은 배너, S60 FENCE_ENABLE, S91 좁은 카드, S102 경고 대기열);
+  늘어난 노트 아래 행을 내려 겹침 없앰.
+- **문서**: SW 개발계획서 초안(Word, PiDS–G4 일정안·역할·시험·리스크·결정 사항), CLAUDE.md에 Pass 기준·코어 예외 기록.
+- 시험: Qt Quick 시험 165개 통과, 정적 검사 실패 0, 앱 시작 시 QML 경고 0.
+
+## 2-b. 2026-11-20 세션에서 한 일
 
 | 커밋 | Figma | 내용 |
 |---|---|---|
@@ -112,6 +132,12 @@
 - S100은 SITL에 카메라가 없어 **가짜 MAVLink 카메라**(4장 `cam.py`)로 시험: 설정 변경, SD 포맷, 초기화 명령이 카메라에 도착함을 확인.
 
 ## 3. 남은 일
+
+**0. 다음 세션에서 먼저 (2026-11-21 기준)**
+- **#28119 Show Stopper**(조종기 충전기 연결·분리 시 앱 종료) 재현·원인 확인 — G2 전 필수, 아직 미조사.
+- BT01 품질팀 Test Campaign 결과 대응(Reopen된 Bug 수정), BT02에 #28594·#28595 반영.
+- 개발계획서 결정 사항: PM·릴리스 담당 지정, PiDS/NPI 일정(G2 12-04, G3 12-16 안), #20603·ST-13/14 포함 여부, 저속 모드 범위,
+  12시간 SITL·HIL 통합 시험(AGD-PRC-COM-100 4.3.5) — 아직 미실시.
 
 **A. 리뷰 뒤에 할 일**
 - **D2** (사용자 결정 2026-11-20: PR #311 개발자 리뷰 뒤로 미룸): C++가 아직 이름으로 가리키는 클래식 QML 페이지(APM 기체 설정 페이지,
