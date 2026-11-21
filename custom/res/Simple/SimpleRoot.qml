@@ -30,16 +30,6 @@ Item {
         planWizard.start()
         mainWindow.showPlanView()
     }
-    function reviewMission() {      // the drone's mission in its editor (restart banner "Review mission")
-        page = "plan"
-        mainWindow.showPlanView()
-        planWizard.reviewLoaded()
-    }
-    function showNotice(text) {     // short notice at the bottom on any page (same place as the restart toast)
-        restartToast.text = text
-        restartToast.visible = true
-        restartToastTimer.restart()
-    }
     function showSaved() {          // S24 saved missions
         showPlan()
         planWizard.step = "saved"
@@ -96,22 +86,31 @@ Item {
 
     // Drone restarted / mission cleared (bug #28564): the banner lives on the fly screen; on other pages a toast points
     // there, so the notice is not missed while planning or in Settings (code review 2026-11-21)
+    // Shown once when the notice first appears (the monitor also signals "Clearing Mission" etc.); if another toast
+    // is showing (e.g. "Restart the drone to use the new value") it follows when that one hides.
+    property bool _rebootShown: false
+    property bool _rebootPending: false
+    function _rebootToast() {
+        _rebootPending = false
+        var on = vs.present && !!vs.vehicle.missionResetMonitor && vs.vehicle.missionResetMonitor.rebootBannerVisible
+        if (!on || _rebootShown || page === "fly") return
+        if (restartToast.visible) { _rebootPending = true; return }
+        _rebootShown = true
+        restartToast.text = qsTr("The drone restarted — check the mission on the fly screen")
+        restartToast.visible = true
+        restartToastTimer.restart()
+    }
     Connections {
         target: vs.present && vs.vehicle.missionResetMonitor ? vs.vehicle.missionResetMonitor : null
         ignoreUnknownSignals: true
-        // only when the notice first appears (the monitor also signals "Clearing Mission" etc.), and never over
-        // another toast that is still showing (e.g. "Restart the drone to use the new value")
-        property bool _shown: false
-        onTargetChanged: _shown = false                  // a new drone / monitor object
         function onRebootStateChanged() {
-            var on = !!vs.vehicle && vs.vehicle.missionResetMonitor.rebootBannerVisible
-            if (!on) { _shown = false; return }
-            if (_shown || simpleRoot.page === "fly" || restartToast.visible) return      // not counted as shown while blocked
-            _shown = true
-            restartToast.text = qsTr("The drone restarted — check the mission on the fly screen")
-            restartToast.visible = true
-            restartToastTimer.restart()
+            if (!vs.vehicle.missionResetMonitor.rebootBannerVisible) { simpleRoot._rebootShown = false; simpleRoot._rebootPending = false; return }
+            simpleRoot._rebootToast()
         }
+    }
+    Connections {
+        target: vs
+        function onVehicleChanged() { simpleRoot._rebootShown = false; simpleRoot._rebootPending = false }
     }
 
     // Layer rule 1: critical alerts bring the user back to the fly screen
@@ -204,6 +203,7 @@ Item {
         SText { id: restartToastText; anchors.centerIn: parent; width: Math.min(implicitWidth, restartToast.width - SimpleTheme.px(56))
                 elide: Text.ElideRight; text: restartToast.text; size: 26; medium: true }
         Timer { id: restartToastTimer; interval: 6000; onTriggered: restartToast.visible = false }
+        onVisibleChanged: if (!visible && simpleRoot._rebootPending) simpleRoot._rebootToast()
     }
 
     // S57 first-start welcome (language & units) — shown once, replaces the classic first-run prompts

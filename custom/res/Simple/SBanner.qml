@@ -23,10 +23,12 @@ Rectangle {
     // gets a row of its own (code reviews 2026-11-21). So the banner keeps the column width (bannerWidth).
     readonly property real _baseW: parent && parent.bannerWidth > 0 ? parent.bannerWidth : SimpleTheme.px(1395)
     readonly property real _holdW: hold.visible ? hold.implicitWidth : 0
-    readonly property real _multiNat: {
+    // natural width of the action buttons (itemAt() has no notify signal: recomputed when items come, go or resize)
+    property real _multiNat: 0
+    function _recalcMulti() {
         var w = 0
         for (var i = 0; i < multiRep.count; i++) { var it = multiRep.itemAt(i); if (it) w += it.implicitWidth }
-        return w + Math.max(0, multiRep.count - 1) * SimpleTheme.px(16)
+        _multiNat = w + Math.max(0, multiRep.count - 1) * SimpleTheme.px(16)
     }
     readonly property real _rowW:  (btn.visible ? btn.implicitWidth : 0) + (multi.visible ? _multiNat : 0)
     readonly property real _btnsW: _holdW + (_holdW > 0 && _rowW > 0 ? SimpleTheme.px(16) : 0) + _rowW
@@ -100,9 +102,12 @@ Rectangle {
         Repeater {
             id: multiRep
             model: bn.actions
+            onItemAdded: bn._recalcMulti()
+            onItemRemoved: Qt.callLater(bn._recalcMulti)
             SButton {
                 readonly property bool _last: index === bn.actions.length - 1
                 width: bn._squeeze ? bn._squeezeW : implicitWidth
+                onImplicitWidthChanged: bn._recalcMulti()
                 designHeight: 80; textSize: 26
                 fillColor: _last ? SimpleTheme.textPrimary : SimpleTheme.withAlpha(SimpleTheme.bgBase, 0.85)
                 textColor: _last ? SimpleTheme.bgBase : SimpleTheme.textPrimary

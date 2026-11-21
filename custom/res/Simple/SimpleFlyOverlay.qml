@@ -580,18 +580,14 @@ Item {
             title: _reboot ? qsTr("The drone restarted — check the mission") : qsTr("Mission on the drone")
             detail: !_m ? "" : [_reboot ? _m.rebootBannerText : "", _m.bannerVisible ? _m.bannerText : ""]
                                 .filter(function(t) { return t !== "" }).join(" ")
-            // On the ground: "Review mission" opens Plan (classic "Review Mission"); Vehicle setup › Mission exists in
-            // Advanced mode only. In flight both are locked (state rules), so only OK.
-            readonly property bool _ground:   !!_m && _m.showMissionActions && !vs.armed
-            readonly property bool _settings: _ground && QGroundControl.corePlugin.advancedMode
-            readonly property var  _acts: (_ground ? [qsTr("Review mission")] : []).concat(_settings ? [qsTr("Mission settings")] : []).concat([qsTr("OK")])
-            actions: _acts
+            // The drone's mission is on this screen's map (the classic "Review Mission" is not needed). Vehicle setup ›
+            // Mission exists in Advanced mode only and is locked while armed, so "Mission settings" only then.
+            readonly property bool _settings: !!_m && _m.showMissionActions && !vs.armed && QGroundControl.corePlugin.advancedMode
+            actions: _settings ? [qsTr("Mission settings"), qsTr("OK")] : [qsTr("OK")]
             onActionAt: {
-                var a = _acts[index]
                 _m.dismissBanner()
                 _m.dismissRebootBanner()
-                if (a === qsTr("Review mission")) simpleRoot.reviewMission()
-                else if (a === qsTr("Mission settings")) simpleRoot.showVehicleSetup("mission")
+                if (_settings && index === 0) simpleRoot.showVehicleSetup("mission")
             }
         }
         // S50 tether power lost (classic SAFE-T no-power rules: failsafe 0 recommend land, 1 warn only, 2 auto land)

@@ -164,10 +164,11 @@ QtObject {
         // (the text may be translated, so no regex); margin, altitude warning and exit lines are not causes.
         if (tier >= 3) { _addCause("fence", 4, qsTr("Geofence reached"), text); return }
         if (tier >= 0 || _isC2Message(text)) return
-        if (componentid !== _autopilotComponent || text === "" || text.indexOf("PreArm") === 0) return
+        var fc = present && vehicle.defaultComponentId !== undefined ? vehicle.defaultComponentId : _autopilotComponent
+        if (componentid !== fc || text === "" || text.indexOf("PreArm") === 0) return
         // a problem reported gone (any severity): forget that kind ("GPS Glitch cleared", "Radio failsafe cleared")
-        if (/clear|restored|recovered|resolved/i.test(text)) {
-            var gone = _causeOf(text.replace(/clear\w*|restored|recovered|resolved/ig, ""))
+        if (/\bclear(ed)?\b|\brestored\b|\brecovered\b|\bresolved\b/i.test(text)) {
+            var gone = _causeOf(text.replace(/\bclear(ed)?\b|\brestored\b|\brecovered\b|\bresolved\b/ig, ""))
             if (gone.rank > 0 && _causes[gone.kind] !== undefined) {
                 var c0 = {}
                 for (var k0 in _causes) if (k0 !== gone.kind) c0[k0] = _causes[k0]

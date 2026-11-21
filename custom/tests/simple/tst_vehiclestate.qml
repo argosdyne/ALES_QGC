@@ -49,6 +49,7 @@ TestCase {
             property int    sensorsUnhealthyBits: 0
             signal textMessageReceived(int uasid, int componentid, int severity, string text, string description)
             signal geoFenceAlertTierChanged(int tier)
+            property int    defaultComponentId: 1
         }
     }
     Component { id: stateComp; SimpleVehicleState { } }
@@ -309,6 +310,17 @@ TestCase {
         v.flying = false; v.armed = false; v.flightMode = "Loiter"
         s._refreshCause()
         compare(s.recentWarning, "GPS Glitch or Compass error")        // the newest of rank 8
+    }
+    // round 6: the vehicle's own autopilot component id; "clear" only as a whole word
+    function test_cause_component_id_and_clear_word() {
+        v.defaultComponentId = 2
+        v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")
+        compare(s.recentCause, "")
+        v.textMessageReceived(1, 2, 4, "Battery 1 is low", "")
+        compare(s.recentCause, "Battery low")
+        v.textMessageReceived(1, 2, 4, "Terrain clearance low", "")       // "clearance" is not "cleared"
+        compare(s._causes["terrain"] !== undefined, true)
+        compare(s._causes["battery"] !== undefined, true)
     }
     function test_random_states() {
         var modes = ["Loiter", "RTL", "Smart RTL", "Land", "Auto", "Brake", "Stabilize", ""]

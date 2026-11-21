@@ -28,7 +28,7 @@ Item {
     // drone geofence (ArduPilot FENCE_ENABLE / FENCE_RADIUS) for the default area size (Tuleap bug #28585)
     readonly property var  _veh:    QGroundControl.multiVehicleManager.activeVehicle
     // FactPanelController binds to the vehicle it is created with: create it again for another active drone
-    on_VehChanged: { _awaitVehicle = false; fenceFpc.active = false; fenceFpc.active = Qt.binding(function() { return !!wiz._veh && wiz._veh.parameterManager.parametersReady }) }
+    on_VehChanged: { fenceFpc.active = false; fenceFpc.active = Qt.binding(function() { return !!wiz._veh && wiz._veh.parameterManager.parametersReady }) }
     Loader { id: fenceFpc; visible: false; active: !!wiz._veh && wiz._veh.parameterManager.parametersReady
              sourceComponent: Component { FactPanelController { } } }
     function _param(n) { var f = fenceFpc.item; return f && f.parameterExists(-1, n) ? f.getParameterFact(-1, n, false) : null }
@@ -86,7 +86,6 @@ Item {
     }
 
     function start() {
-        _awaitVehicle = false               // a review load still running does not move the wizard later
         // Back after a critical alert (02 Flows D): continue the mission being edited, do not start a new one
         if (interrupted) {
             interrupted = false
@@ -162,38 +161,6 @@ Item {
         kind = "editor"
         step = "edit"
     }
-    // "Review mission" after a drone restart (bug #28564): read the mission from the drone and show it in its editor.
-    // An unsent plan being edited is replaced only after a confirm (code review 2026-11-21). No drone: new-plan choice.
-    // The plan is cleared first, so a read that does not run or fails can never show the old plan as the drone's
-    // mission (code review 2026-11-21): then the new-plan choice opens with a notice.
-    property bool _awaitVehicle: false
-    function _canReadVehicle() {
-        return !!_plan && !_plan.offline && !_plan.syncInProgress && !!_veh && !_veh.vehicleLinkManager.communicationLost
-    }
-    function reviewLoaded() {
-        interrupted = false
-        _awaitVehicle = false
-        if (!_canReadVehicle()) { start(); _reviewFailed(); return }
-        if (_plan.dirty && _mission.visualItems.count > 1) { _pending = { vehicle: true }; replaceSheet.visible = true; return }
-        _loadVehicleMission()
-    }
-    function _loadVehicleMission() {
-        if (!_canReadVehicle()) { start(); _reviewFailed(); return }
-        _plan.removeAll()
-        _plan.loadFromVehicle()
-        if (!_plan.syncInProgress) { start(); _reviewFailed(); return }      // refused (e.g. high-latency link)
-        _awaitVehicle = true
-    }
-    function _afterVehicleLoad() {
-        _awaitVehicle = false
-        if (_mission.visualItems.count > 1) { _plan.fitViewportToItems(); _routeToEditor() }
-        else { start(); _reviewFailed() }
-    }
-    function _reviewFailed() { simpleRoot.showNotice(qsTr("No mission read from the drone")) }
-    Connections {
-        target: wiz._plan
-        function onSyncInProgressChanged() { if (wiz._awaitVehicle && !wiz._plan.syncInProgress) wiz._afterVehicleLoad() }
-    }
     // S24: open a saved mission in the matching editor (area, waypoint) or straight in the check (other kinds)
     // The plan being edited is replaced by Open / Import: ask first when it is not saved on this tablet.
     property var _pending: null
@@ -204,7 +171,6 @@ Item {
         var p = _pending; _pending = null
         if (p && p.open) openFile(p.open)
         else if (p && p.imp) importFile(p.imp)
-        else if (p && p.vehicle) _loadVehicleMission()
     }
     function openFile(path) {
         _plan.loadFromFile(path)

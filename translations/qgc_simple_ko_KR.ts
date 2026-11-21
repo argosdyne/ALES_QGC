@@ -691,10 +691,6 @@
         <source>Dismiss all</source>
         <translation>모두 확인</translation>
     </message>
-    <message>
-        <source>Review mission</source>
-        <translation>임무 보기</translation>
-    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -1154,10 +1150,6 @@
 </context>
 <context>
     <name>SimplePlanWizard</name>
-    <message>
-        <source>No mission read from the drone</source>
-        <translation>드론에서 읽은 임무가 없습니다</translation>
-    </message>
     <message>
         <source>Settings</source>
         <translation>설정</translation>
