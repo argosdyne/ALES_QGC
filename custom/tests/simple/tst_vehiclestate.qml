@@ -48,6 +48,7 @@ TestCase {
             property bool   readyToFly: true
             property int    sensorsUnhealthyBits: 0
             signal textMessageReceived(int uasid, int componentid, int severity, string text, string description)
+            signal geoFenceAlertTierChanged(int tier)
         }
     }
     Component { id: stateComp; SimpleVehicleState { } }
@@ -221,8 +222,9 @@ TestCase {
         var benign = ["EKF primary changed:1", "SmartRTL deactivated", "Battery 1 OK", "EKF3 IMU0 is using GPS"]
         for (var i = 0; i < benign.length; i++) v.textMessageReceived(1, 1, 4, benign[i], "")
         compare(s.recentCause, "")
-        v.textMessageReceived(1, 1, 4, "Bad compass health", "")          // "OK" only as a word
-        compare(s.recentCause, "GPS or position lost")
+        v.textMessageReceived(1, 1, 4, "Bad compass health", "")          // "OK" only as a word; compass is its own cause
+        compare(s.recentCause, "Compass problem")
+        s._clearCause()
         v.textMessageReceived(1, 1, 4, "GPS Glitch", "")
         v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")            // kept below the GPS cause
         compare(s.recentCause, "GPS or position lost")
@@ -243,19 +245,38 @@ TestCase {
         verify(s._warnTimer.running)
         v.flightMode = "RTL"                                              // returning: never expires
         verify(s._holdCauses)
-        s._causes[7].t = Date.now() - 600000
+        s._causes["battery"].t = Date.now() - 600000
         s._expireCauses()
         compare(s.recentCause, "Battery low")
-        verify(Date.now() - s._causes[7].t < 5000)                        // refreshed while held
+        verify(Date.now() - s._causes["battery"].t < 5000)                // refreshed while held
         v.flying = false; v.armed = false; v.flightMode = "Loiter"        // landed: 60 s from the last hold
         verify(!s._holdCauses)
         compare(s.recentCause, "Battery low")                             // the S92 card still reads it at disarm
-        s._causes[7].t = Date.now() - 61000
+        s._causes["battery"].t = Date.now() - 61000
         s._expireCauses()
         compare(s.recentCause, ""); verify(!s._warnTimer.running)
         v.textMessageReceived(1, 1, 2, "EKF Failsafe", "")
         v.armed = true                                                    // next flight starts clean
         compare(s.recentCause, ""); compare(s.recentReason, "")
+    }
+    // code review round 3: kinds of the same rank are kept apart; the app's own geofence / C2 texts are skipped;
+    // a "cleared" line counts at any severity; another drone starts clean
+    function test_cause_kinds_app_messages_and_vehicle_change() {
+        v.textMessageReceived(1, 1, 2, "EKF Failsafe", "")
+        v.textMessageReceived(1, 1, 2, "GPS Glitch", "")
+        v.textMessageReceived(1, 1, 6, "GPS Glitch cleared", "")          // info severity still clears the GPS kind
+        compare(s.recentCause, "GPS or position lost")                     // the EKF failsafe stays
+        compare(s.recentWarning, "EKF Failsafe")
+        s._clearCause()
+        v.geoFenceAlertTierChanged(1)                                     // app geofence alert (Vehicle.cc)
+        v.textMessageReceived(1, 1, 4, "Approaching geofence margin", "")
+        compare(s.recentCause, "")
+        v.textMessageReceived(1, 1, 4, qsTranslate("Vehicle", "C2 link quality degraded"), "")
+        compare(s.recentCause, "")
+        v.textMessageReceived(1, 1, 4, "Fence breach", "")                // the FC's own fence line counts
+        compare(s.recentCause, "Geofence reached")
+        s.vehicle = createTemporaryObject(vehicleComp, tc)                 // another active drone
+        compare(s.recentCause, "")
     }
     function test_random_states() {
         var modes = ["Loiter", "RTL", "Smart RTL", "Land", "Auto", "Brake", "Stabilize", ""]

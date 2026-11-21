@@ -19,13 +19,18 @@ Rectangle {
 
     // the banner column can narrow the banners (bannerWidth) when a panel is open on the right (Tuleap bug #28587)
     // When the buttons leave less than 360 px for the text (narrow banner next to a panel, 4:3 screen), the buttons move
-    // to their own row under the text (code review 2026-11-21). The banner is never narrower than its buttons.
-    readonly property real _btnsW: (hold.visible ? hold.width + SimpleTheme.px(16) : 0) + (btn.visible ? btn.width : 0)
-                                   + (multi.visible ? multi.width : 0)
-    readonly property real _textW: width - SimpleTheme.px(26 + 56 + 22 + 22 + 20) - _btnsW
+    // to a row under the text; if the hold button and the other buttons do not fit on one row either, the hold button
+    // gets a row of its own (code reviews 2026-11-21). So the banner keeps the column width (bannerWidth).
+    readonly property real _baseW: parent && parent.bannerWidth > 0 ? parent.bannerWidth : SimpleTheme.px(1395)
+    readonly property real _holdW: hold.visible ? hold.width : 0
+    readonly property real _rowW:  (btn.visible ? btn.width : 0) + (multi.visible ? multi.width : 0)
+    readonly property real _btnsW: _holdW + (_holdW > 0 && _rowW > 0 ? SimpleTheme.px(16) : 0) + _rowW
+    readonly property real _textW: _baseW - SimpleTheme.px(26 + 56 + 22 + 22 + 20) - _btnsW
     readonly property bool _stack: _btnsW > 0 && _textW < SimpleTheme.px(360)
-    width:  Math.max(parent && parent.bannerWidth > 0 ? parent.bannerWidth : SimpleTheme.px(1395), _btnsW + SimpleTheme.px(40))
-    height: _stack ? txt.height + SimpleTheme.px(16 + 12 + 80 + 16)
+    readonly property bool _stack2: _stack && _holdW > 0 && _rowW > 0 && _btnsW + SimpleTheme.px(40) > _baseW
+    readonly property int  _rows: _stack2 ? 2 : _stack ? 1 : 0
+    width:  Math.max(_baseW, (_stack2 ? Math.max(_holdW, _rowW) : _btnsW) + SimpleTheme.px(40))
+    height: _stack ? txt.height + SimpleTheme.px(32 + 92 * _rows)
                    : Math.max(SimpleTheme.px(120), txt.height + SimpleTheme.px(32))     // a long detail wraps to 2 lines
     radius: SimpleTheme.px(20)
     color:  level === "danger" ? SimpleTheme.danger : level === "warn" ? SimpleTheme.warn : SimpleTheme.withAlpha(SimpleTheme.surfaceGlass, 0.97)
@@ -36,7 +41,7 @@ Rectangle {
         id: ic
         anchors.left: parent.left; anchors.leftMargin: SimpleTheme.px(26)
         anchors.verticalCenter: parent.verticalCenter
-        anchors.verticalCenterOffset: bn._stack ? -(SimpleTheme.px(80 + 12) / 2) : 0
+        anchors.verticalCenterOffset: -SimpleTheme.px(92) * bn._rows / 2
         name: bn.icon; size: 56; color: bn._fg
     }
     Column {
@@ -45,7 +50,7 @@ Rectangle {
         anchors.right: bn._stack ? parent.right : hold.visible ? hold.left : btn.visible ? btn.left : multi.visible ? multi.left : parent.right
         anchors.rightMargin: SimpleTheme.px(22)
         anchors.verticalCenter: parent.verticalCenter
-        anchors.verticalCenterOffset: bn._stack ? -(SimpleTheme.px(80 + 12) / 2) : 0
+        anchors.verticalCenterOffset: -SimpleTheme.px(92) * bn._rows / 2
         SText { width: parent.width; text: bn.title; size: 32; bold: true; color: bn._fg }
         SText { width: parent.width; text: bn.detail; size: 24; color: bn._fg; visible: text !== ""
                 wrapMode: Text.WordWrap; maximumLineCount: 2 }
@@ -53,9 +58,10 @@ Rectangle {
     SHoldButton {
         id: hold
         visible: bn.holdText !== ""
-        anchors.right: btn.visible ? btn.left : multi.visible ? multi.left : parent.right; anchors.rightMargin: SimpleTheme.px(btn.visible || multi.visible ? 16 : 20)
+        anchors.right: bn._stack2 ? parent.right : btn.visible ? btn.left : multi.visible ? multi.left : parent.right
+        anchors.rightMargin: SimpleTheme.px(!bn._stack2 && (btn.visible || multi.visible) ? 16 : 20)
         anchors.verticalCenter: parent.verticalCenter
-        anchors.verticalCenterOffset: bn._stack ? (parent.height - SimpleTheme.px(80)) / 2 - SimpleTheme.px(16) : 0
+        anchors.verticalCenterOffset: bn._stack ? (parent.height - SimpleTheme.px(80)) / 2 - SimpleTheme.px(16) - (bn._stack2 ? SimpleTheme.px(92) : 0) : 0
         width: implicitWidth
         designHeight: 80
         fillColor: SimpleTheme.bgBase

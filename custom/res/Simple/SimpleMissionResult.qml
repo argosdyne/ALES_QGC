@@ -81,7 +81,9 @@ Rectangle {
 
     visible: shown
     // narrower when the banner column is narrowed by a right panel (code review 2026-11-21, bug #28587)
-    width: parent && parent.bannerWidth > 0 ? Math.min(SimpleTheme.px(1000), Math.max(SimpleTheme.px(640), parent.bannerWidth)) : SimpleTheme.px(1000)   // 4 values need 640
+    width: parent && parent.bannerWidth > 0 ? Math.min(SimpleTheme.px(1000), parent.bannerWidth) : SimpleTheme.px(1000)
+    // narrow (next to a panel on a 4:3 screen): the four values go 2 × 2 and the buttons one under the other
+    readonly property bool _narrow: width < SimpleTheme.px(760)
     height: col.height + SimpleTheme.px(48)
     radius: SimpleTheme.px(26)
     color: SimpleTheme.withAlpha(SimpleTheme.surfaceGlass, 0.95)
@@ -113,7 +115,8 @@ Rectangle {
                     text: mr.finished ? "100 %" : (mr.itemCount > 1 ? Math.round(100 * mr.resumeIndex / (mr.itemCount - 1)) + " %" : "") }
         }
         SNotice { visible: !mr.finished && mr.reason !== ""; level: "warn"; text: mr.reason }
-        Row {
+        Flow {
+            width: parent.width
             spacing: SimpleTheme.px(12)
             Repeater {
                 model: [
@@ -123,7 +126,8 @@ Rectangle {
                     { l: qsTr("BATTERY"),     v: isNaN(mr.battStart) || isNaN(mr.battEnd) ? "—" : Math.round(mr.battStart) + " → " + Math.round(mr.battEnd), u: isNaN(mr.battEnd) ? "" : "%" }
                 ]
                 Rectangle {
-                    width: (col.width - 3 * SimpleTheme.px(12)) / 4; height: SimpleTheme.px(90); radius: SimpleTheme.px(16)
+                    width: mr._narrow ? (col.width - SimpleTheme.px(12)) / 2 : (col.width - 3 * SimpleTheme.px(12)) / 4
+                    height: SimpleTheme.px(90); radius: SimpleTheme.px(16)
                     color: SimpleTheme.surfaceRaised
                     Column {
                         x: SimpleTheme.px(18); anchors.verticalCenter: parent.verticalCenter
@@ -144,9 +148,11 @@ Rectangle {
                    : mr.finished ? qsTr("The mission stays on the drone: Start mission flies it again.")
                    : qsTr("Next flight can continue from waypoint %1 (photos already taken are kept).").arg(mr.resumeIndex))
         }
-        Row {
+        Flow {
+            width: parent.width
             spacing: SimpleTheme.px(12)
-            readonly property real _w: mr.finished || mr.resumed ? (col.width - SimpleTheme.px(12)) / 2 : (col.width - 2 * SimpleTheme.px(12)) / 3
+            readonly property real _w: mr._narrow ? col.width
+                                     : mr.finished || mr.resumed ? (col.width - SimpleTheme.px(12)) / 2 : (col.width - 2 * SimpleTheme.px(12)) / 3
             SButton {
                 objectName: "missionRemove"
                 visible: mr.vs && mr.vs.connected

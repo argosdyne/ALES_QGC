@@ -30,6 +30,11 @@ Item {
         planWizard.start()
         mainWindow.showPlanView()
     }
+    function reviewMission() {      // the drone's mission in its editor (restart banner "Review mission")
+        page = "plan"
+        mainWindow.showPlanView()
+        planWizard.reviewLoaded()
+    }
     function showSaved() {          // S24 saved missions
         showPlan()
         planWizard.step = "saved"

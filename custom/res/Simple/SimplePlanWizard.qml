@@ -27,10 +27,14 @@ Item {
     readonly property real _maxAlt: Number(QGroundControl.settingsManager.flyViewSettings.guidedMaximumAltitude.rawValue)
     // drone geofence (ArduPilot FENCE_ENABLE / FENCE_RADIUS) for the default area size (Tuleap bug #28585)
     readonly property var  _veh:    QGroundControl.multiVehicleManager.activeVehicle
-    Loader { id: fenceFpc; visible: false; active: !!wiz._veh && wiz._veh.apmFirmware && wiz._veh.parameterManager.parametersReady
+    Loader { id: fenceFpc; visible: false; active: !!wiz._veh && wiz._veh.parameterManager.parametersReady
              sourceComponent: Component { FactPanelController { } } }
     function _param(n) { var f = fenceFpc.item; return f && f.parameterExists(-1, n) ? f.getParameterFact(-1, n, false) : null }
     function _fenceRadius() {           // 0 = no fence radius to respect
+        if (_veh && !_veh.apmFirmware) {    // PX4: the same limit as the S39 check
+            var gf = _param("GF_MAX_HOR_DIST")
+            return gf && Number(gf.rawValue) > 0 ? Number(gf.rawValue) : 0
+        }
         var en = _param("FENCE_ENABLE"), rad = _param("FENCE_RADIUS"), typ = _param("FENCE_TYPE"), auto = _param("FENCE_AUTOENABLE")
         var circle = !typ || (Number(typ.rawValue) & 2) !== 0     // FENCE_TYPE bit 2 = circle fence
         // on now, or can be turned on in flight (auto-enable, RC switch RCn_OPTION = 11), as in the S39 check
@@ -109,10 +113,12 @@ Item {
         kind = "area"
         _plan.removeAll()
         var c = planView.mapCenter()
-        var k = _defaultAreaScale(c, extra === undefined ? 0 : extra)
         _mission.insertTakeoffItem(c, 1, false)
         var item = _mission.insertComplexMissionItem(_mission.surveyComplexItemName, c, 2, true)
         _mission.insertLandItem(c, 3, false)
+        // the transects run past the area by the turnaround distance: keep that inside the fence too
+        var turn = item && item.turnAroundDistance ? Number(item.turnAroundDistance.rawValue) : 0
+        var k = _defaultAreaScale(c, (extra === undefined ? 0 : extra) + (isFinite(turn) ? turn : 0))
         if (item && item.surveyAreaPolygon.count === 0) {
             // Default 200 m x 150 m area around the map centre, smaller when the drone's geofence is smaller
             var hx = 100 * k, hy = 75 * k, p = []
@@ -151,6 +157,12 @@ Item {
         survey = null
         kind = "editor"
         step = "edit"
+    }
+    // "Review mission" after a drone restart (bug #28564): show the mission that is in Plan now (the drone's mission)
+    // in its editor instead of the new-plan choice; an empty plan starts as usual
+    function reviewLoaded() {
+        if (_mission && _mission.visualItems.count > 1) { interrupted = false; _plan.fitViewportToItems(); _routeToEditor() }
+        else start()
     }
     // S24: open a saved mission in the matching editor (area, waypoint) or straight in the check (other kinds)
     // The plan being edited is replaced by Open / Import: ask first when it is not saved on this tablet.

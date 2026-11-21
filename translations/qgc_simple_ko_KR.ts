@@ -2610,6 +2610,10 @@
 <context>
     <name>SimpleVehicleState</name>
     <message>
+        <source>Compass problem</source>
+        <translation>나침반 이상</translation>
+    </message>
+    <message>
         <source>Warning — see the messages (bell)</source>
         <translation>경고 — 메시지(종)를 확인하세요</translation>
     </message>

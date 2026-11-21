@@ -555,7 +555,9 @@ Item {
         // at least 400 px; a banner whose buttons do not fit beside the text puts them on a second row (SBanner._stack)
         readonly property real bannerWidth: _narrow ? Math.max(SimpleTheme.px(400), Math.min(SimpleTheme.px(1395), _panelLeft - SimpleTheme.px(16) - _left))
                                                     : SimpleTheme.px(1395)
-        x: _narrow ? _left + Math.max(0, (_panelLeft - SimpleTheme.px(16) - _left - bannerWidth) / 2) : (parent.width - bannerWidth) / 2
+        // centred on its real width (a mission result card alone is 1000 px, not 1395); next to a panel it stays in
+        // the space between the flight buttons (_left) and the panel
+        x: _narrow ? _left + Math.max(0, (_panelLeft - SimpleTheme.px(16) - _left - width) / 2) : (parent.width - width) / 2
         y: topBar.height + SimpleTheme.px(24)
         spacing: SimpleTheme.px(12)
         // S91 / S92 mission result after landing (replaces the classic "Flight Plan complete" popup)
@@ -587,7 +589,7 @@ Item {
                 var a = _acts[index]
                 _m.dismissBanner()
                 _m.dismissRebootBanner()
-                if (a === qsTr("Review mission")) simpleRoot.showPlan()
+                if (a === qsTr("Review mission")) simpleRoot.reviewMission()
                 else if (a === qsTr("Mission settings")) simpleRoot.showVehicleSetup("mission")
             }
         }

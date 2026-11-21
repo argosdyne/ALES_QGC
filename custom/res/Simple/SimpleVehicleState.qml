@@ -77,38 +77,45 @@ QtObject {
                                              + (sensorsOk ? 0 : 1) + (!ridAvailable || ridGood ? 0 : 1) + (zoneBlocked ? 1 : 0)
                                              + (tethered && !tetherPowerOk ? 1 : 0)
 
-    // QA F5: why the drone returns / lands / stopped a mission, in plain words (Tuleap bug #28582, code review 2026-11-21).
+    // QA F5: why the drone returns / lands / stopped a mission, in plain words (Tuleap bug #28582, code reviews 2026-11-21).
     // - Only the flight controller's warnings count (STATUSTEXT from component 1, severity WARNING or worse, no PreArm):
-    //   a LiDAR, Remote ID module or camera on the same system must not name the cause.
-    // - Each kind of cause is kept on its own (by rank); the most serious one still kept is shown, so a newer lower-rank
-    //   cause appears when the higher one expires or is reported cleared ("GPS Glitch cleared").
+    //   a LiDAR, Remote ID module or camera on the same system must not name the cause. The app's own geofence and
+    //   C2 link messages (Vehicle.cc, also sent as component 1) are skipped.
+    // - Each kind of cause (EKF, GPS, compass, battery, ...) is kept on its own; the most serious kind still kept is
+    //   shown (the newest one on a tie), so a lower cause appears when a higher one expires or is reported cleared
+    //   ("GPS Glitch cleared" clears only the GPS kind, not an EKF failsafe).
     // - Lines that report a normal switch-over ("EKF primary changed", "SmartRTL deactivated", "Battery OK", "using GPS")
     //   are ignored; FC warnings with no known cause are kept as "Warning — see the messages" (lowest rank) with their text.
     // - A cause is kept 60 s, but never expires while the drone is returning or landing (the S92 card reads it at
-    //   disarm); arming clears the last flight's causes.
+    //   disarm); arming or another active drone clears them.
     // recentWarning keeps the raw FC text of the shown cause (Advanced mode shows it after the plain cause).
     readonly property int    _autopilotComponent: 1         // MAV_COMP_ID_AUTOPILOT1
     readonly property int    _causeKeepMs: 60000
-    property var             _causes: ({})                   // rank -> { cause, text, t }
+    property var             _causes: ({})                   // kind -> { rank, cause, text, t }
     property string recentWarning: ""
     property string recentCause: ""
     property int    _causeRank: 0
+    property bool   _appMessage: false                       // the next text is the app's own geofence alert
     readonly property bool   _holdCauses: armed && (returning || landing)
     function _now() { return Date.now() }
     function _clearCause() { _causes = ({}); _refreshCause() }
     function _refreshCause() {
-        var best = 0
-        for (var k in _causes) if (Number(k) > best) best = Number(k)
-        _causeRank = best
-        recentCause = best > 0 ? _causes[best].cause : ""
-        recentWarning = best > 0 ? _causes[best].text : ""
+        var best = null
+        for (var k in _causes) {
+            var e = _causes[k]
+            if (!best || e.rank > best.rank || (e.rank === best.rank && e.t >= best.t)) best = e
+        }
+        _causeRank = best ? best.rank : 0
+        recentCause = best ? best.cause : ""
+        recentWarning = best ? best.text : ""
     }
+    function _setCauses(c) { _causes = c; _refreshCause() }
     // drops causes older than 60 s (kept fresh while returning / landing)
     function _expireCauses() {
         var now = _now(), c = {}, changed = false
         for (var k in _causes) {
             var e = _causes[k]
-            if (_holdCauses) { c[k] = { cause: e.cause, text: e.text, t: now } }
+            if (_holdCauses) c[k] = { rank: e.rank, cause: e.cause, text: e.text, t: now }
             else if (now - e.t < _causeKeepMs) c[k] = e
             else changed = true
         }
@@ -120,46 +127,59 @@ QtObject {
         running: s._causeRank > 0
         onTriggered: s._expireCauses()
     }
-    // a new flight starts without the causes of the last one
+    // a new flight (or another drone) starts without the old causes
     onArmedChanged: if (armed) _clearCause()
+    onVehicleChanged: _clearCause()
     on_HoldCausesChanged: _expireCauses()
-    function _causeOf(t) {          // [rank, plain text]; rank 0 = not a cause
-        if (/crash/i.test(t))                                                     return [9, qsTr("Crash detected")]
-        if (/EKF|GPS|position|Need Position|Glitch|variance|compass/i.test(t))   return [8, qsTr("GPS or position lost")]
-        if (/batt|voltage|capacity/i.test(t))                                    return [7, qsTr("Battery low")]
-        if (/radio|RC |throttle failsafe|RC failsafe|manual control/i.test(t))   return [6, qsTr("Controller signal lost")]
-        if (/GCS|telemetry|link/i.test(t))                                       return [5, qsTr("App link lost")]
-        if (/fence/i.test(t))                                                    return [4, qsTr("Geofence reached")]
-        if (/terrain|rangefinder/i.test(t))                                      return [3, qsTr("Terrain data problem")]
-        if (/vibration/i.test(t))                                                return [3, qsTr("Strong vibration")]
-        if (/wind/i.test(t))                                                     return [2, qsTr("Strong wind")]
-        return [0, ""]
+    function _causeOf(t) {          // { kind, rank, cause }; rank 0 = not a cause
+        function r(kind, rank, cause) { return { kind: kind, rank: rank, cause: cause } }
+        if (/crash/i.test(t))                                     return r("crash", 9, qsTr("Crash detected"))
+        if (/compass|mag\b|magnet/i.test(t))                      return r("compass", 8, qsTr("Compass problem"))
+        if (/EKF|variance/i.test(t))                              return r("ekf", 8, qsTr("GPS or position lost"))
+        if (/GPS|position|Need Position|Glitch/i.test(t))         return r("gps", 8, qsTr("GPS or position lost"))
+        if (/batt|voltage|capacity/i.test(t))                     return r("battery", 7, qsTr("Battery low"))
+        if (/radio|RC |throttle failsafe|RC failsafe|manual control/i.test(t)) return r("rc", 6, qsTr("Controller signal lost"))
+        if (/GCS|telemetry|link/i.test(t))                        return r("gcs", 5, qsTr("App link lost"))
+        if (/fence/i.test(t))                                     return r("fence", 4, qsTr("Geofence reached"))
+        if (/terrain|rangefinder/i.test(t))                       return r("terrain", 3, qsTr("Terrain data problem"))
+        if (/vibration/i.test(t))                                 return r("vibration", 3, qsTr("Strong vibration"))
+        if (/wind/i.test(t))                                      return r("wind", 2, qsTr("Strong wind"))
+        return r("", 0, "")
+    }
+    function _isAppMessage(text) {
+        if (_appMessage) return true
+        return text === qsTranslate("Vehicle", "C2 link quality critical") || text === qsTranslate("Vehicle", "C2 link quality degraded")
     }
     function _onFcWarning(componentid, severity, text) {
-        if (componentid !== _autopilotComponent || severity > 4 || text === "" || text.indexOf("PreArm") === 0) return
-        // a problem reported gone: forget that cause ("GPS Glitch cleared", "Radio failsafe cleared")
+        var app = _isAppMessage(text)
+        _appMessage = false
+        if (app || componentid !== _autopilotComponent || text === "" || text.indexOf("PreArm") === 0) return
+        // a problem reported gone (any severity): forget that kind ("GPS Glitch cleared", "Radio failsafe cleared")
         if (/clear|restored|recovered|resolved/i.test(text)) {
             var gone = _causeOf(text.replace(/clear\w*|restored|recovered|resolved/ig, ""))
-            if (gone[0] > 0 && _causes[gone[0]] !== undefined) {
+            if (gone.rank > 0 && _causes[gone.kind] !== undefined) {
                 var c0 = {}
-                for (var k0 in _causes) if (Number(k0) !== gone[0]) c0[k0] = _causes[k0]
-                _causes = c0; _refreshCause()
+                for (var k0 in _causes) if (k0 !== gone.kind) c0[k0] = _causes[k0]
+                _setCauses(c0)
             }
             return
         }
+        if (severity > 4) return
         // a normal switch-over is not a cause
         if (/changed|deactivat|\bOK\b|using GPS/i.test(text)) return
         var c = _causeOf(text)
-        if (c[0] === 0) c = [1, qsTr("Warning — see the messages (bell)")]
+        if (c.rank === 0) c = { kind: "other", rank: 1, cause: qsTr("Warning — see the messages (bell)") }
         var n = {}
         for (var k in _causes) n[k] = _causes[k]
-        n[c[0]] = { cause: c[1], text: text, t: _now() }
-        _causes = n
-        _refreshCause()
+        n[c.kind] = { rank: c.rank, cause: c.cause, text: text, t: _now() }
+        _setCauses(n)
     }
     property Connections _warnConn: Connections {
         target: present ? vehicle : null
+        ignoreUnknownSignals: true
         function onTextMessageReceived(uasid, componentid, severity, text, description) { s._onFcWarning(componentid, severity, text) }
+        // the app's own geofence alert text follows this signal at once (Vehicle._updateGeoFenceAlert)
+        function onGeoFenceAlertTierChanged(tier) { s._appMessage = true; Qt.callLater(function() { s._appMessage = false }) }
     }
     // reason line for banners and the S92 card: plain cause; Advanced mode adds the FC text
     readonly property string recentReason: recentCause === "" ? ""

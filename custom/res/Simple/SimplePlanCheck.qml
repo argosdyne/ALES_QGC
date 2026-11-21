@@ -69,7 +69,10 @@ SPanel {
         var items = _mission ? _mission.visualItems : null
         if (items) for (var i = 0; i < items.count; i++) {
             var it = items.get(i)
-            if (it && it.command === 207) return true                // MAV_CMD_DO_FENCE_ENABLE
+            if (!it || it.command !== 207) continue                  // MAV_CMD_DO_FENCE_ENABLE
+            // param1: 1 = enable, 0 = disable, 2 = disable floor only; unknown (raw edit) counts as enable
+            var p1 = it.comboboxFacts && it.comboboxFacts.count > 0 ? it.comboboxFacts.get(0) : null
+            if (!p1 || Number(p1.rawValue) === 1) return true
         }
         return false
     }
