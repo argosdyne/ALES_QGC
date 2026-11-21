@@ -50,6 +50,8 @@ Item {
     // Returns true = handled (also when the screen shows its own restart notice).
     function showRestartNotice(vehicle, name) {
         if (SimpleTheme.quietRestart || SimpleTheme.ownRestartHints > 0) return true
+        // the drone-restarted notice is showing: show it again after this one
+        if (restartToast.visible && _rebootShown && restartToast.text === _rebootText) { _rebootShown = false; _rebootPending = true }
         restartToast.text = vehicle ? qsTr("%1 saved. Restart the drone to use the new value.").arg(name)
                                     : qsTr("“%1” changes after the app restarts.").arg(name)
         restartToast.visible = true
@@ -88,6 +90,7 @@ Item {
     // there, so the notice is not missed while planning or in Settings (code review 2026-11-21)
     // Shown once when the notice first appears (the monitor also signals "Clearing Mission" etc.); if another toast
     // is showing (e.g. "Restart the drone to use the new value") it follows when that one hides.
+    readonly property string _rebootText: qsTr("The drone restarted — check the mission on the fly screen")
     property bool _rebootShown: false
     property bool _rebootPending: false
     function _rebootToast() {
@@ -96,7 +99,7 @@ Item {
         if (!on || _rebootShown || page === "fly") return
         if (restartToast.visible) { _rebootPending = true; return }
         _rebootShown = true
-        restartToast.text = qsTr("The drone restarted — check the mission on the fly screen")
+        restartToast.text = _rebootText
         restartToast.visible = true
         restartToastTimer.restart()
     }

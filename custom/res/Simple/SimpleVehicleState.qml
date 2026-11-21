@@ -97,6 +97,8 @@ QtObject {
     property int    _causeRank: 0
     property int    _appTier: -1                             // the next text is the app's geofence alert of this tier
     readonly property bool   _holdCauses: armed && (returning || landing)
+    property real            _holdSince: 0                   // when the return / landing began
+    readonly property int    _holdWindowMs: 15000            // only causes from the 15 s before it are held
     function _now() { return Date.now() }
     function _clearCause() { _causes = ({}); _refreshCause() }
     function _refreshCause() {
@@ -107,7 +109,9 @@ QtObject {
         }
         _causeRank = best ? best.rank : 0
         recentCause = best ? best.cause : ""
-        recentWarning = best ? best.text : ""
+        // STATUSTEXT arrives HTML-escaped (Vehicle.cc toHtmlEscaped); the reason line is plain text
+        recentWarning = best ? best.text.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, "\"")
+                                        .replace(/&#39;/g, "'").replace(/&amp;/g, "&") : ""
     }
     function _setCauses(c) { _causes = c; _refreshCause() }
     // drops causes older than 60 s (kept fresh while returning / landing)
@@ -117,7 +121,10 @@ QtObject {
             var e = _causes[k]
             // t stays the arrival time (newest wins a tie); h = last time it was held, the 60 s count from there
             // an unrecognised warning ("other") is not held: it should not be named the reason for a manual return
-            if (_holdCauses && e.rank > 1) c[k] = { rank: e.rank, cause: e.cause, text: e.text, t: e.t, h: now }
+            // only causes that came shortly before the return began (or during it) explain it: an earlier unrelated
+            // warning is not named the reason of a manual Return home (code review 2026-11-21)
+            if (_holdCauses && e.rank > 1 && (e.h !== undefined || e.t >= _holdSince - _holdWindowMs))
+                c[k] = { rank: e.rank, cause: e.cause, text: e.text, t: e.t, h: now }
             else if (now - Math.max(e.t, e.h || 0) < _causeKeepMs) c[k] = e
             else changed = true
         }
@@ -132,12 +139,12 @@ QtObject {
     // a new flight (or another drone) starts without the old causes
     onArmedChanged: if (armed) _clearCause()
     onVehicleChanged: _clearCause()
-    on_HoldCausesChanged: _expireCauses()
+    on_HoldCausesChanged: { if (_holdCauses) _holdSince = _now(); _expireCauses() }
     function _causeOf(t) {          // { kind, rank, cause }; rank 0 = not a cause
         function r(kind, rank, cause) { return { kind: kind, rank: rank, cause: cause } }
         if (/crash/i.test(t))                                     return r("crash", 9, qsTr("Crash detected"))
         // GPS / glitch first: ArduCopter's glitch line is "GPS Glitch or Compass error", its end "Glitch cleared"
-        if (/GPS|position|Need Position|Glitch/i.test(t))         return r("gps", 8, qsTr("GPS or position lost"))
+        if (/GPS|Need Position|Glitch|position (lost|estimate)|bad position/i.test(t)) return r("gps", 8, qsTr("GPS or position lost"))
         if (/EKF|variance/i.test(t))                              return r("ekf", 8, qsTr("GPS or position lost"))
         if (/compass|mag\b|magnet/i.test(t))                      return r("compass", 8, qsTr("Compass problem"))
         if (/batt|voltage|capacity/i.test(t))                     return r("battery", 7, qsTr("Battery low"))

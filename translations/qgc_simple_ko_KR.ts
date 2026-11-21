@@ -1147,6 +1147,10 @@
         <source>Farthest point %1 m — over Maximum distance %2 m (geofence off: not enforced)</source>
         <translation>가장 먼 지점 %1 m — 최대 거리 %2 m 초과 (지오펜스 꺼짐: 제한 없음)</translation>
     </message>
+    <message>
+        <source>Farthest point %1 m — over Maximum distance %2 m (the drone's fence has no distance limit: not enforced)</source>
+        <translation>가장 먼 지점 %1 m — 최대 거리 %2 m 초과 (드론 펜스에 거리 제한 없음: 적용 안 됨)</translation>
+    </message>
 </context>
 <context>
     <name>SimplePlanWizard</name>

@@ -17,7 +17,9 @@ Rectangle {
                               : SimpleTheme.surfaceControl
     signal clicked()
 
-    implicitWidth:  row.implicitWidth + SimpleTheme.px(56)
+    // from the label's natural width (not the Row), so a narrower button can elide its label without a loop
+    readonly property real _iconW: icon !== "" ? SimpleTheme.px(32 + 12) : 0
+    implicitWidth:  _iconW + label.implicitWidth + SimpleTheme.px(56)
     implicitHeight: SimpleTheme.px(designHeight)
     radius:         SimpleTheme.px(20)
     opacity:        enabled_ ? 1 : 0.4
@@ -37,6 +39,9 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
         }
         SText {
+            id: label
+            width: Math.min(implicitWidth, Math.max(0, control.width - SimpleTheme.px(56) - control._iconW))
+            elide: Text.ElideRight
             text: control.text
             size: control.textSize
             bold: true

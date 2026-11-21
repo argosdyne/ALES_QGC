@@ -76,6 +76,8 @@ SPanel {
             var it = items.get(i)
             if (!it || it.command !== 207) continue                  // MAV_CMD_DO_FENCE_ENABLE
             // param1: 1 = enable, 0 = disable, 2 = disable floor only; unknown (raw edit) counts as enable
+            // raw edit: comboboxFacts are command / frame, not param1, so count it as enable
+            if (it.rawEdit) return true
             var p1 = it.comboboxFacts && it.comboboxFacts.count > 0 ? it.comboboxFacts.get(0) : null
             if (!p1 || Number(p1.rawValue) === 1) return true
         }
@@ -90,7 +92,9 @@ SPanel {
         { lvl: _maxDist > _distLimit ? (_fenceOn ? 2 : 1) : 0, t: qsTr("Distance"),
           d: _maxDist <= _distLimit ? qsTr("Farthest point %1 m (limit %2 m)").arg(Math.round(_maxDist)).arg(Math.round(_distLimit))
            : _fenceOn ? qsTr("Farthest point %1 m (limit %2 m). Make the area smaller or raise Maximum distance in Settings › Safety.").arg(Math.round(_maxDist)).arg(Math.round(_distLimit))
-           : qsTr("Farthest point %1 m — over Maximum distance %2 m (geofence off: not enforced)").arg(Math.round(_maxDist)).arg(Math.round(_distLimit)) },
+           : _fenceEn && Number(_fenceEn.rawValue) !== 0
+             ? qsTr("Farthest point %1 m — over Maximum distance %2 m (the drone's fence has no distance limit: not enforced)").arg(Math.round(_maxDist)).arg(Math.round(_distLimit))
+             : qsTr("Farthest point %1 m — over Maximum distance %2 m (geofence off: not enforced)").arg(Math.round(_maxDist)).arg(Math.round(_distLimit)) },
         { lvl: _batteries > 1 ? 1 : 0, t: qsTr("Battery"), d: _batteries > 1 ? qsTr("Needs %1 batteries — the drone returns to swap").arg(_batteries) : _batteries === 1 ? qsTr("Fits one battery") : qsTr("Not estimated for this drone") },
         { lvl: _zoneLvl, t: qsTr("Flight zones"),
           d: !_zm ? qsTr("Check the zones on the map yourself")
