@@ -177,6 +177,7 @@ public:
     Q_ENUM(GeoFenceAlertTier)
 
     Q_PROPERTY(int                  id                          READ id                                                             CONSTANT)
+    Q_PROPERTY(int                  defaultComponentId          READ defaultComponentId                                             CONSTANT)   ///< autopilot component id (Simple UI: which STATUSTEXT is the FC's)
     Q_PROPERTY(AutoPilotPlugin*     autopilot                   MEMBER _autopilotPlugin                                             CONSTANT)
     Q_PROPERTY(QGeoCoordinate       coordinate                  READ coordinate                                                     NOTIFY coordinateChanged)
     Q_PROPERTY(QGeoCoordinate       homePosition                READ homePosition                                                   NOTIFY homePositionChanged)
