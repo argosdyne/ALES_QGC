@@ -369,3 +369,8 @@ Reply to the user in Korean unless they write in English.
    checks the keystore). No Google Play upload (2026-11-16), so target SDK android-30 stays. `ci/android-diagnose` deleted.
 5. (2026-11-20) PR #311 is waiting for developer review. D2 (remove classic QML still named by C++) only after that
    review (user decision). Current status and open items: `handoff.md` section 3.
+6. (2026-11-21, user) code-review high Pass criterion for QA images: **no important finding that affects flight
+   safety** (flight commands, plan send / block, failsafe behaviour). Display-only importants and nits are Pass and go
+   to Tuleap as Low bugs for the next image. Round 12 (47a0985b3..4251bf27d) = Pass; BT01 = tag
+   `simple_ui_v1_2026112102`. Core read-only additions for the Simple UI (`Vehicle.defaultComponentId`,
+   `Vehicle.fenceStatusBreached()`) are not bug fixes: ask the user to confirm them as a rule-2 exception.
