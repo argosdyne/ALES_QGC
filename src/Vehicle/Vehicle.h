@@ -1236,6 +1236,9 @@ private:
     void _setupAutoDisarmSignalling     ();
     void _setCapabilities               (uint64_t capabilityBits);
     void _updateArmed                   (bool armed);
+    void _releaseMotorEmergencyStop     ();
+    static void _motorEmergencyStopReleaseResultHandler(void* resultHandlerData, int compId, const mavlink_command_ack_t& ack, MavCmdResultFailureCode_t failureCode);
+    QString _motorEmergencyStopSettingsKey() const { return QStringLiteral("Vehicle/motorEmergencyStopSet/%1").arg(_id); }
     bool _apmArmingNotRequired          ();
     void _initializeCsv                 ();
     void _writeCsvLine                  ();
@@ -1356,6 +1359,7 @@ private:
     NextVisionController*           _nextVisionController           = nullptr;
 
     bool    _armed = false;         ///< true: vehicle is armed
+    bool    _motorEmergencyStopSet = false; ///< true: motorEmergencyStop() set ArduPilot aux 31 high, released on disarm
     uint8_t _base_mode = 0;     ///< base_mode from HEARTBEAT
     uint32_t _custom_mode = 0;  ///< custom_mode from HEARTBEAT
     uint32_t _custom_mode_user_intention = 0;  ///< custom_mode_user_intention from CURRENT_MODE

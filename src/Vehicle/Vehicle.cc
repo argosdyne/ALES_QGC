@@ -292,6 +292,15 @@ Vehicle::Vehicle(LinkInterface*             link,
 
     connect(this, &Vehicle::remoteControlRSSIChanged,   this, &Vehicle::_remoteControlRSSIChanged);
 
+    // A joystick motor emergency stop set before the app closed or the vehicle was lost is still set on the FC:
+    // release it once the vehicle is back and on the ground (disarmed).
+    _motorEmergencyStopSet = QSettings().value(_motorEmergencyStopSettingsKey(), false).toBool();
+    connect(this, &Vehicle::initialConnectComplete, this, [this]() {
+        if (!_armed) {
+            _releaseMotorEmergencyStop();
+        }
+    });
+
     _commonInit();
 
     _vehicleLinkManager->_addLink(link);
@@ -1943,6 +1952,8 @@ void Vehicle::_updateArmed(bool armed)
                 setArmed(false, true);
             }
         } else {
+            // A joystick motor emergency stop stays set on ArduPilot until released: release it once disarmed
+            _releaseMotorEmergencyStop();
             _finishMissionImageCountTracking();
             _trajectoryPoints->stop();
             _flightTimerStop();
@@ -3470,7 +3481,9 @@ void Vehicle::emergencyStop()
 
 void Vehicle::motorEmergencyStop()
 {
-    if (!apmFirmware()) {
+    // Disarmed: nothing to stop. The aux switch would stay high (no disarm follows to release it) and
+    // block the next arming with "Motor Emergency Stopped", so keep the old force-disarm instead.
+    if (!apmFirmware() || !_armed) {
         emergencyStop();
         return;
     }
@@ -3478,12 +3491,58 @@ void Vehicle::motorEmergencyStop()
     // ArduPilot RCn_OPTION 31, Motor Emergency Stop, switch high.
     // MAV_CMD_DO_AUX_FUNCTION is 218. The switch level high value is 2.
     // The default MAVLink dialect in this tree does not always define those names.
+    // The FC keeps the switch high until it gets a new command: _updateArmed() sends it low on disarm.
+    // Saved per system id so a later connection (after an app restart or a lost vehicle) still releases it.
+    _motorEmergencyStopSet = true;
+    {
+        // Written to disk at once: the app may be closed or killed before the vehicle disarms
+        QSettings settings;
+        settings.setValue(_motorEmergencyStopSettingsKey(), true);
+        settings.sync();
+    }
     sendMavCommand(
                 _defaultComponentId,
                 static_cast<MAV_CMD>(218),
                 true,        // show error if fails
                 31.0f,
                 2.0f);
+}
+
+void Vehicle::_releaseMotorEmergencyStop()
+{
+    if (!_motorEmergencyStopSet || !apmFirmware()) {
+        return;
+    }
+    _motorEmergencyStopSet = false;
+    qCDebug(VehicleLog) << "Releasing joystick motor emergency stop (aux 31 low)";
+    // MAV_CMD_DO_AUX_FUNCTION (218), RCn_OPTION 31 Motor Emergency Stop, switch low (0).
+    // The saved flag is removed only when the vehicle accepts it, so a failed release is tried again on the next connection.
+    const MavCmdAckHandlerInfo_t handlerInfo = { &Vehicle::_motorEmergencyStopReleaseResultHandler, this, nullptr, nullptr };
+    sendMavCommandWithHandler(&handlerInfo, _defaultComponentId, static_cast<MAV_CMD>(218), 31.0f, 0.0f);
+}
+
+void Vehicle::_motorEmergencyStopReleaseResultHandler(void* resultHandlerData, int /*compId*/, const mavlink_command_ack_t& ack, MavCmdResultFailureCode_t failureCode)
+{
+    Vehicle* vehicle = static_cast<Vehicle*>(resultHandlerData);
+    if (failureCode == MavCmdResultFailureDuplicateCommand) {
+        // Another DO_AUX_FUNCTION (the stop itself, or a release) is still waiting for its answer: try again shortly
+        vehicle->_motorEmergencyStopSet = true;
+        QTimer::singleShot(1000, vehicle, [vehicle]() {
+            if (!vehicle->armed()) {
+                vehicle->_releaseMotorEmergencyStop();
+            }
+        });
+        return;
+    }
+    if (failureCode == MavCmdResultCommandResultOnly && ack.result == MAV_RESULT_ACCEPTED) {
+        QSettings settings;
+        settings.remove(vehicle->_motorEmergencyStopSettingsKey());
+        settings.sync();
+        return;
+    }
+    qCWarning(VehicleLog) << "Motor emergency stop release failed" << ack.result << failureCode;
+    vehicle->_motorEmergencyStopSet = true;     // next disarm / connection tries again
+    qgcApp()->showAppMessage(tr("Motor emergency stop could not be released. Reconnect the vehicle, or reboot it, before the next flight."));
 }
 
 void Vehicle::landingGearDeploy()
