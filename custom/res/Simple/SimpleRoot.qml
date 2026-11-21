@@ -93,6 +93,8 @@ Item {
     readonly property string _rebootText: qsTr("The drone restarted — check the mission on the fly screen")
     property bool _rebootShown: false
     property bool _rebootPending: false
+    // leaving the fly screen while the drone-restarted banner is still up also shows the notice
+    onPageChanged: if (page !== "fly") _rebootToast()
     function _rebootToast() {
         _rebootPending = false
         var on = vs.present && !!vs.vehicle.missionResetMonitor && vs.vehicle.missionResetMonitor.rebootBannerVisible

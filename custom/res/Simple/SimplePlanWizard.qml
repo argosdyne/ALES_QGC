@@ -38,9 +38,10 @@ Item {
             return gf && Number(gf.rawValue) > 0 ? Number(gf.rawValue) : 0
         }
         var en = _param("FENCE_ENABLE"), rad = _param("FENCE_RADIUS"), typ = _param("FENCE_TYPE"), auto = _param("FENCE_AUTOENABLE")
-        var circle = !typ || (Number(typ.rawValue) & 2) !== 0     // FENCE_TYPE bit 2 = circle fence
+        var circle = !typ || (Number(typ.rawValue) & 2) !== 0     // FENCE_TYPE value 2 (bit 1) = circle fence
         // on now, or can be turned on in flight (auto-enable, RC switch RCn_OPTION = 11), as in the S39 check
-        var on = en && Number(en.rawValue) !== 0 || auto && Number(auto.rawValue) !== 0
+        // no FENCE_ENABLE parameter counts as on, as in the S39 check
+        var on = !en || Number(en.rawValue) !== 0 || auto && Number(auto.rawValue) !== 0
         for (var n = 1; !on && n <= 16; n++) { var o = _param("RC" + n + "_OPTION"); on = !!o && Number(o.rawValue) === 11 }
         return on && rad && circle && Number(rad.rawValue) > 0 ? Number(rad.rawValue) : 0
     }

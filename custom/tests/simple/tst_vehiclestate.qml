@@ -346,14 +346,21 @@ TestCase {
         v.textMessageReceived(1, 1, 4, "Vibration compensation ON", "")
         s._causes["vibration"].t = Date.now() - 40000                     // 40 s before the return
         v.flightMode = "RTL"
-        s._causes["vibration"].t = Date.now() - 61000
-        s._expireCauses()
-        compare(s.recentCause, "")                                        // not held as the reason
+        compare(s.recentCause, "")                                        // dropped when the return began
         v.textMessageReceived(1, 1, 4, "Batt voltage &lt; 10.5V", "")
         compare(s.recentWarning, "Batt voltage < 10.5V")
         s._clearCause()
         v.textMessageReceived(1, 1, 4, "Mode change to Loiter failed: requires position", "")
         compare(s.recentCause, "Warning — see the messages (bell)")
+    }
+    // round 9: a cause from before the hold window cannot outrank the real one during the return
+    function test_cause_round9() {
+        v.armed = true; v.flying = true
+        v.textMessageReceived(1, 1, 4, "Bad compass health", "")
+        s._causes["compass"].t = Date.now() - 30000
+        v.textMessageReceived(1, 1, 2, "Battery 1 is low", "")
+        v.flightMode = "RTL"
+        compare(s.recentCause, "Battery low")
     }
     function test_random_states() {
         var modes = ["Loiter", "RTL", "Smart RTL", "Land", "Auto", "Brake", "Stabilize", ""]

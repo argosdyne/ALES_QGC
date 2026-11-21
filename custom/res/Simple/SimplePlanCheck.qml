@@ -58,7 +58,7 @@ SPanel {
     // Go here allowed 364 m). PX4 has no fence on/off parameter here: treated as on.
     readonly property var  _fenceEn:  vs.present && vs.vehicle.apmFirmware && fpcLoader.item && fpcLoader.item.parameterExists(-1, "FENCE_ENABLE")
                                       ? fpcLoader.item.getParameterFact(-1, "FENCE_ENABLE", false) : null
-    // FENCE_TYPE bit 2 = circle (FENCE_RADIUS): with only the polygon / altitude fence on, the radius is not enforced
+    // FENCE_TYPE value 2 (bit 1) = circle (FENCE_RADIUS): with only the polygon / altitude fence on, the radius is not enforced
     readonly property var  _fenceType: _fenceEn && fpcLoader.item.parameterExists(-1, "FENCE_TYPE")
                                        ? fpcLoader.item.getParameterFact(-1, "FENCE_TYPE", false) : null
     // FENCE_ENABLE is only the ground-time state: the fence also counts as on when it can be turned on in flight
@@ -92,7 +92,7 @@ SPanel {
         { lvl: _maxDist > _distLimit ? (_fenceOn ? 2 : 1) : 0, t: qsTr("Distance"),
           d: _maxDist <= _distLimit ? qsTr("Farthest point %1 m (limit %2 m)").arg(Math.round(_maxDist)).arg(Math.round(_distLimit))
            : _fenceOn ? qsTr("Farthest point %1 m (limit %2 m). Make the area smaller or raise Maximum distance in Settings › Safety.").arg(Math.round(_maxDist)).arg(Math.round(_distLimit))
-           : _fenceEn && Number(_fenceEn.rawValue) !== 0
+           : _fenceEn && (Number(_fenceEn.rawValue) !== 0 || _fenceCanTurnOn())
              ? qsTr("Farthest point %1 m — over Maximum distance %2 m (the drone's fence has no distance limit: not enforced)").arg(Math.round(_maxDist)).arg(Math.round(_distLimit))
              : qsTr("Farthest point %1 m — over Maximum distance %2 m (geofence off: not enforced)").arg(Math.round(_maxDist)).arg(Math.round(_distLimit)) },
         { lvl: _batteries > 1 ? 1 : 0, t: qsTr("Battery"), d: _batteries > 1 ? qsTr("Needs %1 batteries — the drone returns to swap").arg(_batteries) : _batteries === 1 ? qsTr("Fits one battery") : qsTr("Not estimated for this drone") },
