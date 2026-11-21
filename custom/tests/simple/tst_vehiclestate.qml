@@ -269,9 +269,16 @@ TestCase {
         compare(s.recentCause, "GPS or position lost")                     // the EKF failsafe stays
         compare(s.recentWarning, "EKF Failsafe")
         s._clearCause()
-        v.geoFenceAlertTierChanged(1)                                     // app geofence alert (Vehicle.cc)
+        v.geoFenceAlertTierChanged(1)                                     // app geofence margin alert (Vehicle.cc)
         v.textMessageReceived(1, 1, 4, "Approaching geofence margin", "")
         compare(s.recentCause, "")
+        v.geoFenceAlertTierChanged(3)                                     // breach (from FENCE_STATUS): the fence cause
+        v.textMessageReceived(1, 1, 3, "지오펜스 위반: boundary", "")       // translated text, no regex needed
+        compare(s.recentCause, "Geofence reached")
+        v.geoFenceAlertTierChanged(0)                                     // "Exited breach area": not a cause, keeps it
+        v.textMessageReceived(1, 1, 6, "Exited breach area", "")
+        compare(s.recentCause, "Geofence reached")
+        s._clearCause()
         v.textMessageReceived(1, 1, 4, qsTranslate("Vehicle", "C2 link quality degraded"), "")
         compare(s.recentCause, "")
         v.textMessageReceived(1, 1, 4, "Fence breach", "")                // the FC's own fence line counts

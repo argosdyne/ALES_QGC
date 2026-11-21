@@ -35,6 +35,11 @@ Item {
         mainWindow.showPlanView()
         planWizard.reviewLoaded()
     }
+    function showNotice(text) {     // short notice at the bottom on any page (same place as the restart toast)
+        restartToast.text = text
+        restartToast.visible = true
+        restartToastTimer.restart()
+    }
     function showSaved() {          // S24 saved missions
         showPlan()
         planWizard.step = "saved"
@@ -97,11 +102,12 @@ Item {
         // only when the notice first appears (the monitor also signals "Clearing Mission" etc.), and never over
         // another toast that is still showing (e.g. "Restart the drone to use the new value")
         property bool _shown: false
+        onTargetChanged: _shown = false                  // a new drone / monitor object
         function onRebootStateChanged() {
             var on = !!vs.vehicle && vs.vehicle.missionResetMonitor.rebootBannerVisible
-            var first = on && !_shown
-            _shown = on
-            if (!first || simpleRoot.page === "fly" || restartToast.visible) return
+            if (!on) { _shown = false; return }
+            if (_shown || simpleRoot.page === "fly" || restartToast.visible) return      // not counted as shown while blocked
+            _shown = true
             restartToast.text = qsTr("The drone restarted — check the mission on the fly screen")
             restartToast.visible = true
             restartToastTimer.restart()

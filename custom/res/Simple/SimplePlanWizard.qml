@@ -28,7 +28,7 @@ Item {
     // drone geofence (ArduPilot FENCE_ENABLE / FENCE_RADIUS) for the default area size (Tuleap bug #28585)
     readonly property var  _veh:    QGroundControl.multiVehicleManager.activeVehicle
     // FactPanelController binds to the vehicle it is created with: create it again for another active drone
-    on_VehChanged: { fenceFpc.active = false; fenceFpc.active = Qt.binding(function() { return !!wiz._veh && wiz._veh.parameterManager.parametersReady }) }
+    on_VehChanged: { _awaitVehicle = false; fenceFpc.active = false; fenceFpc.active = Qt.binding(function() { return !!wiz._veh && wiz._veh.parameterManager.parametersReady }) }
     Loader { id: fenceFpc; visible: false; active: !!wiz._veh && wiz._veh.parameterManager.parametersReady
              sourceComponent: Component { FactPanelController { } } }
     function _param(n) { var f = fenceFpc.item; return f && f.parameterExists(-1, n) ? f.getParameterFact(-1, n, false) : null }
@@ -52,8 +52,9 @@ Item {
         var home = _veh && _veh.homePosition && _veh.homePosition.isValid ? _veh.homePosition : c
         var room = 0.9 * r - extra - home.distanceTo(c)
         // the map centre is outside the fence (planning a far site): shrinking cannot help, keep the default size
-        // and let the S39 check report the distance (code review 2026-11-21)
-        if (room <= 0) return 1
+        // and let the S39 check report the distance; inside a small fence use the smallest size (code review 2026-11-21)
+        if (home.distanceTo(c) >= r) return 1
+        if (room <= 0) return 0.2
         return Math.max(0.2, Math.min(1, room / 125))      // 125 m = half diagonal of 200 x 150
     }
 
@@ -85,6 +86,7 @@ Item {
     }
 
     function start() {
+        _awaitVehicle = false               // a review load still running does not move the wizard later
         // Back after a critical alert (02 Flows D): continue the mission being edited, do not start a new one
         if (interrupted) {
             interrupted = false
@@ -162,23 +164,32 @@ Item {
     }
     // "Review mission" after a drone restart (bug #28564): read the mission from the drone and show it in its editor.
     // An unsent plan being edited is replaced only after a confirm (code review 2026-11-21). No drone: new-plan choice.
+    // The plan is cleared first, so a read that does not run or fails can never show the old plan as the drone's
+    // mission (code review 2026-11-21): then the new-plan choice opens with a notice.
     property bool _awaitVehicle: false
+    function _canReadVehicle() {
+        return !!_plan && !_plan.offline && !_plan.syncInProgress && !!_veh && !_veh.vehicleLinkManager.communicationLost
+    }
     function reviewLoaded() {
         interrupted = false
-        if (!_plan || _plan.offline) { start(); return }
+        _awaitVehicle = false
+        if (!_canReadVehicle()) { start(); _reviewFailed(); return }
         if (_plan.dirty && _mission.visualItems.count > 1) { _pending = { vehicle: true }; replaceSheet.visible = true; return }
         _loadVehicleMission()
     }
     function _loadVehicleMission() {
-        _awaitVehicle = true
+        if (!_canReadVehicle()) { start(); _reviewFailed(); return }
+        _plan.removeAll()
         _plan.loadFromVehicle()
-        if (!_plan.syncInProgress) _afterVehicleLoad()
+        if (!_plan.syncInProgress) { start(); _reviewFailed(); return }      // refused (e.g. high-latency link)
+        _awaitVehicle = true
     }
     function _afterVehicleLoad() {
         _awaitVehicle = false
         if (_mission.visualItems.count > 1) { _plan.fitViewportToItems(); _routeToEditor() }
-        else start()
+        else { start(); _reviewFailed() }
     }
+    function _reviewFailed() { simpleRoot.showNotice(qsTr("No mission read from the drone")) }
     Connections {
         target: wiz._plan
         function onSyncInProgressChanged() { if (wiz._awaitVehicle && !wiz._plan.syncInProgress) wiz._afterVehicleLoad() }

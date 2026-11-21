@@ -1155,6 +1155,10 @@
 <context>
     <name>SimplePlanWizard</name>
     <message>
+        <source>No mission read from the drone</source>
+        <translation>드론에서 읽은 임무가 없습니다</translation>
+    </message>
+    <message>
         <source>Settings</source>
         <translation>설정</translation>
     </message>

@@ -95,7 +95,7 @@ QtObject {
     property string recentWarning: ""
     property string recentCause: ""
     property int    _causeRank: 0
-    property bool   _appMessage: false                       // the next text is the app's own geofence alert
+    property int    _appTier: -1                             // the next text is the app's geofence alert of this tier
     readonly property bool   _holdCauses: armed && (returning || landing)
     function _now() { return Date.now() }
     function _clearCause() { _causes = ({}); _refreshCause() }
@@ -148,14 +148,23 @@ QtObject {
         if (/wind/i.test(t))                                      return r("wind", 2, qsTr("Strong wind"))
         return r("", 0, "")
     }
-    function _isAppMessage(text) {
-        if (_appMessage) return true
+    function _isC2Message(text) {
         return text === qsTranslate("Vehicle", "C2 link quality critical") || text === qsTranslate("Vehicle", "C2 link quality degraded")
     }
+    function _addCause(kind, rank, cause, text) {
+        var n = {}
+        for (var k in _causes) n[k] = _causes[k]
+        n[kind] = { rank: rank, cause: cause, text: text, t: _now() }
+        _setCauses(n)
+    }
     function _onFcWarning(componentid, severity, text) {
-        var app = _isAppMessage(text)
-        _appMessage = false
-        if (app || componentid !== _autopilotComponent || text === "" || text.indexOf("PreArm") === 0) return
+        var tier = _appTier
+        _appTier = -1
+        // The app's geofence texts: a breach / contingency comes from the FC's FENCE_STATUS, so it is the fence cause
+        // (the text may be translated, so no regex); margin, altitude warning and exit lines are not causes.
+        if (tier >= 3) { _addCause("fence", 4, qsTr("Geofence reached"), text); return }
+        if (tier >= 0 || _isC2Message(text)) return
+        if (componentid !== _autopilotComponent || text === "" || text.indexOf("PreArm") === 0) return
         // a problem reported gone (any severity): forget that kind ("GPS Glitch cleared", "Radio failsafe cleared")
         if (/clear|restored|recovered|resolved/i.test(text)) {
             var gone = _causeOf(text.replace(/clear\w*|restored|recovered|resolved/ig, ""))
@@ -172,17 +181,14 @@ QtObject {
         if (/EKF primary changed|SmartRTL deactivated|is using GPS|\bOK\b/i.test(text)) return
         var c = _causeOf(text)
         if (c.rank === 0) c = { kind: "other", rank: 1, cause: qsTr("Warning — see the messages (bell)") }
-        var n = {}
-        for (var k in _causes) n[k] = _causes[k]
-        n[c.kind] = { rank: c.rank, cause: c.cause, text: text, t: _now() }
-        _setCauses(n)
+        _addCause(c.kind, c.rank, c.cause, text)
     }
     property Connections _warnConn: Connections {
         target: present ? vehicle : null
         ignoreUnknownSignals: true
         function onTextMessageReceived(uasid, componentid, severity, text, description) { s._onFcWarning(componentid, severity, text) }
         // the app's own geofence alert text follows this signal at once (Vehicle._updateGeoFenceAlert)
-        function onGeoFenceAlertTierChanged(tier) { s._appMessage = true; Qt.callLater(function() { s._appMessage = false }) }
+        function onGeoFenceAlertTierChanged(tier) { s._appTier = tier; Qt.callLater(function() { s._appTier = -1 }) }
     }
     // reason line for banners and the S92 card: plain cause; Advanced mode adds the FC text
     readonly property string recentReason: recentCause === "" ? ""
