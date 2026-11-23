@@ -2729,10 +2729,6 @@
         <translation>Sprog</translation>
     </message>
     <message>
-        <source>English, 한국어, Deutsch, Français, 日本語</source>
-        <translation>English, 한국어, Tiếng Việt, Deutsch, Dansk, Français, Português (Brasil), 日本語</translation>
-    </message>
-    <message>
         <source>Units</source>
         <translation>Enheder</translation>
     </message>
@@ -9032,6 +9028,13 @@
     <message>
         <source>“%1” changes after the app restarts.</source>
         <translation>„%1“ ændres, når appen genstarter.</translation>
+    </message>
+</context>
+<context>
+    <name>SLanguageCombo</name>
+    <message>
+        <source>System</source>
+        <translation>System</translation>
     </message>
 </context>
 </TS>

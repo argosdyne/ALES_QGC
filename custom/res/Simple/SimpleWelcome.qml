@@ -57,12 +57,8 @@ Rectangle {
             }
             SSettingRow {
                 width: col.width
-                title: qsTr("Language"); sub: qsTr("English, 한국어, Deutsch, Français, 日本語")
-                SComboBox {
-                    model: welcome._app.qLocaleLanguage.enumStrings
-                    currentIndex: welcome._app.qLocaleLanguage.enumIndex
-                    onActivated: welcome._app.qLocaleLanguage.value = welcome._app.qLocaleLanguage.enumValues[index]
-                }
+                title: qsTr("Language"); sub: welcomeLanguage.languageNames.join(", ")
+                SLanguageCombo { id: welcomeLanguage }
             }
             SSettingRow {
                 width: col.width

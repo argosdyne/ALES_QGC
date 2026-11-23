@@ -2729,10 +2729,6 @@
         <translation>언어</translation>
     </message>
     <message>
-        <source>English, 한국어, Deutsch, Français, 日本語</source>
-        <translation>English, 한국어, Deutsch, Français, 日本語</translation>
-    </message>
-    <message>
         <source>Units</source>
         <translation>단위</translation>
     </message>
@@ -9024,6 +9020,13 @@
     <message>
         <source>“%1” changes after the app restarts.</source>
         <translation>“%1” 설정은 앱을 다시 시작하면 바뀝니다.</translation>
+    </message>
+</context>
+<context>
+    <name>SLanguageCombo</name>
+    <message>
+        <source>System</source>
+        <translation>시스템</translation>
     </message>
 </context>
 </TS>
