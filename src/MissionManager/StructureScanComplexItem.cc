@@ -8,6 +8,7 @@
  ****************************************************************************/
 
 #include "StructureScanComplexItem.h"
+#include <QtMath>
 #include "JsonHelper.h"
 #include "MissionController.h"
 #include "QGCGeo.h"
@@ -160,8 +161,11 @@ int StructureScanComplexItem::lastSequenceNumber(void) const
     int multiLayerItemCount = layerItemCount * _layersFact.rawValue().toInt();
 
     // +2 for ROI_WPNEXT_OFFSET and ROI_NONE commands
+    // (ArduPilot: one ROI_LOCATION per layer instead of ROI_WPNEXT_OFFSET, see appendMissionItems)
     // +2 for entrance/exit waypoints
-    int itemCount = multiLayerItemCount + 2 + 2;
+    bool apm = _controllerVehicle && _controllerVehicle->apmFirmware();
+    int roiCount = apm ? _layersFact.rawValue().toInt() + 1 : 2;
+    int itemCount = multiLayerItemCount + roiCount + 2;
 
     return _sequenceNumber + itemCount - 1;
 }
@@ -341,7 +345,16 @@ void StructureScanComplexItem::appendMissionItems(QList<MissionItem*>& items, QO
                            missionItemParent);
     items.append(item);
 
+    // ArduPilot (company firmware Z01.07.00EASA, SITL 2026-11-16) refuses ROI_WPNEXT_OFFSET, ROI_LOCATION and ROI_NONE
+    // and accepts DO_SET_ROI: there the camera and the vehicle yaw point at the structure centre with one DO_SET_ROI
+    // per layer, at the layer height lowered by the gimbal pitch over the distance to the structure; a DO_SET_ROI at
+    // 0, 0, 0 ends it (the ArduPilot way to cancel an ROI).
+    bool apm = _controllerVehicle && _controllerVehicle->apmFirmware();
+    QGeoCoordinate roiCenter = _structurePolygon.center();
+    double roiDrop = _cameraCalc.distanceToSurface()->rawValue().toDouble() * qTan(qDegreesToRadians(-_gimbalPitchFact.rawValue().toDouble()));
+
     // Point camera at structure
+    if (!apm) {
     item = new MissionItem(seqNum++,
                            MAV_CMD_DO_SET_ROI_WPNEXT_OFFSET,
                            MAV_FRAME_MISSION,
@@ -353,6 +366,7 @@ void StructureScanComplexItem::appendMissionItems(QList<MissionItem*>& items, QO
                            false,                                  // isCurrentItem
                            missionItemParent);
     items.append(item);
+    }
 
     // Set up for the first layer
     double  layerAltitude = startAltitude;
@@ -365,6 +379,20 @@ void StructureScanComplexItem::appendMissionItems(QList<MissionItem*>& items, QO
 
     for (int layer=0; layer<_layersFact.rawValue().toInt(); layer++) {
         bool addTriggerStart = true;
+
+        if (apm) {
+            item = new MissionItem(seqNum++,
+                                   MAV_CMD_DO_SET_ROI,
+                                   MAV_FRAME_GLOBAL_RELATIVE_ALT,
+                                   0, 0, 0, 0,                         // param 1-4 not used
+                                   roiCenter.latitude(),
+                                   roiCenter.longitude(),
+                                   qMax(0.0, layerAltitude - roiDrop),
+                                   true,                               // autoContinue
+                                   false,                              // isCurrentItem
+                                   missionItemParent);
+            items.append(item);
+        }
 
         bool done = false;
         int currentVertex = _entryVertex;
@@ -437,8 +465,8 @@ void StructureScanComplexItem::appendMissionItems(QList<MissionItem*>& items, QO
 
     // Return camera to neutral position
     item = new MissionItem(seqNum++,
-                           MAV_CMD_DO_SET_ROI_NONE,
-                           MAV_FRAME_MISSION,
+                           apm ? MAV_CMD_DO_SET_ROI : MAV_CMD_DO_SET_ROI_NONE,
+                           apm ? MAV_FRAME_GLOBAL_RELATIVE_ALT : MAV_FRAME_MISSION,
                            0, 0, 0,0, 0, 0, 0,                 // param 1-7 not used
                            true,                               // autoContinue
                            false,                              // isCurrentItem

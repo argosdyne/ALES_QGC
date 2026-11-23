@@ -12,7 +12,6 @@ add_library(ui
 
 add_custom_target(uiQml
 	SOURCES
-		AppSettings.qml
 		ExitWithErrorWindow.qml
 		MainRootWindow.qml
 )

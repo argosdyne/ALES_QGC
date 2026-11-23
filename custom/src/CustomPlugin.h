@@ -28,6 +28,10 @@
 #include "M2Manager.h"
 #include "RajantManager.h"
 #include "ElistairStationManager.h"
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 class CustomOptions;
 class CustomPlugin;
@@ -77,6 +81,12 @@ public:
     void setCoachMode(const bool& coachMode);
 
     Q_PROPERTY(bool slaveMode READ slaveMode WRITE setSlaveMode NOTIFY slaveModeChanged)
+    /// AQGC (Figma S44 / 02 Flows E, 2026-11-17): Advanced mode = Simple screens + the Advanced panel and items.
+    /// Kept over restarts (setting simpleAdvancedMode). showAdvancedUI now only means "classic alesQGC screens
+    /// are shown" (opened from S44, not kept over restarts); turning Advanced mode off also closes them.
+    Q_PROPERTY(bool advancedMode READ advancedMode WRITE setAdvancedMode NOTIFY advancedModeChanged)
+    bool advancedMode() const { return _advancedMode; }
+    void setAdvancedMode(bool on);
     bool slaveMode() { return _slaveMode; }
     void setSlaveMode(bool mode);
     bool forceSendRC() { return _forceSendRC; }
@@ -100,7 +110,28 @@ public:
 
 
     Q_PROPERTY(CustomSettings* settings READ settings CONSTANT)
+    // AQGC: MAVLink signing key pairing for the Simple UI (Figma S66 / S22 / S27), LinkSecurity
+    Q_PROPERTY(QObject* linkSecurity READ linkSecurity CONSTANT)
+    QObject* linkSecurity() { return _linkSecurity; }
+    // AQGC: data on this device for S65 Security & privacy / S67 Delete my data, PrivacyData
+    Q_PROPERTY(QObject* privacyData READ privacyData CONSTANT)
+    QObject* privacyData() { return _privacyData; }
     CustomSettings* settings(){ return _settings; }
+
+    // Simple UI saved missions (S24): number of mission items in a .plan, or -1 when the file cannot be read
+    // (not a JSON object, fileType not "Plan", no "mission" object with an "items" array, empty or over 20 MB).
+    // The preview loads only readable files of moderate size (the classic loader shows its own error popup).
+    Q_INVOKABLE int     simplePlanItemCount(const QString& path) const {
+        QFile f(path);
+        if (f.size() <= 0 || f.size() > 20 * 1024 * 1024 || !f.open(QIODevice::ReadOnly)) return -1;
+        QJsonParseError err;
+        const QJsonDocument doc = QJsonDocument::fromJson(f.readAll(), &err);
+        if (err.error != QJsonParseError::NoError || !doc.isObject()) return -1;
+        const QJsonObject o = doc.object();
+        const QJsonValue items = o.value(QStringLiteral("mission")).toObject().value(QStringLiteral("items"));
+        if (o.value(QStringLiteral("fileType")).toString() != QStringLiteral("Plan") || !items.isArray()) return -1;
+        return items.toArray().count();
+    }
 
     SiYiManager* siyiManager(){return _siyiManager;};
     CodevSettings* codevSettings() { return _codevSettings; }
@@ -123,6 +154,7 @@ public:
 signals:
     void rcChannelValuesChanged(const quint16* channels, int count);
     void slaveModeChanged(bool slaveMode);
+    void advancedModeChanged();
     void m2ManagerChanged               ();
     void rajantManagerChanged           ();
 
@@ -151,6 +183,9 @@ private:
     M2Manager*              _m2Manager              = nullptr;
     RajantManager* _rajantManager = nullptr;
     ElistairStationManager* _elistairStationManager = nullptr;
+    QObject*                _linkSecurity = nullptr;
+    QObject*                _privacyData = nullptr;
+    bool                    _advancedMode = false;
     QStringList             _rajantCandidates;
     QTcpSocket* _rajantProbeSocket = nullptr;
     QString                 _rajantPassword = "breadcrumb-admin";

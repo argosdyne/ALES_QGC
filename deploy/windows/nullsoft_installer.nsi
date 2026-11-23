@@ -81,13 +81,12 @@ doUninstall:
 doInstall:
   SetRegView 64
   SetOutPath $INSTDIR
+  ; The VC runtime (msvcp140, msvcp140_1, vcruntime140, vcruntime140_1) is installed next to the exe (app-local),
+  ; copied at build time from the Visual Studio that built it: an older runtime on the PC (< 14.40) crashes the app.
   File /r \
   /x ${EXENAME}.pdb \
   /x ${EXENAME}.lib \
   /x ${EXENAME}.exp \
-  /x MSVCP140.dll \
-  /x VCRUNTIME140.dll \
-  /x VCRUNTIME140_1.dll \
   /x CONCRT140.dll \
   /x vcomp140.dll \
   ${DESTDIR}\*.*

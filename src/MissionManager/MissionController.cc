@@ -180,7 +180,11 @@ void MissionController::_newMissionItemsAvailableFromVehicle(bool removeAllReque
     // Fly view always reloads on a successful read.
     // Plan view reloads when a load was requested, the editor is already empty,
     // or the vehicle has no flyable mission, so the plan list is cleared too.
-    if (_flyView || removeAllRequested || _itemsRequested || isEmpty() || !_vehicleHasFlyableMission()) {
+    // Simple UI: a plan being edited and not yet sent (dirty) is not replaced by an empty vehicle
+    // mission. Otherwise every ground re-read (link restored, drone power cycle) wiped the area the
+    // user was drawing. A plan that was sent is still cleared as before. Advanced mode is unchanged.
+    const bool keepUnsentSimplePlan = !_flyView && dirty() && !qgcApp()->toolbox()->corePlugin()->showAdvancedUI();
+    if (_flyView || removeAllRequested || _itemsRequested || isEmpty() || (!_vehicleHasFlyableMission() && !keepUnsentSimplePlan)) {
         // Fly Mode (accept if):
         //      - Always accepts new items from the vehicle so Fly view is kept up to date
         // Edit Mode (accept if):
@@ -190,7 +194,9 @@ void MissionController::_newMissionItemsAvailableFromVehicle(bool removeAllReque
         //      - The vehicle has no flyable mission, so the plan list is cleared
 
         _deinitAllVisualItems();
-        _visualItems->deleteLater();
+        // AQGC: delete the old items too (their QObject parent is the master controller, so deleting only the
+        // list kept them alive for the life of the controller: about 1.5 MB per mission load, 2026-11-16)
+        _visualItems->deleteListAndContents();
         _visualItems  = nullptr;
         _settingsItem = nullptr;
         _takeoffMissionItem = nullptr;
@@ -895,6 +901,16 @@ bool MissionController::_loadJsonMissionFileV2(const QJsonObject& json, QmlObjec
                 nextSequenceNumber = structureItem->lastSequenceNumber() + 1;
                 qCDebug(MissionControllerLog) << "Structure Scan load complete: nextSequenceNumber" << nextSequenceNumber;
                 visualItems->append(structureItem);
+            } else if (complexItemType == YellowScanInitPathComplexItem::jsonComplexItemTypeValue
+                       && itemObject.contains(YellowScanInitPathComplexItem::turnRadiusName)) {
+                // YellowScan Init Path is saved with the CorridorScan type: tell it apart by its own keys,
+                // or a saved LiDAR mission would come back with a corridor scan in place of the init path
+                YellowScanInitPathComplexItem* initPathItem = new YellowScanInitPathComplexItem(_masterController, _flyView, QString() /* kmlFile */);
+                if (!initPathItem->load(itemObject, nextSequenceNumber++, errorString)) {
+                    return false;
+                }
+                nextSequenceNumber = initPathItem->lastSequenceNumber() + 1;
+                visualItems->append(initPathItem);
             } else if (complexItemType == CorridorScanComplexItem::jsonComplexItemTypeValue) {
                 qCDebug(MissionControllerLog) << "Loading Corridor Scan: nextSequenceNumber" << nextSequenceNumber;
                 CorridorScanComplexItem* corridorItem = new CorridorScanComplexItem(_masterController, _flyView, QString() /* kmlFile */);
@@ -1030,7 +1046,8 @@ void MissionController::_initLoadedVisualItems(QmlObjectListModel* loadedVisualI
 {
     if (_visualItems) {
         _deinitAllVisualItems();
-        _visualItems->deleteLater();
+        // AQGC: delete the replaced items with the list (see _newMissionItemsAvailableFromVehicle)
+        _visualItems->deleteListAndContents();
     }
     _settingsItem = nullptr;
     _takeoffMissionItem = nullptr;
@@ -1062,6 +1079,7 @@ bool MissionController::load(const QJsonObject& json, QString& errorString)
 
     if (!_loadJsonMissionFileV2(json, loadedVisualItems, errorStr)) {
         errorString = errorMessage.arg(errorStr);
+        loadedVisualItems->deleteListAndContents();     // AQGC: items loaded before the error (parent = master controller)
         return false;
     }
     _initLoadedVisualItems(loadedVisualItems);
@@ -1085,6 +1103,7 @@ bool MissionController::loadJsonFile(QFile& file, QString& errorString)
     QmlObjectListModel* loadedVisualItems = new QmlObjectListModel(this);
     if (!_loadItemsFromJson(json, loadedVisualItems, errorStr)) {
         errorString = errorMessage.arg(errorStr);
+        loadedVisualItems->deleteListAndContents();     // AQGC: items loaded before the error (parent = master controller)
         return false;
     }
 
@@ -1105,6 +1124,7 @@ bool MissionController::loadTextFile(QFile& file, QString& errorString)
     QmlObjectListModel* loadedVisualItems = new QmlObjectListModel(this);
     if (!_loadTextMissionFile(stream, loadedVisualItems, errorStr)) {
         errorString = errorMessage.arg(errorStr);
+        loadedVisualItems->deleteListAndContents();     // AQGC: items loaded before the error (parent = master controller)
         return false;
     }
 
@@ -2419,6 +2439,7 @@ bool MissionController::showPlanFromManagerVehicle (void)
 
 void MissionController::_managerSendComplete(bool error)
 {
+    emit sendToVehicleFinished(error);
     // Fly view always reloads on send complete
     if (!error && _flyView) {
         showPlanFromManagerVehicle();

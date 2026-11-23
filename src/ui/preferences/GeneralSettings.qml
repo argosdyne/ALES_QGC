@@ -779,6 +779,18 @@ Rectangle {
                                     fact: QGroundControl.corePlugin.settings.ysEnable
                                 }
 
+                                // AQGC Simple UI: product profile (Figma S12: changed only here, in Advanced mode).
+                                // Tether = S11 fly screen (ground power chip, cable telemetry, Land and height only).
+                                RowLayout {
+                                    spacing: ScreenTools.defaultFontPixelWidth
+                                    QGCLabel { text: qsTr("Simple UI product profile") }
+                                    FactComboBox {
+                                        Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 28
+                                        fact: QGroundControl.corePlugin.settings.simpleProductProfile
+                                        indexModel: false
+                                    }
+                                }
+
                                 FactCheckBox {
                                     text: qsTr("Enable Life Jacket")
                                     fact: QGroundControl.corePlugin.settings.lifeJacketEnable

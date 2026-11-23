@@ -9,6 +9,7 @@ on:
       - 'Argos_Stable4.4'
     tags:
       - 'v*'
+      - 'simple_ui_*'    # team betas (Daily build, no GitHub Release)
     paths-ignore:
       - 'docs/**'
   pull_request:
@@ -24,7 +25,7 @@ defaults:
 env:
   SOURCE_DIR: ${{ github.workspace }}
   QT_VERSION: 5.15.2
-  BUILD_TYPE: ${{ fromJSON('["DailyBuild", "StableBuild"]')[ github.ref_type == 'tag' || contains(github.ref, 'Stable_' ) ] }}
+  BUILD_TYPE: ${{ fromJSON('["DailyBuild", "StableBuild"]')[ startsWith(github.ref, 'refs/tags/v') || contains(github.ref, 'Stable_' ) ] }}
 
 jobs:
   build:
@@ -84,6 +85,14 @@ jobs:
 
       - name: Create build directory
         run: mkdir ${{ runner.temp }}\shadow_build_dir
+
+      # Altitude Angel API key (CE RED / EN 18031): only tagged builds carry it, from the secret ALTITUDE_ANGEL_KEY.
+      # PR / branch builds have no key (their artifacts can be downloaded by anyone signed in to GitHub).
+      - name: Altitude Angel key (tagged builds only)
+        if: github.ref_type == 'tag'
+        env:
+          AQGC_AA_KEY: ${{ secrets.ALTITUDE_ANGEL_KEY }}
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File "${{ env.SOURCE_DIR }}\custom\tools\aakey\gen_aa_key.ps1" -OutDir "${{ runner.temp }}\shadow_build_dir"
 
       # GStreamer for video. src/VideoReceiver/VideoReceiver.pri links the 1.22 libraries (e.g. pcre2),
       # so CI uses the same 1.22.12 build as developers, and points qmake at it with GSTREAMER_ROOT_ANDROID.

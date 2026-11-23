@@ -22,6 +22,7 @@
 // as a meta type to silence that.
 #include <QMetaType>
 #include <QTcpSocket>
+#include <QTimer>
 
 //#define TCPLINK_READWRITE_DEBUG   // Use to debug data reads/writes
 
@@ -82,6 +83,8 @@ public:
 private slots:
     void _socketError   (QAbstractSocket::SocketError socketError);
     void _readBytes     (void);
+    void _socketDisconnected(void);
+    void _tryReconnect  (void);
 
     // LinkInterface overrides
     void _writeBytes(const QByteArray data) override;
@@ -98,6 +101,10 @@ private:
     TCPConfiguration* _tcpConfig;
     QTcpSocket*       _socket;
     bool              _socketIsConnected;
+    // The other side closed the connection (e.g. SITL or a companion computer restarted): the link stays and the socket
+    // connects again every 2 s, so the vehicle comes back by itself (Tuleap bug #28563). disconnect() stops it.
+    QTimer            _reconnectTimer;
+    bool              _reconnecting = false;
 
     quint64 _bitsSentTotal;
     quint64 _bitsSentCurrent;

@@ -9,6 +9,7 @@
  *   @author Gus Grubba <gus@auterion.com>
  */
 
+#include "SettingsFact.h"
 #include <QtQml>
 #include <QQmlEngine>
 #include <QDateTime>
@@ -18,6 +19,8 @@
 #include "MAVLinkLogManager.h"
 
 #include "CustomPlugin.h"
+#include "LinkSecurity.h"
+#include "PrivacyData.h"
 
 #include "MultiVehicleManager.h"
 #include "QGCApplication.h"
@@ -27,6 +30,8 @@
 #include "QGCPalette.h"
 #include "CodevRTCMManager.h"
 #include "CustomSettings.h"
+#include "FlyViewSettings.h"
+#include "AutoConnectSettings.h"
 #include "YS/YSManager.h"
 
 #include "M2Manager.h"
@@ -131,6 +136,8 @@ void CustomPlugin::setSlaveMode(bool mode)
 void CustomPlugin::setToolbox(QGCToolbox* toolbox)
 {
     QGCCorePlugin::setToolbox(toolbox);
+    // CE RED / EN 18031: plain passwords and keys of older builds go to the secure store (SettingsFact)
+    SettingsFact::moveSecretsToSecureStore();
 
     _siyiManager->setToolbox(toolbox);
     _ysManager->setToolbox(toolbox);
@@ -140,6 +147,22 @@ void CustomPlugin::setToolbox(QGCToolbox* toolbox)
 
     _settings = new CustomSettings(this);
     _codevRTCMManager->setToolbox(toolbox);
+
+    // AQGC Simple UI: no PIN for Advanced mode, the last mode is kept over restarts (user 2026-11-16, Figma S44).
+    // Remove the values of the old admin PIN once.
+    {
+        QSettings old;
+        old.beginGroup(QStringLiteral("Custom"));
+        old.remove(QStringLiteral("simpleAdminPin"));
+        old.remove(QStringLiteral("simpleAdminFailures"));
+        old.remove(QStringLiteral("simpleAdminLockUntil"));
+        old.endGroup();
+    }
+    // Advanced mode is restored; the classic screens are not (they open from S44 only)
+    _advancedMode = _settings->simpleAdvancedMode()->rawValue().toBool();
+    setShowAdvancedUI(false);
+    _linkSecurity = new LinkSecurity(this);
+    _privacyData = new PrivacyData(static_cast<LinkSecurity*>(_linkSecurity), this);
 
     // Allows us to be notified when the user goes in/out out advanced mode
     connect(qgcApp()->toolbox()->corePlugin(), &QGCCorePlugin::showAdvancedUIChanged, this, &CustomPlugin::_advancedChanged);
@@ -164,6 +187,25 @@ void CustomPlugin::_advancedChanged(bool changed)
 {
     // Firmware Upgrade page is only show in Advanced mode
     emit _options->showFirmwareUpgradeChanged(changed);
+    // the classic screens belong to Advanced mode
+    if (changed && !_advancedMode) {
+        setAdvancedMode(true);
+    }
+}
+
+void CustomPlugin::setAdvancedMode(bool on)
+{
+    if (!on && showAdvancedUI()) {
+        setShowAdvancedUI(false);       // "Return to Simple" also closes the classic screens
+    }
+    if (on == _advancedMode) {
+        return;
+    }
+    _advancedMode = on;
+    if (_settings) {
+        _settings->simpleAdvancedMode()->setRawValue(on);     // kept for the next start
+    }
+    emit advancedModeChanged();
 }
 
 //-----------------------------------------------------------------------------
@@ -263,11 +305,33 @@ bool CustomPlugin::adjustSettingMetaData(const QString& settingsGroup, FactMetaD
 {
     bool parentResult = QGCCorePlugin::adjustSettingMetaData(settingsGroup, metaData);
 
+    // AQGC Simple: default maximum altitude for guided commands is 120 m (decision 2026-11-13)
+    if (settingsGroup == FlyViewSettings::settingsGroup && metaData.name() == FlyViewSettings::guidedMaximumAltitudeName) {
+        metaData.setRawDefaultValue(120);
+        return parentResult;
+    }
+
+    // CE RED / EN 18031, Figma S69 Devices (2026-11-17): network services and external devices are off unless needed.
+    // On by default: drone link UDP and USB auto-connect. Off: RTK base station (USB) and Zero-Conf (mDNS listener
+    // that connects to any MAVLink service announced on the network). Both modes; a saved choice is kept.
+    if (settingsGroup == AutoConnectSettings::settingsGroup
+            && (metaData.name() == AutoConnectSettings::autoConnectRTKGPSName || metaData.name() == AutoConnectSettings::autoConnectZeroConfName)) {
+        metaData.setRawDefaultValue(false);
+        return parentResult;
+    }
+
     if (settingsGroup == AppSettings::settingsGroup) {
+        // CE RED / privacy by default (Figma S65, 2026-11-17): the tablet position is not sent to the drone unless the
+        // user turns "Share this device's location" on (QGC default: in Follow Me mode). Both modes.
+        if (metaData.name() == AppSettings::followTargetName) {
+            metaData.setRawDefaultValue(0);
+            return parentResult;
+        }
         // This tells QGC than when you are creating Plans while not connected to a vehicle
         // the specific firmware/vehicle the plan is for.
         if (metaData.name() == AppSettings::offlineEditingFirmwareClassName) {
-            metaData.setRawDefaultValue(QGCMAVLink::FirmwareClassPX4);
+            // ARGOSDYNE drones run ArduPilot (decision 2026-11-14)
+            metaData.setRawDefaultValue(QGCMAVLink::FirmwareClassArduPilot);
             return false;
         } else if (metaData.name() == AppSettings::offlineEditingVehicleClassName) {
             metaData.setRawDefaultValue(QGCMAVLink::VehicleClassMultiRotor);

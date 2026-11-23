@@ -302,6 +302,7 @@ public:
     void setGlobalAltitudeMode(QGroundControlQmlGlobal::AltMode altMode);
 
 signals:
+    void sendToVehicleFinished              (bool error);   ///< AQGC Simple UI: the mission upload ended (error = refused / failed)
     void visualItemsChanged                 (void);
     void waypointPathChanged                (void);
     void splitSegmentChanged                (void);

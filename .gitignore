@@ -93,4 +93,5 @@ Qt*-linux*.tar.*
 # vitepress - user guide
 node_modules/
 docs/.vitepress/cache/
-docs/.vitepress/dist/
+docs/.vitepress/dist/aqgc_aa_key.h
+rtk_data.xml

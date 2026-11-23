@@ -10,6 +10,13 @@
 #include <QNetworkRequest>         // http request
 #include <QSslConfiguration>       // ssl protocol
 #include <QSslSocket>              // secure network
+#include <QCryptographicHash>
+#include <QSslCertificate>
+#include "SecurityLog.h"
+#include "SecureStore.h"
+
+// Doodle Labs factory login (the radio's default): used only until a own password is set (S66, EN 18031)
+static const char* kDoodleFactoryPassword = "DoodleSmartRadio";
 
 QGC_LOGGING_CATEGORY(ARManagerLog, "ARManagerLog")
 
@@ -182,6 +189,7 @@ ARManager::ARManager(QGCApplication* app, QGCToolbox* toolbox)
     connect(_connection, &ARConnection::isConnectedChanged, this, &ARManager::setMounted);
     connect(_connection, &ARConnection::receivedMessage, this, &ARManager::_received_message);
     connect(_networkManager, &QNetworkAccessManager::finished, this, &ARManager::_handleDoodleReply);
+    connect(_networkManager, &QNetworkAccessManager::sslErrors, this, &ARManager::_doodleSslErrors);
 
     _bindTimer.setSingleShot(true);
     _bindTimer.setInterval(140000);
@@ -399,14 +407,8 @@ void ARManager::_stopDoodlePolling(const char* reason)
 
 void ARManager::_requestDoodleLogin()  // ubus login
 {
-    const QUrl url(QString("https://%1/ubus/").arg(_doodleDeviceIP));
-    QNetworkRequest request(url);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setTransferTimeout(800);
-
-    QSslConfiguration sslConfiguration = request.sslConfiguration();
-    sslConfiguration.setPeerVerifyMode(QSslSocket::VerifyNone);
-    request.setSslConfiguration(sslConfiguration);
+    _doodleLoginWithFactory = !SecureStore::contains(QStringLiteral("doodle/") + _doodleDeviceIP) || _doodleStoredFailed;
+    QNetworkRequest request = _doodleRequest();   // AQGC: certificate pinned, no VerifyNone
 
     const QJsonObject body{
         { "jsonrpc", "2.0" },
@@ -418,27 +420,19 @@ void ARManager::_requestDoodleLogin()  // ubus login
             "login",
             QJsonObject{
                 { "username", "user" },
-                { "password", "DoodleSmartRadio" }
+                { "password", _doodlePassword() }
             }
         } }
     };
 
     QNetworkReply* reply = _networkManager->post(request, QJsonDocument(body).toJson(QJsonDocument::Compact));
     reply->setProperty("doodleOp", "login");
-    reply->ignoreSslErrors();
     _doodleRequestInFlight = true;
 }
 
 void ARManager::_requestDoodleRadioInfo()   // batched info request
 {
-    const QUrl url(QString("https://%1/ubus/").arg(_doodleDeviceIP));
-    QNetworkRequest request(url);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setTransferTimeout(800);
-
-    QSslConfiguration sslConfiguration = request.sslConfiguration();
-    sslConfiguration.setPeerVerifyMode(QSslSocket::VerifyNone);
-    request.setSslConfiguration(sslConfiguration);
+    QNetworkRequest request = _doodleRequest();   // AQGC: certificate pinned, no VerifyNone
 
     const QJsonArray body{
         QJsonObject{
@@ -471,7 +465,6 @@ void ARManager::_requestDoodleRadioInfo()   // batched info request
 
     QNetworkReply* reply = _networkManager->post(request, QJsonDocument(body).toJson(QJsonDocument::Compact));
     reply->setProperty("doodleOp", "info");
-    reply->ignoreSslErrors();
     _doodleRequestInFlight = true;
 }
 
@@ -481,6 +474,13 @@ void ARManager::_handleDoodleReply(QNetworkReply* reply)  // response processing
     _doodleRequestInFlight = false;
 
     if (reply->error() != QNetworkReply::NoError) {
+        if (operation == "pwset") {
+            _doodlePendingPassword.fill(QChar(0)); _doodlePendingPassword.clear();
+            _doodlePwResult = QStringLiteral("failed"); emit doodleSecurityChanged();
+        }
+        if (operation == "login" && !_doodleLoginWithFactory) {
+            _doodleStoredFailed = true;     // radio reset to factory? try the factory password next time
+        }
         if (operation == "login" || operation == "info") {
             _rpcSession.clear();
             _setMountedFromDoodle(false);
@@ -494,6 +494,26 @@ void ARManager::_handleDoodleReply(QNetworkReply* reply)  // response processing
 
     const QByteArray payload = reply->readAll();
 
+    if (operation == "pwset") {
+        // ubus answer [0] = OK; anything else = refused (e.g. no permission for this account)
+        const QJsonDocument doc = QJsonDocument::fromJson(payload);
+        const QJsonArray result = doc.object().value("result").toArray();
+        const bool ok = !result.isEmpty() && result.at(0).toInt(-1) == 0;
+        if (ok) {
+            SecureStore::put(QStringLiteral("doodle/") + _doodleDeviceIP, _doodlePendingPassword.toUtf8());
+            _doodleStoredFailed = false;
+            _doodleFactory = false;
+            _rpcSession.clear();            // log in again with the new password
+        }
+        _doodlePendingPassword.fill(QChar(0)); _doodlePendingPassword.clear();
+        _doodlePwResult = ok ? QStringLiteral("ok") : QStringLiteral("failed");
+        qCInfo(ARManagerLog) << "[Doodle API] password change" << (ok ? "done" : "refused");
+        SecurityLog::write(QStringLiteral("Radio"), ok ? QStringLiteral("radio password changed") : QStringLiteral("radio refused the new password"));
+        emit doodleSecurityChanged();
+        reply->deleteLater();
+        return;
+    }
+
     if (operation == "login") {
         QJsonParseError parseError;
         const QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
@@ -501,9 +521,14 @@ void ARManager::_handleDoodleReply(QNetworkReply* reply)  // response processing
             const QJsonArray result = document.object().value("result").toArray();
             if (result.count() > 1 && result.at(1).isObject()) {
                 const QString token = result.at(1).toObject().value("ubus_rpc_session").toString();
+                if (token.isEmpty() && !_doodleLoginWithFactory) {
+                    _doodleStoredFailed = true;
+                }
                 if (!token.isEmpty()) {
+                    if (!_doodleLoginWithFactory) _doodleStoredFailed = false;
                     qCInfo(ARManagerLog) << "[Doodle API] login success, token acquired";
                     _rpcSession = token;
+                    if (_doodleFactory != _doodleLoginWithFactory) { _doodleFactory = _doodleLoginWithFactory; emit doodleSecurityChanged(); }
                     _usingDoodleApi = true;
                     _setMountedFromDoodle(true);
                     _requestDoodleRadioInfo();
@@ -593,6 +618,18 @@ void ARManager::_handleDoodleReply(QNetworkReply* reply)  // response processing
                     _jsonObject[_peerSlotMcs] = 0;
                     _jsonObject[_is24G] = jsonObjectInt(infoObject, _frequency) < 3000 ? 1 : 0;
                     _jsonObject[_apiVersion] = QStringLiteral("DoodleLabs ubus");
+                    // AQGC S66 radio encryption as reported by the radio (iwinfo "encryption")
+                    {
+                        const QJsonObject enc = infoObject.value("encryption").toObject();
+                        QString encState;
+                        if (!enc.isEmpty()) {
+                            const QString ciphers = QString::fromUtf8(QJsonDocument(enc.value("ciphers").toArray()).toJson()).toLower();
+                            encState = !enc.value("enabled").toBool() ? QStringLiteral("off")
+                                     : (ciphers.contains("ccmp") || ciphers.contains("gcmp") || ciphers.contains("aes")) ? QStringLiteral("aes")
+                                     : QStringLiteral("on");
+                        }
+                        if (encState != _doodleEncryption) { _doodleEncryption = encState; emit doodleSecurityChanged(); }
+                    }
                     _jsonObject[_selfTemperature] = 0;
                     _jsonObject[_skyTemperature] = 0;
 
@@ -689,3 +726,79 @@ void ARManager::_setMountedFromDoodle(bool mounted)
 //     }
 //     setDistance(osd_info.dist_value);
 // }
+
+//-----------------------------------------------------------------------------
+// AQGC Link security (S66, CE RED / EN 18031, 2026-11-17)
+
+QString ARManager::_doodlePassword() const
+{
+    if (!_doodleStoredFailed) {
+        const QByteArray stored = SecureStore::get(QStringLiteral("doodle/") + _doodleDeviceIP);
+        if (!stored.isEmpty()) {
+            return QString::fromUtf8(stored);
+        }
+    }
+    return QString::fromLatin1(kDoodleFactoryPassword);
+}
+
+QNetworkRequest ARManager::_doodleRequest() const
+{
+    QNetworkRequest request(QUrl(QString("https://%1/ubus/").arg(_doodleDeviceIP)));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setTransferTimeout(800);
+    // The radio has a self-signed certificate: it is pinned on first use (_doodleSslErrors), never "verify none"
+    return request;
+}
+
+void ARManager::_doodleSslErrors(QNetworkReply* reply, const QList<QSslError>& errors)
+{
+    if (!reply || reply->property("doodleOp").toString().isEmpty()) {
+        return;     // not a radio request
+    }
+    const QSslCertificate cert = reply->sslConfiguration().peerCertificate();
+    if (cert.isNull()) {
+        return;
+    }
+    const QByteArray digest = cert.digest(QCryptographicHash::Sha256).toHex();
+    const QString pinName = QStringLiteral("doodlePin/") + _doodleDeviceIP;
+    const QByteArray pinned = SecureStore::get(pinName);
+    if (pinned.isEmpty()) {
+        SecureStore::put(pinName, digest);  // trust on first use
+        qCInfo(ARManagerLog) << "[Doodle API] radio certificate pinned";
+        SecurityLog::write(QStringLiteral("Radio"), QStringLiteral("radio certificate stored (first connection)"));
+        reply->ignoreSslErrors(errors);
+        return;
+    }
+    if (pinned == digest) {
+        reply->ignoreSslErrors(errors);
+        if (_doodleCertMismatch) { _doodleCertMismatch = false; emit doodleSecurityChanged(); }
+        return;
+    }
+    // another certificate at the radio address: refuse (someone in between, or the radio was replaced)
+    qCWarning(ARManagerLog) << "[Doodle API] radio certificate changed: connection refused";
+    if (!_doodleCertMismatch) {
+        _doodleCertMismatch = true;
+        SecurityLog::write(QStringLiteral("Radio"), QStringLiteral("radio certificate changed: connection refused"));
+        emit doodleSecurityChanged();
+    }
+}
+
+void ARManager::changeDoodlePassword(const QString& newPassword)
+{
+    if (_rpcSession.isEmpty() || newPassword.size() < 8 || _doodlePwResult == QStringLiteral("busy")) {
+        _doodlePwResult = QStringLiteral("failed"); emit doodleSecurityChanged();
+        return;
+    }
+    _doodlePendingPassword = newPassword;
+    const QJsonObject body{
+        { "jsonrpc", "2.0" },
+        { "id", 1 },
+        { "method", "call" },
+        { "params", QJsonArray{ _rpcSession, "rpc-sys", "password_set",
+                                QJsonObject{ { "user", "user" }, { "password", newPassword } } } }
+    };
+    QNetworkReply* reply = _networkManager->post(_doodleRequest(), QJsonDocument(body).toJson(QJsonDocument::Compact));
+    reply->setProperty("doodleOp", "pwset");
+    _doodlePwResult = QStringLiteral("busy");
+    emit doodleSecurityChanged();
+}

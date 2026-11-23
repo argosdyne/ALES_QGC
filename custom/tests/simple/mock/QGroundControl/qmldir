@@ -1,0 +1,2 @@
+module QGroundControl
+singleton QGroundControl 1.0 QGroundControl.qml

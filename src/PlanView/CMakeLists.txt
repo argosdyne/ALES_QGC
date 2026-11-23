@@ -7,21 +7,13 @@ add_custom_target(PlanViewQml
 		CorridorScanMapVisual.qml
 		FWLandingPatternEditor.qml
 		FWLandingPatternMapVisual.qml
-		GeoCageEditor.qml
 		GeoCageMapVisuals.qml
-		GeoFenceEditor.qml
 		GeoFenceMapVisuals.qml
-		MissionItemEditor.qml
 		MissionItemMapVisual.qml
-		MissionItemStatus.qml
 		MissionSettingsEditor.qml
 		PlanEditToolbar.qml
-		PlanToolBarIndicators.qml
 		M2LinkIndicator.qml
-		PlanToolBar.qml
 		PlanView.qml
-		RallyPointEditorHeader.qml
-		RallyPointItemEditor.qml
 		RallyPointMapVisuals.qml
 		SimpleItemEditor.qml
 		SimpleItemMapVisual.qml
@@ -30,7 +22,6 @@ add_custom_target(PlanViewQml
 		SurveyItemEditor.qml
 		SurveyMapVisual.qml
 		TakeoffItemMapVisual.qml
-		TerrainStatus.qml
 		TransectStyleComplexItemStats.qml
 		TransectStyleComplexItemTabBar.qml
 		TransectStyleComplexItemTerrainFollow.qml
@@ -38,7 +29,6 @@ add_custom_target(PlanViewQml
 		YSTransectStyleMapVisuals.qml
 		VTOLLandingPatternEditor.qml
 		VTOLLandingPatternMapVisual.qml
-		GeoZoneMakeView.qml
 		YellowScanInitPathMapVisual.qml
 		YellowScanInitPathEditor.qml
 )

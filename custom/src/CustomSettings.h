@@ -24,4 +24,13 @@ public:
     DEFINE_SETTINGFACT(ysMavCompId)
     DEFINE_SETTINGFACT(ysCamera)
     DEFINE_SETTINGFACT(ysMissionStartStop)
+
+    // Simple UI (AQGC Simple)
+    DEFINE_SETTINGFACT(simpleAdvancedMode)
+    DEFINE_SETTINGFACT(simpleWelcomeShown)
+    DEFINE_SETTINGFACT(simpleLargeText)
+    DEFINE_SETTINGFACT(simpleStartScreen)
+    DEFINE_SETTINGFACT(simpleGimbalSpeed)
+    DEFINE_SETTINGFACT(simpleProductProfile)
+    DEFINE_SETTINGFACT(simpleDeveloperTools)
 };

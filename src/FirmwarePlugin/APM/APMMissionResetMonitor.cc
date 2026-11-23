@@ -360,7 +360,17 @@ void APMMissionResetMonitor::_probeMavlinkMessage(const mavlink_message_t& messa
         return;
     }
     _cancelMissionRead();
-    _finishProbe(missionCount.count);
+    // Finish after this message handler returns: the start path waits for the mode change and arming
+    // (_setFlightModeAndValidate / _armVehicleAndValidate spin the event loop). Waiting inside the MAVLink
+    // receive handler did not see the vehicle's answers: "failed to change to Guided" although it did.
+    _probeTimer.stop();
+    disconnect(_vehicle, &Vehicle::mavlinkMessageReceived, this, &APMMissionResetMonitor::_probeMavlinkMessage);   // one answer only
+    const int count = missionCount.count;
+    QTimer::singleShot(0, this, [this, count]() {
+        if (_probeActive) {
+            _finishProbe(count);
+        }
+    });
 }
 
 void APMMissionResetMonitor::_probeTimedOut()

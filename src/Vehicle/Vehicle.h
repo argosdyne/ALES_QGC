@@ -177,6 +177,7 @@ public:
     Q_ENUM(GeoFenceAlertTier)
 
     Q_PROPERTY(int                  id                          READ id                                                             CONSTANT)
+    Q_PROPERTY(int                  defaultComponentId          READ defaultComponentId                                             NOTIFY defaultComponentIdChanged)   ///< autopilot component id (Simple UI: which STATUSTEXT is the FC's)
     Q_PROPERTY(AutoPilotPlugin*     autopilot                   MEMBER _autopilotPlugin                                             CONSTANT)
     Q_PROPERTY(QGeoCoordinate       coordinate                  READ coordinate                                                     NOTIFY coordinateChanged)
     Q_PROPERTY(QGeoCoordinate       homePosition                READ homePosition                                                   NOTIFY homePositionChanged)
@@ -650,6 +651,8 @@ public:
     bool            messageTypeError            () { return _currentMessageType == MessageError; }
     bool            geoFenceMarginWarning       () const { return _geoFenceMarginWarning; }
     bool            geoFenceBreached            () const { return _geoFenceBreached; }
+    /// true while the flight controller's FENCE_STATUS reports a breach (not the app's own geometry check)
+    Q_INVOKABLE bool fenceStatusBreached        () const { return _fenceStatusBreached; }
     int             geoFenceAlertTier           () const { return _geoFenceAlertTier; }
     bool            geoFenceLoaded              () const { return _geoFenceLoaded; }
     bool            geoFenceActive              () const { return _geoFenceActive; }
@@ -1041,6 +1044,7 @@ signals:
     void geoFenceMarginWarningChanged  ();
     void geoFenceBreachedChanged       (bool breached);
     void geoFenceAlertTierChanged      (int tier);
+    void defaultComponentIdChanged     (void);
     void geoFenceLoadedChanged         (bool loaded);
     void geoFenceActiveChanged         (bool active);
     void geoFenceParamsMissingChanged  (bool missing);

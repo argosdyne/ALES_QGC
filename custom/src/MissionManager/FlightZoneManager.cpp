@@ -22,10 +22,19 @@
 #include <climits>
 #include <memory>
 #include <QVariantMap>
+#include "SettingsManager.h"
+#include <QJsonParseError>
+#include <QFileInfo>
 
 #include "JsonHelper.h"
 #include "FlyViewSettings.h"
 #include "QGCApplication.h"
+#include "GeoFenceController.h"
+#include <QLineF>
+#include "QGCFenceCircle.h"
+#include "QGCFencePolygon.h"
+#include "QGCCorePlugin.h"
+#include "AudioOutput.h"
 #include "QGroundControlQmlGlobal.h"
 #include "Vehicle.h"
 #include "MultiVehicleManager.h"
@@ -40,6 +49,45 @@
 #include <CGAL/AABB_traits_3.h>
 #include <CGAL/AABB_face_graph_triangle_primitive.h>
 #include <iostream>
+
+// AQGC Simple UI: zone name / class / details for the Simple map legend, zone details and warnings.
+// ED-318 / ED-269: properties.restriction (PROHIBITED, REQ_AUTHORISATION, CONDITIONAL, NO_RESTRICTION) and name.
+// Altitude Angel: properties.category / detailedCategory / name. Unknown = information (3).
+static int aqgcZoneClass(const QJsonObject& props)
+{
+    const QString r = props.value("restriction").toString().toUpper();
+    if (r.contains("PROHIBIT")) return 1;
+    if (r.contains("AUTHORI") || r.contains("CONDITIONAL")) return 2;
+    if (r.contains("NO_RESTRICTION")) return 3;
+    const QString c = (props.value("category").toString() + " " + props.value("detailedCategory").toString()
+                       + " " + props.value("type").toString()).toLower();
+    if (c.contains("prohibit") || c.contains("no-fly") || c.contains("nofly") || c.contains("forbidden")) return 1;
+    if (c.contains("restrict") || c.contains("controlled") || c.contains("airport") || c.contains("aerodrome")
+            || c.contains("danger") || c.contains("military") || c.contains("ctr") || c.contains("atz")) return 2;
+    return 3;
+}
+static void aqgcSetZoneInfo(QObject* shape, const QJsonObject& props, const QString& id)
+{
+    if (!shape) return;
+    QString name = props.value("name").toString();
+    if (name.isEmpty()) name = props.value("Name").toString();
+    if (name.isEmpty()) name = props.value("title").toString();
+    if (name.isEmpty()) name = id;
+    QStringList detail;
+    const QString authority = props.value("zoneAuthority").isArray()
+            ? props.value("zoneAuthority").toArray().at(0).toObject().value("name").toString()
+            : props.value("authority").toString();
+    if (!authority.isEmpty()) detail << authority;
+    const QString reason = props.value("reason").isArray()
+            ? props.value("reason").toArray().at(0).toString() : props.value("reason").toString();
+    if (!reason.isEmpty()) detail << reason;
+    const QString category = props.value("detailedCategory").toString().isEmpty()
+            ? props.value("category").toString() : props.value("detailedCategory").toString();
+    if (!category.isEmpty()) detail << category;
+    shape->setProperty("zoneName",   name);
+    shape->setProperty("zoneClass",  aqgcZoneClass(props));
+    shape->setProperty("zoneDetail", detail.join(QStringLiteral(" · ")));
+}
 #include <fstream>
 #include <cmath>
 #include <QDir>
@@ -83,6 +131,8 @@ QList<GeoJsonNameList> geoJsonNameList;
 
 
 QList<Polyhedron> _noFlyZoneList;
+// AQGC Simple UI: name and class of each entry in _noFlyZoneList (same order; empty / 0 when unknown)
+QList<AqgcZoneMeta> _noFlyZoneMeta;
 //QList<AABB_tree> _AABBZoneList;
 
 QReadWriteLock _zoneLock; // 클래스 멤버로 선언
@@ -369,15 +419,17 @@ FlightZoneManager::FlightZoneManager() : manager(new QNetworkAccessManager(this)
         double alarmDistance = _settingsManager->flyViewSettings()->alarmDistance()->rawValue().toDouble();
 
         QList<Polyhedron> noFlyZones;
+        QList<AqgcZoneMeta> zoneMeta;
         {
-            QReadLocker locker(&_zoneLock);
-            noFlyZones = _noFlyZoneList;        // Polyhedron 리스트 복사
+            QReadLocker locker(&_zoneLock);     // both lists from the same reload (AQGC: index-based name / class)
+            noFlyZones = _noFlyZoneList;
+            zoneMeta = _noFlyZoneMeta;        // Polyhedron 리스트 복사
         }
 
         // 백그라운드에서 거리 계산
         QtConcurrent::run([=]() {
             try {
-                checkDroneAndGeoZoneSafe(noFlyZones, droneLat, droneLon, droneAlt, alarmDistance);
+                checkDroneAndGeoZoneSafe(noFlyZones, zoneMeta, droneLat, droneLon, droneAlt, alarmDistance);
             }catch (const std::exception& e) {
                 qWarning() << "Exception in checkDroneAndGeoZoneSafe QtConcurrent::run:" << e.what();
             } catch (...) {
@@ -470,6 +522,7 @@ void FlightZoneManager::onReplyFinished(QNetworkReply *reply) {
         QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
 
         if (!jsonDoc.isNull()) {
+            _setZoneError(QString());
             QtConcurrent::run([=]() {
                 try {
                 }
@@ -481,10 +534,15 @@ void FlightZoneManager::onReplyFinished(QNetworkReply *reply) {
                 processJsonFile(jsonDoc);
             });
         } else {
+            _setZoneError(tr("The zone server sent data that cannot be read."));
             QString msg = tr("Cannot access GeoZone data.<br>Please check local files or internet connection.");
             CustomQmlInterface::instance()->geoAwarenessMessage(msg);
         }
     } else {
+        // AQGC Simple UI shows this in Settings > Map & flight zones (the classic message box is not used there)
+        const int http = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        _setZoneError(http == 401 || http == 403 ? tr("The zone server refused the API key.")
+                                                 : tr("Zones cannot be downloaded: %1").arg(reply->errorString()));
         QString msg = tr("Cannot access GeoZone data.<br>Please check local files or internet connection.");
         CustomQmlInterface::instance()->geoAwarenessMessage(msg);
     }
@@ -632,11 +690,13 @@ static Polyhedron createPolyhedronFromZone(const QList<NoFlyZone>& zone)
 
 
 
-void FlightZoneManager::generateNoFlyZones(QList<std::tuple<QList<QGeoCoordinate>, double, double>> parsedPolygons)
+void FlightZoneManager::generateNoFlyZones(QList<std::tuple<QList<QGeoCoordinate>, double, double>> parsedPolygons, QList<AqgcZoneMeta> metas)
 {
     try {
         if (parsedPolygons.count() > 0) {
+            int metaIdx = -1;
             for (const auto& polyData : parsedPolygons) {
+                ++metaIdx;
                 const QList<QGeoCoordinate>& coords = std::get<0>(polyData);
 
                 std::vector<Point_3> vertices;
@@ -717,6 +777,7 @@ void FlightZoneManager::generateNoFlyZones(QList<std::tuple<QList<QGeoCoordinate
                     QWriteLocker locker(&_zoneLock);
                     if (!containsPolyhedron(_noFlyZoneList, polyhedron)) {
                         _noFlyZoneList.append(polyhedron);
+                        _noFlyZoneMeta.append(metaIdx < metas.size() ? metas[metaIdx] : AqgcZoneMeta());
                     }
                 }
             }
@@ -808,7 +869,7 @@ Point_3 FlightZoneManager::approximatePolyhedronCenter(const Polyhedron& poly) {
 
 
 
-void FlightZoneManager::checkDroneAndGeoZoneSafe(const QList<Polyhedron>& zoneList,
+void FlightZoneManager::checkDroneAndGeoZoneSafe(const QList<Polyhedron>& zoneList, const QList<AqgcZoneMeta>& meta,
                                                  double lat, double lon, double alt,
                                                  double alarmDistance)
 {
@@ -835,14 +896,32 @@ void FlightZoneManager::checkDroneAndGeoZoneSafe(const QList<Polyhedron>& zoneLi
                     // 등록한 드론의 위치를 가져와야함
 
                     // Convert drone's position to Cartesian coordinates
-                    Point_3 dronePoint = latLonAltToCartesian(droneLat, droneLon, droneAlt);
+                    const Point_3 dronePointRel = latLonAltToCartesian(droneLat, droneLon, droneAlt);
 
-                    //Point_3 dronePoint = latLonAltToCartesian(lat, lon, alt);
+                    // AQGC Simple UI: one structured result per check (zoneStatus signal)
+                    // AMSL bands (ED-318 AMSL / WGS84) are compared with the drone's altitude above sea level
+                    double droneAmsl = manager->activeVehicle()->altitudeAMSL()->rawValue().toDouble();
+                    if (std::isnan(droneAmsl)) droneAmsl = droneAlt;
+                    const Point_3 dronePointAmsl = latLonAltToCartesian(droneLat, droneLon, droneAmsl);
+                    auto rankOf = [&meta](int idx) {
+                        if (idx < 0 || idx >= meta.size()) return 3;
+                        const AqgcZoneMeta& m = meta[idx];
+                        return (m.cls == 1 || m.noEntry) ? 0 : m.cls == 2 ? 1 : m.cls == 4 ? 2 : 3;
+                    };
+                    int insideIdx = -1, nearIdx = -1;
+                    double nearDist = std::numeric_limits<double>::max();
+                    int zoneIdx = -1;
 
                     for (const Polyhedron& poly : zoneList) {
+                        ++zoneIdx;
+                        const double zoneAlarm = zoneIdx < meta.size() && meta[zoneIdx].warn > 0 ? meta[zoneIdx].warn : alarmDistance;
+                        const Point_3& dronePoint = zoneIdx < meta.size() && meta[zoneIdx].amsl ? dronePointAmsl : dronePointRel;
 
                         bool inside = checkPointInsidePolyhedron(poly, dronePoint);
                         if (inside) {
+                            if (insideIdx < 0 || rankOf(zoneIdx) < rankOf(insideIdx)) {
+                                insideIdx = zoneIdx;
+                            }
                             QMetaObject::invokeMethod(CustomQmlInterface::instance(), [=]() {
                                 CustomQmlInterface::instance()->geoAwarenessMessage("Drone is inside GeoZone!");
                             }, Qt::QueuedConnection);
@@ -857,7 +936,7 @@ void FlightZoneManager::checkDroneAndGeoZoneSafe(const QList<Polyhedron>& zoneLi
                         }
                         double minDist = std::sqrt(minSquaredDist);
 
-                        if(minDist > alarmDistance + 200) {
+                        if(minDist > std::max(alarmDistance, zoneAlarm) + 200) {
                             continue;
                         }
 
@@ -869,12 +948,29 @@ void FlightZoneManager::checkDroneAndGeoZoneSafe(const QList<Polyhedron>& zoneLi
 
                         double exactDist = std::sqrt(tree.squared_distance(dronePoint));
 
+                        // the most restrictive zone within its warning distance, then the closest one
+                        if (exactDist <= zoneAlarm && (nearIdx < 0 || rankOf(zoneIdx) < rankOf(nearIdx)
+                                                       || (rankOf(zoneIdx) == rankOf(nearIdx) && exactDist < nearDist))) {
+                            nearDist = exactDist;
+                            nearIdx = zoneIdx;
+                        }
                         if (exactDist <= alarmDistance) {
                             QString msg = QString("The distance between the aircraft and GeoZone is close. Distance : %1M").arg(exactDist);
                             QMetaObject::invokeMethod(CustomQmlInterface::instance(), [msg]() {
                                 CustomQmlInterface::instance()->geoAwarenessMessage(msg);
                             }, Qt::QueuedConnection);
                         }
+                    }
+                    {
+                        const int idx = insideIdx >= 0 ? insideIdx : nearIdx;
+                        const int level = insideIdx >= 0 ? 2 : nearIdx >= 0 ? 1 : 0;
+                        const QString name = idx >= 0 && idx < meta.size() ? meta[idx].name : QString();
+                        const int cls = idx >= 0 && idx < meta.size() ? meta[idx].cls : 0;
+                        const bool noEntry = idx >= 0 && idx < meta.size() && meta[idx].noEntry;
+                        const double dist = level == 1 ? nearDist : 0.0;
+                        QMetaObject::invokeMethod(this, [this, level, dist, name, cls, noEntry]() {
+                            _setZoneStatus(level, dist, name, cls, noEntry);
+                        }, Qt::QueuedConnection);
                     }
                 }
             }
@@ -1048,7 +1144,12 @@ void FlightZoneManager::checkDistanceDroneAndGeoAwareness(){
 void FlightZoneManager::fetchGeoJsonDataForRegion(double n, double e, double s, double w)
 {
     QString onlineUrl = _settingsManager->flyViewSettings()->onlinePath()->rawValueString();
-    QString onlineLicenseKey =_settingsManager->flyViewSettings()->onlineLicenseKey()->rawValueString();
+    QString onlineLicenseKey = _settingsManager->flyViewSettings()->altitudeAngelKey();
+    if (onlineLicenseKey.isEmpty()) {
+        // no own key and no company key in this build (untagged CI / local build): do not ask the server
+        _setZoneError(QString());
+        return;
+    }
     QString authorizationHeader = "X-AA-ApiKey " + onlineLicenseKey;
     //qInfo(FlightZoneManagerLog) << "online Url : " << onlineUrl;
     QString url = "https://api.altitudeangel.com/v2/mapdata/geojson";
@@ -1116,6 +1217,7 @@ void FlightZoneManager::removeAll(void)
     
     QWriteLocker locker(&_zoneLock);
     _noFlyZoneList.clear();
+    _noFlyZoneMeta.clear();
     _zoneAABBTree.clear();
     _zoneTriangles.clear();
 
@@ -1159,7 +1261,7 @@ void FlightZoneManager::checkCurrentZoomValue() {
     else {
         if(zoom >= 14)  { // 테스트용으로 8 원래는 13
             //qInfo(FlightZoneManagerLog) << "FlightMap zoom Over 12: " << qGroundControlQmlGlobal->flightMapZoom();
-            if(_polygons.count() == 0) { // 이미 생성되어 있음
+            if(_officialPolygonCount() == 0) { // 이미 생성되어 있음 (AQGC: My zones do not count)
 
                 //왜 여러번 실행되는지 확인필요
 
@@ -1186,7 +1288,7 @@ void FlightZoneManager::checkCurrentZoomValue() {
             double distanceMeters = qGroundControlQmlGlobal->flightMapPosition().distanceTo(geoCoordinate);
             if(distanceMeters > 2000) // 2Km 이상 이동 시
             {
-                if(_polygons.count() > 0){                // 위치 새로고침 후 생성
+                if(_officialPolygonCount() > 0){                // 위치 새로고침 후 생성
                     //removeAll();
                     QGeoCoordinate flightmapPos = qGroundControlQmlGlobal->flightMapPosition();
                     QGeoCoordinate geoCoord = geoCoordinate;
@@ -1212,7 +1314,9 @@ void FlightZoneManager::checkCurrentZoomValue() {
         else if(zoom < 11){
             //qInfo(FlightZoneManagerLog) << "FlightMap zoom less 10: " << qGroundControlQmlGlobal->flightMapZoom();
             // 생성된거 전부 삭제
-            removeAll();
+            if (_officialPolygonCount() > 0) {
+                _removeOfficialZones();     // AQGC: keep the My zones (they still block and warn)
+            }
 
             _oneTime = false;
             _isGroundHazard = false;
@@ -1530,6 +1634,7 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
 
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) {
+        _setZoneError(tr("The zone file cannot be opened: %1").arg(QFileInfo(filePath).fileName()));
         QString msg = tr("Cannot access GeoZone data.<br>Please check local files or internet connection.");
         CustomQmlInterface::instance()->geoAwarenessMessage(msg);
         return;
@@ -1540,6 +1645,7 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
 
     QJsonDocument doc = QJsonDocument::fromJson(data);
     if (!doc.isObject()) {
+        _setZoneError(tr("The zone file is not valid GeoJSON: %1").arg(QFileInfo(filePath).fileName()));
         qWarning() << "Invalid JSON format";
         QString msg = tr("Cannot access GeoZone data.<br>Please check local files or internet connection.");
         CustomQmlInterface::instance()->geoAwarenessMessage(msg);
@@ -1552,11 +1658,13 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
         return;
     }
 
+    _setZoneError(QString());
     // Clear existing polygons to start fresh and show batches incrementally
     removeAll();
 
     // Prepare fresh containers to avoid unbounded growth between runs
     QList<QList<NoFlyZone>> newNoFlyZones;
+    QList<AqgcZoneMeta> newZoneMeta;            // AQGC Simple UI
     QSet<QString> seenIds;
     QList<QList<QGeoCoordinate>> keptVertices;
     QList<QGCFencePolygon*> batchPolys;
@@ -1616,13 +1724,17 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
         double altitudeFloor = 0.0;
         double altitudeCeiling = 99999.0;
 
-        if(layer.isEmpty()){
+        const QString lowerRef = layer.value("lowerReference").toString().toUpper();
+        const QString upperRef = layer.value("upperReference").toString().toUpper();
+        const bool bandAmsl = lowerRef == "AMSL" || lowerRef == "WGS84" || upperRef == "AMSL" || upperRef == "WGS84";
+        if (!layer.isEmpty()) {     // was "layer.isEmpty()": the ED-318 height band was never read
+            const double unit = layer.value("uom").toString().toLower() == "ft" ? 0.3048 : 1.0;
             if (layer.contains("lower") && layer.value("lower").isDouble()) {
-                altitudeFloor = layer.value("lower").toDouble();
+                altitudeFloor = layer.value("lower").toDouble() * unit;
             }
 
             if (layer.contains("upper") && layer.value("upper").isDouble()) {
-                altitudeCeiling = layer.value("upper").toDouble();
+                altitudeCeiling = layer.value("upper").toDouble() * unit;
             }
         }
 
@@ -1642,6 +1754,13 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
             }
             if (!id.isEmpty()) {
                 poly->setObjectName(id);
+            }
+            poly->setAltitudeMin(altitudeFloor);
+            poly->setAltitudeMax(altitudeCeiling);
+            aqgcSetZoneInfo(poly, properties, id);
+            if (bandAmsl) {
+                poly->setProperty("zoneDetail", (poly->property("zoneDetail").toString() + QStringLiteral(" · ") + tr("heights above sea level")).trimmed());
+                poly->setAltitudeFrame(MAV_FRAME_GLOBAL);
             }
             return poly;
         };
@@ -1663,6 +1782,7 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
                 return false;
             }
             newNoFlyZones.append(zones);
+            newZoneMeta.append({poly->property("zoneName").toString(), poly->property("zoneClass").toInt(), 0, false, bandAmsl});
             ++processed;
             if (!id.isEmpty()) {
                 seenIds.insert(id);
@@ -1758,16 +1878,19 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
 
     // Build polyhedra once and free temporary lists
     QList<Polyhedron> newPolyList;
-    for (const auto& zone : newNoFlyZones) {
-        Polyhedron poly = createPolyhedronFromZone(zone);
+    QList<AqgcZoneMeta> newPolyMeta;
+    for (int zi = 0; zi < newNoFlyZones.size(); ++zi) {
+        Polyhedron poly = createPolyhedronFromZone(newNoFlyZones[zi]);
         if (!poly.empty()) {
             newPolyList.append(std::move(poly));
+            newPolyMeta.append(zi < newZoneMeta.size() ? newZoneMeta[zi] : AqgcZoneMeta());
         }
     }
 
     {
         QWriteLocker locker(&_zoneLock);
         _noFlyZoneList = newPolyList;
+        _noFlyZoneMeta = newPolyMeta;
         buildZoneTrees(_noFlyZoneList, _zoneAABBTree);
     }
 
@@ -1854,9 +1977,12 @@ void FlightZoneManager::logGeoMemoryUsage(const QString& label)
 void FlightZoneManager::processJsonFile(const QJsonDocument& jsonDoc)
 {
     QList<std::tuple<QList<QGeoCoordinate>, QString, QString, QString>> parsedPolygons; // 마지막 QString: id
+    QHash<QString, QJsonObject> zonePropsById;                  // AQGC Simple UI: zone name / class
+    QHash<QString, QPair<double, double>> zoneBandById;         // floor / ceiling (m)
     QList<std::tuple<QGeoCoordinate, double, QString, QString, QString>> parsedCircles; // 마지막 QString: id
 
     QList<std::tuple<QList<QGeoCoordinate>, double, double>> parsedNoFlyZone;
+    QList<AqgcZoneMeta> parsedNoFlyMeta;                        // AQGC Simple UI: name / class per zone
 
     const QJsonArray features = jsonDoc["features"].toArray();
     for (const QJsonValue& featureVal : features) {
@@ -1926,9 +2052,19 @@ void FlightZoneManager::processJsonFile(const QJsonDocument& jsonDoc)
                 // qInfo() << "Polygons altitudeFloor === " << floorMeters;
                 // qInfo() << "Polygons altitudeCeiliing === " << ceilingMeters;
                 parsedPolygons.append(std::make_tuple(polygon, strokeColor, strokeOpacity, id));
+                zonePropsById.insert(id, properties);
+                zoneBandById.insert(id, qMakePair(floorMeters, ceilingMeters));
 
                 // Add CreatePolyhedron
                 parsedNoFlyZone.append(std::make_tuple(polygon, floorMeters, ceilingMeters));
+                {
+                    AqgcZoneMeta zm;
+                    QObject probe;
+                    aqgcSetZoneInfo(&probe, properties, id);
+                    zm.name = probe.property("zoneName").toString();
+                    zm.cls  = probe.property("zoneClass").toInt();
+                    parsedNoFlyMeta.append(zm);
+                }
 
             }
         }
@@ -1983,7 +2119,7 @@ void FlightZoneManager::processJsonFile(const QJsonDocument& jsonDoc)
 
     QtConcurrent::run([=]() {
         try {
-            generateNoFlyZones(parsedNoFlyZone);
+            generateNoFlyZones(parsedNoFlyZone, parsedNoFlyMeta);
         } catch (const std::exception& e) {
             qWarning() << "generateNoFlyZones Exception:" << e.what();
         } catch (...) {
@@ -2032,6 +2168,11 @@ void FlightZoneManager::processJsonFile(const QJsonDocument& jsonDoc)
                     polygon->appendVertex(coord);
                 polygon->setcolorInclusion(strokeColor);
                 polygon->setstrokeOpacity(strokeOpacity.toDouble() / 2);
+                aqgcSetZoneInfo(polygon, zonePropsById.value(id), id);
+                if (zoneBandById.contains(id)) {
+                    polygon->setAltitudeMin(zoneBandById.value(id).first);
+                    polygon->setAltitudeMax(zoneBandById.value(id).second);
+                }
                 _polygons.append(polygon);
                 qInfo() << "_polygons count == " << _polygons.count();
             }
@@ -2082,23 +2223,21 @@ void FlightZoneManager::start(void){
 
     //Index 번호를 가져오는 듯함 0 = USB, 1 = Online
     QString dataType = _settingsManager->flyViewSettings()->dataType()->rawValueString();
-    //qInfo() << "FlightZoneManager dataType : " << dataType;
 
-    // 읽어올 파일의 저장위치를 가져온다
-    QString savePath = _settingsManager->flyViewSettings()->filePath()->rawValueString();
-    //qInfo() << "FlightZoneManger savePath : " << savePath;
-
+    // AQGC Simple UI: always start from an empty set, then add the official data and the user's own zones (S32)
+    removeAll();
+    _setZoneError(QString());
     if(dataType == "0") // USB
     {
-        //qInfo() << "Make with USB dataType = " << dataType;
-        processJsonFile(getFilePath());
+        if (!_settingsManager->flyViewSettings()->filePath()->rawValueString().isEmpty()) {
+            processJsonFile(getFilePath());
+        }
     }
     else // Online
     {
-        //qInfo(FlightZoneManagerLog) << "Make with Online dataType = " << dataType;
-        //qInfo() << "Data Type == " << dataType;
         getOnlineGeoJsonData();
     }
+    _loadMyZones();
 }
 
 // Calculate -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -2168,34 +2307,436 @@ void FlightZoneManager::getOnlineGeoJsonData() {
     calculateCornerCoordinates(mapCoord.latitude(), mapCoord.longitude(), zoom, rootWindowWidth, rootWindowHeight);
 }
 
+// ---------------------------------------------------------------------------------------------- AQGC Simple UI (S46)
 
+static QString aqgcOfficialZoneDir()
+{
+    return qgcApp()->toolbox()->settingsManager()->appSettings()->geoZoneSavePath() + QStringLiteral("/Official");
+}
 
+void FlightZoneManager::reload()
+{
+    removeAll();
+    start();
+}
 
+QString FlightZoneManager::importZoneFile(const QString& path)
+{
+    const QString src = path.startsWith(QStringLiteral("file:")) ? QUrl(path).toLocalFile() : path;
+    QFile file(src);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return tr("The file cannot be opened.");
+    }
+    const QByteArray data = file.readAll();
+    file.close();
 
+    QJsonParseError err;
+    const QJsonDocument doc = QJsonDocument::fromJson(data, &err);
+    if (doc.isNull() || !doc.isObject()) {
+        return tr("This is not a GeoJSON file (%1).").arg(err.errorString());
+    }
+    const QJsonArray features = doc.object().value("features").toArray();
+    int areas = 0;
+    for (const QJsonValue& f : features) {
+        const QString t = f.toObject().value("geometry").toObject().value("type").toString();
+        if (t == QStringLiteral("Polygon") || t == QStringLiteral("MultiPolygon")) {
+            areas++;
+        }
+    }
+    if (areas == 0) {
+        return tr("The file has no zone areas (GeoJSON Polygon or MultiPolygon features).");
+    }
 
+    QDir().mkpath(aqgcOfficialZoneDir());
+    const QString dst = aqgcOfficialZoneDir() + QStringLiteral("/") + QFileInfo(src).fileName();
+    if (QFileInfo(src).absoluteFilePath() != QFileInfo(dst).absoluteFilePath()) {
+        QFile::remove(dst);
+        if (!QFile::copy(src, dst)) {
+            return tr("The file cannot be copied to the app folder.");
+        }
+    }
+    {
+        QFile stamp(dst);                   // "updated" date = import date (setFileTime needs an open file)
+        if (stamp.open(QIODevice::ReadWrite)) {
+            stamp.setFileTime(QDateTime::currentDateTime(), QFileDevice::FileModificationTime);
+            stamp.close();
+        }
+    }
 
+    // remove the previous imported file if it was another one in the same folder
+    const QString previous = _settingsManager->flyViewSettings()->filePath()->rawValueString();
+    if (!previous.isEmpty() && QFileInfo(previous).absolutePath() == QFileInfo(dst).absolutePath()
+            && QFileInfo(previous).absoluteFilePath() != QFileInfo(dst).absoluteFilePath()) {
+        QFile::remove(previous);
+    }
+    _settingsManager->flyViewSettings()->filePath()->setRawValue(dst);
+    _settingsManager->flyViewSettings()->dataType()->setRawValue(0);
+    reload();
+    return QString();
+}
 
+void FlightZoneManager::deleteZoneData()
+{
+    const QString current = _settingsManager->flyViewSettings()->filePath()->rawValueString();
+    if (!current.isEmpty() && QFileInfo(current).absolutePath() == QFileInfo(aqgcOfficialZoneDir() + "/x").absolutePath()) {
+        QFile::remove(current);
+    }
+    _settingsManager->flyViewSettings()->filePath()->setRawValue(QString());
+    reload();                               // empty official data, My zones loaded again
+}
 
+QDateTime FlightZoneManager::zoneFileTime() const
+{
+    const QString current = _settingsManager->flyViewSettings()->filePath()->rawValueString();
+    const QFileInfo fi(current);
+    return fi.exists() ? fi.lastModified() : QDateTime();
+}
 
+void FlightZoneManager::_setZoneStatus(int level, double distance, const QString& name, int zoneClass, bool noEntry)
+{
+    const bool changed = level != _zoneLevel || name != _zoneStatusName || zoneClass != _zoneStatusClass || noEntry != _zoneStatusNoEntry;
+    _zoneLevel = level;
+    _zoneDistance = distance;
+    _zoneStatusName = name;
+    _zoneStatusClass = zoneClass;
+    _zoneStatusNoEntry = noEntry;
+    emit zoneStatusChanged();
+    if (changed) {
+        qInfo() << "Flight zone status: level" << level << "distance" << distance << "zone" << name << "class" << zoneClass << "noEntry" << noEntry;
+    }
+    // Simple UI: speak in flight when the warning gets stronger (inside > near, then prohibited > other)
+    const bool prohibited = zoneClass == 1 || noEntry;
+    const int rank = level == 0 ? 99 : (level == 2 ? 0 : 10) + (prohibited ? 0 : 1);
+    if (level == 0) {
+        _spokenRank = 99;
+        return;
+    }
+    Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    if (rank < _spokenRank && vehicle && vehicle->flying() && !qgcApp()->toolbox()->corePlugin()->showAdvancedUI()) {
+        _spokenRank = rank;
+        qgcApp()->toolbox()->audioOutput()->say(level == 2
+            ? (prohibited ? tr("Inside a prohibited zone") : tr("Inside a flight zone"))
+            : (prohibited ? tr("Prohibited zone ahead") : tr("Flight zone ahead")));
+    }
+}
 
+// ---------------------------------------------------------------------------------------------- AQGC Simple UI checks
+// 2D checks for S02 (drone position) and S39 (mission path). Order: prohibited / no-entry my zone, authorisation,
+// warn-only my zone, information. noEntry marks a "do not enter" zone (red like prohibited).
 
+static int aqgcCheckRank(int cls, bool noEntry) { return (cls == 1 || noEntry) ? 0 : cls == 2 ? 1 : cls == 4 ? 2 : 3; }
 
+static QPolygonF aqgcPolygonF(const QGCFencePolygon* p)
+{
+    QPolygonF poly;
+    for (const QGeoCoordinate& c : p->coordinateList()) {
+        poly << QPointF(c.longitude(), c.latitude());
+    }
+    return poly;
+}
 
+static bool aqgcSegmentTouchesPolygon(const QPolygonF& poly, const QPointF& a, const QPointF& b)
+{
+    if (poly.size() < 3) return false;
+    if (poly.containsPoint(a, Qt::OddEvenFill) || poly.containsPoint(b, Qt::OddEvenFill)) return true;
+    const QLineF seg(a, b);
+    for (int i = 0; i < poly.size(); ++i) {
+        const QLineF edge(poly[i], poly[(i + 1) % poly.size()]);
+        QPointF ip;
+        if (seg.intersects(edge, &ip) == QLineF::BoundedIntersection) return true;
+    }
+    return false;
+}
 
+static double aqgcSegmentDistanceToPoint(const QGeoCoordinate& a, const QGeoCoordinate& b, const QGeoCoordinate& p)
+{
+    // local flat approximation (fine for zone sized distances)
+    const double k = std::cos(p.latitude() * M_PI / 180.0);
+    const QPointF A((a.longitude() - p.longitude()) * k * 111320.0, (a.latitude() - p.latitude()) * 111320.0);
+    const QPointF B((b.longitude() - p.longitude()) * k * 111320.0, (b.latitude() - p.latitude()) * 111320.0);
+    const QPointF d = B - A;
+    const double len2 = d.x() * d.x() + d.y() * d.y();
+    double t = len2 > 0 ? -(A.x() * d.x() + A.y() * d.y()) / len2 : 0;
+    t = std::max(0.0, std::min(1.0, t));
+    const QPointF q = A + t * d;
+    return std::sqrt(q.x() * q.x() + q.y() * q.y());
+}
 
+static QVariantMap aqgcZoneResult(QObject* z)
+{
+    QVariantMap m;
+    m["zoneClass"] = z ? z->property("zoneClass").toInt() : 0;
+    m["zoneName"]  = z ? z->property("zoneName").toString() : QString();
+    m["noEntry"]   = z ? z->property("zoneNoEntry").toBool() : false;
+    return m;
+}
 
+QVariantMap FlightZoneManager::zoneAt(const QGeoCoordinate& coordinate)
+{
+    QObject* best = nullptr;
+    int bestRank = 99;
+    if (coordinate.isValid()) {
+        const QPointF pt(coordinate.longitude(), coordinate.latitude());
+        for (int i = 0; i < _polygons.count(); ++i) {
+            auto* p = qobject_cast<QGCFencePolygon*>(_polygons.get(i));
+            if (!p || !aqgcPolygonF(p).containsPoint(pt, Qt::OddEvenFill)) continue;
+            const int r = aqgcCheckRank(p->property("zoneClass").toInt(), p->property("zoneNoEntry").toBool());
+            if (r < bestRank) { bestRank = r; best = p; }
+        }
+        for (int i = 0; i < _circles.count(); ++i) {
+            auto* ci = qobject_cast<QGCFenceCircle*>(_circles.get(i));
+            if (!ci || ci->center().distanceTo(coordinate) > ci->radius()->rawValue().toDouble()) continue;
+            const int r = aqgcCheckRank(ci->property("zoneClass").toInt(), ci->property("zoneNoEntry").toBool());
+            if (r < bestRank) { bestRank = r; best = ci; }
+        }
+    }
+    return aqgcZoneResult(best);
+}
 
+QVariantMap FlightZoneManager::zoneOnPath(const QVariantList& path)
+{
+    QList<QGeoCoordinate> pts;
+    for (const QVariant& v : path) {
+        const QGeoCoordinate c = v.value<QGeoCoordinate>();
+        if (c.isValid()) pts << c;
+    }
+    QObject* best = nullptr;
+    int bestRank = 99;
+    for (int i = 0; i < _polygons.count(); ++i) {
+        auto* p = qobject_cast<QGCFencePolygon*>(_polygons.get(i));
+        if (!p) continue;
+        const int r = aqgcCheckRank(p->property("zoneClass").toInt(), p->property("zoneNoEntry").toBool());
+        if (r >= bestRank) continue;
+        const QPolygonF poly = aqgcPolygonF(p);
+        bool hit = false;
+        for (int j = 0; j < pts.size() && !hit; ++j) {
+            const QPointF a(pts[j].longitude(), pts[j].latitude());
+            const QPointF b = j + 1 < pts.size() ? QPointF(pts[j + 1].longitude(), pts[j + 1].latitude()) : a;
+            hit = aqgcSegmentTouchesPolygon(poly, a, b);
+        }
+        if (hit) { bestRank = r; best = p; }
+    }
+    for (int i = 0; i < _circles.count(); ++i) {
+        auto* ci = qobject_cast<QGCFenceCircle*>(_circles.get(i));
+        if (!ci) continue;
+        const int r = aqgcCheckRank(ci->property("zoneClass").toInt(), ci->property("zoneNoEntry").toBool());
+        if (r >= bestRank) continue;
+        const double rad = ci->radius()->rawValue().toDouble();
+        for (int j = 0; j < pts.size(); ++j) {
+            const QGeoCoordinate& a = pts[j];
+            const QGeoCoordinate& b = j + 1 < pts.size() ? pts[j + 1] : pts[j];
+            if (aqgcSegmentDistanceToPoint(a, b, ci->center()) <= rad) { bestRank = r; best = ci; break; }
+        }
+    }
+    return aqgcZoneResult(best);
+}
 
+// ---------------------------------------------------------------------------------------------- AQGC Simple UI: My zones (S32)
+// Stored as GeoJSON in <GeoZone>/MyZones/my-zones.geojson (not the Custom folder, which is deleted after 24 h).
+// properties: name, aqgcAction ("noEntry" | "warn"), warnDistance (m); geometry.layer lower / upper (m, AGL).
 
+static QString aqgcMyZonesFile()
+{
+    return qgcApp()->toolbox()->settingsManager()->appSettings()->geoZoneSavePath() + QStringLiteral("/MyZones/my-zones.geojson");
+}
 
+QVariantList FlightZoneManager::myZones()
+{
+    QVariantList out;
+    QFile f(aqgcMyZonesFile());
+    if (!f.open(QIODevice::ReadOnly)) return out;
+    const QJsonArray features = QJsonDocument::fromJson(f.readAll()).object().value("features").toArray();
+    for (const QJsonValue& fv : features) {
+        const QJsonObject feat = fv.toObject();
+        const QJsonObject props = feat.value("properties").toObject();
+        const QJsonObject geom = feat.value("geometry").toObject();
+        const QJsonArray ring = geom.value("coordinates").toArray().at(0).toArray();
+        QVariantList path;
+        for (int i = 0; i < ring.size(); ++i) {
+            const QJsonArray pt = ring.at(i).toArray();
+            if (i == ring.size() - 1 && ring.size() > 3 && pt == ring.at(0).toArray()) break;   // closing point
+            path << QVariant::fromValue(QGeoCoordinate(pt.at(1).toDouble(), pt.at(0).toDouble()));
+        }
+        if (path.size() < 3) continue;
+        const QJsonObject layer = geom.value("layer").toObject();
+        QVariantMap z;
+        z["name"]        = props.value("name").toString();
+        z["noEntry"]     = props.value("aqgcAction").toString() == QStringLiteral("noEntry");
+        z["warnDistance"]= props.value("warnDistance").toDouble(30);
+        z["floor"]       = layer.value("lower").toDouble(0);
+        z["ceiling"]     = layer.value("upper").toDouble(120);
+        z["path"]        = path;
+        out << z;
+    }
+    return out;
+}
 
+bool FlightZoneManager::saveMyZones(const QVariantList& zones)
+{
+    QJsonArray features;
+    int n = 0;
+    for (const QVariant& zv : zones) {
+        const QVariantMap z = zv.toMap();
+        const QVariantList path = z.value("path").toList();
+        if (path.size() < 3) continue;
+        QJsonArray ring;
+        for (const QVariant& pv : path) {
+            const QGeoCoordinate c = pv.value<QGeoCoordinate>();
+            ring.append(QJsonArray{c.longitude(), c.latitude()});
+        }
+        ring.append(ring.at(0));
+        QJsonObject props{{"name", z.value("name").toString()},
+                          {"aqgcAction", z.value("noEntry").toBool() ? "noEntry" : "warn"},
+                          {"warnDistance", z.value("warnDistance").toDouble()}};
+        QJsonObject layer{{"lower", z.value("floor").toDouble()}, {"upper", z.value("ceiling").toDouble()},
+                          {"uom", "m"}, {"lowerReference", "AGL"}, {"upperReference", "AGL"}};
+        QJsonArray rings;               // GeoJSON Polygon: array of rings (QJsonArray{ring} would copy the ring itself)
+        rings.append(ring);
+        QJsonObject geom{{"type", "Polygon"}, {"coordinates", rings}, {"layer", layer}};
+        features.append(QJsonObject{{"type", "Feature"}, {"id", QStringLiteral("MYZONE-%1").arg(++n)},
+                                    {"properties", props}, {"geometry", geom}});
+    }
+    QDir().mkpath(QFileInfo(aqgcMyZonesFile()).absolutePath());
+    QFile f(aqgcMyZonesFile());
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate)) return false;
+    f.write(QJsonDocument(QJsonObject{{"type", "FeatureCollection"}, {"features", features}}).toJson());
+    f.close();
+    _reloadMyZones();                       // the official data stays as it is
+    return true;
+}
 
+void FlightZoneManager::_loadMyZones()
+{
+    const QVariantList zones = myZones();
+    _myZoneCache = zones;
+    emit myZonesChanged();
+    QList<Polyhedron> polys;
+    QList<AqgcZoneMeta> metas;
+    for (const QVariant& zv : zones) {
+        const QVariantMap z = zv.toMap();
+        const QVariantList path = z.value("path").toList();
+        auto* poly = new QGCFencePolygon(false, this);
+        QList<NoFlyZone> nfz;
+        for (const QVariant& pv : path) {
+            const QGeoCoordinate c = pv.value<QGeoCoordinate>();
+            poly->appendVertex(c);
+            nfz.append(NoFlyZone(c, z.value("floor").toDouble(), z.value("ceiling").toDouble()));
+        }
+        poly->setAltitudeMin(z.value("floor").toDouble());
+        poly->setAltitudeMax(z.value("ceiling").toDouble());
+        poly->setProperty("zoneName", z.value("name").toString());
+        poly->setProperty("zoneClass", 4);
+        poly->setProperty("zoneNoEntry", z.value("noEntry").toBool());
+        poly->setProperty("zoneDetail", z.value("noEntry").toBool() ? tr("Do not enter") : tr("Warn only"));
+        poly->setcolorInclusion(z.value("noEntry").toBool() ? QColor("#c9353d") : QColor("#f5a524"));
+        poly->setstrokeOpacity(0.5);
+        _polygons.append(poly);
+        Polyhedron ph = createPolyhedronFromZone(nfz);
+        if (!ph.empty()) {
+            polys.append(std::move(ph));
+            metas.append({z.value("name").toString(), 4, z.value("warnDistance").toDouble(), z.value("noEntry").toBool(), false});
+        }
+    }
+    if (!polys.isEmpty()) {
+        QWriteLocker locker(&_zoneLock);
+        _noFlyZoneList.append(polys);
+        _noFlyZoneMeta.append(metas);
+        buildZoneTrees(_noFlyZoneList, _zoneAABBTree);
+    }
+}
 
+int FlightZoneManager::applyMyZonesToFence(QObject* geoFenceController)
+{
+    auto* fence = qobject_cast<GeoFenceController*>(geoFenceController);
+    if (!fence) return -1;
+    QmlObjectListModel* polys = fence->polygons();
+    for (int i = polys->count() - 1; i >= 0; --i) {
+        auto* p = qobject_cast<QGCFencePolygon*>(polys->get(i));
+        if (p && !p->inclusion()) {
+            fence->deletePolygon(i);
+        }
+    }
+    int n = 0;
+    for (const QVariant& zv : myZones()) {
+        const QVariantMap z = zv.toMap();
+        if (!z.value("noEntry").toBool()) continue;
+        auto* p = new QGCFencePolygon(false /* exclusion */, fence);
+        for (const QVariant& pv : z.value("path").toList()) {
+            p->appendVertex(pv.value<QGeoCoordinate>());
+        }
+        // keep the zone's height band: ARGOSDYNE firmware supports 3D exclusion polygons (relative to home)
+        p->setAltitudeFrame(MAV_FRAME_GLOBAL_RELATIVE_ALT);
+        p->setAltitudeMin(z.value("floor").toDouble());
+        p->setAltitudeMax(z.value("ceiling").toDouble());
+        p->setAltitudeBandEnabled(true);
+        polys->append(p);
+        ++n;
+    }
+    return n;
+}
 
+int FlightZoneManager::uploadMyZonesFence(QObject* geoFenceController)
+{
+    auto* fence = qobject_cast<GeoFenceController*>(geoFenceController);
+    if (!fence || fence->syncInProgress()) {
+        return -2;                          // busy (e.g. still loading the fence after connecting): try again
+    }
+    const int n = applyMyZonesToFence(geoFenceController);
+    if (n >= 0) {
+        qobject_cast<GeoFenceController*>(geoFenceController)->sendToVehicle();
+    }
+    return n;
+}
 
+int FlightZoneManager::_officialPolygonCount()
+{
+    int n = 0;
+    for (int i = 0; i < _polygons.count(); ++i) {
+        QObject* p = _polygons.get(i);
+        if (p && p->property("zoneClass").toInt() != 4) n++;
+    }
+    return n + _circles.count();
+}
 
+static void aqgcRemoveZones(QmlObjectListModel& polys, QList<Polyhedron>& list, QList<AqgcZoneMeta>& meta, bool myZones)
+{
+    for (int i = polys.count() - 1; i >= 0; --i) {
+        QObject* p = polys.get(i);
+        if (p && (p->property("zoneClass").toInt() == 4) == myZones) {
+            polys.removeAt(i)->deleteLater();
+        }
+    }
+    for (int i = qMin(list.size(), meta.size()) - 1; i >= 0; --i) {
+        if ((meta[i].cls == 4) == myZones) {
+            list.removeAt(i);
+            meta.removeAt(i);
+        }
+    }
+}
 
+void FlightZoneManager::_reloadMyZones()
+{
+    {
+        QWriteLocker locker(&_zoneLock);
+        aqgcRemoveZones(_polygons, _noFlyZoneList, _noFlyZoneMeta, true);
+        buildZoneTrees(_noFlyZoneList, _zoneAABBTree);
+    }
+    _loadMyZones();
+}
 
+void FlightZoneManager::_removeOfficialZones()
+{
+    QWriteLocker locker(&_zoneLock);
+    aqgcRemoveZones(_polygons, _noFlyZoneList, _noFlyZoneMeta, false);
+    _circles.clearAndDeleteContents();
+    buildZoneTrees(_noFlyZoneList, _zoneAABBTree);
+}
 
-
+void FlightZoneManager::_setZoneError(const QString& error)
+{
+    if (error != _zoneError) {
+        _zoneError = error;
+        emit zoneErrorChanged();
+    }
+}
 

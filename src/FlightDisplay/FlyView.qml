@@ -16,6 +16,7 @@ import QtLocation               5.3
 import QtPositioning            5.3
 import QtQuick.Window           2.2
 import QtQml.Models             2.1
+import QtGraphicalEffects       1.12
 
 import QGroundControl               1.0
 import QGroundControl.Controllers   1.0
@@ -30,6 +31,10 @@ import QGroundControl.Vehicle       1.0
 Item {
     id: _root
 
+    // AQGC Simple UI: the classic fly widget layers are removed (2026-11-18); map, video, PiP and the guided
+    // controller stay. simpleMode is always true now (MainRootWindow), kept for the Simple sizes below.
+    property bool simpleMode: true
+
     // These should only be used by MainRootWindow
     property var planController:    _planController
     property var guidedController:  _guidedController
@@ -41,6 +46,10 @@ Item {
     }
 
     property bool   _mainWindowIsMap:       mapControl.pipState.state === mapControl.pipState.fullState
+
+    // AQGC Simple UI: S49 "Show map instead" swaps the PiP back to the map
+    function simpleShowMap() { if (!_mainWindowIsMap) _pipOverlay._swapPip() }
+    readonly property var simpleMap: mapControl     // S30 map controls
     property bool   _isFullWindowItemDark:  _mainWindowIsMap ? mapControl.isSatelliteMap : true
     property var    _activeVehicle:         globals.activeVehicle ? globals.activeVehicle : QGroundControl.multiVehicleManager.activeVehicle
     property var    _missionController:     _planController.missionController
@@ -50,7 +59,6 @@ Item {
     property var    _guidedController:      guidedActionsController
     property var    _guidedActionList:      guidedActionList
     property var    _guidedValueSlider:     guidedValueSlider
-    property var    _widgetLayer:           widgetLayer
     property real   _toolsMargin:           ScreenTools.defaultFontPixelWidth * 0.75
     property rect   _centerViewport:        Qt.rect(0, 0, width, height)
     property real   _rightPanelWidth:       ScreenTools.defaultFontPixelWidth * 30
@@ -67,11 +75,11 @@ Item {
     property bool   _isCamera:          _dynamicCameras ? _dynamicCameras.cameras.count > 0 : false
     property var    _camera:            _isCamera ? _dynamicCameras.cameras.get(_curCameraIndex) : null
 
-    function _calcCenterViewPort() {
-        var newToolInset = Qt.rect(0, 0, width, height)
-        toolstrip.adjustToolInset(newToolInset)
-        if (QGroundControl.corePlugin.options.instrumentWidget) {
-            flightDisplayViewWidgets.adjustToolInset(newToolInset)
+    // Font sizes for the C++ message layout (CustomQmlInterface); was set by the removed custom fly overlay
+    Component.onCompleted: {
+        if (typeof CustomQmlInterface !== "undefined") {
+            CustomQmlInterface.defaultFontPixelWidth  = Qt.binding(function() { return ScreenTools.defaultFontPixelWidth })
+            CustomQmlInterface.defaultFontPixelHeight = Qt.binding(function() { return ScreenTools.defaultFontPixelHeight })
         }
     }
 
@@ -81,48 +89,22 @@ Item {
         bottomEdgeLeftInset:    _pipOverlay.visible ? parent.height - _pipOverlay.y : 0
     }
 
-    FlyViewWidgetLayer {
-        id:                     widgetLayer
-        anchors.top:            parent.top
-        anchors.bottom:         parent.bottom
-        anchors.left:           parent.left
-        anchors.right:          guidedValueSlider.visible ? guidedValueSlider.left : parent.right
-        z:                      _fullItemZorder + 1
-        parentToolInsets:       _toolInsets
-        mapControl:             _mapControl
-        visible:                !QGroundControl.videoManager.fullScreen
-    }
-
-
-    FlyViewCustomLayer {
-        id:                 customOverlay
-        anchors.fill:       widgetLayer
-        z:                  _fullItemZorder + 2
-        parentToolInsets:   widgetLayer.totalToolInsets
-        mapControl:         _mapControl
-        tetherCriticalBannerOffset: tetherCriticalBanner.visible ? tetherCriticalBanner.y + tetherCriticalBanner.height + _toolsMargin : 0
-        visible:            _mainWindowIsMap //!QGroundControl.videoManager.fullScreen
-    }
-
-    // Development tool for visualizing the insets for a paticular layer, enable if needed
-    /*
-    FlyViewInsetViewer {
-        id:                     widgetLayerInsetViewer
-        anchors.top:            parent.top
-        anchors.bottom:         parent.bottom
-        anchors.left:           parent.left
-        anchors.right:          guidedValueSlider.visible ? guidedValueSlider.left : parent.right
-
-        z:                      widgetLayer.z + 1
-
-        insetsToView:           customOverlay.totalToolInsets
-    }*/
-
     GuidedActionsController {
         id:                 guidedActionsController
         missionController:  _missionController
         actionList:         _guidedActionList
         guidedValueSlider:     _guidedValueSlider
+    }
+
+    // The guided controller keeps its confirmation state in a GuidedActionConfirm (confirmDialog). It used to sit in the
+    // classic telemetry bar of the hidden widget layer; it stays hidden here so the controller behaves as before
+    // (the Simple screens confirm actions themselves and call executeAction).
+    Item {
+        visible: false
+        GuidedActionConfirm {
+            guidedController:   _guidedController
+            guidedValueSlider:  _guidedValueSlider
+        }
     }
 
     /*GuidedActionConfirm {
@@ -163,25 +145,32 @@ Item {
         planMasterController:   _planController
         rightPanelWidth:        ScreenTools.defaultFontPixelHeight * 9
         pipMode:                !_mainWindowIsMap
-        toolInsets:             customOverlay.totalToolInsets
+        toolInsets:             _toolInsets
         mapName:                "FlightDisplayView"
+        // Simple UI: rounded PiP corners (Figma S04)
+        layer.enabled:          simpleMode && pipState.state === pipState.pipState
+        layer.effect:           OpacityMask { maskSource: Rectangle { width: mapControl.width; height: mapControl.height; radius: _pipOverlay.simpleRadius } }
     }
 
     FlyViewVideo {
         id: videoControl
+        layer.enabled:          simpleMode && pipState.state === pipState.pipState
+        layer.effect:           OpacityMask { maskSource: Rectangle { width: videoControl.width; height: videoControl.height; radius: _pipOverlay.simpleRadius } }
     }
 
     FlyViewFPVVideo {
         id: fpvVideoControl
         visible: !QGroundControl.settingsManager.videoSettings.disableFPVVideo.value &&
                  !QGroundControl.videoManager.fullScreen  &&
-                 (fpvVideoControl.pipState.state === fpvVideoControl.pipState.pipState ? _pipOverlay._isExpanded : true)
+                 (fpvVideoControl.pipState.state === fpvVideoControl.pipState.pipState ? _pipOverlay._shown : true)
     }
 
     FPVOverlay {
         id: _fpvOverlay
-        x: parent.width - _toolsMargin - width
-        y: parent.height - _toolsMargin - height
+        // Simple UI: telemetry is bottom-left and the main PiP bottom-right (Figma S04),
+        // so the FPV overlay starts in the free space between them (x 950-1472 on 1920 x 1080)
+        x: simpleMode ? Math.round(950 * _simpleScale + (522 * _simpleScale - width) / 2) : parent.width - _toolsMargin - width
+        y: parent.height - (simpleMode ? Math.round(24 * _simpleScale) : _toolsMargin) - height
         z: _pipItemZorder + 1
         pipOverlay: _pipOverlay
         item1: fpvVideoControl
@@ -189,11 +178,27 @@ Item {
         show: true //mapControl.isFlyView
     }
 
+    // AQGC Simple UI: Figma S04 PiP bottom-right (right 24, bottom 24, 400 x 226 on a 1920 x 1080 screen)
+    readonly property real _simpleScale: Math.min(width / 1920, height / 1080)
+
     PipView {
         id:                     _pipOverlay
-        anchors.left:           parent.left
+        anchors.left:           simpleMode ? undefined : parent.left
+        anchors.right:          simpleMode ? parent.right : undefined
         anchors.bottom:         parent.bottom
         anchors.margins:        _toolsMargin
+        anchors.rightMargin:    simpleMode ? Math.round(24 * _simpleScale) : _toolsMargin
+        anchors.bottomMargin:   simpleMode ? Math.round(24 * _simpleScale) : _toolsMargin
+        _pipSize:               simpleMode ? Math.round(400 * _simpleScale) : parent.width * 0.2
+        simpleStyle:            simpleMode
+        simpleRadius:           Math.round(16 * _simpleScale)
+        simpleBorder:           Math.max(1, Math.round(3 * _simpleScale))
+        simpleLabelHeight:      Math.round(40 * _simpleScale)
+        simpleFontSize:         Math.max(1, Math.round(22 * _simpleScale))
+        simpleItem1Label:       qsTr("Map")
+        simpleItem2Label:       qsTr("Camera")
+        simpleItem1Icon:        "qrc:/simple/icons/map.svg"
+        simpleItem2Icon:        "qrc:/simple/icons/camera.svg"
         item1IsFullSettingsKey: "MainFlyWindowIsMap"
         item1:                  mapControl
         //item2:                  QGroundControl.videoManager.hasVideo ? videoControl : null
@@ -231,52 +236,22 @@ Item {
         }
     }
 
-    Rectangle {
-        id: tetherCriticalBanner
-        readonly property var station: QGroundControl.corePlugin.elistairStationManager
-        readonly property real leftInset: Math.min(parent.width, ScreenTools.defaultFontPixelWidth * 9 + _toolsMargin)
-        readonly property real rightInset: tetherPanelContainer.visible ? tetherPanelContainer.width + 2 * _toolsMargin : _toolsMargin
-        readonly property real availableWidth: Math.max(0, parent.width - leftInset - rightInset)
-        visible: station && station.noPower
-        anchors.top: parent.top
-        anchors.topMargin: _toolsMargin
-        x: leftInset + Math.max(0, (availableWidth - width) / 2)
-        width: Math.min(availableWidth, ScreenTools.defaultFontPixelWidth * 70)
-        height: tetherCriticalMessage.implicitHeight + 24
-        color: "#d9b300"
-        radius: 8
-        z: QGroundControl.zOrderTopMost
-        QGCLabel {
-            id: tetherCriticalMessage
-            anchors.fill: parent; anchors.margins: 12
-            text: qsTr("Tether power lost in flight - drone on onboard battery.") + (parent.station.noPowerFailsafe === 1 ? "" : qsTr(" Landing recommended. Select an action in the Tether panel."))
-            color: "black"; wrapMode: Text.WordWrap; horizontalAlignment: Text.AlignHCenter
-        }
-        MouseArea { anchors.fill: parent; onClicked: mainWindow.tetherPanelVisible = true }
-    }
-    Rectangle {
-        id: tetherPanelContainer
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.margins: _toolsMargin
-        width: ScreenTools.defaultFontPixelWidth * 31
-        height: Math.min(parent.height - ScreenTools.defaultFontPixelHeight * 2,
-                         ScreenTools.defaultFontPixelHeight * 38)
-        color: "#1f2328"
-        opacity: 1.0
-        layer.enabled: true
-        radius: ScreenTools.defaultFontPixelWidth * 0.7
-        border.color: "#38414b"
-        border.width: 1
-        z: QGroundControl.zOrderTopMost
-        visible: mainWindow.tetherPanelVisible
-        clip: true
-
-        Loader {
-            anchors.fill: parent
-            active: tetherPanelContainer.visible
-            source: "qrc:/qml/ElistairStationPanel.qml"
-        }
+    // S98 On-screen sticks (Settings › Fly screen › On-screen sticks): two 280 px pads at y 600, left x 180 (throttle /
+    // yaw), right ends at x 1360 (pitch / roll) on 1920 x 1080 — clear of the action buttons, telemetry bar, map
+    // controls, PiP and camera rail. Same VirtualJoystick as the classic widget layer had.
+    Loader {
+        id:         virtualJoystick
+        x:          Math.round(180 * _simpleScale)
+        y:          Math.round(600 * _simpleScale)
+        width:      Math.round(1180 * _simpleScale)
+        height:     Math.round(280 * _simpleScale)
+        z:          QGroundControl.zOrderWidgets
+        readonly property bool _enabled: QGroundControl.settingsManager.appSettings.virtualJoystick.rawValue
+                                         && !(_activeVehicle ? _activeVehicle.usingHighLatencyLink : false)
+        active:     _enabled
+        visible:    _enabled && !QGroundControl.videoManager.fullScreen
+        source:     "qrc:/qml/VirtualJoystick.qml"
+        property bool autoCenterThrottle: QGroundControl.settingsManager.appSettings.virtualJoystickAutoCenterThrottle.rawValue
     }
 
     // QGCPipOverlay {

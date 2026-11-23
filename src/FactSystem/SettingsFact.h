@@ -17,6 +17,9 @@ class SettingsFact : public Fact
     Q_OBJECT
     
 public:
+    /// AQGC: move plain passwords / keys / tokens left by older builds into SecureStore (call once at start)
+    static void moveSecretsToSecureStore(void);
+
     SettingsFact(QObject* parent = nullptr);
     SettingsFact(QString settingsGroup, FactMetaData* metaData, QObject* parent = nullptr);
     SettingsFact(const SettingsFact& other, QObject* parent = nullptr);

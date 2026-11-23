@@ -1,0 +1,162 @@
+{
+ "type": "FeatureCollection",
+ "name": "AQGC test zones near SITL home (37.5665, 126.9780) - not real data",
+ "features": [
+  {
+   "type": "Feature",
+   "id": "AQGC-TEST-1",
+   "properties": {
+    "identifier": "AQGC-TEST-1",
+    "name": "Test prohibited zone",
+    "restriction": "PROHIBITED",
+    "type": "COMMON",
+    "reason": [
+     "OTHER"
+    ],
+    "zoneAuthority": [
+     {
+      "name": "Test authority (not real)"
+     }
+    ]
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       126.979,
+       37.568
+      ],
+      [
+       126.982,
+       37.568
+      ],
+      [
+       126.982,
+       37.57
+      ],
+      [
+       126.979,
+       37.57
+      ],
+      [
+       126.979,
+       37.568
+      ]
+     ]
+    ],
+    "layer": {
+     "upper": 120,
+     "lower": 0,
+     "uom": "m",
+     "upperReference": "AGL",
+     "lowerReference": "AGL"
+    }
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "AQGC-TEST-2",
+   "properties": {
+    "identifier": "AQGC-TEST-2",
+    "name": "Test authorisation zone",
+    "restriction": "REQ_AUTHORISATION",
+    "type": "COMMON",
+    "reason": [
+     "OTHER"
+    ],
+    "zoneAuthority": [
+     {
+      "name": "Test authority (not real)"
+     }
+    ]
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       126.9735,
+       37.5625
+      ],
+      [
+       126.977,
+       37.5625
+      ],
+      [
+       126.977,
+       37.565
+      ],
+      [
+       126.9735,
+       37.565
+      ],
+      [
+       126.9735,
+       37.5625
+      ]
+     ]
+    ],
+    "layer": {
+     "upper": 90,
+     "lower": 0,
+     "uom": "m",
+     "upperReference": "AGL",
+     "lowerReference": "AGL"
+    }
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "AQGC-TEST-3",
+   "properties": {
+    "identifier": "AQGC-TEST-3",
+    "name": "Test information zone",
+    "restriction": "NO_RESTRICTION",
+    "type": "COMMON",
+    "reason": [
+     "OTHER"
+    ],
+    "zoneAuthority": [
+     {
+      "name": "Test authority (not real)"
+     }
+    ]
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       126.973,
+       37.567499999999995
+      ],
+      [
+       126.976,
+       37.567499999999995
+      ],
+      [
+       126.976,
+       37.5695
+      ],
+      [
+       126.973,
+       37.5695
+      ],
+      [
+       126.973,
+       37.567499999999995
+      ]
+     ]
+    ],
+    "layer": {
+     "upper": 150,
+     "lower": 30,
+     "uom": "m",
+     "upperReference": "AGL",
+     "lowerReference": "AGL"
+    }
+   }
+  }
+ ]
+}

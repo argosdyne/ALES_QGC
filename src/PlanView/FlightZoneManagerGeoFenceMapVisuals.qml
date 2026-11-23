@@ -44,6 +44,21 @@ Item {
     property real   _interiorOpacityExclusion:  0.2 * opacity
     property real   _interiorOpacityInclusion:  1 * opacity
 
+    // AQGC Simple UI (Figma S15): zones in three colours by class (1 prohibited = red, 2 authorisation = orange,
+    // 3 information = blue, 4 my zone = white); Layers › Flight zones hides them
+    readonly property bool _simple:     typeof mainWindow !== "undefined" && mainWindow.simpleUI
+    // QA F9: with many zones (> 300) they are hidden below zoom 13 in Simple mode, so panning stays smooth
+    readonly property bool _tooMany:    _simple && _polygons.count > 300 && !!map && map.zoomLevel < 13
+    readonly property bool _shown:      !_simple || (mainWindow.simpleShowFlightZones && !_tooMany)
+    // same values as SimpleTheme.danger / warn / textPrimary / info (core QML cannot import the Simple theme)
+    function _simpleColor(zoneClass) {
+        return zoneClass === 1 ? "#c9353d" : zoneClass === 2 ? "#f5a524" : zoneClass === 4 ? "#f4f6f8" : "#2a68cc"
+    }
+    function _simpleFill(zoneClass, noEntry) {     // Figma: zone colour at 22 % (border stays opaque)
+        var c = Qt.lighter(zoneClass === 4 ? (noEntry ? "#c9353d" : "#f5a524") : _simpleColor(zoneClass), 1.0)
+        return Qt.rgba(c.r, c.g, c.b, zoneClass === 4 ? 0.3 : 0.22)
+    }
+
     function addPolygon(inclusionPolygon) {
         // Initial polygon is inset to take 2/3rds space
         var rect = Qt.rect(map.centerViewport.x, map.centerViewport.y, map.centerViewport.width, map.centerViewport.height)
@@ -106,10 +121,11 @@ Item {
             parent:         _root
             mapControl:     map
             mapPolygon:     object
-            borderWidth:    object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
-            borderColor:    object.colorInclusion
-            interiorColor:  object.colorInclusion
-            interiorOpacity: object.strokeOpacity
+            borderWidth:    _simple ? 3 : (object.inclusion ? _borderWidthInclusion : _borderWidthExclusion)
+            borderColor:    _simple ? _simpleColor(object.zoneClass) : object.colorInclusion
+            interiorColor:  _simple ? _simpleFill(object.zoneClass, object.zoneNoEntry) : object.colorInclusion
+            interiorOpacity: _simple ? 1 : object.strokeOpacity
+            shown:          _shown
         }
     }
 
@@ -122,8 +138,8 @@ Item {
             mapControl:         map
             mapCircle:          object
             borderWidth:        object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
-            borderColor:        object.colorInclusion
-            interiorColor:      object.colorInclusion //object.inclusion ? _interiorColorInclusion : _interiorColorExclusion
+            borderColor:        _simple ? _simpleColor(object.zoneClass) : object.colorInclusion
+            interiorColor:      _simple ? _simpleColor(object.zoneClass) : object.colorInclusion //object.inclusion ? _interiorColorInclusion : _interiorColorExclusion
             interiorOpacity:    object.strokeOpacity //object.inclusion ? _interiorOpacityInclusion : _interiorOpacityExclusion
             interactive:         _root.interactive && mapCircle && mapCircle.interactive
         }

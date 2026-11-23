@@ -116,6 +116,10 @@ public slots:
     /// You can connect to this slot to show a critical message box from a different thread.
     void criticalMessageBoxOnMainThread(const QString& title, const QString& msg);
 
+    /// Link state message (link error, failed connect, primary link switched). The AQGC Simple UI shows it as a toast
+    /// (its chip / banner already show the link state); otherwise the classic message box.
+    void linkMessageOnMainThread(const QString& title, const QString& msg);
+
     void showSetupView();
 
     void qmlAttemptWindowClose();
@@ -144,9 +148,16 @@ public slots:
     /// Show modal application message to the user
     void showAppMessage(const QString& message, const QString& title = QString());
 
+    /// Show a link state message: a toast in the AQGC Simple UI, else showAppMessage
+    void showLinkMessage(const QString& message);
+
     /// Show modal application message to the user about the need for a reboot. Multiple messages will be supressed if they occur
     /// one after the other.
     void showRebootAppMessage(const QString& message, const QString& title = QString());
+
+    /// A changed value needs a restart (vehicle = drone restart, else app restart). AQGC Simple UI: the root window
+    /// shows its own short notice (_showRebootNotice); without one, falls back to showRebootAppMessage(fallbackMessage).
+    void showRebootNotice(bool vehicle, const QString& name, const QString& fallbackMessage);
 
 signals:
     /// This is connected to MAVLinkProtocol::checkForLostLogFiles. We signal this to ourselves to call the slot
@@ -222,6 +233,7 @@ private:
     QTranslator         _qgcTranslatorSourceCode;           ///< translations for source code C++/Qml
     QTranslator         _qgcTranslatorJSON;                 ///< translations for json files
     QTranslator         _qgcTranslatorQtLibs;               ///< tranlsations for Qt libraries
+    QTranslator         _qgcTranslatorSimple;               ///< translations for the Simple UI (custom/res/Simple)
     QLocale             _locale;
     bool                _error                  = false;
     QElapsedTimer       _msecsElapsedTime;

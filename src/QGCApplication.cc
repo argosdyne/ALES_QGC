@@ -19,6 +19,7 @@
 #include <QFile>
 #include <QRegularExpression>
 #include <QFontDatabase>
+#include <QFont>
 #include <QQuickWindow>
 #include <QQuickImageProvider>
 #include <QQuickStyle>
@@ -416,7 +417,29 @@ void QGCApplication::setLanguage()
             qCWarning(LocalizationLog) << "Could not load /fonts/NanumGothic-Bold font";
         }
     }
+    //-- Simple UI fonts (Roboto; Noto Sans KR for Hangul, see custom/res/Simple/fonts)
+    static bool simpleFontsLoaded = false;
+    if (!simpleFontsLoaded) {
+        simpleFontsLoaded = true;
+        const char* simpleFonts[] = { "Roboto-Regular.ttf", "Roboto-Medium.ttf", "Roboto-Bold.ttf",
+                                      "NotoSansKR-Regular.otf", "NotoSansKR-Medium.otf", "NotoSansKR-Bold.otf" };
+        for (const char* font : simpleFonts) {
+            if (QFontDatabase::addApplicationFont(QStringLiteral(":/simple/fonts/") + QLatin1String(font)) < 0) {
+                qCWarning(LocalizationLog) << "Could not load Simple UI font" << font;
+            }
+        }
+    }
+    // Latin and digits stay Roboto; Hangul falls back to Noto Sans KR
+    if (_locale.language() == QLocale::Korean) {
+        QFont::insertSubstitutions(QStringLiteral("Roboto"),        { QStringLiteral("Noto Sans KR") });
+        QFont::insertSubstitutions(QStringLiteral("Roboto Medium"), { QStringLiteral("Noto Sans KR Medium"), QStringLiteral("Noto Sans KR") });
+    } else {
+        QFont::removeSubstitutions(QStringLiteral("Roboto"));
+        QFont::removeSubstitutions(QStringLiteral("Roboto Medium"));
+    }
+
     qCDebug(LocalizationLog) << "Loading localizations for" << _locale.name();
+    _app->removeTranslator(&_qgcTranslatorSimple);
     _app->removeTranslator(&_qgcTranslatorJSON);
     _app->removeTranslator(&_qgcTranslatorSourceCode);
     _app->removeTranslator(&_qgcTranslatorQtLibs);
@@ -436,6 +459,11 @@ void QGCApplication::setLanguage()
             _app->installTranslator(&_qgcTranslatorJSON);
         } else {
             qCWarning(LocalizationLog) << "Error loading json localization for" << _locale.name();
+        }
+        if(_qgcTranslatorSimple.load(_locale, QLatin1String("qgc_simple_"), "", ":/i18n")) {
+            _app->installTranslator(&_qgcTranslatorSimple);
+        } else {
+            qCDebug(LocalizationLog) << "No Simple UI localization for" << _locale.name();
         }
     }
     if(_qmlAppEngine)
@@ -843,6 +871,40 @@ void QGCApplication::showRebootAppMessage(const QString& message, const QString&
     }
 
     showAppMessage(message, title);
+}
+
+void QGCApplication::showRebootNotice(bool vehicle, const QString& name, const QString& fallbackMessage)
+{
+    // AQGC Simple UI: a short toast instead of the classic message box. Not debounced: a toast does not block.
+    QObject* rootQmlObject = _rootQmlObject();
+    if (rootQmlObject && rootQmlObject->metaObject()->indexOfMethod("_showRebootNotice(QVariant,QVariant)") != -1) {
+        QVariant varReturn;
+        QMetaObject::invokeMethod(rootQmlObject, "_showRebootNotice", Q_RETURN_ARG(QVariant, varReturn), Q_ARG(QVariant, vehicle), Q_ARG(QVariant, name));
+        if (varReturn.toBool()) {
+            return;
+        }
+    }
+    showRebootAppMessage(fallbackMessage);
+}
+
+void QGCApplication::linkMessageOnMainThread(const QString& /*title*/, const QString& msg)
+{
+    showLinkMessage(msg);
+}
+
+void QGCApplication::showLinkMessage(const QString& message)
+{
+    // AQGC Simple UI: classic message boxes stacked over the fly screen on every link loss (payload test 2026-11-20,
+    // Tuleap bug #28562). The root returns false when no Simple UI handles it.
+    QObject* rootQmlObject = _rootQmlObject();
+    if (rootQmlObject && rootQmlObject->metaObject()->indexOfMethod("_showLinkMessage(QVariant)") != -1) {
+        QVariant varReturn;
+        QMetaObject::invokeMethod(rootQmlObject, "_showLinkMessage", Q_RETURN_ARG(QVariant, varReturn), Q_ARG(QVariant, message));
+        if (varReturn.toBool()) {
+            return;
+        }
+    }
+    showAppMessage(message);
 }
 
 void QGCApplication::_showDelayedAppMessages(void)

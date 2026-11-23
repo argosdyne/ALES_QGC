@@ -190,6 +190,7 @@ Column {
         }
         FactTextField {
             fact:           _ntripSource.passwd
+            echoMode:       TextInput.Password      // CE RED / EN 18031: do not show the password
             Layout.minimumWidth: _valueWidth
         }
         RowLayout {

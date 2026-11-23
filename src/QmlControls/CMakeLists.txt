@@ -47,40 +47,26 @@ add_custom_target(QmlControlsQml
 	SOURCES
 		APMSubMotorDisplay.qml
 		AppMessages.qml
-		AxisMonitor.qml
 		ClickableColor.qml
 		DeadMouseArea.qml
 		DropButton.qml
-		DropPanel.qml
 		EditPositionDialog.qml
-		ExclusiveGroupItem.qml
 		FactSliderPanel.qml
 		AutotuneUI.qml
 		FileButton.qml
-		FlightModeDropdown.qml
-		FlightModeMenu.qml
 		HackAndroidFileDialog.qml
 		HeightIndicator.qml
-		HorizontalFactValueGrid.qml
 		IndicatorButton.qml
 		InstrumentValueArea.qml
-		InstrumentValueEditDialog.qml
-		InstrumentValueLabel.qml
-		InstrumentValueValue.qml
 		JoystickThumbPad.qml
 		KMLOrSHPFileDialog.qml
 		LogReplayStatusBar.qml
 		MainWindowSavedState.qml
 		MAVLinkChart.qml
 		MAVLinkMessageButton.qml
-		MissionCommandDialog.qml
 		MissionItemIndexLabel.qml
-		ModeSwitchDisplay.qml
-		MultiRotorMotorDisplay.qml
 		OfflineMapButton.qml
-		ParameterDiffDialog.qml
 		ParameterEditorDialog.qml
-		ParameterEditor.qml
 		PIDTuning.qml
 		PreFlightCheckButton.qml
 		PreFlightCheckGroup.qml
@@ -90,7 +76,6 @@ add_custom_target(QmlControlsQml
 		QGCCheckBox.qml
 		QGCColoredImage.qml
 		QGCComboBox.qml
-		QGCControlDebug.qml
 		QGCDynamicObjectManager.qml
 		QGCFileDialog.qml
 		GeoZoneFileDialog.qml
@@ -100,18 +85,13 @@ add_custom_target(QmlControlsQml
 		QGCGroupBox.qml
 		QGCHoverButton.qml
 		QGCLabel.qml
-		QGCSpinBox.qml
 		QGCListView.qml
 		QGCMapLabel.qml
 		QGCMenuItem.qml
 		QGCMenu.qml
 		QGCMenuSeparator.qml
 		QGCMouseArea.qml
-		QGCMovableItem.qml
 		QGCOptionsComboBox.qml
-		QGCPipOverlay.qml
-		QGCPipState.qml
-		QGCPopupDialogContainer.qml
 		QGCPopupDialog.qml
 		QGCRadioButton.qml
 		QGCSlider.qml
@@ -119,11 +99,7 @@ add_custom_target(QmlControlsQml
 		QGCTabBar.qml
 		QGCTabButton.qml
 		QGCTextField.qml
-		QGCToolBarButton.qml
 		QGCToolInsets.qml
-		QGCViewDialogContainer.qml
-		QGCViewDialog.qml
-		QGCViewMessage.qml
 		QmlTest.qml
 		RCChannelMonitor.qml
 		RCToParamDialog.qml
@@ -132,10 +108,8 @@ add_custom_target(QmlControlsQml
 		SectionHeader.qml
 		SliderSwitch.qml
 		SubMenuButton.qml
-		ToolStrip.qml
 		VehicleRotationCal.qml
 		VehicleSummaryRow.qml
-		QGCDelayButton.qml
 		QGCBusyIndicator.qml
 		AreaFrame.qml		
 		PseudocolorBar.qml

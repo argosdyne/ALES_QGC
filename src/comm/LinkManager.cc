@@ -43,6 +43,7 @@
 #include <qmdnsengine/mdns.h>
 #include <qmdnsengine/server.h>
 #include <qmdnsengine/service.h>
+#include "MAVLinkSigning.h"
 
 QGC_LOGGING_CATEGORY(LinkManagerLog, "LinkManagerLog")
 QGC_LOGGING_CATEGORY(LinkManagerVerboseLog, "LinkManagerVerboseLog")
@@ -153,7 +154,7 @@ bool LinkManager::createConnectedLink(SharedLinkConfigurationPtr& config, bool i
         _rgLinks.append(link);
         config->setLink(link);
 
-        connect(link.get(), &LinkInterface::communicationError,  _app,                &QGCApplication::criticalMessageBoxOnMainThread);
+        connect(link.get(), &LinkInterface::communicationError,  _app,                &QGCApplication::linkMessageOnMainThread);
         connect(link.get(), &LinkInterface::bytesReceived,       _mavlinkProtocol,    &MAVLinkProtocol::receiveBytes);
         connect(link.get(), &LinkInterface::bytesSent,           _mavlinkProtocol,    &MAVLinkProtocol::logSentBytes);
         connect(link.get(), &LinkInterface::disconnected,        this,                &LinkManager::_linkDisconnected);
@@ -215,7 +216,7 @@ void LinkManager::_linkDisconnected(void)
         return;
     }
 
-    disconnect(link, &LinkInterface::communicationError,  _app,                &QGCApplication::criticalMessageBoxOnMainThread);
+    disconnect(link, &LinkInterface::communicationError,  _app,                &QGCApplication::linkMessageOnMainThread);
     disconnect(link, &LinkInterface::bytesReceived,       _mavlinkProtocol,    &MAVLinkProtocol::receiveBytes);
     disconnect(link, &LinkInterface::bytesSent,           _mavlinkProtocol,    &MAVLinkProtocol::logSentBytes);
     disconnect(link, &LinkInterface::disconnected,        this,                &LinkManager::_linkDisconnected);
@@ -910,6 +911,7 @@ uint8_t LinkManager::allocateMavlinkChannel(void)
                 mavlinkStatus->flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
             }
             _mavlinkChannelsUsedBitMask |= 1 << mavlinkChannel;
+            MAVLinkSigning::initChannel(mavlinkChannel);    // AQGC: sign / check with the app key (after the reset)
             qCDebug(LinkManagerLog) << "allocateMavlinkChannel" << mavlinkChannel;
             return mavlinkChannel;
         }
@@ -925,6 +927,7 @@ void LinkManager::freeMavlinkChannel(uint8_t channel)
         return;
     }
     _mavlinkChannelsUsedBitMask &= ~(1 << channel);
+    MAVLinkSigning::clearChannel(channel);              // AQGC
 }
 
 LogReplayLink* LinkManager::startLogReplay(const QString& logFile)
