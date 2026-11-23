@@ -55,9 +55,15 @@ Item {
 
     // YSManager::scnErr() is reduced to 0 / 1, so the scanner error byte is read from the YS_STA_01 reply text
     // written by YSManager::_mavlinkReceived (byte 0 of the value)
-    readonly property var _sta01RegExp:         /^NAMED_VALUE_INT YS_STA_01 VALUE=0X([0-9A-F]{8})/i
+    // The RegExps are created inside functions, not kept in a `property var` (defensive: a RegExp in a var property
+    // has broken in other QML of this app; with these patterns it worked on Qt 5.15.2 in a test).
+    function _parseSta01(text) {
+        return /^NAMED_VALUE_INT YS_STA_01 VALUE=0X([0-9A-F]{8})/i.exec(text)
+    }
     // MAV_CMD_USER_2 = YellowScan Power Off (YSManager::powerOff), as written by YSManager::_sendCommand
-    readonly property var _powerOffSentRegExp:  /^CMD_LONG cmd=31011 /m
+    function _isPowerOffSent(text) {
+        return /^CMD_LONG cmd=31011 /m.test(text)
+    }
 
     // preChecks row order is fixed in YSManager::_rebuildPreChecks
     readonly property int _rowScanner:      1
@@ -88,6 +94,9 @@ Item {
     property int    criticalCount:      0
     property string alertsSinceTime:    ""
     property var    _prevKeys:          ({})
+    // Last received text already handled: messageChanged also fires for every request sent, and the
+    // received text then is still the old reply (it must not be evaluated again, e.g. after _reset())
+    property string _lastReceivedSeen:  ""
     readonly property bool usbLow:      _hasAlert("usbLow")
 
     property string _warningBanner:     ""
@@ -246,11 +255,19 @@ Item {
         scnErr = 0
         lastStatusTime = ""
         lastKnownState = ""
+        _clearAlerts()
+        dismissBanner()
+    }
+
+    // Alerts describe the last status reply: clear them when that reply no longer applies (vehicle change,
+    // LiDAR link down / powered off). The old reply text is marked as seen so it is not evaluated again.
+    function _clearAlerts() {
+        _lastReceivedSeen = _ys ? _ys.lastReceivedMessage : ""
+        scnErr = 0
         _prevKeys = {}
         alerts = []
         warningCount = 0
         criticalCount = 0
-        dismissBanner()
     }
 
     onNoResponseChanged: {
@@ -273,10 +290,14 @@ Item {
             _restartStatusTimers()
         }
         onMessageChanged: {
-            if (_powerOffSentRegExp.test(_ys.lastSentMessage)) {
+            if (_isPowerOffSent(_ys.lastSentMessage)) {
                 _powerOffSent = true
             }
-            var m = _sta01RegExp.exec(_ys.lastReceivedMessage)
+            if (_ys.lastReceivedMessage === _lastReceivedSeen) {
+                return  // a request was sent, nothing new received
+            }
+            _lastReceivedSeen = _ys.lastReceivedMessage
+            var m = _parseSta01(_ys.lastReceivedMessage)
             if (!m || _state === YSManager.StatePoweredOff) {
                 return
             }
@@ -292,6 +313,10 @@ Item {
             // Link back: count the no-reply time from now, not from before the link was lost
             if (linkDown(_prevState) && !linkDown(s)) {
                 _restartStatusTimers()
+            }
+            // Link down / powered off: the last reply's alerts are no longer current
+            if (linkDown(s) && !linkDown(_prevState)) {
+                _clearAlerts()
             }
             if (s === YSManager.StateRecording) {
                 lastKnownState = qsTr("REC")

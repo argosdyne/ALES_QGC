@@ -76,6 +76,8 @@ ApplicationWindow {
         readonly property var       guidedControllerFlyView:        flightView.guidedController
 
         property var                planMasterControllerPlanView:   null
+        // Set only by PlanView (GeoZoneMakeView also writes planMasterControllerPlanView): the mission plan
+        property var                planMasterControllerMissionPlanView: null
         property var                currentPlanMissionItem:         planMasterControllerPlanView ? planMasterControllerPlanView.missionController.currentPlanViewItem : null
 
         // Property to manage RemoteID quick acces to settings page

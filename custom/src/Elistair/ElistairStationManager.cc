@@ -70,7 +70,19 @@ ElistairStationManager::ElistairStationManager(QObject* parent)
     // Elistair: Ethernet 192.168.1.120; UDP; port 7158 or 23232 depending on configuration.
     _stationAddress = settings.value(QStringLiteral("ElistairStation/address"), QStringLiteral("192.168.4.1")).toString();
     _stationPort = settings.value(QStringLiteral("ElistairStation/port"), 23232).toInt();
-    _useTcp = settings.value(QStringLiteral("ElistairStation/transport"), QStringLiteral("TCP")).toString() != QStringLiteral("UDP");
+    // Builds before the transport setting were UDP only: a station set up there (no transport key yet, but
+    // enabled / address / port saved) keeps UDP. A fresh install defaults to TCP (SAFE-T 2.3 Wi-Fi).
+    const bool legacyUdpSetup = !settings.contains(QStringLiteral("ElistairStation/transport")) &&
+        (settings.contains(QStringLiteral("ElistairStation/enabled")) ||
+         settings.contains(QStringLiteral("ElistairStation/address")) ||
+         settings.contains(QStringLiteral("ElistairStation/port")));
+    _useTcp = settings.value(QStringLiteral("ElistairStation/transport"),
+        legacyUdpSetup ? QStringLiteral("UDP") : QStringLiteral("TCP")).toString() != QStringLiteral("UDP");
+    // Save the resolved transport at once: setTransport() writes it only on a change, so a fresh install that keeps
+    // TCP and later saves an address / port must not be taken for a legacy UDP setup on the next start.
+    if (!settings.contains(QStringLiteral("ElistairStation/transport"))) {
+        settings.setValue(QStringLiteral("ElistairStation/transport"), _useTcp ? QStringLiteral("TCP") : QStringLiteral("UDP"));
+    }
     _controlTimer.setInterval(kControlIntervalMsecs);
     connect(&_controlTimer, &QTimer::timeout, this, &ElistairStationManager::_sendControl);
     connect(&_udp, &QUdpSocket::readyRead, this, &ElistairStationManager::_readDatagrams);
