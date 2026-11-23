@@ -203,6 +203,7 @@
         <file alias="SimpleGamepad.qml">res/Simple/SimpleGamepad.qml</file>
         <file alias="SimpleSetupMission.qml">res/Simple/SimpleSetupMission.qml</file>
         <file alias="SimpleSetupFirmware.qml">res/Simple/SimpleSetupFirmware.qml</file>
+        <file alias="SimpleFirmwareController.qml">res/Simple/SimpleFirmwareController.qml</file>
         <file alias="SimpleFolderPicker.qml">res/Simple/SimpleFolderPicker.qml</file>
         <file alias="SimpleInspectorChart.qml">res/Simple/SimpleInspectorChart.qml</file>
         <file alias="SimpleLogCategories.qml">res/Simple/SimpleLogCategories.qml</file>

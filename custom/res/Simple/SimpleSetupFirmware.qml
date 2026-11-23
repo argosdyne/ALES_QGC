@@ -32,19 +32,20 @@ Flickable {
         ctlLoader.item.startBoardSearch()
     }
 
+    // By URL, not as an inline component: FirmwareUpgradeController exists only in desktop builds
     Loader {
         id: ctlLoader
-        active: fw.desktop && fw.phase !== ""
-        sourceComponent: FirmwareUpgradeController {
-            progressBar: progress
-            statusLog: statusLog
-            onShowFirmwareSelectDlg: { fw.phase = "flashing"; flashFirmwareUrl(fw.file) }
-            onFlashComplete: { fw.phase = "done"; fw.log("Installed: " + fw.fileName) }
-            onError: { fw.phase = "failed"; fw.log("Install failed: " + fw.fileName) }
-            onFlashCancelled: fw.phase = ""
-        }
+        source: fw.desktop && fw.phase !== "" ? "qrc:/simple/SimpleFirmwareController.qml" : ""
+        onLoaded: { item.progressBar = progress; item.statusLog = statusLog }
     }
     readonly property var ctl: ctlLoader.item
+    Connections {
+        target: fw.ctl
+        function onShowFirmwareSelectDlg() { fw.phase = "flashing"; fw.ctl.flashFirmwareUrl(fw.file) }
+        function onFlashComplete() { fw.phase = "done"; fw.log("Installed: " + fw.fileName) }
+        function onError() { fw.phase = "failed"; fw.log("Install failed: " + fw.fileName) }
+        function onFlashCancelled() { fw.phase = "" }
+    }
 
     QGCFileDialog {
         id: fileDialog
