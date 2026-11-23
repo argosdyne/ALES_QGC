@@ -1562,7 +1562,7 @@
         <translation>조종기가 준비되지 않았습니다. 조종기와 보정을 확인하세요.</translation>
     </message>
     <message>
-        <source>The drone&apos;s battery check failed.</source>
+        <source>The drone's battery check failed.</source>
         <translation>드론 배터리 점검에 실패했습니다.</translation>
     </message>
     <message>
@@ -1839,10 +1839,6 @@
     <message>
         <source>Legal &amp; licenses</source>
         <translation>법적 고지 및 라이선스</translation>
-    </message>
-    <message>
-        <source>Open-source licenses: QGroundControl, Qt, GStreamer, fonts and more</source>
-        <translation>오픈소스 라이선스: QGroundControl, Qt, GStreamer, 폰트 등</translation>
     </message>
     <message>
         <source>alesQGC uses this open-source software. Tap an item to show the full license.</source>
@@ -2359,10 +2355,6 @@
     <message>
         <source>Altitude Angel</source>
         <translation>Altitude Angel</translation>
-    </message>
-    <message>
-        <source>%1 zones in the visible map area · needs internet</source>
-        <translation>보이는 지도 범위의 구역 %1개 · 인터넷 필요</translation>
     </message>
     <message>
         <source>API key</source>
@@ -3513,10 +3505,6 @@
     <message>
         <source>Gimbal type, servo outputs and angle ranges: Vehicle setup › Gimbal ›</source>
         <translation>짐벌 종류, 서보 출력, 각도 범위: 기체 설정 › 짐벌 ›</translation>
-    </message>
-    <message>
-        <source>Starts at the first survey line of a mission and stops at the last. Start / Stop on the flight screen still works.</source>
-        <translation>임무의 첫 측량 라인에서 시작하고 마지막 라인에서 정지합니다. 비행 화면의 시작·정지도 그대로 쓸 수 있습니다.</translation>
     </message>
     <message>
         <source>From the LiDAR panel on the flight screen</source>
@@ -5061,13 +5049,6 @@
     </message>
 </context>
 <context>
-    <name>GeneralSettings</name>
-    <message>
-        <source>Simple UI product profile</source>
-        <translation>간편 UI 제품 프로파일</translation>
-    </message>
-</context>
-<context>
     <name>SimpleLinkSecurity</name>
     <message>
         <source>Protected</source>
@@ -6117,9 +6098,11 @@
         <source>Done · date unknown</source>
         <translation>완료 · 날짜 모름</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>%n compass(es)</source>
-        <translation>나침반 %n개</translation>
+        <translation>
+            <numerusform>나침반 %n개</numerusform>
+        </translation>
     </message>
     <message>
         <source>Calibrate</source>
@@ -6637,10 +6620,6 @@
     <message>
         <source>ESC calibration</source>
         <translation>ESC 보정</translation>
-    </message>
-    <message>
-        <source>Propellers off, battery connected. Only after replacing ESCs.</source>
-        <translation>프로펠러를 떼고 배터리를 연결하세요. ESC를 바꾼 뒤에만 합니다.</translation>
     </message>
     <message>
         <source>Propellers off. Only after replacing ESCs.</source>
@@ -7516,9 +7495,11 @@
         <source>Put a .json file in %1</source>
         <translation>%1에 .json 파일을 넣으세요</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>%n action(s) loaded</source>
-        <translation>동작 %n개 불러옴</translation>
+        <translation>
+            <numerusform>동작 %n개 불러옴</numerusform>
+        </translation>
     </message>
     <message>
         <source>No actions in this file (check the file format)</source>
@@ -7635,9 +7616,11 @@
         <source>Custom actions</source>
         <translation>사용자 동작</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>From the actions file · %n button(s)</source>
-        <translation>동작 파일 · 버튼 %n개</translation>
+        <translation>
+            <numerusform>동작 파일 · 버튼 %n개</numerusform>
+        </translation>
     </message>
     <message>
         <source>Send “%1” to the drone now?</source>
@@ -7837,9 +7820,11 @@
         <source>Step 3 of 3 · Check the values. Channels you did not move keep their old values.</source>
         <translation>3/3단계 · 값을 확인하세요. 움직이지 않은 채널은 이전 값을 유지합니다.</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>Saved %n channel(s).</source>
-        <translation>채널 %n개를 저장했습니다.</translation>
+        <translation>
+            <numerusform>채널 %n개를 저장했습니다.</numerusform>
+        </translation>
     </message>
     <message>
         <source>Nothing moved: no values changed.</source>
@@ -8091,9 +8076,11 @@
         <source>Off in the company setting</source>
         <translation>회사 설정에서도 꺼짐</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>%n check(s) off that the company setting has on: %1. Turn them back on before normal flights.</source>
-        <translation>회사 설정에서는 켜져 있는데 꺼진 점검 %n개: %1. 평소 비행 전에 다시 켜세요.</translation>
+        <translation>
+            <numerusform>회사 설정에서는 켜져 있는데 꺼진 점검 %n개: %1. 평소 비행 전에 다시 켜세요.</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -8118,17 +8105,21 @@
         <source>This file cannot be read.</source>
         <translation>이 파일을 읽을 수 없습니다.</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>%n value(s) sent to the drone.</source>
-        <translation>값 %n개를 드론에 보냈습니다.</translation>
+        <translation>
+            <numerusform>값 %n개를 드론에 보냈습니다.</numerusform>
+        </translation>
     </message>
     <message>
         <source>No parameter files yet. Use “Save to file” first.</source>
         <translation>아직 파라미터 파일이 없습니다. 먼저 “파일로 저장”을 쓰세요.</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>%n value(s) differ</source>
-        <translation>다른 값 %n개</translation>
+        <translation>
+            <numerusform>다른 값 %n개</numerusform>
+        </translation>
     </message>
     <message>
         <source>Same as the drone</source>
@@ -8174,9 +8165,11 @@
         <source>Save</source>
         <translation>저장</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>Send %n value(s)</source>
-        <translation>값 %n개 보내기</translation>
+        <translation>
+            <numerusform>값 %n개 보내기</numerusform>
+        </translation>
     </message>
 </context>
 <context>

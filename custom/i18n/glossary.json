@@ -1,0 +1,578 @@
+[
+ {
+  "en": "Take off",
+  "vi": "Cất cánh",
+  "de": "Starten",
+  "da": "Start",
+  "pt": "Decolar",
+  "ja": "離陸"
+ },
+ {
+  "en": "Land",
+  "vi": "Hạ cánh",
+  "de": "Landen",
+  "da": "Land",
+  "pt": "Pousar",
+  "ja": "着陸"
+ },
+ {
+  "en": "Return home",
+  "vi": "Quay về",
+  "de": "Rückkehr",
+  "da": "Returner hjem",
+  "pt": "Retornar à base",
+  "ja": "帰還"
+ },
+ {
+  "en": "Returning home",
+  "vi": "Đang quay về",
+  "de": "Kehrt zum Startpunkt zurück",
+  "da": "Returnerer hjem",
+  "pt": "Retornando à base",
+  "ja": "帰還中"
+ },
+ {
+  "en": "Home point",
+  "vi": "Home Point",
+  "de": "Startpunkt",
+  "da": "Hjemsted",
+  "pt": "Ponto de origem",
+  "ja": "ホームポイント"
+ },
+ {
+  "en": "Set home here",
+  "vi": "Đặt Home Point tại đây",
+  "de": "Startpunkt hier setzen",
+  "da": "Sæt hjem her",
+  "pt": "Definir ponto de origem aqui",
+  "ja": "ここをホームに設定"
+ },
+ {
+  "en": "Pause",
+  "vi": "Tạm dừng",
+  "de": "Pause",
+  "da": "Pause",
+  "pt": "Pausar",
+  "ja": "一時停止"
+ },
+ {
+  "en": "Resume mission",
+  "vi": "Tiếp tục nhiệm vụ",
+  "de": "Mission fortsetzen",
+  "da": "Genoptag mission",
+  "pt": "Retomar missão",
+  "ja": "ミッションを再開"
+ },
+ {
+  "en": "Hold",
+  "vi": "Giữ",
+  "de": "Halten",
+  "da": "Hold",
+  "pt": "Manter",
+  "ja": "保持"
+ },
+ {
+  "en": "Position hold",
+  "vi": "Giữ vị trí",
+  "de": "Position halten",
+  "da": "Hold position",
+  "pt": "Manter posição",
+  "ja": "位置保持"
+ },
+ {
+  "en": "Altitude hold",
+  "vi": "Giữ độ cao",
+  "de": "Höhe halten",
+  "da": "Hold højde",
+  "pt": "Manter altitude",
+  "ja": "高度保持"
+ },
+ {
+  "en": "Battery",
+  "vi": "Pin",
+  "de": "Akku",
+  "da": "Batteri",
+  "pt": "Bateria",
+  "ja": "バッテリー"
+ },
+ {
+  "en": "Low battery",
+  "vi": "Pin yếu",
+  "de": "Akku niedrig",
+  "da": "Lavt batteri",
+  "pt": "Bateria baixa",
+  "ja": "バッテリー低下"
+ },
+ {
+  "en": "Critical battery",
+  "vi": "Pin nguy hiểm",
+  "de": "Akku kritisch",
+  "da": "Kritisk batteri",
+  "pt": "Bateria crítica",
+  "ja": "バッテリー危険"
+ },
+ {
+  "en": "Signal lost",
+  "vi": "Mất tín hiệu",
+  "de": "Signal verloren",
+  "da": "Signal tabt",
+  "pt": "Sinal perdido",
+  "ja": "信号ロスト"
+ },
+ {
+  "en": "Weak signal",
+  "vi": "Tín hiệu yếu",
+  "de": "Schwaches Signal",
+  "da": "Svagt signal",
+  "pt": "Sinal fraco",
+  "ja": "信号が弱い"
+ },
+ {
+  "en": "Radio link",
+  "vi": "Liên kết radio",
+  "de": "Funkverbindung",
+  "da": "Radioforbindelse",
+  "pt": "Link de rádio",
+  "ja": "無線リンク"
+ },
+ {
+  "en": "Controller signal lost",
+  "vi": "Mất tín hiệu bộ điều khiển",
+  "de": "Fernsteuersignal verloren",
+  "da": "Signal fra fjernbetjening tabt",
+  "pt": "Sinal do controle perdido",
+  "ja": "送信機の信号ロスト"
+ },
+ {
+  "en": "Payloads",
+  "vi": "Payload",
+  "de": "Nutzlasten",
+  "da": "Nyttelast",
+  "pt": "Cargas úteis",
+  "ja": "ペイロード"
+ },
+ {
+  "en": "Gimbal",
+  "vi": "Gimbal",
+  "de": "Gimbal",
+  "da": "Gimbal",
+  "pt": "Gimbal",
+  "ja": "Gimbal"
+ },
+ {
+  "en": "Camera",
+  "vi": "Camera",
+  "de": "Kamera",
+  "da": "Kamera",
+  "pt": "Câmera",
+  "ja": "カメラ"
+ },
+ {
+  "en": "Waypoint",
+  "vi": "Waypoint",
+  "de": "Wegpunkt",
+  "da": "Waypoint",
+  "pt": "Waypoint",
+  "ja": "ウェイポイント"
+ },
+ {
+  "en": "Mission",
+  "vi": "Nhiệm vụ",
+  "de": "Mission",
+  "da": "Mission",
+  "pt": "Missão",
+  "ja": "ミッション"
+ },
+ {
+  "en": "Start mission",
+  "vi": "Bắt đầu nhiệm vụ",
+  "de": "Mission starten",
+  "da": "Start mission",
+  "pt": "Iniciar missão",
+  "ja": "ミッション開始"
+ },
+ {
+  "en": "Pre-flight check",
+  "vi": "Kiểm tra trước khi bay",
+  "de": "Vorflug-Checkliste",
+  "da": "Kontrol før flyvning",
+  "pt": "Verificação pré-voo",
+  "ja": "飛行前チェック"
+ },
+ {
+  "en": "Pre-arm checks",
+  "vi": "Kiểm tra trước khi khởi động",
+  "de": "Prüfungen vor dem Scharfschalten",
+  "da": "Kontroller før armering",
+  "pt": "Verificações antes de armar",
+  "ja": "アーム前チェック"
+ },
+ {
+  "en": "Arm",
+  "vi": "Khởi động động cơ",
+  "de": "Scharf schalten",
+  "da": "Armér",
+  "pt": "Armar",
+  "ja": "アーム"
+ },
+ {
+  "en": "Disarm",
+  "vi": "Tắt động cơ",
+  "de": "Entschärfen",
+  "da": "Desarmér",
+  "pt": "Desarmar",
+  "ja": "ディスアーム"
+ },
+ {
+  "en": "Emergency stop",
+  "vi": "Dừng khẩn cấp",
+  "de": "Not-Aus",
+  "da": "Nødstop",
+  "pt": "Parada de emergência",
+  "ja": "緊急停止"
+ },
+ {
+  "en": "Failsafe",
+  "vi": "Failsafe",
+  "de": "Failsafe",
+  "da": "Failsafe",
+  "pt": "Failsafe",
+  "ja": "Failsafe"
+ },
+ {
+  "en": "Geofence",
+  "vi": "Geofence",
+  "de": "Geofence",
+  "da": "Geofence",
+  "pt": "Geofence",
+  "ja": "Geofence"
+ },
+ {
+  "en": "Fence",
+  "vi": "Geofence",
+  "de": "Geofence",
+  "da": "Geofence",
+  "pt": "Geocerca",
+  "ja": "フェンス"
+ },
+ {
+  "en": "Flight zones",
+  "vi": "Vùng bay",
+  "de": "Flugzonen",
+  "da": "Flyzoner",
+  "pt": "Zonas de voo",
+  "ja": "飛行ゾーン"
+ },
+ {
+  "en": "Do not enter",
+  "vi": "Không được vào",
+  "de": "Nicht einfliegen",
+  "da": "Ingen adgang",
+  "pt": "Não entrar",
+  "ja": "進入禁止"
+ },
+ {
+  "en": "Warn only",
+  "vi": "Chỉ cảnh báo",
+  "de": "Nur warnen",
+  "da": "Kun advarsel",
+  "pt": "Só aviso",
+  "ja": "警告のみ"
+ },
+ {
+  "en": "Prohibited",
+  "vi": "Cấm",
+  "de": "Verboten",
+  "da": "Forbudt",
+  "pt": "Proibida",
+  "ja": "禁止"
+ },
+ {
+  "en": "Restricted zone nearby",
+  "vi": "Vùng hạn chế ở gần",
+  "de": "Beschränkungszone in der Nähe",
+  "da": "Begrænset zone i nærheden",
+  "pt": "Zona restrita próxima",
+  "ja": "近くに制限区域"
+ },
+ {
+  "en": "My zones",
+  "vi": "Vùng của tôi",
+  "de": "Meine Zonen",
+  "da": "Mine zoner",
+  "pt": "Minhas zonas",
+  "ja": "マイゾーン"
+ },
+ {
+  "en": "Go here",
+  "vi": "Bay tới đây",
+  "de": "Hierhin fliegen",
+  "da": "Flyv hertil",
+  "pt": "Ir para cá",
+  "ja": "ここへ飛行"
+ },
+ {
+  "en": "Obstacle detection",
+  "vi": "Phát hiện vật cản",
+  "de": "Hinderniserkennung",
+  "da": "Forhindringsdetektion",
+  "pt": "Detecção de obstáculos",
+  "ja": "障害物検知"
+ },
+ {
+  "en": "Compass",
+  "vi": "La bàn",
+  "de": "Kompass",
+  "da": "Kompas",
+  "pt": "Bússola",
+  "ja": "コンパス"
+ },
+ {
+  "en": "Calibrate",
+  "vi": "Hiệu chỉnh",
+  "de": "Kalibrieren",
+  "da": "Kalibrér",
+  "pt": "Calibrar",
+  "ja": "キャリブレーション"
+ },
+ {
+  "en": "Accelerometer",
+  "vi": "Gia tốc kế",
+  "de": "Beschleunigungssensor",
+  "da": "Accelerometer",
+  "pt": "Acelerômetro",
+  "ja": "加速度計"
+ },
+ {
+  "en": "Flight mode",
+  "vi": "Chế độ bay",
+  "de": "Flugmodus",
+  "da": "Flyvetilstand",
+  "pt": "Modo de voo",
+  "ja": "フライトモード"
+ },
+ {
+  "en": "Flight modes",
+  "vi": "Các chế độ bay",
+  "de": "Flugmodi",
+  "da": "Flyvetilstande",
+  "pt": "Modos de voo",
+  "ja": "フライトモード"
+ },
+ {
+  "en": "Low speed  ·  max 3 m/s",
+  "vi": "Tốc độ thấp  ·  tối đa 3 m/s",
+  "de": "Langsamflug  ·  max. 3 m/s",
+  "da": "Lav hastighed  ·  maks. 3 m/s",
+  "pt": "Baixa velocidade  ·  máx. 3 m/s",
+  "ja": "低速  ·  最大 3 m/s"
+ },
+ {
+  "en": "Offline maps",
+  "vi": "Bản đồ ngoại tuyến",
+  "de": "Offline-Karten",
+  "da": "Offlinekort",
+  "pt": "Mapas offline",
+  "ja": "オフラインマップ"
+ },
+ {
+  "en": "Settings",
+  "vi": "Cài đặt",
+  "de": "Einstellungen",
+  "da": "Indstillinger",
+  "pt": "Configurações",
+  "ja": "設定"
+ },
+ {
+  "en": "Advanced mode",
+  "vi": "Chế độ nâng cao",
+  "de": "Erweiterter Modus",
+  "da": "Avanceret tilstand",
+  "pt": "Modo avançado",
+  "ja": "詳細モード"
+ },
+ {
+  "en": "Vehicle setup",
+  "vi": "Thiết lập drone",
+  "de": "Drohnen-Einrichtung",
+  "da": "Droneopsætning",
+  "pt": "Configuração do veículo",
+  "ja": "機体設定"
+ },
+ {
+  "en": "Parameters",
+  "vi": "Tham số",
+  "de": "Parameter",
+  "da": "Parametre",
+  "pt": "Parâmetros",
+  "ja": "パラメーター"
+ },
+ {
+  "en": "Flight logs",
+  "vi": "Nhật ký bay",
+  "de": "Fluglogs",
+  "da": "Flyvelogs",
+  "pt": "Logs de voo",
+  "ja": "フライトログ"
+ },
+ {
+  "en": "Tether",
+  "vi": "Tether",
+  "de": "Tether",
+  "da": "Tether",
+  "pt": "Tether",
+  "ja": "テザー"
+ },
+ {
+  "en": "Winch",
+  "vi": "Tời",
+  "de": "Winde",
+  "da": "Spil",
+  "pt": "Guincho",
+  "ja": "ウインチ"
+ },
+ {
+  "en": "Searchlight",
+  "vi": "Đèn rọi",
+  "de": "Suchscheinwerfer",
+  "da": "Projektør",
+  "pt": "Holofote",
+  "ja": "サーチライト"
+ },
+ {
+  "en": "Megaphone",
+  "vi": "Loa phóng thanh",
+  "de": "Megafon",
+  "da": "Megafon",
+  "pt": "Megafone",
+  "ja": "スピーカー"
+ },
+ {
+  "en": "Drop payload",
+  "vi": "Thả payload",
+  "de": "Nutzlast abwerfen",
+  "da": "Slip nyttelast",
+  "pt": "Soltar carga",
+  "ja": "ペイロードを投下"
+ },
+ {
+  "en": "Remote ID",
+  "vi": "Remote ID",
+  "de": "Remote ID",
+  "da": "Remote ID",
+  "pt": "Remote ID",
+  "ja": "Remote ID"
+ },
+ {
+  "en": "Altitude",
+  "vi": "Độ cao",
+  "de": "Höhe",
+  "da": "Højde",
+  "pt": "Altitude",
+  "ja": "高度"
+ },
+ {
+  "en": "Distance",
+  "vi": "Khoảng cách",
+  "de": "Entfernung",
+  "da": "Afstand",
+  "pt": "Distância",
+  "ja": "距離"
+ },
+ {
+  "en": "Speed",
+  "vi": "Tốc độ",
+  "de": "Geschwindigkeit",
+  "da": "Hastighed",
+  "pt": "Velocidade",
+  "ja": "速度"
+ },
+ {
+  "en": "Flight time",
+  "vi": "Thời gian bay",
+  "de": "Flugzeit",
+  "da": "Flyvetid",
+  "pt": "Tempo de voo",
+  "ja": "飛行時間"
+ },
+ {
+  "en": "Plan",
+  "vi": "Kế hoạch",
+  "de": "Planen",
+  "da": "Plan",
+  "pt": "Planejar",
+  "ja": "プラン"
+ },
+ {
+  "en": "Fly",
+  "vi": "Bay",
+  "de": "Fliegen",
+  "da": "Flyv",
+  "pt": "Voar",
+  "ja": "飛行"
+ },
+ {
+  "en": "Saved missions",
+  "vi": "Nhiệm vụ đã lưu",
+  "de": "Gespeicherte Missionen",
+  "da": "Gemte missioner",
+  "pt": "Missões salvas",
+  "ja": "保存したミッション"
+ },
+ {
+  "en": "Area mapping",
+  "vi": "Lập bản đồ khu vực",
+  "de": "Flächenkartierung",
+  "da": "Områdekortlægning",
+  "pt": "Mapeamento de área",
+  "ja": "エリア測量"
+ },
+ {
+  "en": "Corridor mapping",
+  "vi": "Lập bản đồ hành lang",
+  "de": "Korridorkartierung",
+  "da": "Korridorkortlægning",
+  "pt": "Mapeamento de corredor",
+  "ja": "回廊測量"
+ },
+ {
+  "en": "Structure scan",
+  "vi": "Quét công trình",
+  "de": "Bauwerk-Scan",
+  "da": "Bygværksscanning",
+  "pt": "Varredura de estrutura",
+  "ja": "構造物スキャン"
+ },
+ {
+  "en": "LiDAR survey",
+  "vi": "Khảo sát LiDAR",
+  "de": "LiDAR-Vermessung",
+  "da": "LiDAR-opmåling",
+  "pt": "Levantamento LiDAR",
+  "ja": "LiDAR 測量"
+ },
+ {
+  "en": "Init path",
+  "vi": "Đường init",
+  "de": "Init-Pfad",
+  "da": "Init-rute",
+  "pt": "Caminho de init",
+  "ja": "初期化経路"
+ },
+ {
+  "en": "Rally points",
+  "vi": "Điểm tập kết",
+  "de": "Sammelpunkte",
+  "da": "Samlepunkter",
+  "pt": "Pontos de reunião",
+  "ja": "ラリーポイント"
+ },
+ {
+  "en": "Drone",
+  "vi": "Drone",
+  "de": "Drohne",
+  "da": "Drone",
+  "pt": "Drone",
+  "ja": "機体"
+ }
+]
