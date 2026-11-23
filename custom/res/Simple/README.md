@@ -71,6 +71,7 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
 | `SimpleEscCal.qml` | S83 | ESC calibration (ESC_CALIBRATION = 3, battery cycle steps). Lives in the Vehicle setup root so it outlives the Power page while the drone is unplugged |
 | `SimplePrearmChecks.qml` | S84 | ARMING_CHECK bitmask (names from the parameter documentation), "no checks" needs a red confirm, security log |
 | `SimpleSetupFirmware.qml` | S68 | Firmware from a file on the PC (classic FirmwareUpgradeController: board search → replug → flash). Signature / no-downgrade checks shown as "not checked yet" until the company signs firmware |
+| `SimpleFirmwareController.qml` | S68 | PC only: wraps `FirmwareUpgradeController`, which exists only in desktop builds. Loaded by `SimpleSetupFirmware` with `Loader.setSource()` so the Simple UI still compiles on Android (a desktop-only type named in any other Simple file stops the whole Simple UI from loading; `static_checks.py` checks this) |
 | `SimpleParamFile.qml` | S87 | Parameters: save to file (name) and load from file (FolderListModel + buildDiffFromFile / sendDiff) |
 | `SimpleInspectorChart.qml` | S88 | MAVLink Inspector chart: 2 fields, 10 / 30 / 60 s, QML Canvas (no QtCharts) |
 | `SimpleLogCategories.qml` | S89 | App log categories: common groups + all categories (QGroundControl.setCategoryLoggingOn) |

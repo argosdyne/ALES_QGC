@@ -1,7 +1,10 @@
 /****************************************************************************
- * AQGC Simple UI — S68 Firmware: the classic FirmwareUpgradeController in its own file.
- * The type is registered only in desktop builds (QGCApplication, #ifndef __mobile__). SimpleSetupFirmware.qml
- * loads this file by URL on the PC only; naming the type inline there makes SimpleRoot fail to load on Android.
+ * AQGC Simple UI — S68 Vehicle setup › Firmware: the install controller (PC only).
+ * FirmwareUpgradeController is registered only in desktop builds (QGCApplication.cc, #ifndef __mobile__).
+ * A type that is not registered fails the whole file that names it, even inside an inactive Loader, and with it
+ * SimpleVehicleSetup and SimpleRoot: on Android the Simple UI did not appear at all (2026-11-23).
+ * So the type lives only in this file, which SimpleSetupFirmware loads with Loader.setSource() on desktop.
+ * Do not name it as a type in any other Simple file.
  ****************************************************************************/
 import QtQuick 2.12
 import QGroundControl.Controllers 1.0
