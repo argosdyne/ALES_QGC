@@ -32,11 +32,11 @@
     </message>
     <message>
         <source>Last received values</source>
-        <translation type="unfinished" />
+        <translation>最後に受信した値</translation>
     </message>
     <message>
         <source>Alarm</source>
-        <translation type="unfinished" />
+        <translation>アラーム</translation>
     </message>
     <message>
         <source>CABLE OUT</source>
@@ -87,7 +87,7 @@
     </message>
     <message>
         <source>30 % / 20 %</source>
-        <translation type="unfinished" />
+        <translation>30 % / 20 %</translation>
     </message>
     <message>
         <source>Quality</source>
@@ -115,7 +115,7 @@
     </message>
     <message>
         <source>not reported</source>
-        <translation type="unfinished" />
+        <translation>報告なし</translation>
     </message>
     <message>
         <source>Distance to drone</source>
@@ -135,7 +135,7 @@
     </message>
     <message>
         <source>Not enabled</source>
-        <translation type="unfinished" />
+        <translation>無効</translation>
     </message>
     <message>
         <source>Broadcasting</source>
@@ -143,7 +143,7 @@
     </message>
     <message>
         <source>Check</source>
-        <translation type="unfinished" />
+        <translation>要確認</translation>
     </message>
     <message>
         <source>Message</source>
@@ -159,7 +159,7 @@
     </message>
     <message>
         <source>Missing or invalid</source>
-        <translation type="unfinished" />
+        <translation>なし、または無効</translation>
     </message>
     <message>
         <source>Signed (MAVLink)</source>
@@ -167,11 +167,11 @@
     </message>
     <message>
         <source>Key mismatch</source>
-        <translation type="unfinished" />
+        <translation>キー不一致</translation>
     </message>
     <message>
         <source>Not protected</source>
-        <translation type="unfinished" />
+        <translation>保護なし</translation>
     </message>
     <message>
         <source>Link protection</source>
@@ -186,15 +186,15 @@
     </message>
     <message>
         <source>1  Turn on the controller and the radio</source>
-        <translation type="unfinished" />
+        <translation>1  送信機と無線機の電源を入れてください</translation>
     </message>
     <message>
         <source>2  Turn on the drone and wait for the lights</source>
-        <translation type="unfinished" />
+        <translation>2  機体の電源を入れ、ライトが点灯するまで待ってください</translation>
     </message>
     <message>
         <source>3  The app connects automatically</source>
-        <translation type="unfinished" />
+        <translation>3  アプリが自動で接続します</translation>
     </message>
     <message>
         <source>Connection help</source>
@@ -209,15 +209,15 @@
     <name>SimpleFlyOverlay</name>
     <message>
         <source>The drone keeps its mission after a restart. Check it before starting.</source>
-        <translation type="unfinished" />
+        <translation>機体は再起動後もミッションを保持します。開始前に確認してください。</translation>
     </message>
     <message>
         <source>The drone clears its mission at a restart. Send the mission again before flying.</source>
-        <translation type="unfinished" />
+        <translation>機体は再起動時にミッションを消去します。飛行前にミッションを再送信してください。</translation>
     </message>
     <message>
         <source>Check the mission on the drone again.</source>
-        <translation type="unfinished" />
+        <translation>機体のミッションを再確認してください。</translation>
     </message>
     <message>
         <source>Take off</source>
@@ -253,7 +253,7 @@
     </message>
     <message>
         <source>Landing</source>
-        <translation type="unfinished" />
+        <translation>着陸中</translation>
     </message>
     <message>
         <source>Battery low — returning home</source>
@@ -265,11 +265,11 @@
     </message>
     <message>
         <source>Pause stops the drone in place.</source>
-        <translation type="unfinished" />
+        <translation>一時停止で機体はその場で停止します。</translation>
     </message>
     <message>
         <source>Pause stops the drone in place. Land lands here.</source>
-        <translation type="unfinished" />
+        <translation>一時停止で機体はその場で停止します。着陸でここに着陸します。</translation>
     </message>
     <message>
         <source>Paused — holding position</source>
@@ -281,7 +281,7 @@
     </message>
     <message>
         <source>Use Return home or Land, or change the flight mode.</source>
-        <translation type="unfinished" />
+        <translation>帰還か着陸を使うか、フライトモードを変更してください。</translation>
     </message>
     <message>
         <source>Resume mission</source>
@@ -289,7 +289,7 @@
     </message>
     <message>
         <source>Land here</source>
-        <translation type="unfinished" />
+        <translation>ここに着陸</translation>
     </message>
     <message>
         <source>The drone climbs to the return-home altitude, flies back to the home point and lands.</source>
@@ -297,15 +297,15 @@
     </message>
     <message>
         <source>The drone descends and lands straight below its current position.</source>
-        <translation type="unfinished" />
+        <translation>機体は現在位置の真下に降下して着陸します。</translation>
     </message>
     <message>
         <source>The drone takes off and flies the mission on the map. It returns home when the mission ends.</source>
-        <translation type="unfinished" />
+        <translation>機体は離陸し、地図上のミッションを飛行します。ミッション終了後に帰還します。</translation>
     </message>
     <message>
         <source>You can stop it any time with Pause.</source>
-        <translation type="unfinished" />
+        <translation>一時停止でいつでも停止できます。</translation>
     </message>
     <message>
         <source>You can stop it any time with Pause. Return-home altitude: Settings › Safety</source>
@@ -317,19 +317,19 @@
     </message>
     <message>
         <source>Slide to land</source>
-        <translation type="unfinished" />
+        <translation>スライドして着陸</translation>
     </message>
     <message>
         <source>Slide to start</source>
-        <translation type="unfinished" />
+        <translation>スライドして開始</translation>
     </message>
     <message>
         <source>REC %1</source>
-        <translation type="unfinished" />
+        <translation>録画 %1</translation>
     </message>
     <message>
         <source>%1 left</source>
-        <translation type="unfinished" />
+        <translation>残り %1</translation>
     </message>
     <message>
         <source>Zoom</source>
@@ -337,11 +337,11 @@
     </message>
     <message>
         <source>Pitch %1° · Yaw %2°</source>
-        <translatorcomment>Draft from Figma example "Pitch −30° · Yaw 0°" - review</translatorcomment><translation type="unfinished">Pitch %1°  ·  Yaw %2°</translation>
+        <translation>ピッチ %1° · ヨー %2°</translation>
     </message>
     <message>
         <source>No video — flight is not affected</source>
-        <translation type="unfinished" />
+        <translation>映像なし — 飛行には影響しません</translation>
     </message>
     <message>
         <source>Waiting for video…</source>
@@ -349,7 +349,7 @@
     </message>
     <message>
         <source>The drone keeps flying normally. Check the camera and the video link, or use the map.</source>
-        <translation type="unfinished" />
+        <translation>機体は通常どおり飛行を続けます。カメラと映像リンクを確認するか、地図を使用してください。</translation>
     </message>
     <message>
         <source>The camera is starting. This usually takes about 10 seconds.</source>
@@ -357,15 +357,15 @@
     </message>
     <message>
         <source>Camera %1 connected</source>
-        <translatorcomment>Draft from Figma example "Camera RHYTHM 3 connected" - review</translatorcomment><translation type="unfinished">カメラ %1 接続済み</translation>
+        <translation>カメラ %1 接続済み</translation>
     </message>
     <message>
         <source>Camera not reported by the drone</source>
-        <translation type="unfinished" />
+        <translation>機体からカメラの報告がありません</translation>
     </message>
     <message>
         <source>Video link connected · waiting for the first picture</source>
-        <translation type="unfinished" />
+        <translation>映像リンク接続済み · 最初の映像を待っています</translation>
     </message>
     <message>
         <source>Video link: searching</source>
@@ -381,51 +381,51 @@
     </message>
     <message>
         <source>1. Camera: powered on and its cable plugged in.  2. Video link: the radio is connected (Settings › Connection).  3. Video address: Settings › Payloads › Camera &amp; gimbal. Error details are in the messages (bell).</source>
-        <translation type="unfinished" />
+        <translation>1. カメラ：電源が入り、ケーブルが接続されていること。  2. 映像リンク：無線機が接続されていること（設定 › 接続）。  3. 映像アドレス：設定 › ペイロード › カメラとジンバル。エラーの詳細はメッセージ（ベル）にあります。</translation>
     </message>
     <message>
         <source>Battery very low (%1 %) — return home now</source>
-        <translation type="unfinished" />
+        <translation>バッテリー残量わずか（%1 %） — 今すぐ帰還してください</translation>
     </message>
     <message>
         <source>Battery low (%1 %) — plan to return home</source>
-        <translation type="unfinished" />
+        <translation>バッテリー低下（%1 %） — 帰還の準備をしてください</translation>
     </message>
     <message>
         <source>About %1 of flight left.</source>
-        <translation type="unfinished" />
+        <translation>残り飛行時間は約 %1 です。</translation>
     </message>
     <message>
         <source>Bring the drone back while there is enough battery.</source>
-        <translation type="unfinished" />
+        <translation>バッテリーが十分なうちに機体を戻してください。</translation>
     </message>
     <message>
         <source>Prohibited zone</source>
-        <translation type="unfinished" />
+        <translation>禁止ゾーン</translation>
     </message>
     <message>
         <source>Authorisation zone</source>
-        <translation type="unfinished" />
+        <translation>要許可ゾーン</translation>
     </message>
     <message>
         <source>My zone</source>
-        <translation type="unfinished" />
+        <translation>マイゾーン</translation>
     </message>
     <message>
         <source>Flight zone</source>
-        <translation type="unfinished" />
+        <translation>飛行ゾーン</translation>
     </message>
     <message>
         <source>Inside: %1</source>
-        <translation type="unfinished" />
+        <translation>ゾーン内：%1</translation>
     </message>
     <message>
         <source>%1 %2 ahead</source>
-        <translation type="unfinished" />
+        <translation>前方 %2 に%1</translation>
     </message>
     <message>
         <source>Leave the zone: return home or fly back out.</source>
-        <translation type="unfinished" />
+        <translation>ゾーンから出てください：帰還するか、引き返してください。</translation>
     </message>
     <message>
         <source>Turn back or stop.</source>
@@ -433,27 +433,27 @@
     </message>
     <message>
         <source>No-entry zone</source>
-        <translation type="unfinished" />
+        <translation>進入禁止ゾーン</translation>
     </message>
     <message>
         <source>Drone: %1</source>
-        <translation type="unfinished" />
+        <translation>機体：%1</translation>
     </message>
     <message>
         <source>Land lands here.</source>
-        <translation type="unfinished" />
+        <translation>着陸でここに着陸します。</translation>
     </message>
     <message>
         <source>Tap the map to choose a new point</source>
-        <translation type="unfinished" />
+        <translation>地図をタップして新しい地点を選択</translation>
     </message>
     <message>
         <source>Arrived — holding position</source>
-        <translation type="unfinished" />
+        <translation>到着 — 位置保持中</translation>
     </message>
     <message>
         <source>Obstacle %1 ahead — drone stopped</source>
-        <translatorcomment>Draft from Figma example "Obstacle 6 m ahead — drone stopped" - review</translatorcomment><translation type="unfinished">前方 %1 に障害物 — 機体停止</translation>
+        <translation>前方 %1 に障害物 — 機体停止</translation>
     </message>
     <message>
         <source>Choose what to do. The drone keeps holding until you choose.</source>
@@ -469,19 +469,19 @@
     </message>
     <message>
         <source>Obstacle %1 ahead — going around it</source>
-        <translation type="unfinished" />
+        <translation>前方 %1 に障害物 — 迂回中</translation>
     </message>
     <message>
         <source>The drone finds its own way to the point. Stop on the card holds it in place.</source>
-        <translation type="unfinished" />
+        <translation>機体は自分で経路を探して地点へ向かいます。カードの停止でその場に保持します。</translation>
     </message>
     <message>
         <source>Go here stopped. Continue or Cancel on the card below.</source>
-        <translation type="unfinished" />
+        <translation>「ここへ飛行」を停止しました。下のカードで続行かキャンセルを選んでください。</translation>
     </message>
     <message>
         <source>The drone did not take Go here. Try again.</source>
-        <translation type="unfinished" />
+        <translation>機体が「ここへ飛行」を受け付けませんでした。もう一度試してください。</translation>
     </message>
     <message>
         <source>Set as home point</source>
@@ -497,7 +497,7 @@
     </message>
     <message>
         <source>Home point sent to the drone</source>
-        <translation type="unfinished" />
+        <translation>ホームポイントを機体に送信しました</translation>
     </message>
     <message>
         <source>LiDAR can't start recording</source>
@@ -505,15 +505,15 @@
     </message>
     <message>
         <source>Check the generator and the ground unit. Land if power does not return.</source>
-        <translation type="unfinished" />
+        <translation>発電機と地上ユニットを確認してください。電源が戻らない場合は着陸してください。</translation>
     </message>
     <message>
         <source>Continue</source>
-        <translation type="unfinished" />
+        <translation>続行</translation>
     </message>
     <message>
         <source>Keep the area below clear.</source>
-        <translation type="unfinished" />
+        <translation>下の範囲を空けてください。</translation>
     </message>
     <message>
         <source>Land now</source>
@@ -521,7 +521,7 @@
     </message>
     <message>
         <source>Landing is recommended. Keep the area below clear.</source>
-        <translation type="unfinished" />
+        <translation>着陸を推奨します。下の範囲を空けてください。</translation>
     </message>
     <message>
         <source>OK</source>
@@ -533,23 +533,23 @@
     </message>
     <message>
         <source>Return to the tether station</source>
-        <translation type="unfinished" />
+        <translation>テザーステーションへ帰還</translation>
     </message>
     <message>
         <source>Slide to return</source>
-        <translation type="unfinished" />
+        <translation>スライドして帰還</translation>
     </message>
     <message>
         <source>Slide to turn power off</source>
-        <translation type="unfinished" />
+        <translation>スライドして電源オフ</translation>
     </message>
     <message>
         <source>Tether power is lost. The drone flies back to the station on its onboard battery and lands.</source>
-        <translation type="unfinished" />
+        <translation>テザー電源が失われました。機体は内蔵バッテリーでステーションへ戻り、着陸します。</translation>
     </message>
     <message>
         <source>Tether power is lost. The drone lands at its current position on its onboard battery.</source>
-        <translation type="unfinished" />
+        <translation>テザー電源が失われました。機体は内蔵バッテリーで現在位置に着陸します。</translation>
     </message>
     <message>
         <source>Tether power lost — the drone is on its onboard battery</source>
@@ -561,7 +561,7 @@
     </message>
     <message>
         <source>The drone may fall if its battery is too low.</source>
-        <translation type="unfinished" />
+        <translation>バッテリーが不足すると機体が落下するおそれがあります。</translation>
     </message>
     <message>
         <source>To station</source>
@@ -569,35 +569,35 @@
     </message>
     <message>
         <source>Turn tether power off?</source>
-        <translation type="unfinished" />
+        <translation>テザー電源をオフにしますか？</translation>
     </message>
     <message>
         <source>Backup battery low (%1 %)</source>
-        <translation type="unfinished" />
+        <translation>予備バッテリー低下（%1 %）</translation>
     </message>
     <message>
         <source>Backup battery very low (%1 %) — land now</source>
-        <translation type="unfinished" />
+        <translation>予備バッテリー残量わずか（%1 %） — 今すぐ着陸してください</translation>
     </message>
     <message>
         <source>Cable %1 m</source>
-        <translatorcomment>Draft from Figma example "Cable 52 m" - review</translatorcomment><translation type="unfinished">ケーブル %1 m</translation>
+        <translation>ケーブル %1 m</translation>
     </message>
     <message>
         <source>Cable near its limit (%1 of %2 m)</source>
-        <translation type="unfinished" />
+        <translation>ケーブルが上限に近づいています（%1 / %2 m）</translation>
     </message>
     <message>
         <source>Check the cable and the station. Land if the alarm stays.</source>
-        <translation type="unfinished" />
+        <translation>ケーブルとステーションを確認してください。アラームが続く場合は着陸してください。</translation>
     </message>
     <message>
         <source>Check the ground power. The backup battery keeps the drone up only for a short time.</source>
-        <translation type="unfinished" />
+        <translation>地上電源を確認してください。予備バッテリーで飛行できるのは短時間だけです。</translation>
     </message>
     <message>
         <source>Height + is off. Lower the drone or come closer to the station.</source>
-        <translation type="unfinished" />
+        <translation>「高度 +」はオフです。機体を下げるか、ステーションに近づいてください。</translation>
     </message>
     <message>
         <source>Height</source>
@@ -605,7 +605,7 @@
     </message>
     <message>
         <source>Tether alarm — %1</source>
-        <translation type="unfinished" />
+        <translation>テザーアラーム — %1</translation>
     </message>
     <message>
         <source>More</source>
@@ -637,47 +637,47 @@
     </message>
     <message>
         <source>Is drone %1 the one on this tether? Check it, then confirm. Confirming sends nothing to the drone.</source>
-        <translation type="unfinished" />
+        <translation>このテザーにつながっている機体は %1 ですか？確認してから承認してください。承認しても機体には何も送信しません。</translation>
     </message>
     <message>
         <source>The drone on the tether is not connected. Land it with its own controls.</source>
-        <translation type="unfinished" />
+        <translation>テザーの機体が接続されていません。機体の送信機で着陸させてください。</translation>
     </message>
     <message>
         <source>Yes, this drone</source>
-        <translation type="unfinished" />
+        <translation>はい、この機体です</translation>
     </message>
     <message>
         <source>LiDAR not responding — no status for %1 s</source>
-        <translatorcomment>Draft from Figma example "LiDAR not responding — no status for 5 s" - review</translatorcomment><translation type="unfinished">LiDAR 応答なし — %1 秒間ステータスなし</translation>
+        <translation>LiDAR 応答なし — %1 秒間ステータスなし</translation>
     </message>
     <message>
         <source>Acquisition state unknown. Check the LiDAR power and cable.</source>
-        <translation type="unfinished" />
+        <translation>取得状態が不明です。LiDAR の電源とケーブルを確認してください。</translation>
     </message>
     <message>
         <source>Acquisition state unknown (last known: %1). Check the LiDAR power and cable.</source>
-        <translation type="unfinished" />
+        <translation>取得状態が不明です（最後の状態：%1）。LiDAR の電源とケーブルを確認してください。</translation>
     </message>
     <message>
         <source>recording</source>
-        <translation type="unfinished" />
+        <translation>記録中</translation>
     </message>
     <message>
         <source>not recording</source>
-        <translation type="unfinished" />
+        <translation>記録停止中</translation>
     </message>
     <message>
         <source>LiDAR — check now (%1 more)</source>
-        <translation type="unfinished" />
+        <translation>LiDAR — 今すぐ確認（他 %1 件）</translation>
     </message>
     <message>
         <source>LiDAR — check now</source>
-        <translation type="unfinished" />
+        <translation>LiDAR — 今すぐ確認</translation>
     </message>
     <message>
         <source>(%1 older not shown)</source>
-        <translation type="unfinished" />
+        <translation>（古い %1 件は非表示）</translation>
     </message>
     <message>
         <source>Hold to stop LiDAR</source>
@@ -685,30 +685,30 @@
     </message>
     <message>
         <source>LiDAR warning</source>
-        <translation type="unfinished" />
+        <translation>LiDAR 警告</translation>
     </message>
     <message>
         <source>The drone restarted — check the mission</source>
-        <translation type="unfinished" />
+        <translation>機体が再起動しました — ミッションを確認してください</translation>
     </message>
     <message>
         <source>Mission on the drone</source>
-        <translation type="unfinished" />
+        <translation>機体のミッション</translation>
     </message>
     <message>
         <source>Mission settings</source>
-        <translation type="unfinished" />
+        <translation>ミッション設定</translation>
     </message>
     <message>
         <source>Dismiss all</source>
-        <translation type="unfinished" />
+        <translation>すべて確認</translation>
     </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
     <message>
         <source>No drone</source>
-        <translation type="unfinished" />
+        <translation>機体なし</translation>
     </message>
     <message>
         <source>Connected</source>
@@ -716,7 +716,7 @@
     </message>
     <message>
         <source>Connection lost</source>
-        <translation type="unfinished" />
+        <translation>接続切断</translation>
     </message>
     <message>
         <source>Not connected</source>
@@ -780,11 +780,11 @@
     </message>
     <message>
         <source>Inspection / Surveillance</source>
-        <translation type="unfinished" />
+        <translation>点検 / 監視</translation>
     </message>
     <message>
         <source>Mapping</source>
-        <translation type="unfinished" />
+        <translation>測量</translation>
     </message>
     <message>
         <source>Tether</source>
@@ -844,7 +844,7 @@
     </message>
     <message>
         <source>%1 · change</source>
-        <translation type="unfinished" />
+        <translation>%1 · 変更</translation>
     </message>
     <message>
         <source>Return to Simple</source>
@@ -863,7 +863,7 @@
     </message>
     <message>
         <source>No messages</source>
-        <translation type="unfinished" />
+        <translation>メッセージなし</translation>
     </message>
 </context>
 <context>
@@ -878,7 +878,7 @@
     </message>
     <message>
         <source>Holds position and height when you let go of the sticks</source>
-        <translation type="unfinished" />
+        <translation>スティックを離すと位置と高度を保持します</translation>
     </message>
     <message>
         <source>Altitude hold</source>
@@ -886,11 +886,11 @@
     </message>
     <message>
         <source>Holds height only — the drone drifts with the wind</source>
-        <translation type="unfinished" />
+        <translation>高度のみ保持 — 機体は風で流されます</translation>
     </message>
     <message>
         <source>Other flight modes are available in Advanced mode.</source>
-        <translation type="unfinished" />
+        <translation>その他のフライトモードは詳細モードで使用できます。</translation>
     </message>
     <message>
         <source>Flight mode · all modes</source>
@@ -906,11 +906,11 @@
     </message>
     <message>
         <source>Position hold (pilot)</source>
-        <translation type="unfinished" />
+        <translation>位置保持（操縦者）</translation>
     </message>
     <message>
         <source>Like position hold, with direct stick feel</source>
-        <translation type="unfinished" />
+        <translation>位置保持と同様、スティック操作がより直接的</translation>
     </message>
     <message>
         <source>Brake</source>
@@ -950,19 +950,19 @@
     </message>
     <message>
         <source>Sport</source>
-        <translation type="unfinished" />
+        <translation>スポーツ</translation>
     </message>
     <message>
         <source>Rate control with height hold</source>
-        <translation type="unfinished" />
+        <translation>角速度制御 + 高度保持</translation>
     </message>
     <message>
         <source>Drift</source>
-        <translation type="unfinished" />
+        <translation>ドリフト</translation>
     </message>
     <message>
         <source>Car-like turns, no position hold</source>
-        <translation type="unfinished" />
+        <translation>車のように旋回、位置保持なし</translation>
     </message>
     <message>
         <source>AUTOMATIC</source>
@@ -1002,11 +1002,11 @@
     </message>
     <message>
         <source>ZigZag</source>
-        <translation type="unfinished" />
+        <translation>ジグザグ</translation>
     </message>
     <message>
         <source>Flies back and forth between two points</source>
-        <translation type="unfinished" />
+        <translation>2 点間を往復</translation>
     </message>
     <message>
         <source>RETURN AND LAND</source>
@@ -1030,11 +1030,11 @@
     </message>
     <message>
         <source>Return after mission</source>
-        <translation type="unfinished" />
+        <translation>ミッション後に帰還</translation>
     </message>
     <message>
         <source>Goes to the mission's landing</source>
-        <translation type="unfinished" />
+        <translation>ミッションの着陸地点へ向かう</translation>
     </message>
     <message>
         <source>Land</source>
@@ -1046,11 +1046,11 @@
     </message>
     <message>
         <source>OTHER</source>
-        <translation type="unfinished" />
+        <translation>その他</translation>
     </message>
     <message>
         <source>No GPS hold. Tap again to change.</source>
-        <translation type="unfinished" />
+        <translation>GPS による保持なし。もう一度タップして変更。</translation>
     </message>
 </context>
 <context>
@@ -1065,7 +1065,7 @@
     </message>
     <message>
         <source>%1 m (limit %2 m)</source>
-        <translation type="unfinished" />
+        <translation>%1 m（上限 %2 m）</translation>
     </message>
     <message>
         <source>Distance</source>
@@ -1073,7 +1073,7 @@
     </message>
     <message>
         <source>Farthest point %1 m (limit %2 m)</source>
-        <translation type="unfinished" />
+        <translation>最遠地点 %1 m（上限 %2 m）</translation>
     </message>
     <message>
         <source>Battery</source>
@@ -1081,7 +1081,7 @@
     </message>
     <message>
         <source>Needs %1 batteries — the drone returns to swap</source>
-        <translatorcomment>Draft from Figma example "Needs 2 batteries — the drone returns to swap" - review</translatorcomment><translation type="unfinished">バッテリー%1本必要 — 機体は交換のため帰還します</translation>
+        <translation>バッテリー %1 本必要 — 機体は交換のため帰還します</translation>
     </message>
     <message>
         <source>Fits one battery</source>
@@ -1089,7 +1089,7 @@
     </message>
     <message>
         <source>Not estimated for this drone</source>
-        <translation type="unfinished" />
+        <translation>この機体では推定できません</translation>
     </message>
     <message>
         <source>Flight zones</source>
@@ -1097,7 +1097,7 @@
     </message>
     <message>
         <source>Check the zones on the map yourself</source>
-        <translation type="unfinished" />
+        <translation>地図上でゾーンを自分で確認してください</translation>
     </message>
     <message>
         <source>Drone</source>
@@ -1109,23 +1109,23 @@
     </message>
     <message>
         <source>Not connected — the mission stays on this tablet</source>
-        <translation type="unfinished" />
+        <translation>未接続 — ミッションはこのタブレットに残ります</translation>
     </message>
     <message>
         <source>Sending to drone… %1 %</source>
-        <translatorcomment>Draft from Figma example "Sending to drone… 64 %" - review</translatorcomment><translation type="unfinished">機体に送信中… %1 %</translation>
+        <translation>機体に送信中… %1 %</translation>
     </message>
     <message>
         <source>Fix the red items before sending.</source>
-        <translation type="unfinished" />
+        <translation>送信前に赤い項目を修正してください。</translation>
     </message>
     <message>
         <source>Send to drone</source>
-        <translation type="unfinished" />
+        <translation>機体に送信</translation>
     </message>
     <message>
         <source>Sent — go to Fly</source>
-        <translation type="unfinished" />
+        <translation>送信完了 — 飛行へ</translation>
     </message>
     <message>
         <source>No restricted zone on the route</source>
@@ -1133,35 +1133,35 @@
     </message>
     <message>
         <source>No zone data — check the zones yourself</source>
-        <translation type="unfinished" />
+        <translation>ゾーンデータなし — ゾーンを自分で確認してください</translation>
     </message>
     <message>
         <source>The route enters a no-fly zone (%1). Move the area.</source>
-        <translation type="unfinished" />
+        <translation>経路が飛行禁止ゾーン（%1）に入ります。エリアを移動してください。</translation>
     </message>
     <message>
         <source>Information zone on the route (%1)</source>
-        <translation type="unfinished" />
+        <translation>経路上に情報ゾーン（%1）</translation>
     </message>
     <message>
         <source>The route touches %1. Check that you may fly there.</source>
-        <translation type="unfinished" />
+        <translation>経路が %1 にかかります。飛行してよいか確認してください。</translation>
     </message>
     <message>
         <source>The drone did not accept the mission. Check the message, change the mission and send again.</source>
-        <translation type="unfinished" />
+        <translation>機体がミッションを受け付けませんでした。メッセージを確認し、ミッションを修正して再送信してください。</translation>
     </message>
     <message>
         <source>Over the limit: %1 m (limit %2 m). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
-        <translation type="unfinished" />
+        <translation>上限超過：%1 m（上限 %2 m）。エリアを小さくするか、設定 › 安全 で最大距離を上げてください。</translation>
     </message>
     <message>
         <source>Not enforced (geofence off): %1 m, limit %2 m</source>
-        <translation type="unfinished" />
+        <translation>適用なし（ジオフェンスオフ）：%1 m、上限 %2 m</translation>
     </message>
     <message>
         <source>Not enforced (no distance limit in the drone's fence): %1 m, limit %2 m</source>
-        <translation type="unfinished" />
+        <translation>適用なし（機体のフェンスに距離制限なし）：%1 m、上限 %2 m</translation>
     </message>
 </context>
 <context>
@@ -1240,7 +1240,7 @@
     </message>
     <message>
         <source>Next version</source>
-        <translation type="unfinished" />
+        <translation>次のバージョン</translation>
     </message>
     <message>
         <source>Flight height</source>
@@ -1248,11 +1248,11 @@
     </message>
     <message>
         <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translatorcomment>Draft from Figma example "Photo detail ≈ 2.2 cm per pixel · limited to 120 m" - review</translatorcomment><translation type="unfinished">写真の詳細度 ≈ %1/ピクセル  ·  %2 m に制限</translation>
+        <translation>写真の解像度 ≈ %1/ピクセル · %2 m に制限</translation>
     </message>
     <message>
         <source>Limited to %1 m (maximum altitude)</source>
-        <translation type="unfinished" />
+        <translation>%1 m に制限（最大高度）</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -1296,7 +1296,7 @@
     </message>
     <message>
         <source>A mission with this name exists and will be replaced.</source>
-        <translation type="unfinished" />
+        <translation>同じ名前のミッションがあり、置き換えられます。</translation>
     </message>
     <message>
         <source>Name</source>
@@ -1304,11 +1304,11 @@
     </message>
     <message>
         <source>New mission · not saved</source>
-        <translation type="unfinished" />
+        <translation>新規ミッション · 未保存</translation>
     </message>
     <message>
         <source>No area found in this file. Lines (corridors) come with corridor mapping.</source>
-        <translation type="unfinished" />
+        <translation>このファイルにエリアがありません。ライン（回廊）は回廊測量で対応します。</translation>
     </message>
     <message>
         <source>Replace</source>
@@ -1316,7 +1316,7 @@
     </message>
     <message>
         <source>Save mission</source>
-        <translation type="unfinished" />
+        <translation>ミッションを保存</translation>
     </message>
     <message>
         <source>Save</source>
@@ -1324,7 +1324,7 @@
     </message>
     <message>
         <source>Saved mission</source>
-        <translation type="unfinished" />
+        <translation>保存したミッション</translation>
     </message>
     <message>
         <source>Saved missions</source>
@@ -1332,31 +1332,31 @@
     </message>
     <message>
         <source>Saved on this tablet · Plan › Open saved mission</source>
-        <translation type="unfinished" />
+        <translation>このタブレットに保存 · プラン › 保存したミッションを開く</translation>
     </message>
     <message>
         <source>e.g. Field A survey</source>
-        <translation type="unfinished" />
+        <translation>例：圃場 A の測量</translation>
     </message>
     <message>
         <source>Only .plan and .kml files can be imported. Save a KMZ as KML in Google Earth first.</source>
-        <translation type="unfinished" />
+        <translation>インポートできるのは .plan と .kml ファイルのみです。KMZ は先に Google Earth で KML として保存してください。</translation>
     </message>
     <message>
         <source>Replace the plan being edited?</source>
-        <translation type="unfinished" />
+        <translation>編集中のプランを置き換えますか？</translation>
     </message>
     <message>
         <source>Slide to replace</source>
-        <translation type="unfinished" />
+        <translation>スライドして置き換え</translation>
     </message>
     <message>
         <source>The current plan is not saved on this tablet. It is replaced by the mission you open.</source>
-        <translation type="unfinished" />
+        <translation>現在のプランはこのタブレットに保存されていません。開くミッションに置き換わります。</translation>
     </message>
     <message>
         <source>To keep it, close this and use Save first.</source>
-        <translation type="unfinished" />
+        <translation>残すには、これを閉じて先に保存してください。</translation>
     </message>
     <message>
         <source>Draw line</source>
@@ -1372,11 +1372,11 @@
     </message>
     <message>
         <source>Tap around the structure to outline it</source>
-        <translation type="unfinished" />
+        <translation>構造物の周りをタップして輪郭を描きます</translation>
     </message>
     <message>
         <source>Drag the corners to fit the structure, or pick a shape</source>
-        <translation type="unfinished" />
+        <translation>角をドラッグして構造物に合わせるか、形を選択します</translation>
     </message>
     <message>
         <source>Turn on YellowScan in Settings › Payloads</source>
@@ -1392,7 +1392,7 @@
     </message>
     <message>
         <source>Every item, fence and rally points (Advanced)</source>
-        <translation type="unfinished" />
+        <translation>すべての項目、フェンス、ラリーポイント（詳細）</translation>
     </message>
 </context>
 <context>
@@ -1403,7 +1403,7 @@
     </message>
     <message>
         <source>Drone connected</source>
-        <translation type="unfinished" />
+        <translation>機体接続</translation>
     </message>
     <message>
         <source>Radio link is working</source>
@@ -1411,11 +1411,11 @@
     </message>
     <message>
         <source>Turn on the drone and the controller</source>
-        <translation type="unfinished" />
+        <translation>機体と送信機の電源を入れてください</translation>
     </message>
     <message>
         <source>Weak</source>
-        <translation type="unfinished" />
+        <translation>弱</translation>
     </message>
     <message>
         <source>GPS</source>
@@ -1423,11 +1423,11 @@
     </message>
     <message>
         <source>%1 satellites · %2</source>
-        <translation type="unfinished" />
+        <translation>衛星 %1 · %2</translation>
     </message>
     <message>
         <source>Waiting for GPS — move away from buildings and metal</source>
-        <translation type="unfinished" />
+        <translation>GPS を待っています — 建物や金属から離れてください</translation>
     </message>
     <message>
         <source>Battery</source>
@@ -1435,11 +1435,11 @@
     </message>
     <message>
         <source>Battery level not reported</source>
-        <translation type="unfinished" />
+        <translation>バッテリー残量の報告なし</translation>
     </message>
     <message>
         <source>%1 % — at least 30 % needed to take off</source>
-        <translation type="unfinished" />
+        <translation>%1 % — 離陸には 30 % 以上が必要</translation>
     </message>
     <message>
         <source>Sensors (compass, IMU)</source>
@@ -1447,11 +1447,11 @@
     </message>
     <message>
         <source>All sensors healthy</source>
-        <translation type="unfinished" />
+        <translation>すべてのセンサー正常</translation>
     </message>
     <message>
         <source>A sensor needs attention</source>
-        <translation type="unfinished" />
+        <translation>確認が必要なセンサーがあります</translation>
     </message>
     <message>
         <source>Home point</source>
@@ -1463,7 +1463,7 @@
     </message>
     <message>
         <source>Set automatically once GPS is good</source>
-        <translation type="unfinished" />
+        <translation>GPS が良好になると自動で設定されます</translation>
     </message>
     <message>
         <source>Remote ID</source>
@@ -1471,7 +1471,7 @@
     </message>
     <message>
         <source>Not enabled on this tablet</source>
-        <translation type="unfinished" />
+        <translation>このタブレットでは無効</translation>
     </message>
     <message>
         <source>Broadcasting</source>
@@ -1491,11 +1491,11 @@
     </message>
     <message>
         <source>No Remote ID module found on the drone. If it is not required here, turn it off in Settings › Remote ID.</source>
-        <translation type="unfinished" />
+        <translation>機体に Remote ID モジュールが見つかりません。ここで不要な場合は、設定 › Remote ID でオフにしてください。</translation>
     </message>
     <message>
         <source>The Remote ID module is not ready</source>
-        <translation type="unfinished" />
+        <translation>Remote ID モジュールの準備ができていません</translation>
     </message>
     <message>
         <source>Flight zones</source>
@@ -1507,35 +1507,35 @@
     </message>
     <message>
         <source>The drone is in a no-fly zone (%1). Move to another place to take off.</source>
-        <translation type="unfinished" />
+        <translation>機体は飛行禁止ゾーン（%1）内にあります。別の場所に移動して離陸してください。</translation>
     </message>
     <message>
         <source>The drone is in a zone that needs care (%1). Check that you may fly here.</source>
-        <translation type="unfinished" />
+        <translation>機体は注意が必要なゾーン（%1）内にあります。ここで飛行してよいか確認してください。</translation>
     </message>
     <message>
         <source>%1 — turn the tether power on in the Payloads panel</source>
-        <translation type="unfinished" />
+        <translation>%1 — ペイロードパネルでテザー電源をオンにしてください</translation>
     </message>
     <message>
         <source>Ground unit on · %1 W</source>
-        <translation type="unfinished" />
+        <translation>地上ユニット オン · %1 W</translation>
     </message>
     <message>
         <source>Tether power</source>
-        <translation type="unfinished" />
+        <translation>テザー電源</translation>
     </message>
     <message>
         <source>GPS has no good position yet. Wait in the open, away from buildings.</source>
-        <translation type="unfinished" />
+        <translation>GPS の位置がまだ良好ではありません。建物から離れた開けた場所で待ってください。</translation>
     </message>
     <message>
         <source>GPS position is not accurate enough yet. Wait a little.</source>
-        <translation type="unfinished" />
+        <translation>GPS の位置精度がまだ不十分です。少し待ってください。</translation>
     </message>
     <message>
         <source>The drone is still working out its position. Wait for GPS.</source>
-        <translation type="unfinished" />
+        <translation>機体はまだ位置を計算中です。GPS を待ってください。</translation>
     </message>
     <message>
         <source>The compass needs calibrating (Vehicle setup › Sensors).</source>
@@ -1543,35 +1543,35 @@
     </message>
     <message>
         <source>The compass reading is off. Move away from metal or calibrate it.</source>
-        <translation type="unfinished" />
+        <translation>コンパスの値がずれています。金属から離れるか、キャリブレーションしてください。</translation>
     </message>
     <message>
         <source>The accelerometer needs calibrating (Vehicle setup › Sensors).</source>
-        <translation type="unfinished" />
+        <translation>加速度計のキャリブレーションが必要です（機体設定 › センサー）。</translation>
     </message>
     <message>
         <source>Motion sensor (IMU) problem. Keep the drone still or restart it.</source>
-        <translation type="unfinished" />
+        <translation>モーションセンサー（IMU）の問題です。機体を動かさないか、再起動してください。</translation>
     </message>
     <message>
         <source>Barometer problem. Restart the drone.</source>
-        <translation type="unfinished" />
+        <translation>気圧計の問題です。機体を再起動してください。</translation>
     </message>
     <message>
         <source>The controller is not ready. Check the controller and its calibration.</source>
-        <translation type="unfinished" />
+        <translation>送信機の準備ができていません。送信機とそのキャリブレーションを確認してください。</translation>
     </message>
     <message>
         <source>The drone's battery check failed.</source>
-        <translation type="unfinished" />
+        <translation>機体のバッテリーチェックに失敗しました。</translation>
     </message>
     <message>
         <source>Geofence problem. Check Settings › Safety.</source>
-        <translation type="unfinished" />
+        <translation>ジオフェンスの問題です。設定 › 安全 を確認してください。</translation>
     </message>
     <message>
         <source>Flight log problem (SD card in the drone).</source>
-        <translation type="unfinished" />
+        <translation>フライトログの問題です（機体の SD カード）。</translation>
     </message>
 </context>
 <context>
@@ -1634,11 +1634,11 @@
     </message>
     <message>
         <source>Restart alesQGC to show the new units everywhere</source>
-        <translation type="unfinished" />
+        <translation>alesQGC を再起動すると、すべての画面に新しい単位が表示されます</translation>
     </message>
     <message>
         <source>Height, distance, speed, area and temperature</source>
-        <translation type="unfinished" />
+        <translation>高度、距離、速度、面積、温度</translation>
     </message>
     <message>
         <source>Metric</source>
@@ -1690,19 +1690,19 @@
     </message>
     <message>
         <source>Connect the drone to change this</source>
-        <translation type="unfinished" />
+        <translation>変更するには機体を接続してください</translation>
     </message>
     <message>
         <source>Change on the ground (motors off)</source>
-        <translation type="unfinished" />
+        <translation>地上で変更してください（モーター停止）</translation>
     </message>
     <message>
         <source>Warning only · keeps flying</source>
-        <translation type="unfinished" />
+        <translation>警告のみ · 飛行を継続</translation>
     </message>
     <message>
         <source>Land where it is</source>
-        <translation type="unfinished" />
+        <translation>その場に着陸</translation>
     </message>
     <message>
         <source>Return home</source>
@@ -1710,71 +1710,71 @@
     </message>
     <message>
         <source>Return home by the flown path</source>
-        <translation type="unfinished" />
+        <translation>飛行した経路で帰還</translation>
     </message>
     <message>
         <source>Return by the flown path, or land</source>
-        <translation type="unfinished" />
+        <translation>飛行した経路で帰還、または着陸</translation>
     </message>
     <message>
         <source>Stop motors (drone falls)</source>
-        <translation type="unfinished" />
+        <translation>モーター停止（機体は落下）</translation>
     </message>
     <message>
         <source>Go to the mission landing point, or return home</source>
-        <translation type="unfinished" />
+        <translation>ミッションの着陸地点へ、または帰還</translation>
     </message>
     <message>
         <source>Stop, then land</source>
-        <translation type="unfinished" />
+        <translation>停止してから着陸</translation>
     </message>
     <message>
         <source>Return home, land if very low</source>
-        <translation type="unfinished" />
+        <translation>帰還、残量がごくわずかなら着陸</translation>
     </message>
     <message>
         <source>Nothing · keeps flying</source>
-        <translation type="unfinished" />
+        <translation>何もしない · 飛行を継続</translation>
     </message>
     <message>
         <source>Finish the mission, otherwise return home</source>
-        <translation type="unfinished" />
+        <translation>ミッションを完了、できなければ帰還</translation>
     </message>
     <message>
         <source>Hover in place</source>
-        <translation type="unfinished" />
+        <translation>その場でホバリング</translation>
     </message>
     <message>
         <source>Lock motors</source>
-        <translation type="unfinished" />
+        <translation>モーターをロック</translation>
     </message>
     <message>
         <source>Acts when %1 % is left</source>
-        <translation type="unfinished" />
+        <translation>残り %1 % で作動</translation>
     </message>
     <message>
         <source>Acts below %1 V</source>
-        <translation type="unfinished" />
+        <translation>%1 V 未満で作動</translation>
     </message>
     <message>
         <source>No low-battery level set on the drone</source>
-        <translation type="unfinished" />
+        <translation>機体にバッテリー低下レベルが設定されていません</translation>
     </message>
     <message>
         <source>Warning at %1 %, action at %2 %</source>
-        <translation type="unfinished" />
+        <translation>%1 % で警告、%2 % で作動</translation>
     </message>
     <message>
         <source>Level set on the drone</source>
-        <translation type="unfinished" />
+        <translation>機体に設定されたレベル</translation>
     </message>
     <message>
         <source>After %1 s without signal</source>
-        <translation type="unfinished" />
+        <translation>信号なしで %1 秒後</translation>
     </message>
     <message>
         <source>When the controller signal is lost</source>
-        <translation type="unfinished" />
+        <translation>送信機の信号ロスト時</translation>
     </message>
     <message>
         <source>What the drone does when something goes wrong. Defaults follow local rules.</source>
@@ -1794,7 +1794,7 @@
     </message>
     <message>
         <source>Above take-off point · EU and most countries: 120 m</source>
-        <translation type="unfinished" />
+        <translation>離陸地点からの高さ · EU とほとんどの国：120 m</translation>
     </message>
     <message>
         <source>Maximum distance</source>
@@ -1814,7 +1814,7 @@
     </message>
     <message>
         <source>Versions and help from ARGOSDYNE.</source>
-        <translation type="unfinished" />
+        <translation>バージョン情報と ARGOSDYNE のサポート。</translation>
     </message>
     <message>
         <source>alesQGC app</source>
@@ -1842,7 +1842,7 @@
     </message>
     <message>
         <source>alesQGC uses this open-source software. Tap an item to show the full license.</source>
-        <translation type="unfinished" />
+        <translation>alesQGC は以下のオープンソースソフトウェアを使用しています。項目をタップするとライセンス全文を表示します。</translation>
     </message>
     <message>
         <source>2.4 GHz</source>
@@ -1854,27 +1854,27 @@
     </message>
     <message>
         <source>Band unknown</source>
-        <translation type="unfinished" />
+        <translation>バンド不明</translation>
     </message>
     <message>
         <source>Changing both radios to 2.4 GHz. The link drops and comes back in about a minute.</source>
-        <translation type="unfinished" />
+        <translation>両方の無線機を 2.4 GHz に変更中です。リンクは切断され、約 1 分で復帰します。</translation>
     </message>
     <message>
         <source>Changing both radios to 5.8 GHz. The link drops and comes back in about a minute.</source>
-        <translation type="unfinished" />
+        <translation>両方の無線機を 5.8 GHz に変更中です。リンクは切断され、約 1 分で復帰します。</translation>
     </message>
     <message>
         <source>Fill in server, mountpoint, user and password, then turn this on.</source>
-        <translation type="unfinished" />
+        <translation>サーバー、マウントポイント、ユーザー、パスワードを入力してからオンにしてください。</translation>
     </message>
     <message>
         <source>Could not log in. Check server, port, mountpoint, user and password. Trying again every 5 s.</source>
-        <translation type="unfinished" />
+        <translation>ログインできませんでした。サーバー、ポート、マウントポイント、ユーザー、パスワードを確認してください。5 秒ごとに再試行します。</translation>
     </message>
     <message>
         <source>Retrying…</source>
-        <translation type="unfinished" />
+        <translation>再試行中…</translation>
     </message>
     <message>
         <source>Radio link and RTK correction. Payload settings are under Payloads.</source>
@@ -1882,11 +1882,11 @@
     </message>
     <message>
         <source>Radio link · M2</source>
-        <translation type="unfinished" />
+        <translation>無線リンク · M2</translation>
     </message>
     <message>
         <source>Radio link · DoodleLabs</source>
-        <translation type="unfinished" />
+        <translation>無線リンク · DoodleLabs</translation>
     </message>
     <message>
         <source>Radio link · Enpulse</source>
@@ -1894,11 +1894,11 @@
     </message>
     <message>
         <source>Pairing…</source>
-        <translation type="unfinished" />
+        <translation>ペアリング中…</translation>
     </message>
     <message>
         <source>No radio</source>
-        <translation type="unfinished" />
+        <translation>無線機なし</translation>
     </message>
     <message>
         <source>Connected</source>
@@ -1906,27 +1906,27 @@
     </message>
     <message>
         <source>Not paired</source>
-        <translation type="unfinished" />
+        <translation>未ペアリング</translation>
     </message>
     <message>
         <source>No radio found. Check that the controller is on and its radio is connected.</source>
-        <translation type="unfinished" />
+        <translation>無線機が見つかりません。送信機の電源が入っていて、無線機が接続されているか確認してください。</translation>
     </message>
     <message>
         <source>Pairing… Keep the drone close and turned on.</source>
-        <translation type="unfinished" />
+        <translation>ペアリング中… 機体を近くに置き、電源を入れたままにしてください。</translation>
     </message>
     <message>
         <source>signal %1 dB</source>
-        <translation type="unfinished" />
+        <translation>信号 %1 dB</translation>
     </message>
     <message>
         <source>drone radio paired</source>
-        <translation type="unfinished" />
+        <translation>機体の無線機はペアリング済み</translation>
     </message>
     <message>
         <source>drone radio not paired</source>
-        <translation type="unfinished" />
+        <translation>機体の無線機は未ペアリング</translation>
     </message>
     <message>
         <source>Band</source>
@@ -1942,19 +1942,19 @@
     </message>
     <message>
         <source>Change both radios to 2.4 GHz? The drone and controller restart their radios. The link is lost for about a minute.</source>
-        <translation type="unfinished" />
+        <translation>両方の無線機を 2.4 GHz に変更しますか？機体と送信機の無線機が再起動します。リンクは約 1 分間切断されます。</translation>
     </message>
     <message>
         <source>Change both radios to 5.8 GHz? The drone and controller restart their radios. The link is lost for about a minute.</source>
-        <translation type="unfinished" />
+        <translation>両方の無線機を 5.8 GHz に変更しますか？機体と送信機の無線機が再起動します。リンクは約 1 分間切断されます。</translation>
     </message>
     <message>
         <source>Pair a new radio? The current pairing ends. Put the drone's radio in pairing mode within 1 minute.</source>
-        <translation type="unfinished" />
+        <translation>新しい無線機をペアリングしますか？現在のペアリングは解除されます。1 分以内に機体の無線機をペアリングモードにしてください。</translation>
     </message>
     <message>
         <source>Restart the controller radio? The link is lost for about a minute.</source>
-        <translation type="unfinished" />
+        <translation>送信機の無線機を再起動しますか？リンクは約 1 分間切断されます。</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -1962,23 +1962,23 @@
     </message>
     <message>
         <source>Pair</source>
-        <translation type="unfinished" />
+        <translation>ペアリング</translation>
     </message>
     <message>
         <source>Restart</source>
-        <translation type="unfinished" />
+        <translation>再起動</translation>
     </message>
     <message>
         <source>Change band</source>
-        <translation type="unfinished" />
+        <translation>バンドを変更</translation>
     </message>
     <message>
         <source>Restarting the controller radio. The link comes back in about a minute.</source>
-        <translation type="unfinished" />
+        <translation>送信機の無線機を再起動中です。リンクは約 1 分で復帰します。</translation>
     </message>
     <message>
         <source>Change radio settings on the ground (motors off)</source>
-        <translation type="unfinished" />
+        <translation>無線機の設定は地上で変更してください（モーター停止）</translation>
     </message>
     <message>
         <source>RTK correction · NTRIP</source>
@@ -1990,15 +1990,15 @@
     </message>
     <message>
         <source>RTK float</source>
-        <translation type="unfinished" />
+        <translation>RTK Float</translation>
     </message>
     <message>
         <source>Logging in…</source>
-        <translation type="unfinished" />
+        <translation>ログイン中…</translation>
     </message>
     <message>
         <source>Correction on · no RTK yet</source>
-        <translation type="unfinished" />
+        <translation>補正オン · まだ RTK ではありません</translation>
     </message>
     <message>
         <source>Off</source>
@@ -2030,35 +2030,35 @@
     </message>
     <message>
         <source>Turn on RTK correction to enter the NTRIP server.</source>
-        <translation type="unfinished" />
+        <translation>NTRIP サーバーを入力するには RTK 補正をオンにしてください。</translation>
     </message>
     <message>
         <source>Camera and payload network settings moved to Settings › Payloads (detected payloads connect automatically)</source>
-        <translation type="unfinished" />
+        <translation>カメラとペイロードのネットワーク設定は 設定 › ペイロード に移動しました（検出したペイロードは自動で接続します）</translation>
     </message>
     <message>
         <source>Required in the EU</source>
-        <translation type="unfinished" />
+        <translation>EU では必須</translation>
     </message>
     <message>
         <source>Enter the full number: 16 characters, a dash and the 3 secret characters (for example FIN87astrdge12k8-xyz). Only the first 16 are saved.</source>
-        <translation type="unfinished" />
+        <translation>完全な番号を入力してください：16 文字、ダッシュ、秘密の 3 文字（例：FIN87astrdge12k8-xyz）。保存されるのは最初の 16 文字のみです。</translation>
     </message>
     <message>
         <source>The number starts with the 3-letter country code in capitals, for example FIN</source>
-        <translation type="unfinished" />
+        <translation>番号は大文字 3 文字の国コードで始まります（例：FIN）</translation>
     </message>
     <message>
         <source>The saved number did not pass the check. Enter it again.</source>
-        <translation type="unfinished" />
+        <translation>保存した番号はチェックに通りませんでした。もう一度入力してください。</translation>
     </message>
     <message>
         <source>The check character does not match. Check the number for typos.</source>
-        <translation type="unfinished" />
+        <translation>チェック文字が一致しません。番号に入力ミスがないか確認してください。</translation>
     </message>
     <message>
         <source>Saved. This app now sends Remote ID data to the drone.</source>
-        <translation type="unfinished" />
+        <translation>保存しました。このアプリから機体に Remote ID データを送信します。</translation>
     </message>
     <message>
         <source>Required in the EU and many other countries. The drone broadcasts this while flying.</source>
@@ -2070,23 +2070,23 @@
     </message>
     <message>
         <source>Connect the drone to check the module</source>
-        <translation type="unfinished" />
+        <translation>モジュールを確認するには機体を接続してください</translation>
     </message>
     <message>
         <source>No module found on the drone</source>
-        <translation type="unfinished" />
+        <translation>機体にモジュールが見つかりません</translation>
     </message>
     <message>
         <source>Detected · ID %1</source>
-        <translation type="unfinished" />
+        <translation>検出 · ID %1</translation>
     </message>
     <message>
         <source>Detected</source>
-        <translation type="unfinished" />
+        <translation>検出</translation>
     </message>
     <message>
         <source>this app is not sending data yet, save below</source>
-        <translation type="unfinished" />
+        <translation>このアプリはまだデータを送信していません。下で保存してください</translation>
     </message>
     <message>
         <source>Not detected</source>
@@ -2094,7 +2094,7 @@
     </message>
     <message>
         <source>Not ready</source>
-        <translation type="unfinished" />
+        <translation>準備未完了</translation>
     </message>
     <message>
         <source>Broadcasting</source>
@@ -2110,11 +2110,11 @@
     </message>
     <message>
         <source>Optional in the US. Sent with the Remote ID data when filled in.</source>
-        <translation type="unfinished" />
+        <translation>US では任意です。入力すると Remote ID データと一緒に送信します。</translation>
     </message>
     <message>
         <source>Saved and checked · secret characters are not stored</source>
-        <translation type="unfinished" />
+        <translation>保存・チェック済み · 秘密の文字は保存しません</translation>
     </message>
     <message>
         <source>Region rules</source>
@@ -2138,7 +2138,7 @@
     </message>
     <message>
         <source>The US rules use the tablet's live position</source>
-        <translation type="unfinished" />
+        <translation>US のルールではタブレットのリアルタイム位置を使います</translation>
     </message>
     <message>
         <source>Where your position is taken from</source>
@@ -2162,7 +2162,7 @@
     </message>
     <message>
         <source>Altitude (m)</source>
-        <translation type="unfinished" />
+        <translation>高度（m）</translation>
     </message>
     <message>
         <source>Emergency status</source>
@@ -2170,11 +2170,11 @@
     </message>
     <message>
         <source>Connect the drone to use this</source>
-        <translation type="unfinished" />
+        <translation>使用するには機体を接続してください</translation>
     </message>
     <message>
         <source>Others see 'emergency' now. Turn off when the emergency is over.</source>
-        <translation type="unfinished" />
+        <translation>現在、周囲には「緊急」と表示されています。緊急事態が終わったらオフにしてください。</translation>
     </message>
     <message>
         <source>Turn on in an emergency. Others see 'emergency' until you turn it off.</source>
@@ -2182,7 +2182,7 @@
     </message>
     <message>
         <source>Save Remote ID settings first</source>
-        <translation type="unfinished" />
+        <translation>先に Remote ID の設定を保存してください</translation>
     </message>
     <message>
         <source>Save</source>
@@ -2190,11 +2190,11 @@
     </message>
     <message>
         <source>Enter a valid fixed point to save</source>
-        <translation type="unfinished" />
+        <translation>保存するには有効な固定地点を入力してください</translation>
     </message>
     <message>
         <source>Fix the operator number to save</source>
-        <translation type="unfinished" />
+        <translation>保存するにはオペレーター番号を修正してください</translation>
     </message>
     <message>
         <source>Turn off Remote ID</source>
@@ -2202,7 +2202,7 @@
     </message>
     <message>
         <source>Remote ID is off. This app no longer sends Remote ID data.</source>
-        <translation type="unfinished" />
+        <translation>Remote ID はオフです。このアプリは Remote ID データを送信しません。</translation>
     </message>
     <message>
         <source>Map style, maps saved for offline use and flight zone data.</source>
@@ -2214,7 +2214,7 @@
     </message>
     <message>
         <source>Current: %1 %2</source>
-        <translation type="unfinished" />
+        <translation>現在：%1 %2</translation>
     </message>
     <message>
         <source>Satellite</source>
@@ -2238,31 +2238,31 @@
     </message>
     <message>
         <source>No maps saved for offline use yet. Download an area before flying where there is no internet.</source>
-        <translation type="unfinished" />
+        <translation>オフライン用に保存した地図はまだありません。インターネットがない場所で飛行する前に、エリアをダウンロードしてください。</translation>
     </message>
     <message>
         <source>Delete this map? This cannot be undone.</source>
-        <translation type="unfinished" />
+        <translation>この地図を削除しますか？元に戻せません。</translation>
     </message>
     <message>
         <source>Deleting…</source>
-        <translation type="unfinished" />
+        <translation>削除中…</translation>
     </message>
     <message>
         <source>%1 · saved %2</source>
-        <translatorcomment>Draft from Figma example "1.2 GB · saved 2026-10-28" - review</translatorcomment><translation type="unfinished">%1 · 保存 %2</translation>
+        <translation>%1 · %2 保存</translation>
     </message>
     <message>
         <source>Downloading… %1 %</source>
-        <translatorcomment>Draft from Figma example "Downloading… 64 %" - review</translatorcomment><translation type="unfinished">ダウンロード中… %1 %</translation>
+        <translation>ダウンロード中… %1 %</translation>
     </message>
     <message>
         <source>Stopped at %1 % · %2 tiles could not be downloaded</source>
-        <translation type="unfinished" />
+        <translation>%1 % で停止 · %2 タイルをダウンロードできませんでした</translation>
     </message>
     <message>
         <source>Paused at %1 %</source>
-        <translation type="unfinished" />
+        <translation>%1 % で一時停止</translation>
     </message>
     <message>
         <source>Resume</source>
@@ -2282,11 +2282,11 @@
     </message>
     <message>
         <source>Choose a flight zone file</source>
-        <translation type="unfinished" />
+        <translation>飛行ゾーンファイルを選択</translation>
     </message>
     <message>
         <source>Zone files (*.geojson *.json)</source>
-        <translation type="unfinished" />
+        <translation>ゾーンファイル（*.geojson *.json）</translation>
     </message>
     <message>
         <source>FLIGHT ZONE DATA</source>
@@ -2294,39 +2294,39 @@
     </message>
     <message>
         <source>Zone source</source>
-        <translation type="unfinished" />
+        <translation>ゾーンの取得元</translation>
     </message>
     <message>
         <source>Zones for the visible map area, downloaded while you move the map</source>
-        <translation type="unfinished" />
+        <translation>表示中の地図範囲のゾーン。地図を動かすたびにダウンロードします</translation>
     </message>
     <message>
         <source>A GeoJSON file (ED-318 or Altitude Angel format) saved in the app</source>
-        <translation type="unfinished" />
+        <translation>アプリに保存した GeoJSON ファイル（ED-318 または Altitude Angel 形式）</translation>
     </message>
     <message>
         <source>Locked while the motors are running</source>
-        <translation type="unfinished" />
+        <translation>モーター回転中はロック</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished" />
+        <translation>ファイル</translation>
     </message>
     <message>
         <source>Online</source>
-        <translation type="unfinished" />
+        <translation>オンライン</translation>
     </message>
     <message>
         <source>Updated %1 · %2 zones · %3</source>
-        <translation type="unfinished" />
+        <translation>更新 %1 · %2 ゾーン · %3</translation>
     </message>
     <message>
         <source>shown on map</source>
-        <translation type="unfinished" />
+        <translation>地図に表示</translation>
     </message>
     <message>
         <source>hidden on map (Layers)</source>
-        <translation type="unfinished" />
+        <translation>地図で非表示（レイヤー）</translation>
     </message>
     <message>
         <source>Replace</source>
@@ -2334,11 +2334,11 @@
     </message>
     <message>
         <source>No flight zone file</source>
-        <translation type="unfinished" />
+        <translation>飛行ゾーンファイルなし</translation>
     </message>
     <message>
         <source>Import the zone file of the country where you fly. Zones are shown on the map and the app warns near them.</source>
-        <translation type="unfinished" />
+        <translation>飛行する国のゾーンファイルをインポートしてください。ゾーンが地図に表示され、近づくとアプリが警告します。</translation>
     </message>
     <message>
         <source>Choose file</source>
@@ -2350,27 +2350,27 @@
     </message>
     <message>
         <source>%1: %2 Nothing was changed.</source>
-        <translation type="unfinished" />
+        <translation>%1：%2 何も変更されていません。</translation>
     </message>
     <message>
         <source>Altitude Angel</source>
-        <translation type="unfinished" />
+        <translation>Altitude Angel</translation>
     </message>
     <message>
         <source>API key</source>
-        <translation type="unfinished" />
+        <translation>API キー</translation>
     </message>
     <message>
         <source>Reload</source>
-        <translation type="unfinished" />
+        <translation>再読込</translation>
     </message>
     <message>
         <source>Zones you draw: do not enter or warn only</source>
-        <translation type="unfinished" />
+        <translation>自分で描くゾーン：進入禁止または警告のみ</translation>
     </message>
     <message>
         <source>%1 zones you drew · %2 do not enter, %3 warn only</source>
-        <translation type="unfinished" />
+        <translation>自分で描いたゾーン %1 · 進入禁止 %2、警告のみ %3</translation>
     </message>
     <message>
         <source>Edit on map</source>
@@ -2382,39 +2382,39 @@
     </message>
     <message>
         <source>Drone link protected — open Link security</source>
-        <translation type="unfinished" />
+        <translation>機体リンク保護済み — リンクセキュリティを開く</translation>
     </message>
     <message>
         <source>Key mismatch: this app and the drone use different keys — open Link security</source>
-        <translation type="unfinished" />
+        <translation>キー不一致：このアプリと機体で異なるキーを使用しています — リンクセキュリティを開く</translation>
     </message>
     <message>
         <source>A key is set · this drone link is not protected yet — open Link security</source>
-        <translation type="unfinished" />
+        <translation>キー設定済み · この機体リンクはまだ保護されていません — リンクセキュリティを開く</translation>
     </message>
     <message>
         <source>Drone link not protected (no key) — open Link security</source>
-        <translation type="unfinished" />
+        <translation>機体リンク保護なし（キーなし） — リンクセキュリティを開く</translation>
     </message>
     <message>
         <source>Radio factory password still in use — open Link security</source>
-        <translation type="unfinished" />
+        <translation>無線機の工場出荷時パスワードを使用中 — リンクセキュリティを開く</translation>
     </message>
     <message>
         <source>%1 zones in the visible map area · needs internet · your API key</source>
-        <translation type="unfinished" />
+        <translation>表示中の地図範囲のゾーン %1 · インターネットが必要 · 自分の API キー</translation>
     </message>
     <message>
         <source>%1 zones in the visible map area · needs internet · company key</source>
-        <translation type="unfinished" />
+        <translation>表示中の地図範囲のゾーン %1 · インターネットが必要 · 会社のキー</translation>
     </message>
     <message>
         <source>Enter an Altitude Angel API key to load the zones</source>
-        <translation type="unfinished" />
+        <translation>ゾーンを読み込むには Altitude Angel の API キーを入力してください</translation>
     </message>
     <message>
         <source>Company key</source>
-        <translation type="unfinished" />
+        <translation>会社のキー</translation>
     </message>
     <message>
         <source>Security, privacy &amp; legal</source>
@@ -2422,7 +2422,7 @@
     </message>
     <message>
         <source>Data on this tablet, delete my data, security log, open-source licenses</source>
-        <translation type="unfinished" />
+        <translation>このタブレットのデータ、自分のデータを削除、セキュリティログ、オープンソースライセンス</translation>
     </message>
     <message>
         <source>Security &amp; privacy</source>
@@ -2450,15 +2450,15 @@
     </message>
     <message>
         <source> · change in Vehicle setup › Safety</source>
-        <translation type="unfinished" />
+        <translation> · 機体設定 › 安全 で変更</translation>
     </message>
     <message>
         <source> · change in Advanced mode › Vehicle setup › Safety</source>
-        <translation type="unfinished" />
+        <translation> · 詳細モード › 機体設定 › 安全 で変更</translation>
     </message>
     <message>
         <source>This app does not change the settings of the M2 radio.</source>
-        <translation type="unfinished" />
+        <translation>このアプリでは M2 無線機の設定を変更しません。</translation>
     </message>
     <message>
         <source>RTK correction · Serial port</source>
@@ -2466,11 +2466,11 @@
     </message>
     <message>
         <source>Receiving · no RTK yet</source>
-        <translation type="unfinished" />
+        <translation>受信中 · まだ RTK ではありません</translation>
     </message>
     <message>
         <source>No data from the port</source>
-        <translation type="unfinished" />
+        <translation>ポートからのデータなし</translation>
     </message>
     <message>
         <source>Source</source>
@@ -2486,11 +2486,11 @@
     </message>
     <message>
         <source>Correction comes from a GNSS receiver on a serial port. Turn on Advanced mode to change this.</source>
-        <translation type="unfinished" />
+        <translation>補正データはシリアルポートの GNSS 受信機から受信します。変更するには詳細モードをオンにしてください。</translation>
     </message>
     <message>
         <source>No serial port found</source>
-        <translation type="unfinished" />
+        <translation>シリアルポートが見つかりません</translation>
     </message>
     <message>
         <source>Speed (baud)</source>
@@ -2498,11 +2498,11 @@
     </message>
     <message>
         <source>Turn this on to choose the port. Correction data from the GNSS receiver is sent to the drone.</source>
-        <translation type="unfinished" />
+        <translation>オンにするとポートを選択できます。GNSS 受信機の補正データを機体に送信します。</translation>
     </message>
     <message>
         <source>Correction data comes from a GNSS receiver on this port and is sent to the drone.</source>
-        <translation type="unfinished" />
+        <translation>このポートの GNSS 受信機から補正データを受信し、機体に送信します。</translation>
     </message>
 </context>
 <context>
@@ -2513,7 +2513,7 @@
     </message>
     <message>
         <source>The drone arms its motors, climbs to %1 m and holds position. Maximum %2 m.</source>
-        <translatorcomment>Draft from Figma example "The drone arms its motors, climbs to 10 m and holds position. Maximum 120 m." - review</translatorcomment><translation type="unfinished">機体はモーターをアームし、%1 m まで上昇して位置を保持します。最大 %2 m。</translation>
+        <translation>機体はモーターをアームし、%1 m まで上昇して位置を保持します。最大 %2 m。</translation>
     </message>
     <message>
         <source>Slide to take off</source>
@@ -2532,7 +2532,7 @@
     </message>
     <message>
         <source>Landing</source>
-        <translation type="unfinished" />
+        <translation>着陸中</translation>
     </message>
     <message>
         <source>Returning home</source>
@@ -2588,7 +2588,7 @@
     </message>
     <message>
         <source>Check</source>
-        <translation type="unfinished" />
+        <translation>要確認</translation>
     </message>
     <message>
         <source>Remote ID</source>
@@ -2608,30 +2608,30 @@
     </message>
     <message>
         <source>%1 items to fix</source>
-        <translation type="unfinished" />
+        <translation>要修正 %1件</translation>
     </message>
 </context>
 <context>
     <name>SimpleVehicleState</name>
     <message>
         <source>Compass problem</source>
-        <translation type="unfinished" />
+        <translation>コンパス異常</translation>
     </message>
     <message>
         <source>Warning — see the messages (bell)</source>
-        <translation type="unfinished" />
+        <translation>警告 — メッセージ（ベル）を確認してください</translation>
     </message>
     <message>
         <source>No fix</source>
-        <translation type="unfinished" />
+        <translation>測位なし</translation>
     </message>
     <message>
         <source>RTK</source>
-        <translation type="unfinished" />
+        <translation>RTK</translation>
     </message>
     <message>
         <source>Weak</source>
-        <translation type="unfinished" />
+        <translation>弱</translation>
     </message>
     <message>
         <source>Good</source>
@@ -2655,15 +2655,15 @@
     </message>
     <message>
         <source>Fair</source>
-        <translation type="unfinished" />
+        <translation>中</translation>
     </message>
     <message>
         <source>No power</source>
-        <translation type="unfinished" />
+        <translation>電源なし</translation>
     </message>
     <message>
         <source>No station</source>
-        <translation type="unfinished" />
+        <translation>ステーションなし</translation>
     </message>
     <message>
         <source>Power OK</source>
@@ -2671,19 +2671,19 @@
     </message>
     <message>
         <source>Power off</source>
-        <translation type="unfinished" />
+        <translation>電源オフ</translation>
     </message>
     <message>
         <source>Station lost</source>
-        <translation type="unfinished" />
+        <translation>ステーションロスト</translation>
     </message>
     <message>
         <source>Crash detected</source>
-        <translation type="unfinished" />
+        <translation>墜落を検知</translation>
     </message>
     <message>
         <source>GPS or position lost</source>
-        <translation type="unfinished" />
+        <translation>GPS または位置のロスト</translation>
     </message>
     <message>
         <source>Battery low</source>
@@ -2695,19 +2695,19 @@
     </message>
     <message>
         <source>App link lost</source>
-        <translation type="unfinished" />
+        <translation>アプリのリンクロスト</translation>
     </message>
     <message>
         <source>Geofence reached</source>
-        <translation type="unfinished" />
+        <translation>ジオフェンスに到達</translation>
     </message>
     <message>
         <source>Terrain data problem</source>
-        <translation type="unfinished" />
+        <translation>地形データの問題</translation>
     </message>
     <message>
         <source>Strong vibration</source>
-        <translation type="unfinished" />
+        <translation>強い振動</translation>
     </message>
     <message>
         <source>Strong wind</source>
@@ -2750,7 +2750,7 @@
     </message>
     <message>
         <source>A drone is connected: restart alesQGC after Start to show the new units everywhere.</source>
-        <translation type="unfinished" />
+        <translation>機体が接続されています：開始後に alesQGC を再起動すると、すべての画面に新しい単位が表示されます。</translation>
     </message>
     <message>
         <source>Drone type for planning without a drone: ArduPilot multicopter. A connected drone always uses its own settings.</source>
@@ -2765,11 +2765,11 @@
     <name>SimpleMapDownload</name>
     <message>
         <source>Enter a name</source>
-        <translation type="unfinished" />
+        <translation>名前を入力してください</translation>
     </message>
     <message>
         <source>A saved map already has this name</source>
-        <translation type="unfinished" />
+        <translation>同じ名前の保存済み地図があります</translation>
     </message>
     <message>
         <source>Map &amp; flight zones</source>
@@ -2781,7 +2781,7 @@
     </message>
     <message>
         <source>Move and zoom the map so the area fits the frame</source>
-        <translation type="unfinished" />
+        <translation>エリアが枠に収まるように地図を移動・ズームしてください</translation>
     </message>
     <message>
         <source>Name</source>
@@ -2789,11 +2789,11 @@
     </message>
     <message>
         <source>area</source>
-        <translation type="unfinished" />
+        <translation>エリア</translation>
     </message>
     <message>
         <source>Detail</source>
-        <translation type="unfinished" />
+        <translation>詳細度</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -2805,70 +2805,70 @@
     </message>
     <message>
         <source>Buildings and small paths. Needs much more space.</source>
-        <translation type="unfinished" />
+        <translation>建物や細い道まで。容量が大幅に増えます。</translation>
     </message>
     <message>
         <source>Roads, fields and large buildings.</source>
-        <translation type="unfinished" />
+        <translation>道路、畑、大きな建物。</translation>
     </message>
     <message>
         <source>SIZE</source>
-        <translation type="unfinished" />
+        <translation>サイズ</translation>
     </message>
     <message>
         <source>MAP TILES</source>
-        <translation type="unfinished" />
+        <translation>地図タイル</translation>
     </message>
     <message>
         <source>Area too large. Zoom in or choose Standard detail.</source>
-        <translation type="unfinished" />
+        <translation>エリアが広すぎます。ズームインするか、標準の詳細度を選択してください。</translation>
     </message>
     <message>
         <source>Free space on this device: %1</source>
-        <translation type="unfinished" />
+        <translation>この端末の空き容量：%1</translation>
     </message>
     <message>
         <source>Download</source>
-        <translation type="unfinished" />
+        <translation>ダウンロード</translation>
     </message>
 </context>
 <context>
     <name>SimplePayloadSettings</name>
     <message>
         <source>% of the station's maximum power</source>
-        <translation type="unfinished" />
+        <translation>ステーション最大電力に対する %</translation>
     </message>
     <message>
         <source>IP address of the camera on the drone's network</source>
-        <translation type="unfinished" />
+        <translation>機体ネットワーク上のカメラの IP アドレス</translation>
     </message>
     <message>
         <source>%1 flights in total</source>
-        <translation type="unfinished" />
+        <translation>合計 %1 回の飛行</translation>
     </message>
     <message>
         <source>%1 m</source>
-        <translatorcomment>Draft from Figma example "0.0 / 100 m" - review</translatorcomment><translation type="unfinished">%1 m</translation>
+        <translation>%1 m</translation>
     </message>
     <message>
         <source>%1 of %2 h</source>
-        <translatorcomment>Draft from Figma example "38 of 50 h" - review</translatorcomment><translation type="unfinished">%1 / %2 時間</translation>
+        <translation>%1 / %2 時間</translation>
     </message>
     <message>
         <source>%1 s</source>
-        <translatorcomment>Draft from Figma example "1 s" - review</translatorcomment><translation type="unfinished">%1 s</translation>
+        <translation>%1 秒</translation>
     </message>
     <message>
         <source>ALARMS (SAVED IN STATION)</source>
-        <translation type="unfinished" />
+        <translation>アラーム（ステーションに保存）</translation>
     </message>
     <message>
         <source>Allowed 0–100 %</source>
-        <translation type="unfinished" />
+        <translation>0–100 % の範囲</translation>
     </message>
     <message>
         <source>Allowed 0–200 m</source>
-        <translation type="unfinished" />
+        <translation>0–200 m の範囲</translation>
     </message>
     <message>
         <source>Anti-entrapment</source>
@@ -2876,7 +2876,7 @@
     </message>
     <message>
         <source>Asks the LiDAR for its status once</source>
-        <translation type="unfinished" />
+        <translation>LiDAR にステータスを 1 回問い合わせます</translation>
     </message>
     <message>
         <source>Auto land</source>
@@ -2884,7 +2884,7 @@
     </message>
     <message>
         <source>CAMERA</source>
-        <translation type="unfinished" />
+        <translation>カメラ</translation>
     </message>
     <message>
         <source>Cable end alert</source>
@@ -2900,7 +2900,7 @@
     </message>
     <message>
         <source>Camera type on this drone</source>
-        <translation type="unfinished" />
+        <translation>この機体のカメラの種類</translation>
     </message>
     <message>
         <source>Camera</source>
@@ -2912,15 +2912,15 @@
     </message>
     <message>
         <source>Cannot connect — check the address and the network</source>
-        <translation type="unfinished" />
+        <translation>接続できません — アドレスとネットワークを確認してください</translation>
     </message>
     <message>
         <source>Cannot connect</source>
-        <translation type="unfinished" />
+        <translation>接続できません</translation>
     </message>
     <message>
         <source>Change on the ground (motors off)</source>
-        <translation type="unfinished" />
+        <translation>地上で変更してください（モーター停止）</translation>
     </message>
     <message>
         <source>Computer temperature</source>
@@ -2928,15 +2928,15 @@
     </message>
     <message>
         <source>Connect the drone to change this</source>
-        <translation type="unfinished" />
+        <translation>変更するには機体を接続してください</translation>
     </message>
     <message>
         <source>Connect the drone to set the tilt limits.</source>
-        <translation type="unfinished" />
+        <translation>チルト制限を設定するには機体を接続してください。</translation>
     </message>
     <message>
         <source>Connect the station to change its settings</source>
-        <translation type="unfinished" />
+        <translation>設定を変更するにはステーションを接続してください</translation>
     </message>
     <message>
         <source>Connect</source>
@@ -2948,7 +2948,7 @@
     </message>
     <message>
         <source>Connected · power on</source>
-        <translation type="unfinished" />
+        <translation>接続済み · 電源オン</translation>
     </message>
     <message>
         <source>Connected</source>
@@ -2956,15 +2956,15 @@
     </message>
     <message>
         <source>Connecting…</source>
-        <translation type="unfinished" />
+        <translation>接続中…</translation>
     </message>
     <message>
         <source>DEVICE</source>
-        <translation type="unfinished" />
+        <translation>デバイス</translation>
     </message>
     <message>
         <source>Devices the drone carries. Tap one to set it up.</source>
-        <translation type="unfinished" />
+        <translation>機体に搭載された装置です。タップして設定します。</translation>
     </message>
     <message>
         <source>Disconnect</source>
@@ -2972,11 +2972,11 @@
     </message>
     <message>
         <source>Drone not connected</source>
-        <translation type="unfinished" />
+        <translation>機体未接続</translation>
     </message>
     <message>
         <source>EMBEDDED CAMERA (SAVED IN LIDAR)</source>
-        <translation type="unfinished" />
+        <translation>内蔵カメラ（LiDAR に保存）</translation>
     </message>
     <message>
         <source>Fast</source>
@@ -2984,11 +2984,11 @@
     </message>
     <message>
         <source>Filled in automatically when the camera connects.</source>
-        <translation type="unfinished" />
+        <translation>カメラが接続されると自動で入力されます。</translation>
     </message>
     <message>
         <source>For tethered flights</source>
-        <translation type="unfinished" />
+        <translation>テザー飛行用</translation>
     </message>
     <message>
         <source>From where recording starts</source>
@@ -2996,7 +2996,7 @@
     </message>
     <message>
         <source>GIMBAL</source>
-        <translation type="unfinished" />
+        <translation>ジンバル</translation>
     </message>
     <message>
         <source>Gimbal speed</source>
@@ -3004,7 +3004,7 @@
     </message>
     <message>
         <source>Gremsy Lynx</source>
-        <translation type="unfinished" />
+        <translation>Gremsy Lynx</translation>
     </message>
     <message>
         <source>Highest tilt</source>
@@ -3012,7 +3012,7 @@
     </message>
     <message>
         <source>How fast the gimbal turns with the on-screen controls</source>
-        <translation type="unfinished" />
+        <translation>画面上の操作でジンバルが回転する速さ</translation>
     </message>
     <message>
         <source>If ground power is lost</source>
@@ -3024,23 +3024,23 @@
     </message>
     <message>
         <source>Level = 0°</source>
-        <translation type="unfinished" />
+        <translation>水平 = 0°</translation>
     </message>
     <message>
         <source>Link lost</source>
-        <translation type="unfinished" />
+        <translation>リンクロスト</translation>
     </message>
     <message>
         <source>Locked while flying (station power above 200 W)</source>
-        <translation type="unfinished" />
+        <translation>飛行中はロック（ステーション電力 200 W 超）</translation>
     </message>
     <message>
         <source>Locked while the motors are on</source>
-        <translation type="unfinished" />
+        <translation>モーター回転中はロック</translation>
     </message>
     <message>
         <source>Locked: the station reports no power</source>
-        <translation type="unfinished" />
+        <translation>ロック：ステーションが電源なしを報告</translation>
     </message>
     <message>
         <source>Lowest tilt</source>
@@ -3048,7 +3048,7 @@
     </message>
     <message>
         <source>MAINTENANCE</source>
-        <translation type="unfinished" />
+        <translation>メンテナンス</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -3056,7 +3056,7 @@
     </message>
     <message>
         <source>Metres before the cable runs out</source>
-        <translation type="unfinished" />
+        <translation>ケーブルが尽きる前の残り距離（m）</translation>
     </message>
     <message>
         <source>Model</source>
@@ -3068,11 +3068,11 @@
     </message>
     <message>
         <source>NextVision</source>
-        <translation type="unfinished" />
+        <translation>NextVision</translation>
     </message>
     <message>
         <source>No reply</source>
-        <translation type="unfinished" />
+        <translation>応答なし</translation>
     </message>
     <message>
         <source>Normal</source>
@@ -3080,7 +3080,7 @@
     </message>
     <message>
         <source>Not available</source>
-        <translation type="unfinished" />
+        <translation>利用不可</translation>
     </message>
     <message>
         <source>Not connected</source>
@@ -3088,15 +3088,15 @@
     </message>
     <message>
         <source>Not read</source>
-        <translation type="unfinished" />
+        <translation>未読込</translation>
     </message>
     <message>
         <source>Not ready</source>
-        <translation type="unfinished" />
+        <translation>準備未完了</translation>
     </message>
     <message>
         <source>Not used</source>
-        <translation type="unfinished" />
+        <translation>未使用</translation>
     </message>
     <message>
         <source>OK</source>
@@ -3128,11 +3128,11 @@
     </message>
     <message>
         <source>Power off sent. Turn it on again with the button on the drone.</source>
-        <translation type="unfinished" />
+        <translation>電源オフを送信しました。機体のボタンで再度オンにしてください。</translation>
     </message>
     <message>
         <source>Power off</source>
-        <translation type="unfinished" />
+        <translation>電源オフ</translation>
     </message>
     <message>
         <source>Power off…</source>
@@ -3140,15 +3140,15 @@
     </message>
     <message>
         <source>Powered off</source>
-        <translation type="unfinished" />
+        <translation>電源オフ済み</translation>
     </message>
     <message>
         <source>Problem</source>
-        <translation type="unfinished" />
+        <translation>異常あり</translation>
     </message>
     <message>
         <source>Read from the LiDAR. Changing these needs Set Parameter support in the companion board (not yet available).</source>
-        <translation type="unfinished" />
+        <translation>LiDAR から読み込んだ値です。変更にはコンパニオンボードの Set Parameter 対応が必要です（まだ未対応）。</translation>
     </message>
     <message>
         <source>Read from the station</source>
@@ -3160,11 +3160,11 @@
     </message>
     <message>
         <source>Recommend landing</source>
-        <translation type="unfinished" />
+        <translation>着陸を推奨</translation>
     </message>
     <message>
         <source>Recording</source>
-        <translation type="unfinished" />
+        <translation>記録中</translation>
     </message>
     <message>
         <source>Restart needs the button on the drone</source>
@@ -3176,7 +3176,7 @@
     </message>
     <message>
         <source>Shows the LiDAR panel and checks in flight</source>
-        <translation type="unfinished" />
+        <translation>飛行中に LiDAR パネルとチェックを表示します</translation>
     </message>
     <message>
         <source>Since last service</source>
@@ -3204,7 +3204,7 @@
     </message>
     <message>
         <source>Take a photo every</source>
-        <translation type="unfinished" />
+        <translation>撮影間隔</translation>
     </message>
     <message>
         <source>Take photos</source>
@@ -3212,7 +3212,7 @@
     </message>
     <message>
         <source>Talking to the station…</source>
-        <translation type="unfinished" />
+        <translation>ステーションと通信中…</translation>
     </message>
     <message>
         <source>Test connection</source>
@@ -3224,7 +3224,7 @@
     </message>
     <message>
         <source>Testing…</source>
-        <translation type="unfinished" />
+        <translation>テスト中…</translation>
     </message>
     <message>
         <source>Tether station (SAFE-T)</source>
@@ -3232,15 +3232,15 @@
     </message>
     <message>
         <source>Tether support is not available</source>
-        <translation type="unfinished" />
+        <translation>テザーは利用できません</translation>
     </message>
     <message>
         <source>The LiDAR reports only OK or a warning</source>
-        <translation type="unfinished" />
+        <translation>LiDAR は正常か警告のみを報告します</translation>
     </message>
     <message>
         <source>This drone has no gimbal tilt limit parameters.</source>
-        <translation type="unfinished" />
+        <translation>この機体にはジンバルのチルト制限パラメーターがありません。</translation>
     </message>
     <message>
         <source>USB stick</source>
@@ -3248,7 +3248,7 @@
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished" />
+        <translation>不明</translation>
     </message>
     <message>
         <source>Use YellowScan LiDAR</source>
@@ -3260,7 +3260,7 @@
     </message>
     <message>
         <source>Video stream (RTSP)</source>
-        <translation type="unfinished" />
+        <translation>映像ストリーム（RTSP）</translation>
     </message>
     <message>
         <source>Warn only</source>
@@ -3272,11 +3272,11 @@
     </message>
     <message>
         <source>Allow strobe *</source>
-        <translation type="unfinished" />
+        <translation>ストロボを許可 *</translation>
     </message>
     <message>
         <source>Also shows the life jacket drop on the flight screen</source>
-        <translation type="unfinished" />
+        <translation>飛行画面に救命胴衣の投下も表示します</translation>
     </message>
     <message>
         <source>Auto stop at</source>
@@ -3284,7 +3284,7 @@
     </message>
     <message>
         <source>BirdCom searchlight and life jacket</source>
-        <translation type="unfinished" />
+        <translation>BirdCom サーチライトと救命胴衣</translation>
     </message>
     <message>
         <source>Cleaning device</source>
@@ -3292,11 +3292,11 @@
     </message>
     <message>
         <source>Clips stored on the speaker</source>
-        <translation type="unfinished" />
+        <translation>スピーカーに保存されたクリップ</translation>
     </message>
     <message>
         <source>Distance to wall *</source>
-        <translation type="unfinished" />
+        <translation>壁までの距離 *</translation>
     </message>
     <message>
         <source>English</source>
@@ -3304,7 +3304,7 @@
     </message>
     <message>
         <source>Fitted</source>
-        <translation type="unfinished" />
+        <translation>装着済み</translation>
     </message>
     <message>
         <source>For typed messages</source>
@@ -3320,7 +3320,7 @@
     </message>
     <message>
         <source>Hook for drops</source>
-        <translation type="unfinished" />
+        <translation>投下用フック</translation>
     </message>
     <message>
         <source>Hook opens · on the ground, motors off</source>
@@ -3328,11 +3328,11 @@
     </message>
     <message>
         <source>How long Release must be held on the flight screen</source>
-        <translation type="unfinished" />
+        <translation>飛行画面で投下を長押しする時間</translation>
     </message>
     <message>
         <source>Korean</source>
-        <translation type="unfinished" />
+        <translation>韓国語</translation>
     </message>
     <message>
         <source>Low</source>
@@ -3340,15 +3340,15 @@
     </message>
     <message>
         <source>Lowering speed *</source>
-        <translation type="unfinished" />
+        <translation>降下速度 *</translation>
     </message>
     <message>
         <source>Max brightness *</source>
-        <translation type="unfinished" />
+        <translation>最大の明るさ *</translation>
     </message>
     <message>
         <source>Max volume *</source>
-        <translation type="unfinished" />
+        <translation>最大音量 *</translation>
     </message>
     <message>
         <source>Megaphone</source>
@@ -3360,11 +3360,11 @@
     </message>
     <message>
         <source>No cleaning device is connected. The card becomes active when the app supports the device.</source>
-        <translation type="unfinished" />
+        <translation>清掃装置が接続されていません。アプリが装置に対応するとカードが有効になります。</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished" />
+        <translation>いいえ</translation>
     </message>
     <message>
         <source>Not detected</source>
@@ -3372,15 +3372,15 @@
     </message>
     <message>
         <source>Not fitted</source>
-        <translation type="unfinished" />
+        <translation>未装着</translation>
     </message>
     <message>
         <source>Not supported by this app yet</source>
-        <translation type="unfinished" />
+        <translation>このアプリではまだ未対応</translation>
     </message>
     <message>
         <source>Release sent to the drone</source>
-        <translation type="unfinished" />
+        <translation>機体に投下を送信しました</translation>
     </message>
     <message>
         <source>Safety limit, fixed</source>
@@ -3392,19 +3392,19 @@
     </message>
     <message>
         <source>Set on the drone (parameter GRIP_ENABLE) · Advanced › Parameters</source>
-        <translation type="unfinished" />
+        <translation>機体で設定（パラメーター GRIP_ENABLE）· 詳細 › パラメーター</translation>
     </message>
     <message>
         <source>Shows the megaphone card on the flight screen</source>
-        <translation type="unfinished" />
+        <translation>飛行画面にスピーカーのカードを表示します</translation>
     </message>
     <message>
         <source>Speech language *</source>
-        <translation type="unfinished" />
+        <translation>音声の言語 *</translation>
     </message>
     <message>
         <source>Spray pressure *</source>
-        <translation type="unfinished" />
+        <translation>噴射圧力 *</translation>
     </message>
     <message>
         <source>Stop sound on landing</source>
@@ -3420,15 +3420,15 @@
     </message>
     <message>
         <source>Use BirdCom searchlight</source>
-        <translation type="unfinished" />
+        <translation>BirdCom サーチライトを使用</translation>
     </message>
     <message>
         <source>Use megaphone</source>
-        <translation type="unfinished" />
+        <translation>スピーカーを使用</translation>
     </message>
     <message>
         <source>Values marked * are kept in the app and used once the device accepts them.</source>
-        <translation type="unfinished" />
+        <translation>* の付いた値はアプリに保存され、装置が受け付けるようになると使用されます。</translation>
     </message>
     <message>
         <source>Winch</source>
@@ -3436,7 +3436,7 @@
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished" />
+        <translation>はい</translation>
     </message>
     <message>
         <source>On · stop</source>
@@ -3444,7 +3444,7 @@
     </message>
     <message>
         <source>On · avoid</source>
-        <translation type="unfinished" />
+        <translation>オン · 回避</translation>
     </message>
     <message>
         <source>Vision LiDAR</source>
@@ -3452,7 +3452,7 @@
     </message>
     <message>
         <source>BirdCom obstacle detection</source>
-        <translation type="unfinished" />
+        <translation>BirdCom 障害物検知</translation>
     </message>
     <message>
         <source>BirdCom obstacle sensor. The drone stops when something is closer than the detection distance.</source>
@@ -3492,23 +3492,23 @@
     </message>
     <message>
         <source>No reply from the Vision LiDAR. Check that it is fitted and powered.</source>
-        <translation type="unfinished" />
+        <translation>Vision LiDAR から応答がありません。装着と電源を確認してください。</translation>
     </message>
     <message>
         <source>Connect the drone to change these settings.</source>
-        <translation type="unfinished" />
+        <translation>これらの設定を変更するには機体を接続してください。</translation>
     </message>
     <message>
         <source>These settings need station frame version Extended V1</source>
-        <translation type="unfinished" />
+        <translation>これらの設定にはステーションのフレームバージョン Extended V1 が必要です</translation>
     </message>
     <message>
         <source>Gimbal type, servo outputs and angle ranges: Vehicle setup › Gimbal ›</source>
-        <translation type="unfinished" />
+        <translation>ジンバルの種類、サーボ出力、角度範囲：機体設定 › Gimbal ›</translation>
     </message>
     <message>
         <source>From the LiDAR panel on the flight screen</source>
-        <translation type="unfinished" />
+        <translation>飛行画面の LiDAR パネルから</translation>
     </message>
     <message>
         <source>Auto</source>
@@ -3552,11 +3552,11 @@
     </message>
     <message>
         <source>Extended V1</source>
-        <translation type="unfinished" />
+        <translation>Extended V1</translation>
     </message>
     <message>
         <source>Extended V0</source>
-        <translation type="unfinished" />
+        <translation>Extended V0</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -3564,43 +3564,43 @@
     </message>
     <message>
         <source>Changed in Advanced mode</source>
-        <translation type="unfinished" />
+        <translation>詳細モードで変更</translation>
     </message>
     <message>
         <source>What the app does when the station loses ground power</source>
-        <translation type="unfinished" />
+        <translation>ステーションが地上電源を失ったときのアプリの動作</translation>
     </message>
     <message>
         <source>Auto land sends Land without asking when the cable has no power. Use it only for the drone tethered to this station.</source>
-        <translation type="unfinished" />
+        <translation>自動着陸は、ケーブルに電源がないときに確認なしで着陸を送信します。このステーションにつながった機体にのみ使用してください。</translation>
     </message>
     <message>
         <source>Use auto land</source>
-        <translation type="unfinished" />
+        <translation>自動着陸を使用</translation>
     </message>
     <message>
         <source>S/N %1</source>
-        <translation type="unfinished" />
+        <translation>S/N %1</translation>
     </message>
     <message>
         <source>Turn on the tether station first</source>
-        <translation type="unfinished" />
+        <translation>先にテザーステーションの電源を入れてください</translation>
     </message>
     <message>
         <source>No reply · trying again (%1)</source>
-        <translation type="unfinished" />
+        <translation>応答なし · 再試行中（%1）</translation>
     </message>
     <message>
         <source>No reply from the station</source>
-        <translation type="unfinished" />
+        <translation>ステーションから応答がありません</translation>
     </message>
     <message>
         <source>The tablet must be on the station's network</source>
-        <translation type="unfinished" />
+        <translation>タブレットがステーションのネットワークに接続されている必要があります</translation>
     </message>
     <message>
         <source>Starts at the first scan item (the Init Path figure 8 in a LiDAR plan) and stops after the last one. Start / Stop on the flight screen still works.</source>
-        <translation type="unfinished" />
+        <translation>最初のスキャン項目（LiDAR プランでは初期化経路の 8 の字飛行）で開始し、最後の項目の後に停止します。飛行画面の開始 / 停止も引き続き使えます。</translation>
     </message>
 </context>
 <context>
@@ -3639,15 +3639,15 @@
     </message>
     <message>
         <source>Offline map: 1 area downloaded</source>
-        <translation type="unfinished" />
+        <translation>オフラインマップ：1 エリアをダウンロード済み</translation>
     </message>
     <message>
         <source>Offline maps: %1 areas downloaded</source>
-        <translation type="unfinished" />
+        <translation>オフラインマップ：%1 エリアをダウンロード済み</translation>
     </message>
     <message>
         <source>No offline maps (Settings › Map &amp; flight zones)</source>
-        <translation type="unfinished" />
+        <translation>オフラインマップなし（設定 › 地図と飛行ゾーン）</translation>
     </message>
     <message>
         <source>Flight zones</source>
@@ -3655,11 +3655,11 @@
     </message>
     <message>
         <source>%1 zones loaded</source>
-        <translation type="unfinished" />
+        <translation>%1 ゾーンを読込済み</translation>
     </message>
     <message>
         <source>No zone data (Settings › Map &amp; flight zones)</source>
-        <translation type="unfinished" />
+        <translation>ゾーンデータなし（設定 › 地図と飛行ゾーン）</translation>
     </message>
     <message>
         <source>Prohibited</source>
@@ -3675,7 +3675,7 @@
     </message>
     <message>
         <source>My zone</source>
-        <translation type="unfinished" />
+        <translation>マイゾーン</translation>
     </message>
     <message>
         <source>My zones</source>
@@ -3683,15 +3683,15 @@
     </message>
     <message>
         <source>Ground</source>
-        <translation type="unfinished" />
+        <translation>地表</translation>
     </message>
     <message>
         <source>%1 and up</source>
-        <translation type="unfinished" />
+        <translation>%1 以上</translation>
     </message>
     <message>
         <source>Altitude Angel (online)</source>
-        <translation type="unfinished" />
+        <translation>Altitude Angel（オンライン）</translation>
     </message>
     <message>
         <source>Zone details</source>
@@ -3707,7 +3707,7 @@
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished" />
+        <translation>詳細</translation>
     </message>
     <message>
         <source>Source</source>
@@ -3715,46 +3715,46 @@
     </message>
     <message>
         <source>%1 zones overlap here — the most restrictive one is shown first.</source>
-        <translation type="unfinished" />
+        <translation>ここで %1 個のゾーンが重なっています — 最も厳しいゾーンを先に表示します。</translation>
     </message>
     <message>
         <source>Zoom in to see the zones</source>
-        <translation type="unfinished" />
+        <translation>ズームインするとゾーンが表示されます</translation>
     </message>
 </context>
 <context>
     <name>FlightZoneManager</name>
     <message>
         <source>The file cannot be opened.</source>
-        <translation type="unfinished" />
+        <translation>ファイルを開けません。</translation>
     </message>
     <message>
         <source>This is not a GeoJSON file (%1).</source>
-        <translation type="unfinished" />
+        <translation>GeoJSON ファイルではありません（%1）。</translation>
     </message>
     <message>
         <source>The file has no zone areas (GeoJSON Polygon or MultiPolygon features).</source>
-        <translation type="unfinished" />
+        <translation>ファイルにゾーンのエリアがありません（GeoJSON の Polygon または MultiPolygon フィーチャー）。</translation>
     </message>
     <message>
         <source>The file cannot be copied to the app folder.</source>
-        <translation type="unfinished" />
+        <translation>ファイルをアプリのフォルダーにコピーできません。</translation>
     </message>
     <message>
         <source>Inside a prohibited zone</source>
-        <translation type="unfinished" />
+        <translation>禁止ゾーン内</translation>
     </message>
     <message>
         <source>Inside a flight zone</source>
-        <translation type="unfinished" />
+        <translation>飛行ゾーン内</translation>
     </message>
     <message>
         <source>Prohibited zone ahead</source>
-        <translation type="unfinished" />
+        <translation>前方に禁止ゾーン</translation>
     </message>
     <message>
         <source>Flight zone ahead</source>
-        <translation type="unfinished" />
+        <translation>前方に飛行ゾーン</translation>
     </message>
     <message>
         <source>Do not enter</source>
@@ -3766,34 +3766,34 @@
     </message>
     <message>
         <source>The zone server sent data that cannot be read.</source>
-        <translation type="unfinished" />
+        <translation>ゾーンサーバーから読み取れないデータが送られました。</translation>
     </message>
     <message>
         <source>The zone server refused the API key.</source>
-        <translation type="unfinished" />
+        <translation>ゾーンサーバーが API キーを拒否しました。</translation>
     </message>
     <message>
         <source>Zones cannot be downloaded: %1</source>
-        <translation type="unfinished" />
+        <translation>ゾーンをダウンロードできません：%1</translation>
     </message>
     <message>
         <source>The zone file cannot be opened: %1</source>
-        <translation type="unfinished" />
+        <translation>ゾーンファイルを開けません：%1</translation>
     </message>
     <message>
         <source>The zone file is not valid GeoJSON: %1</source>
-        <translation type="unfinished" />
+        <translation>ゾーンファイルが有効な GeoJSON ではありません：%1</translation>
     </message>
     <message>
         <source>heights above sea level</source>
-        <translation type="unfinished" />
+        <translation>高度は海抜基準</translation>
     </message>
 </context>
 <context>
     <name>SimpleMyZones</name>
     <message>
         <source>My zone %1</source>
-        <translation type="unfinished" />
+        <translation>マイゾーン %1</translation>
     </message>
     <message>
         <source>Settings</source>
@@ -3805,7 +3805,7 @@
     </message>
     <message>
         <source>Edit flight zone</source>
-        <translation type="unfinished" />
+        <translation>飛行ゾーンを編集</translation>
     </message>
     <message>
         <source>My flight zones</source>
@@ -3829,15 +3829,15 @@
     </message>
     <message>
         <source>Locked while the motors are running.</source>
-        <translation type="unfinished" />
+        <translation>モーター回転中はロックされます。</translation>
     </message>
     <message>
         <source>Tap the map to add corners, drag a corner to move it. Official zones cannot be edited.</source>
-        <translation type="unfinished" />
+        <translation>地図をタップして角を追加し、角をドラッグして移動します。公式のゾーンは編集できません。</translation>
     </message>
     <message>
         <source>%1 zones you drew</source>
-        <translation type="unfinished" />
+        <translation>自分で描いたゾーン %1</translation>
     </message>
     <message>
         <source>Draw a zone the drone must not enter (for example a building or a crowd area) or a zone to be warned about.</source>
@@ -3889,11 +3889,11 @@
     </message>
     <message>
         <source>'Do not enter' blocks take-off and plan sending inside the zone, and goes to the drone's fence when it is uploaded — the drone stops at the edge.</source>
-        <translation type="unfinished" />
+        <translation>「進入禁止」はゾーン内での離陸とプランの送信をブロックし、アップロードすると機体のフェンスに入ります — 機体はゾーンの境界で停止します。</translation>
     </message>
     <message>
         <source>'Warn only' shows an orange warning and speaks when the drone comes closer than the warning distance.</source>
-        <translation type="unfinished" />
+        <translation>「警告のみ」は、機体が警告距離より近づくとオレンジ色の警告を表示し、音声で知らせます。</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -3905,27 +3905,27 @@
     </message>
     <message>
         <source>Add at least 3 corners.</source>
-        <translation type="unfinished" />
+        <translation>角を 3 つ以上追加してください。</translation>
     </message>
     <message>
         <source>only reports the breach</source>
-        <translation type="unfinished" />
+        <translation>逸脱を報告するのみ</translation>
     </message>
     <message>
         <source>lands</source>
-        <translation type="unfinished" />
+        <translation>着陸</translation>
     </message>
     <message>
         <source>brakes, or lands</source>
-        <translation type="unfinished" />
+        <translation>ブレーキ、または着陸</translation>
     </message>
     <message>
         <source>returns on its own path, or lands</source>
-        <translation type="unfinished" />
+        <translation>来た経路を戻る、または着陸</translation>
     </message>
     <message>
         <source>returns home, or lands</source>
-        <translation type="unfinished" />
+        <translation>帰還、または着陸</translation>
     </message>
     <message>
         <source>DRONE FENCE</source>
@@ -3933,55 +3933,55 @@
     </message>
     <message>
         <source>Connect the drone to upload the 'do not enter' zones to its fence.</source>
-        <translation type="unfinished" />
+        <translation>「進入禁止」ゾーンを機体のフェンスにアップロードするには、機体を接続してください。</translation>
     </message>
     <message>
         <source>The fence can be uploaded only on the ground with the motors off.</source>
-        <translation type="unfinished" />
+        <translation>フェンスは地上でモーター停止中にのみアップロードできます。</translation>
     </message>
     <message>
         <source>This drone has no fence parameters.</source>
-        <translation type="unfinished" />
+        <translation>この機体にはフェンスのパラメーターがありません。</translation>
     </message>
     <message>
         <source>Polygon fence on. At a zone edge the drone %1.</source>
-        <translation type="unfinished" />
+        <translation>ポリゴンフェンス オン。ゾーンの境界で機体の動作：%1。</translation>
     </message>
     <message>
         <source>The drone's polygon fence is off.</source>
-        <translation type="unfinished" />
+        <translation>機体のポリゴンフェンスはオフです。</translation>
     </message>
     <message>
         <source>Uploaded to the drone.</source>
-        <translation type="unfinished" />
+        <translation>機体にアップロードしました。</translation>
     </message>
     <message>
         <source>Uploading…</source>
-        <translation type="unfinished" />
+        <translation>アップロード中…</translation>
     </message>
     <message>
         <source>Upload</source>
-        <translation type="unfinished" />
+        <translation>アップロード</translation>
     </message>
     <message>
         <source>Upload to drone (%1 zones)</source>
-        <translatorcomment>Draft from Figma example "Upload to drone (1 zones)" - review</translatorcomment><translation type="unfinished">機体にアップロード（%1 ゾーン）</translation>
+        <translation>機体にアップロード（%1 ゾーン）</translation>
     </message>
     <message>
         <source>Upload %1 'do not enter' zones to the drone? The drone's fence is off: only the polygon fence is turned on (FENCE_ENABLE = 1, FENCE_TYPE = polygon).</source>
-        <translation type="unfinished" />
+        <translation>「進入禁止」ゾーン %1 個を機体にアップロードしますか？機体のフェンスはオフのため、ポリゴンフェンスのみオンにします（FENCE_ENABLE = 1、FENCE_TYPE = ポリゴン）。</translation>
     </message>
     <message>
         <source>Upload %1 'do not enter' zones to the drone? They replace the exclusion areas on the drone; the circle, altitude and inclusion fences stay as they are.</source>
-        <translation type="unfinished" />
+        <translation>「進入禁止」ゾーン %1 個を機体にアップロードしますか？機体の除外エリアを置き換えます。円形、高度、包含の各フェンスはそのままです。</translation>
     </message>
     <message>
         <source>The drone is still sending its mission or fence. Try again in a moment.</source>
-        <translation type="unfinished" />
+        <translation>機体はまだミッションまたはフェンスを送信中です。少し待ってからもう一度試してください。</translation>
     </message>
     <message>
         <source>The drone did not confirm the fence. Check the connection and try again.</source>
-        <translation type="unfinished" />
+        <translation>機体がフェンスを確認しませんでした。接続を確認して、もう一度試してください。</translation>
     </message>
 </context>
 <context>
@@ -3992,19 +3992,19 @@
     </message>
     <message>
         <source>now %1</source>
-        <translatorcomment>Draft from Figma example "now 50 m" - review</translatorcomment><translation type="unfinished">現在 %1</translation>
+        <translation>現在 %1</translation>
     </message>
     <message>
         <source>Height above the home point · allowed %1 – %2 %3 · the drone then holds position</source>
-        <translatorcomment>Draft from Figma example "Height above the home point · allowed 5 – 120 m · the drone then holds position" - review</translatorcomment><translation type="unfinished">ホーム基準の高度 · %1 – %2 %3 · その後機体は位置を保持</translation>
+        <translation>ホームポイント基準の高度 · 許容範囲 %1 – %2 %3 · その後機体は位置を保持</translation>
     </message>
     <message>
         <source>Already at %1 %2</source>
-        <translation type="unfinished" />
+        <translation>すでに %1 %2 です</translation>
     </message>
     <message>
         <source>Slide to change to %1 %2</source>
-        <translatorcomment>Draft from Figma example "Slide to change to 65 m" - review</translatorcomment><translation type="unfinished">スライドして %1 %2 に変更</translation>
+        <translation>スライドして %1 %2 に変更</translation>
     </message>
 </context>
 <context>
@@ -4023,11 +4023,11 @@
     </message>
     <message>
         <source>Latitude must be between -90 and 90.</source>
-        <translation type="unfinished" />
+        <translation>緯度は -90 から 90 の間で入力してください。</translation>
     </message>
     <message>
         <source>Longitude must be between -180 and 180.</source>
-        <translation type="unfinished" />
+        <translation>経度は -180 から 180 の間で入力してください。</translation>
     </message>
     <message>
         <source>Decimal degrees, for example 37.5665 and 126.9780.</source>
@@ -4042,7 +4042,7 @@
     <name>SimpleGoHereCard</name>
     <message>
         <source>Stopped</source>
-        <translation type="unfinished" />
+        <translation>停止済み</translation>
     </message>
     <message>
         <source>Going to point</source>
@@ -4050,19 +4050,19 @@
     </message>
     <message>
         <source>%1 left</source>
-        <translation type="unfinished" />
+        <translation>残り %1</translation>
     </message>
     <message>
         <source>obstacle detection on</source>
-        <translation type="unfinished" />
+        <translation>障害物検知オン</translation>
     </message>
     <message>
         <source>no obstacle detection</source>
-        <translation type="unfinished" />
+        <translation>障害物検知なし</translation>
     </message>
     <message>
         <source>Continue</source>
-        <translation type="unfinished" />
+        <translation>続行</translation>
     </message>
     <message>
         <source>Change target</source>
@@ -4081,11 +4081,11 @@
     <name>SimpleGoHereSheet</name>
     <message>
         <source>%1 s</source>
-        <translatorcomment>Draft from Figma example "1 s" - review</translatorcomment><translation type="unfinished">%1 s</translation>
+        <translation>%1 秒</translation>
     </message>
     <message>
         <source>%1 min %2 s</source>
-        <translation type="unfinished" />
+        <translation>%1 分 %2 秒</translation>
     </message>
     <message>
         <source>Go here</source>
@@ -4093,74 +4093,74 @@
     </message>
     <message>
         <source>Height above home</source>
-        <translation type="unfinished" />
+        <translation>ホーム基準の高度</translation>
     </message>
     <message>
         <source>Now %1 · allowed %2 – %3</source>
-        <translation type="unfinished" />
+        <translation>現在 %1 · 許容範囲 %2 – %3</translation>
     </message>
     <message>
         <source>The drone flies straight to the pin (%1, about %2) and holds position there.</source>
-        <translation type="unfinished" />
+        <translation>機体はピンまで直進し（%1、約 %2）、その場で位置を保持します。</translation>
     </message>
     <message>
         <source>Obstacle detection on — the drone stops in front of obstacles.</source>
-        <translation type="unfinished" />
+        <translation>障害物検知オン — 機体は障害物の手前で停止します。</translation>
     </message>
     <message>
         <source>This drone cannot detect obstacles. Check that the way is clear.</source>
-        <translation type="unfinished" />
+        <translation>この機体は障害物を検知できません。経路上に障害物がないか確認してください。</translation>
     </message>
     <message>
         <source>Slide to go</source>
-        <translation type="unfinished" />
+        <translation>スライドして移動</translation>
     </message>
     <message>
         <source>Height is above the home point, not above the ground. Check for hills and buildings on the way.</source>
-        <translation type="unfinished" />
+        <translation>高度は地表ではなくホームポイントからの高さです。経路上の丘や建物を確認してください。</translation>
     </message>
 </context>
 <context>
     <name>SimpleMapTapMenu</name>
     <message>
         <source>No drone connected</source>
-        <translation type="unfinished" />
+        <translation>機体が接続されていません</translation>
     </message>
     <message>
         <source>Not available while the signal is lost</source>
-        <translation type="unfinished" />
+        <translation>信号ロスト中は利用できません</translation>
     </message>
     <message>
         <source>Available after take-off</source>
-        <translation type="unfinished" />
+        <translation>離陸後に利用可能</translation>
     </message>
     <message>
         <source>Not available now</source>
-        <translation type="unfinished" />
+        <translation>現在は利用できません</translation>
     </message>
     <message>
         <source>Drone position unknown</source>
-        <translation type="unfinished" />
+        <translation>機体の位置が不明</translation>
     </message>
     <message>
         <source>Inside %1 — the drone may not fly there</source>
-        <translation type="unfinished" />
+        <translation>%1 内 — 機体はそこへ飛行できません</translation>
     </message>
     <message>
         <source>a prohibited zone</source>
-        <translation type="unfinished" />
+        <translation>禁止ゾーン</translation>
     </message>
     <message>
         <source>The way crosses %1 — choose another point</source>
-        <translation type="unfinished" />
+        <translation>経路が %1 を横切ります — 別の地点を選択してください</translation>
     </message>
     <message>
         <source>Too far — Go here reaches up to %1</source>
-        <translation type="unfinished" />
+        <translation>遠すぎます — 「ここへ飛行」の上限は %1</translation>
     </message>
     <message>
         <source>%1 away · %2°</source>
-        <translatorcomment>Draft from Figma example "360 m away · 52°" - review</translatorcomment><translation type="unfinished">%1 先 · %2°</translation>
+        <translation>%1 先 · %2°</translation>
     </message>
     <message>
         <source>Prohibited</source>
@@ -4172,7 +4172,7 @@
     </message>
     <message>
         <source>My zone</source>
-        <translation type="unfinished" />
+        <translation>マイゾーン</translation>
     </message>
     <message>
         <source>Information</source>
@@ -4180,7 +4180,7 @@
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished" />
+        <translation>詳細</translation>
     </message>
     <message>
         <source>Go here</source>
@@ -4188,7 +4188,7 @@
     </message>
     <message>
         <source>Fly to this point at %1</source>
-        <translatorcomment>Draft from Figma example "Fly to this point at 42 m" - review</translatorcomment><translation type="unfinished">この地点へ %1 で飛行</translation>
+        <translation>この地点へ %1 で飛行</translation>
     </message>
     <message>
         <source>Set as home point</source>
@@ -4208,18 +4208,18 @@
     </message>
     <message>
         <source>Outside the geofence or in an excluded area — choose another point</source>
-        <translation type="unfinished" />
+        <translation>ジオフェンスの外、または除外エリアです — 別の地点を選択してください</translation>
     </message>
 </context>
 <context>
     <name>SimplePayloadPanel</name>
     <message>
         <source>%1 W · cable %2 m · spool %3 °C</source>
-        <translation type="unfinished" />
+        <translation>%1 W · ケーブル %2 m · スプール %3 °C</translation>
     </message>
     <message>
         <source>%1 of 11</source>
-        <translation type="unfinished" />
+        <translation>%1 / 11</translation>
     </message>
     <message>
         <source>Automatic torque</source>
@@ -4231,27 +4231,27 @@
     </message>
     <message>
         <source>Clip %1</source>
-        <translation type="unfinished" />
+        <translation>クリップ %1</translation>
     </message>
     <message>
         <source>Drone not connected</source>
-        <translation type="unfinished" />
+        <translation>機体未接続</translation>
     </message>
     <message>
         <source>Hold 2 s to drop the life jacket</source>
-        <translation type="unfinished" />
+        <translation>2 秒長押しで救命胴衣を投下</translation>
     </message>
     <message>
         <source>Hold 2 s to stop</source>
-        <translation type="unfinished" />
+        <translation>2 秒長押しで停止</translation>
     </message>
     <message>
         <source>Hook</source>
-        <translation type="unfinished" />
+        <translation>フック</translation>
     </message>
     <message>
         <source>Hooked</source>
-        <translation type="unfinished" />
+        <translation>フック済み</translation>
     </message>
     <message>
         <source>INS not locked — fly the init path first</source>
@@ -4259,23 +4259,23 @@
     </message>
     <message>
         <source>Inspection / Surveillance</source>
-        <translation type="unfinished" />
+        <translation>点検 / 監視</translation>
     </message>
     <message>
         <source>Life jacket</source>
-        <translation type="unfinished" />
+        <translation>救命胴衣</translation>
     </message>
     <message>
         <source>Light</source>
-        <translation type="unfinished" />
+        <translation>ライト</translation>
     </message>
     <message>
         <source>Link lost</source>
-        <translation type="unfinished" />
+        <translation>リンクロスト</translation>
     </message>
     <message>
         <source>Mapping</source>
-        <translation type="unfinished" />
+        <translation>測量</translation>
     </message>
     <message>
         <source>Megaphone</source>
@@ -4283,15 +4283,15 @@
     </message>
     <message>
         <source>No payload connected. Payloads are set up in Settings › Payloads.</source>
-        <translation type="unfinished" />
+        <translation>ペイロードが接続されていません。ペイロードは 設定 › ペイロード で設定します。</translation>
     </message>
     <message>
         <source>No power</source>
-        <translation type="unfinished" />
+        <translation>電源なし</translation>
     </message>
     <message>
         <source>No reply</source>
-        <translation type="unfinished" />
+        <translation>応答なし</translation>
     </message>
     <message>
         <source>Not connected</source>
@@ -4299,7 +4299,7 @@
     </message>
     <message>
         <source>Not ready</source>
-        <translation type="unfinished" />
+        <translation>準備未完了</translation>
     </message>
     <message>
         <source>Off</source>
@@ -4319,7 +4319,7 @@
     </message>
     <message>
         <source>Power off</source>
-        <translation type="unfinished" />
+        <translation>電源オフ</translation>
     </message>
     <message>
         <source>Power on</source>
@@ -4327,11 +4327,11 @@
     </message>
     <message>
         <source>Powered off</source>
-        <translation type="unfinished" />
+        <translation>電源オフ済み</translation>
     </message>
     <message>
         <source>Profile: %1 · %2 connected</source>
-        <translation type="unfinished" />
+        <translation>プロファイル：%1 · %2 台接続済み</translation>
     </message>
     <message>
         <source>Ready</source>
@@ -4339,15 +4339,15 @@
     </message>
     <message>
         <source>Recording %1</source>
-        <translation type="unfinished" />
+        <translation>記録中 %1</translation>
     </message>
     <message>
         <source>Release works in flight, or on the ground with the motors stopped.</source>
-        <translation type="unfinished" />
+        <translation>投下は飛行中、または地上でモーター停止中にのみ可能です。</translation>
     </message>
     <message>
         <source>Released</source>
-        <translation type="unfinished" />
+        <translation>投下済み</translation>
     </message>
     <message>
         <source>Searchlight</source>
@@ -4359,15 +4359,15 @@
     </message>
     <message>
         <source>Starting…</source>
-        <translation type="unfinished" />
+        <translation>開始中…</translation>
     </message>
     <message>
         <source>Stopping…</source>
-        <translation type="unfinished" />
+        <translation>停止中…</translation>
     </message>
     <message>
         <source>Tether station</source>
-        <translation type="unfinished" />
+        <translation>テザーステーション</translation>
     </message>
     <message>
         <source>Tether</source>
@@ -4375,11 +4375,11 @@
     </message>
     <message>
         <source>The LiDAR is not ready yet</source>
-        <translation type="unfinished" />
+        <translation>LiDAR の準備がまだできていません</translation>
     </message>
     <message>
         <source>The speaker does not report back: the status only shows that the command was sent.</source>
-        <translation type="unfinished" />
+        <translation>スピーカーは状態を返しません：表示はコマンドを送信したことだけを示します。</translation>
     </message>
     <message>
         <source>Turn the power on before take-off.</source>
@@ -4387,7 +4387,7 @@
     </message>
     <message>
         <source>Waiting for the station…</source>
-        <translation type="unfinished" />
+        <translation>ステーションを待っています…</translation>
     </message>
     <message>
         <source>Winch</source>
@@ -4399,11 +4399,11 @@
     </message>
     <message>
         <source>applied %1 %</source>
-        <translatorcomment>Draft from Figma example "applied 30 %" - review</translatorcomment><translation type="unfinished">適用 %1 %</translation>
+        <translation>適用 %1 %</translation>
     </message>
     <message>
         <source>Hold %1 s to release</source>
-        <translatorcomment>Draft from Figma example "Hold 2 s to release" - review</translatorcomment><translation type="unfinished">%1 秒長押しで投下</translation>
+        <translation>%1 秒長押しで投下</translation>
     </message>
     <message>
         <source>No response</source>
@@ -4411,51 +4411,51 @@
     </message>
     <message>
         <source>Status delayed</source>
-        <translation type="unfinished" />
+        <translation>ステータス遅延</translation>
     </message>
     <message>
         <source>Start refused by the LiDAR: %1 (%2)</source>
-        <translation type="unfinished" />
+        <translation>LiDAR が開始を拒否：%1（%2）</translation>
     </message>
     <message>
         <source>Start refused by the LiDAR: %1</source>
-        <translation type="unfinished" />
+        <translation>LiDAR が開始を拒否：%1</translation>
     </message>
     <message>
         <source>The LiDAR does not report data logging since Start. Check the USB stick.</source>
-        <translation type="unfinished" />
+        <translation>開始後、LiDAR がデータ記録を報告していません。USB メモリを確認してください。</translation>
     </message>
     <message>
         <source>Start (retry)</source>
-        <translation type="unfinished" />
+        <translation>開始（再試行）</translation>
     </message>
     <message>
         <source>Hold 2 s to stop · %1 of %2 lines left</source>
-        <translatorcomment>Draft from Figma example "Hold 2 s to stop · 4 of 9 lines left" - review</translatorcomment><translation type="unfinished">2 秒長押しで停止 · 残り %1/%2</translation>
+        <translation>2 秒長押しで停止 · 残り %1 / %2 ライン</translation>
     </message>
     <message>
         <source>Last status %1. Stop is still sent; the card returns when the LiDAR answers.</source>
-        <translatorcomment>Draft from Figma example "Last status 09:58. Stop is still sent; the card returns when the LiDAR answers." - review</translatorcomment><translation type="unfinished">最終ステータス %1。停止は送信を継続しています。LiDAR が応答するとカードが戻ります。</translation>
+        <translation>最終ステータス %1。停止は送信を続けています。LiDAR が応答するとカードが戻ります。</translation>
     </message>
     <message>
         <source>Started %1 · %2 recorded</source>
-        <translation type="unfinished" />
+        <translation>%1 開始 · %2 記録</translation>
     </message>
     <message>
         <source>line %1 of %2</source>
-        <translation type="unfinished" />
+        <translation>ライン %1 / %2</translation>
     </message>
     <message>
         <source>Torque is locked until the station link is connected.</source>
-        <translation type="unfinished" />
+        <translation>ステーションのリンクが接続されるまで、トルクはロックされます。</translation>
     </message>
     <message>
         <source>Turn on automatic torque to change the torque.</source>
-        <translation type="unfinished" />
+        <translation>トルクを変更するには自動トルクをオンにしてください。</translation>
     </message>
     <message>
         <source>The station does not report the torque. ‹ sets 0, › sets 1 of 10.</source>
-        <translation type="unfinished" />
+        <translation>ステーションはトルクを報告しません。‹ で 0、› で 10 段階中 1 に設定します。</translation>
     </message>
 </context>
 <context>
@@ -4466,15 +4466,15 @@
     </message>
     <message>
         <source>No SD card</source>
-        <translation type="unfinished" />
+        <translation>SD カードなし</translation>
     </message>
     <message>
         <source>SD card not formatted</source>
-        <translation type="unfinished" />
+        <translation>SD カード未フォーマット</translation>
     </message>
     <message>
         <source>SD card full</source>
-        <translation type="unfinished" />
+        <translation>SD カードがいっぱい</translation>
     </message>
     <message>
         <source>Align</source>
@@ -4485,7 +4485,7 @@
     <name>SimpleCameraSheet</name>
     <message>
         <source>%1 free</source>
-        <translatorcomment>Draft from Figma example "41 GB free" - review</translatorcomment><translation type="unfinished">空き %1</translation>
+        <translation>空き %1</translation>
     </message>
     <message>
         <source>Auto photos</source>
@@ -4541,11 +4541,11 @@
     </message>
     <message>
         <source>The drone reports no camera with settings. Camera &amp; gimbal payloads are set up in Settings › Payloads.</source>
-        <translation type="unfinished" />
+        <translation>設定可能なカメラが機体から報告されていません。カメラとジンバルのペイロードは 設定 › ペイロード で設定します。</translation>
     </message>
     <message>
         <source>Thermal palette</source>
-        <translation type="unfinished" />
+        <translation>サーマルパレット</translation>
     </message>
     <message>
         <source>Video</source>
@@ -4560,7 +4560,7 @@
     <name>SimpleTetherCard</name>
     <message>
         <source>Alarm</source>
-        <translation type="unfinished" />
+        <translation>アラーム</translation>
     </message>
     <message>
         <source>Backup battery</source>
@@ -4572,11 +4572,11 @@
     </message>
     <message>
         <source>Caution</source>
-        <translation type="unfinished" />
+        <translation>注意</translation>
     </message>
     <message>
         <source>Check</source>
-        <translation type="unfinished" />
+        <translation>要確認</translation>
     </message>
     <message>
         <source>Ground power</source>
@@ -4588,7 +4588,7 @@
     </message>
     <message>
         <source>No data</source>
-        <translation type="unfinished" />
+        <translation>データなし</translation>
     </message>
     <message>
         <source>Normal</source>
@@ -4612,7 +4612,7 @@
     </message>
     <message>
         <source>Station lost</source>
-        <translation type="unfinished" />
+        <translation>ステーションロスト</translation>
     </message>
     <message>
         <source>Tension</source>
@@ -4624,14 +4624,14 @@
     </message>
     <message>
         <source>alarm %1 m</source>
-        <translation type="unfinished" />
+        <translation>アラーム %1 m</translation>
     </message>
 </context>
 <context>
     <name>SimpleWaypointEditor</name>
     <message>
         <source>&lt;1 min</source>
-        <translation type="unfinished" />
+        <translation>&lt;1 分</translation>
     </message>
     <message>
         <source>Add point</source>
@@ -4647,7 +4647,7 @@
     </message>
     <message>
         <source>Direction</source>
-        <translation type="unfinished" />
+        <translation>方向</translation>
     </message>
     <message>
         <source>Drone faces</source>
@@ -4659,7 +4659,7 @@
     </message>
     <message>
         <source>Height is above the take-off point · max %1 m.</source>
-        <translation type="unfinished" />
+        <translation>高度は離陸地点基準 · 最大 %1 m。</translation>
     </message>
     <message>
         <source>Height profile</source>
@@ -4679,7 +4679,7 @@
     </message>
     <message>
         <source>No point yet</source>
-        <translation type="unfinished" />
+        <translation>ポイントなし</translation>
     </message>
     <message>
         <source>Nothing</source>
@@ -4691,7 +4691,7 @@
     </message>
     <message>
         <source>Point %1: too close to the ground</source>
-        <translation type="unfinished" />
+        <translation>ポイント %1：地表に近すぎます</translation>
     </message>
     <message>
         <source>Speed</source>
@@ -4707,7 +4707,7 @@
     </message>
     <message>
         <source>Tap the map to add points. Drag a point to move it.</source>
-        <translation type="unfinished" />
+        <translation>地図をタップしてポイントを追加します。ポイントをドラッグして移動します。</translation>
     </message>
     <message>
         <source>Undo</source>
@@ -4719,50 +4719,50 @@
     </message>
     <message>
         <source>Point %1 (%2 of %3)</source>
-        <translation type="unfinished" />
+        <translation>ポイント %1（%2 / %3）</translation>
     </message>
     <message>
         <source>about %1 min</source>
-        <translation type="unfinished" />
+        <translation>約 %1 分</translation>
     </message>
     <message>
         <source>batteries: %1</source>
-        <translation type="unfinished" />
+        <translation>バッテリー：%1</translation>
     </message>
     <message>
         <source>battery not estimated</source>
-        <translation type="unfinished" />
+        <translation>バッテリー推定なし</translation>
     </message>
     <message>
         <source>route %1 km · %2 · %3</source>
-        <translation type="unfinished" />
+        <translation>経路 %1 km · %2 · %3</translation>
     </message>
 </context>
 <context>
     <name>SimpleSavedMissions</name>
     <message>
         <source>%1 items</source>
-        <translation type="unfinished" />
+        <translation>%1 項目</translation>
     </message>
     <message>
         <source>%1 missions on this tablet</source>
-        <translation type="unfinished" />
+        <translation>このタブレットのミッション %1 件</translation>
     </message>
     <message>
         <source>%1 photos</source>
-        <translation type="unfinished" />
+        <translation>写真 %1 枚</translation>
     </message>
     <message>
         <source>%1 points</source>
-        <translation type="unfinished" />
+        <translation>ポイント %1</translation>
     </message>
     <message>
         <source>A mission already sent to the drone stays on the drone.</source>
-        <translation type="unfinished" />
+        <translation>すでに機体に送信したミッションは機体に残ります。</translation>
     </message>
     <message>
         <source>A mission with this name already exists.</source>
-        <translation type="unfinished" />
+        <translation>同じ名前のミッションがすでにあります。</translation>
     </message>
     <message>
         <source>Area mapping</source>
@@ -4774,7 +4774,7 @@
     </message>
     <message>
         <source>Delete “%1”?</source>
-        <translation type="unfinished" />
+        <translation>「%1」を削除しますか？</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -4782,7 +4782,7 @@
     </message>
     <message>
         <source>Export a copy</source>
-        <translation type="unfinished" />
+        <translation>コピーをエクスポート</translation>
     </message>
     <message>
         <source>Export</source>
@@ -4794,7 +4794,7 @@
     </message>
     <message>
         <source>Import a mission</source>
-        <translation type="unfinished" />
+        <translation>ミッションをインポート</translation>
     </message>
     <message>
         <source>Import file</source>
@@ -4802,7 +4802,7 @@
     </message>
     <message>
         <source>Loading…</source>
-        <translation type="unfinished" />
+        <translation>読み込み中…</translation>
     </message>
     <message>
         <source>Mission</source>
@@ -4818,7 +4818,7 @@
     </message>
     <message>
         <source>No saved missions yet. Save a mission from the plan screen, or import a .plan or .kml file.</source>
-        <translation type="unfinished" />
+        <translation>保存したミッションはまだありません。プラン画面からミッションを保存するか、.plan または .kml ファイルをインポートしてください。</translation>
     </message>
     <message>
         <source>Open</source>
@@ -4826,7 +4826,7 @@
     </message>
     <message>
         <source>Rename mission</source>
-        <translation type="unfinished" />
+        <translation>ミッション名を変更</translation>
     </message>
     <message>
         <source>Rename</source>
@@ -4842,7 +4842,7 @@
     </message>
     <message>
         <source>Slide to delete</source>
-        <translation type="unfinished" />
+        <translation>スライドして削除</translation>
     </message>
     <message>
         <source>Structure scan</source>
@@ -4850,11 +4850,11 @@
     </message>
     <message>
         <source>Tap to see the details</source>
-        <translation type="unfinished" />
+        <translation>タップして詳細を表示</translation>
     </message>
     <message>
         <source>The mission file is removed from this tablet. This cannot be undone.</source>
-        <translation type="unfinished" />
+        <translation>ミッションファイルをこのタブレットから削除します。元に戻せません。</translation>
     </message>
     <message>
         <source>Waypoint flight</source>
@@ -4862,7 +4862,7 @@
     </message>
     <message>
         <source>%1 min</source>
-        <translatorcomment>Draft from Figma example "11 min" - review</translatorcomment><translation type="unfinished">%1 min</translation>
+        <translation>%1 分</translation>
     </message>
     <message>
         <source>Import: .plan (QGC) · .kml with an area (Google Earth)</source>
@@ -4870,11 +4870,11 @@
     </message>
     <message>
         <source>No mission name contains “%1”.</source>
-        <translation type="unfinished" />
+        <translation>「%1」を含むミッション名はありません。</translation>
     </message>
     <message>
         <source>This file could not be read.</source>
-        <translation type="unfinished" />
+        <translation>このファイルを読み込めませんでした。</translation>
     </message>
     <message>
         <source>LiDAR survey</source>
@@ -4882,18 +4882,18 @@
     </message>
     <message>
         <source>%1 items — too many to preview here. Open shows the whole mission.</source>
-        <translation type="unfinished" />
+        <translation>%1 項目 — 多すぎるためここではプレビューできません。開くとミッション全体を表示します。</translation>
     </message>
 </context>
 <context>
     <name>SimpleScanSettings</name>
     <message>
         <source>&lt;1 min</source>
-        <translation type="unfinished" />
+        <translation>&lt;1 分</translation>
     </message>
     <message>
         <source>%1 min</source>
-        <translatorcomment>Draft from Figma example "11 min" - review</translatorcomment><translation type="unfinished">%1 min</translation>
+        <translation>%1 分</translation>
     </message>
     <message>
         <source>Flight height</source>
@@ -4901,11 +4901,11 @@
     </message>
     <message>
         <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translatorcomment>Draft from Figma example "Photo detail ≈ 2.2 cm per pixel · limited to 120 m" - review</translatorcomment><translation type="unfinished">写真の詳細度 ≈ %1/ピクセル  ·  %2 m に制限</translation>
+        <translation>写真の解像度 ≈ %1/ピクセル · %2 m に制限</translation>
     </message>
     <message>
         <source>Limited to %1 m (maximum altitude)</source>
-        <translation type="unfinished" />
+        <translation>%1 m に制限（最大高度）</translation>
     </message>
     <message>
         <source>Corridor width</source>
@@ -4913,7 +4913,7 @@
     </message>
     <message>
         <source>Strip mapped on both sides of the line (%1 m each side)</source>
-        <translatorcomment>Draft from Figma example "Strip mapped on both sides of the line (20 m each side)" - review</translatorcomment><translation type="unfinished">ラインの両側を測量（片側 %1 m）</translation>
+        <translation>ラインの両側を測量（片側 %1 m）</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -4929,11 +4929,11 @@
     </message>
     <message>
         <source>Structure outline</source>
-        <translation type="unfinished" />
+        <translation>構造物の輪郭</translation>
     </message>
     <message>
         <source>Rectangle</source>
-        <translation type="unfinished" />
+        <translation>長方形</translation>
     </message>
     <message>
         <source>Circle</source>
@@ -4941,7 +4941,7 @@
     </message>
     <message>
         <source>Draw</source>
-        <translation type="unfinished" />
+        <translation>描画</translation>
     </message>
     <message>
         <source>Distance from structure</source>
@@ -4949,7 +4949,7 @@
     </message>
     <message>
         <source>Closer than 10 m: the drone may touch the structure in wind.</source>
-        <translation type="unfinished" />
+        <translation>10 m より近いと、風で機体が構造物に接触するおそれがあります。</translation>
     </message>
     <message>
         <source>Bottom height</source>
@@ -4977,7 +4977,7 @@
     </message>
     <message>
         <source>Slightly down · −15°</source>
-        <translation type="unfinished" />
+        <translation>やや下向き · −15°</translation>
     </message>
     <message>
         <source>FLIGHT TIME</source>
@@ -5005,7 +5005,7 @@
     </message>
     <message>
         <source>Line spacing %1 m · limited to %2 m</source>
-        <translatorcomment>Draft from Figma example "Line spacing 18 m · limited to 120 m" - review</translatorcomment><translation type="unfinished">ライン間隔 %1 m · 上限 %2 m</translation>
+        <translation>ライン間隔 %1 m · %2 m に制限</translation>
     </message>
     <message>
         <source>Speed</source>
@@ -5017,11 +5017,11 @@
     </message>
     <message>
         <source>50 % · Standard</source>
-        <translation type="unfinished" />
+        <translation>50 % · 標準</translation>
     </message>
     <message>
         <source>70 % · Dense</source>
-        <translation type="unfinished" />
+        <translation>70 % · 高密度</translation>
     </message>
     <message>
         <source>Init path before and after</source>
@@ -5029,15 +5029,15 @@
     </message>
     <message>
         <source>Figure 8 to settle the INS (required for good data)</source>
-        <translation type="unfinished" />
+        <translation>INS を安定させる 8 の字飛行（良好なデータに必要）</translation>
     </message>
     <message>
         <source>Without the init path the LiDAR data may be poor.</source>
-        <translation type="unfinished" />
+        <translation>初期化経路がないと LiDAR データの品質が低下するおそれがあります。</translation>
     </message>
     <message>
         <source>Needs %1 batteries — plan a battery change.</source>
-        <translation type="unfinished" />
+        <translation>バッテリー %1 本必要 — バッテリー交換を計画してください。</translation>
     </message>
     <message>
         <source>AREA</source>
@@ -5045,7 +5045,7 @@
     </message>
     <message>
         <source>SPACING</source>
-        <translation type="unfinished" />
+        <translation>間隔</translation>
     </message>
 </context>
 <context>
@@ -5056,51 +5056,51 @@
     </message>
     <message>
         <source>Key mismatch</source>
-        <translation type="unfinished" />
+        <translation>キー不一致</translation>
     </message>
     <message>
         <source>Key set</source>
-        <translation type="unfinished" />
+        <translation>キー設定済み</translation>
     </message>
     <message>
         <source>No key</source>
-        <translation type="unfinished" />
+        <translation>キーなし</translation>
     </message>
     <message>
         <source>Not protected</source>
-        <translation type="unfinished" />
+        <translation>保護なし</translation>
     </message>
     <message>
         <source>Connect the drone first.</source>
-        <translation type="unfinished" />
+        <translation>先に機体を接続してください。</translation>
     </message>
     <message>
         <source>Land and turn the motors off first.</source>
-        <translation type="unfinished" />
+        <translation>先に着陸してモーターを停止してください。</translation>
     </message>
     <message>
         <source>Connect the drone with a USB cable to set the key. Over the radio the key would travel unprotected.</source>
-        <translation type="unfinished" />
+        <translation>キーを設定するには機体を USB ケーブルで接続してください。無線経由ではキーが保護されずに送られます。</translation>
     </message>
     <message>
         <source>The drone accepted the key. This link is now protected.</source>
-        <translation type="unfinished" />
+        <translation>機体がキーを受け付けました。このリンクは保護されています。</translation>
     </message>
     <message>
         <source>The drone did not accept the key. Check the firmware supports MAVLink signing and try again over USB.</source>
-        <translation type="unfinished" />
+        <translation>機体がキーを受け付けませんでした。ファームウェアが MAVLink 署名に対応しているか確認し、USB で再試行してください。</translation>
     </message>
     <message>
         <source>The drone did not accept the new key, so the app went back to the old key.</source>
-        <translation type="unfinished" />
+        <translation>機体が新しいキーを受け付けなかったため、アプリは古いキーに戻しました。</translation>
     </message>
     <message>
         <source>The key was removed from the drone and from this app.</source>
-        <translation type="unfinished" />
+        <translation>キーを機体とこのアプリから削除しました。</translation>
     </message>
     <message>
         <source>The key was deleted from this app. Paired drones must be paired again.</source>
-        <translation type="unfinished" />
+        <translation>キーをこのアプリから削除しました。ペアリング済みの機体は再度ペアリングが必要です。</translation>
     </message>
     <message>
         <source>Connection</source>
@@ -5120,11 +5120,11 @@
     </message>
     <message>
         <source>Signed with a key shared by this app and the drone · key %1, set %2</source>
-        <translatorcomment>Draft from Figma example "Signed with a key shared by this app and the drone · key 4F2A…9C1D, set 2026-11-16" - review</translatorcomment><translation type="unfinished">このアプリと機体で共有するキーで署名 · キー %1、%2 設定</translation>
+        <translation>このアプリと機体で共有するキーで署名 · キー %1、%2 設定</translation>
     </message>
     <message>
         <source>No key yet: anyone on the radio network could send commands to the drone.</source>
-        <translation type="unfinished" />
+        <translation>キーが未設定です：無線ネットワーク上の誰でも機体にコマンドを送信できます。</translation>
     </message>
     <message>
         <source>Change key</source>
@@ -5132,27 +5132,27 @@
     </message>
     <message>
         <source>Set key</source>
-        <translation type="unfinished" />
+        <translation>キーを設定</translation>
     </message>
     <message>
         <source>This drone uses another key and ignores this app's commands. Change or remove its key with the tablet that paired it, or reset the drone's key over USB.</source>
-        <translation type="unfinished" />
+        <translation>この機体は別のキーを使用しているため、このアプリのコマンドを無視します。ペアリングしたタブレットでキーを変更または削除するか、USB で機体のキーをリセットしてください。</translation>
     </message>
     <message>
         <source>Waiting for the drone to answer with the new key…</source>
-        <translation type="unfinished" />
+        <translation>機体が新しいキーで応答するのを待っています…</translation>
     </message>
     <message>
         <source>A new key is sent to this drone and used from now on. Other drones paired with the old key must be paired again.</source>
-        <translation type="unfinished" />
+        <translation>新しいキーをこの機体に送信し、以後はそのキーを使用します。古いキーでペアリングした他の機体は再度ペアリングが必要です。</translation>
     </message>
     <message>
         <source>A new key is made on this tablet and sent to the drone. From then on the drone only obeys this app (and others with the same key).</source>
-        <translation type="unfinished" />
+        <translation>このタブレットで新しいキーを作成し、機体に送信します。以後、機体はこのアプリ（と同じキーを持つアプリ）の指示にのみ従います。</translation>
     </message>
     <message>
         <source>Send a new key</source>
-        <translation type="unfinished" />
+        <translation>新しいキーを送信</translation>
     </message>
     <message>
         <source>Send the key</source>
@@ -5160,7 +5160,7 @@
     </message>
     <message>
         <source>Remove key</source>
-        <translation type="unfinished" />
+        <translation>キーを削除</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -5184,7 +5184,7 @@
     </message>
     <message>
         <source>User name and password are sent without encryption (NTRIP 1)</source>
-        <translation type="unfinished" />
+        <translation>ユーザー名とパスワードは暗号化されずに送信されます（NTRIP 1）</translation>
     </message>
     <message>
         <source>Flight zone service · Altitude Angel</source>
@@ -5200,19 +5200,19 @@
     </message>
     <message>
         <source>The radio showed a different certificate, so the app does not log in. Check the radio before flying.</source>
-        <translation type="unfinished" />
+        <translation>無線機が異なる証明書を提示したため、アプリはログインしません。飛行前に無線機を確認してください。</translation>
     </message>
     <message>
         <source>Radio login · the factory password is still in use</source>
-        <translation type="unfinished" />
+        <translation>無線機ログイン · 工場出荷時のパスワードを使用中</translation>
     </message>
     <message>
         <source>Radio login · own password set</source>
-        <translation type="unfinished" />
+        <translation>無線機ログイン · 独自パスワード設定済み</translation>
     </message>
     <message>
         <source>Certificate changed</source>
-        <translation type="unfinished" />
+        <translation>証明書が変更されました</translation>
     </message>
     <message>
         <source>Change needed</source>
@@ -5228,15 +5228,15 @@
     </message>
     <message>
         <source>The radio uses the new password. It is kept in this tablet's secure store.</source>
-        <translation type="unfinished" />
+        <translation>無線機は新しいパスワードを使用しています。パスワードはこのタブレットの安全な保存領域に保管されます。</translation>
     </message>
     <message>
         <source>The radio did not take the new password. The old password still works.</source>
-        <translation type="unfinished" />
+        <translation>無線機が新しいパスワードを受け付けませんでした。古いパスワードが引き続き有効です。</translation>
     </message>
     <message>
         <source>Sending the new password to the radio…</source>
-        <translation type="unfinished" />
+        <translation>新しいパスワードを無線機に送信中…</translation>
     </message>
     <message>
         <source>New password</source>
@@ -5248,11 +5248,11 @@
     </message>
     <message>
         <source>At least 8 characters.</source>
-        <translation type="unfinished" />
+        <translation>8 文字以上にしてください。</translation>
     </message>
     <message>
         <source>The two passwords are not the same.</source>
-        <translation type="unfinished" />
+        <translation>2 つのパスワードが一致しません。</translation>
     </message>
     <message>
         <source>At least 8 characters. Write it down: the radio's web page uses it too.</source>
@@ -5287,27 +5287,27 @@
     <name>SimpleSecurityPrivacy</name>
     <message>
         <source>radio password</source>
-        <translation type="unfinished" />
+        <translation>無線機のパスワード</translation>
     </message>
     <message>
         <source>map tokens</source>
-        <translation type="unfinished" />
+        <translation>地図トークン</translation>
     </message>
     <message>
         <source>link key</source>
-        <translation type="unfinished" />
+        <translation>リンクキー</translation>
     </message>
     <message>
         <source>Nothing stored</source>
-        <translation type="unfinished" />
+        <translation>保存なし</translation>
     </message>
     <message>
         <source>stored in the app's private storage</source>
-        <translation type="unfinished" />
+        <translation>アプリ専用の保存領域に保管</translation>
     </message>
     <message>
         <source>stored encrypted</source>
-        <translation type="unfinished" />
+        <translation>暗号化して保管</translation>
     </message>
     <message>
         <source>Flight logs</source>
@@ -5315,7 +5315,7 @@
     </message>
     <message>
         <source>%1 files · %2</source>
-        <translatorcomment>Draft from Figma example "14 files · 410 MB" - review</translatorcomment><translation type="unfinished">%1 ファイル · %2</translation>
+        <translation>%1 ファイル · %2</translation>
     </message>
     <message>
         <source>Videos and photos</source>
@@ -5327,7 +5327,7 @@
     </message>
     <message>
         <source>%1 missions · %2</source>
-        <translatorcomment>Draft from Figma example "24 missions · 3 MB" - review</translatorcomment><translation type="unfinished">ミッション %1 · %2</translation>
+        <translation>ミッション %1 · %2</translation>
     </message>
     <message>
         <source>Map cache</source>
@@ -5335,7 +5335,7 @@
     </message>
     <message>
         <source>%1 areas · %2</source>
-        <translation type="unfinished" />
+        <translation>%1 エリア · %2</translation>
     </message>
     <message>
         <source>Accounts and keys</source>
@@ -5343,11 +5343,11 @@
     </message>
     <message>
         <source>No security events yet</source>
-        <translation type="unfinished" />
+        <translation>セキュリティイベントはまだありません</translation>
     </message>
     <message>
         <source>Last: %1</source>
-        <translation type="unfinished" />
+        <translation>最新：%1</translation>
     </message>
     <message>
         <source>About &amp; support</source>
@@ -5371,11 +5371,11 @@
     </message>
     <message>
         <source>Deleted. Restart the app to finish: the app settings are cleared at the next start.</source>
-        <translation type="unfinished" />
+        <translation>削除しました。アプリを再起動すると完了します：アプリ設定は次回起動時に消去されます。</translation>
     </message>
     <message>
         <source>The selected data was deleted from this tablet.</source>
-        <translation type="unfinished" />
+        <translation>選択したデータをこのタブレットから削除しました。</translation>
     </message>
     <message>
         <source>THIS APP</source>
@@ -5383,11 +5383,11 @@
     </message>
     <message>
         <source>Signed by %1</source>
-        <translatorcomment>Draft from Figma example "Signed by ARGOSDYNE" - review</translatorcomment><translation type="unfinished">%1 署名済み</translation>
+        <translation>%1 署名済み</translation>
     </message>
     <message>
         <source>App signature</source>
-        <translation type="unfinished" />
+        <translation>アプリの署名</translation>
     </message>
     <message>
         <source>Installer and app checked by Windows / Android</source>
@@ -5395,19 +5395,19 @@
     </message>
     <message>
         <source>Android checks the app signature when it is installed</source>
-        <translation type="unfinished" />
+        <translation>Android はインストール時にアプリの署名を確認します</translation>
     </message>
     <message>
         <source>This build has no code signature (test build). Install only builds from ARGOSDYNE.</source>
-        <translation type="unfinished" />
+        <translation>このビルドにはコード署名がありません（テストビルド）。ARGOSDYNE のビルドのみをインストールしてください。</translation>
     </message>
     <message>
         <source>The signature of this app is not valid. Reinstall it from ARGOSDYNE.</source>
-        <translation type="unfinished" />
+        <translation>このアプリの署名は無効です。ARGOSDYNE から入手したファイルで再インストールしてください。</translation>
     </message>
     <message>
         <source>Checking…</source>
-        <translation type="unfinished" />
+        <translation>確認中…</translation>
     </message>
     <message>
         <source>Verified</source>
@@ -5415,15 +5415,15 @@
     </message>
     <message>
         <source>Android</source>
-        <translation type="unfinished" />
+        <translation>Android</translation>
     </message>
     <message>
         <source>Not signed</source>
-        <translation type="unfinished" />
+        <translation>未署名</translation>
     </message>
     <message>
         <source>Not valid</source>
-        <translation type="unfinished" />
+        <translation>無効</translation>
     </message>
     <message>
         <source>Security updates</source>
@@ -5467,7 +5467,7 @@
     </message>
     <message>
         <source>Security events on this tablet, newest first: keys and passwords, refused keys, radio certificate, deleted data. Secrets are never written here.</source>
-        <translation type="unfinished" />
+        <translation>このタブレットのセキュリティイベント（新しい順）：キーとパスワード、拒否されたキー、無線機の証明書、削除したデータ。秘密情報は記録しません。</translation>
     </message>
     <message>
         <source>Delete my data</source>
@@ -5495,7 +5495,7 @@
     </message>
     <message>
         <source>Delete selected (%1)</source>
-        <translatorcomment>Draft from Figma example "Delete selected (3)" - review</translatorcomment><translation type="unfinished">選択項目を削除 (%1)</translation>
+        <translation>選択項目を削除（%1）</translation>
     </message>
 </context>
 <context>
@@ -5538,7 +5538,7 @@
     </message>
     <message>
         <source>Download selected (%1)</source>
-        <translatorcomment>Draft from Figma example "Download selected (2)" - review</translatorcomment><translation type="unfinished">選択項目をダウンロード (%1)</translation>
+        <translation>選択項目をダウンロード（%1）</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -5550,11 +5550,11 @@
     </message>
     <message>
         <source>Erase all %1 logs on the drone? Logs not downloaded are lost.</source>
-        <translation type="unfinished" />
+        <translation>機体上の %1 件のログをすべて消去しますか？ダウンロードしていないログは失われます。</translation>
     </message>
     <message>
         <source>Erase all</source>
-        <translation type="unfinished" />
+        <translation>すべて消去</translation>
     </message>
     <message>
         <source>Log</source>
@@ -5574,15 +5574,15 @@
     </message>
     <message>
         <source>Connect the drone to see its logs.</source>
-        <translation type="unfinished" />
+        <translation>ログを表示するには機体を接続してください。</translation>
     </message>
     <message>
         <source>Reading the list of logs…</source>
-        <translation type="unfinished" />
+        <translation>ログの一覧を読み込み中…</translation>
     </message>
     <message>
         <source>No logs on the drone.</source>
-        <translation type="unfinished" />
+        <translation>機体にログはありません。</translation>
     </message>
     <message>
         <source>Downloaded</source>
@@ -5590,11 +5590,11 @@
     </message>
     <message>
         <source>Downloading %1 %</source>
-        <translatorcomment>Draft from Figma example "Downloading 45 %" - review</translatorcomment><translation type="unfinished">ダウンロード中 %1 %</translation>
+        <translation>ダウンロード中 %1 %</translation>
     </message>
     <message>
         <source>Saved to %1. To send a log to ARGOSDYNE support, use Help &amp; support.</source>
-        <translation type="unfinished" />
+        <translation>%1 に保存しました。ARGOSDYNE サポートにログを送るには「ヘルプとサポート」を使用してください。</translation>
     </message>
     <message>
         <source>Hover for 30 seconds, then read the values. Check after changing propellers, motors or the payload.</source>
@@ -5602,7 +5602,7 @@
     </message>
     <message>
         <source>Connect the drone</source>
-        <translation type="unfinished" />
+        <translation>機体を接続してください</translation>
     </message>
     <message>
         <source>Vibration is OK</source>
@@ -5610,15 +5610,15 @@
     </message>
     <message>
         <source>Check the vibration</source>
-        <translation type="unfinished" />
+        <translation>振動を確認してください</translation>
     </message>
     <message>
         <source>Vibration too high</source>
-        <translation type="unfinished" />
+        <translation>振動が大きすぎます</translation>
     </message>
     <message>
         <source>Values come from the flight controller.</source>
-        <translation type="unfinished" />
+        <translation>値はフライトコントローラーから取得します。</translation>
     </message>
     <message>
         <source>All axes below 30 m/s² · no clipping</source>
@@ -5626,15 +5626,15 @@
     </message>
     <message>
         <source>An axis is above 60 m/s²: do not fly; check propellers, motors and mounts.</source>
-        <translation type="unfinished" />
+        <translation>60 m/s² を超える軸があります：飛行しないでください。プロペラ、モーター、マウントを点検してください。</translation>
     </message>
     <message>
         <source>The accelerometer clipped: check for loose parts.</source>
-        <translation type="unfinished" />
+        <translation>加速度計がクリッピングしました：部品の緩みを点検してください。</translation>
     </message>
     <message>
         <source>An axis is above 30 m/s²: check propellers and mounts.</source>
-        <translation type="unfinished" />
+        <translation>30 m/s² を超える軸があります：プロペラとマウントを点検してください。</translation>
     </message>
     <message>
         <source>X axis</source>
@@ -5666,7 +5666,7 @@
     </message>
     <message>
         <source>Accel %1: %2</source>
-        <translatorcomment>Draft from Figma example "Accel 1: 0" - review</translatorcomment><translation type="unfinished">Accel %1: %2</translation>
+        <translation>加速度計 %1：%2</translation>
     </message>
     <message>
         <source>For developers and service. Read only: nothing here changes the drone.</source>
@@ -5674,19 +5674,19 @@
     </message>
     <message>
         <source>Connect the drone to see its messages.</source>
-        <translation type="unfinished" />
+        <translation>メッセージを表示するには機体を接続してください。</translation>
     </message>
     <message>
         <source>%1 · system %2, component %3</source>
-        <translation type="unfinished" />
+        <translation>%1 · システム %2、コンポーネント %3</translation>
     </message>
     <message>
         <source>Saved: %1</source>
-        <translation type="unfinished" />
+        <translation>保存しました：%1</translation>
     </message>
     <message>
         <source>Messages of this app since it started (newest at the bottom). Secrets are never written to it.</source>
-        <translation type="unfinished" />
+        <translation>アプリ起動後のメッセージ（最新は下）。秘密情報は記録しません。</translation>
     </message>
     <message>
         <source>Save to file</source>
@@ -5694,7 +5694,7 @@
     </message>
     <message>
         <source>No messages yet. The app records only the log categories that are turned on (all are off by default).</source>
-        <translation type="unfinished" />
+        <translation>メッセージはまだありません。アプリはオンにしたログカテゴリーのみ記録します（初期設定はすべてオフ）。</translation>
     </message>
     <message>
         <source>Chart</source>
@@ -5702,7 +5702,7 @@
     </message>
     <message>
         <source>Chart (%1)</source>
-        <translatorcomment>Draft from Figma example "Chart (2)" - review</translatorcomment><translation type="unfinished">グラフ (%1)</translation>
+        <translation>グラフ（%1）</translation>
     </message>
     <message>
         <source>Log categories</source>
@@ -5710,7 +5710,7 @@
     </message>
     <message>
         <source>Choose log categories</source>
-        <translation type="unfinished" />
+        <translation>ログカテゴリーを選択</translation>
     </message>
 </context>
 <context>
@@ -5725,19 +5725,19 @@
     </message>
     <message>
         <source>Connect the drone to see its parameters.</source>
-        <translation type="unfinished" />
+        <translation>パラメーターを表示するには機体を接続してください。</translation>
     </message>
     <message>
         <source>Reading the parameters from the drone…</source>
-        <translation type="unfinished" />
+        <translation>機体からパラメーターを読み込み中…</translation>
     </message>
     <message>
         <source>Attitude estimate</source>
-        <translation type="unfinished" />
+        <translation>姿勢推定</translation>
     </message>
     <message>
         <source>Arming checks</source>
-        <translation type="unfinished" />
+        <translation>アームチェック</translation>
     </message>
     <message>
         <source>Attitude control</source>
@@ -5749,7 +5749,7 @@
     </message>
     <message>
         <source>Board</source>
-        <translation type="unfinished" />
+        <translation>基板</translation>
     </message>
     <message>
         <source>Compass</source>
@@ -5757,7 +5757,7 @@
     </message>
     <message>
         <source>Position estimate (EKF3)</source>
-        <translation type="unfinished" />
+        <translation>位置推定（EKF3）</translation>
     </message>
     <message>
         <source>Geofence</source>
@@ -5781,7 +5781,7 @@
     </message>
     <message>
         <source>Landing</source>
-        <translation type="unfinished" />
+        <translation>着陸</translation>
     </message>
     <message>
         <source>Logging</source>
@@ -5789,7 +5789,7 @@
     </message>
     <message>
         <source>Gimbal mount</source>
-        <translation type="unfinished" />
+        <translation>ジンバルマウント</translation>
     </message>
     <message>
         <source>Motors</source>
@@ -5797,15 +5797,15 @@
     </message>
     <message>
         <source>Pilot input</source>
-        <translation type="unfinished" />
+        <translation>操縦入力</translation>
     </message>
     <message>
         <source>Position control</source>
-        <translation type="unfinished" />
+        <translation>位置制御</translation>
     </message>
     <message>
         <source>Radio channels</source>
-        <translation type="unfinished" />
+        <translation>無線チャンネル</translation>
     </message>
     <message>
         <source>Return home</source>
@@ -5813,15 +5813,15 @@
     </message>
     <message>
         <source>Serial ports</source>
-        <translation type="unfinished" />
+        <translation>シリアルポート</translation>
     </message>
     <message>
         <source>Servo outputs</source>
-        <translation type="unfinished" />
+        <translation>サーボ出力</translation>
     </message>
     <message>
         <source>Terrain</source>
-        <translation type="unfinished" />
+        <translation>地形</translation>
     </message>
     <message>
         <source>Waypoints</source>
@@ -5829,11 +5829,11 @@
     </message>
     <message>
         <source>%1 saved. Restart the drone to use the new value.</source>
-        <translation type="unfinished" />
+        <translation>%1 を保存しました。新しい値を使うには機体を再起動してください。</translation>
     </message>
     <message>
         <source>%1 saved on the drone.</source>
-        <translation type="unfinished" />
+        <translation>%1 を機体に保存しました。</translation>
     </message>
     <message>
         <source>All parameters</source>
@@ -5849,7 +5849,7 @@
     </message>
     <message>
         <source>Saved: %1</source>
-        <translation type="unfinished" />
+        <translation>保存しました：%1</translation>
     </message>
     <message>
         <source>More</source>
@@ -5857,7 +5857,7 @@
     </message>
     <message>
         <source>Read again from the drone</source>
-        <translation type="unfinished" />
+        <translation>機体から再読込</translation>
     </message>
     <message>
         <source>Restart the drone</source>
@@ -5865,7 +5865,7 @@
     </message>
     <message>
         <source>Restart sent to the drone.</source>
-        <translation type="unfinished" />
+        <translation>機体に再起動を送信しました。</translation>
     </message>
     <message>
         <source>Reset all to defaults…</source>
@@ -5873,11 +5873,11 @@
     </message>
     <message>
         <source>Reset every parameter to its default? Calibrations and setup are lost; the drone needs a restart.</source>
-        <translation type="unfinished" />
+        <translation>すべてのパラメーターを初期値にリセットしますか？キャリブレーションと設定は失われ、機体の再起動が必要です。</translation>
     </message>
     <message>
         <source>Motors are running: a wrong value can make the drone unsafe now. Changes are sent at once.</source>
-        <translation type="unfinished" />
+        <translation>モーター回転中です：誤った値はすぐに機体を危険にするおそれがあります。変更はすぐに送信されます。</translation>
     </message>
     <message>
         <source>A wrong value can make the drone unsafe. Changes are sent to the drone at once.</source>
@@ -5885,11 +5885,11 @@
     </message>
     <message>
         <source>Reset all</source>
-        <translation type="unfinished" />
+        <translation>すべてリセット</translation>
     </message>
     <message>
         <source>All parameters reset. Restart the drone.</source>
-        <translation type="unfinished" />
+        <translation>すべてのパラメーターをリセットしました。機体を再起動してください。</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -5909,23 +5909,23 @@
     </message>
     <message>
         <source>No parameters found.</source>
-        <translation type="unfinished" />
+        <translation>パラメーターが見つかりません。</translation>
     </message>
     <message>
         <source>Choose a parameter to see and change it.</source>
-        <translation type="unfinished" />
+        <translation>表示・変更するパラメーターを選択してください。</translation>
     </message>
     <message>
         <source>Range %1 – %2 %3</source>
-        <translation type="unfinished" />
+        <translation>範囲 %1 – %2 %3</translation>
     </message>
     <message>
         <source>step %1</source>
-        <translation type="unfinished" />
+        <translation>ステップ %1</translation>
     </message>
     <message>
         <source>needs a drone restart</source>
-        <translation type="unfinished" />
+        <translation>機体の再起動が必要</translation>
     </message>
     <message>
         <source>Save</source>
@@ -5933,7 +5933,7 @@
     </message>
     <message>
         <source>Load from file…</source>
-        <translation type="unfinished" />
+        <translation>ファイルから読込…</translation>
     </message>
     <message>
         <source>Differs from reference</source>
@@ -5941,11 +5941,11 @@
     </message>
     <message>
         <source>Every compared value matches the %1 reference.</source>
-        <translation type="unfinished" />
+        <translation>比較したすべての値が %1 の基準値と一致しています。</translation>
     </message>
     <message>
         <source>reference %1 (%2)</source>
-        <translation type="unfinished" />
+        <translation>基準値 %1（%2）</translation>
     </message>
     <message>
         <source>Reset to reference</source>
@@ -6008,11 +6008,11 @@
     </message>
     <message>
         <source>Connect the drone to set it up.</source>
-        <translation type="unfinished" />
+        <translation>設定するには機体を接続してください。</translation>
     </message>
     <message>
         <source>Reading the parameters from the drone…</source>
-        <translation type="unfinished" />
+        <translation>機体からパラメーターを読み込み中…</translation>
     </message>
     <message>
         <source>Check each part before the first flight. Orange items need setup. Setup is locked while the drone is flying.</source>
@@ -6020,7 +6020,7 @@
     </message>
     <message>
         <source>Compass, accelerometer and level done</source>
-        <translation type="unfinished" />
+        <translation>コンパス、加速度計、水平調整完了</translation>
     </message>
     <message>
         <source>Compass and accelerometer done · level not done</source>
@@ -6028,23 +6028,23 @@
     </message>
     <message>
         <source>Compass or accelerometer needs calibration</source>
-        <translation type="unfinished" />
+        <translation>コンパスまたは加速度計のキャリブレーションが必要</translation>
     </message>
     <message>
         <source>Sticks calibrated</source>
-        <translation type="unfinished" />
+        <translation>スティックのキャリブレーション済み</translation>
     </message>
     <message>
         <source>Calibrate the sticks</source>
-        <translation type="unfinished" />
+        <translation>スティックをキャリブレーションしてください</translation>
     </message>
     <message>
         <source>6 modes on channel %1 · %2 first</source>
-        <translation type="unfinished" />
+        <translation>チャンネル %1 に 6 モード · 最初は %2</translation>
     </message>
     <message>
         <source>now</source>
-        <translation type="unfinished" />
+        <translation>現在</translation>
     </message>
     <message>
         <source>Test each motor after a repair</source>
@@ -6052,19 +6052,19 @@
     </message>
     <message>
         <source>Low battery: %1 · Link lost: %2</source>
-        <translation type="unfinished" />
+        <translation>バッテリー低下：%1 · リンクロスト：%2</translation>
     </message>
     <message>
         <source>Factory tuning · changes allowed in flight</source>
-        <translation type="unfinished" />
+        <translation>工場出荷時のチューニング · 飛行中の変更可</translation>
     </message>
     <message>
         <source>No gimbal set</source>
-        <translation type="unfinished" />
+        <translation>ジンバル未設定</translation>
     </message>
     <message>
         <source>update from a PC with USB</source>
-        <translation type="unfinished" />
+        <translation>PC から USB で更新</translation>
     </message>
     <message>
         <source>Done</source>
@@ -6088,20 +6088,20 @@
     </message>
     <message>
         <source>Not calibrated</source>
-        <translation type="unfinished" />
+        <translation>未キャリブレーション</translation>
     </message>
     <message>
         <source>Done %1</source>
-        <translatorcomment>Draft from Figma example "Done 2026-11-10" - review</translatorcomment><translation type="unfinished">完了 %1</translation>
+        <translation>完了 %1</translation>
     </message>
     <message>
         <source>Done · date unknown</source>
-        <translation type="unfinished" />
+        <translation>完了 · 日付不明</translation>
     </message>
     <message numerus="yes">
         <source>%n compass(es)</source>
-        <translation type="unfinished">
-            <numerusform />
+        <translation>
+            <numerusform>コンパス %n 個</numerusform>
         </translation>
     </message>
     <message>
@@ -6142,7 +6142,7 @@
     </message>
     <message>
         <source>Board: %1 · Compass 1: %2</source>
-        <translation type="unfinished" />
+        <translation>基板：%1 · コンパス 1：%2</translation>
     </message>
     <message>
         <source>Change</source>
@@ -6154,67 +6154,67 @@
     </message>
     <message>
         <source>Hold the drone away from metal and turn it slowly around every axis until the bar is full.</source>
-        <translation type="unfinished" />
+        <translation>金属から離れた場所で機体を持ち、バーがいっぱいになるまで各軸の周りにゆっくり回してください。</translation>
     </message>
     <message>
         <source>Hold the drone still in the position shown, then press Next. Six positions in total.</source>
-        <translation type="unfinished" />
+        <translation>表示された姿勢で機体を静止させてから「次へ」を押してください。全部で 6 つの姿勢です。</translation>
     </message>
     <message>
         <source>Place the drone on a level surface and do not touch it.</source>
-        <translation type="unfinished" />
+        <translation>機体を水平な場所に置き、触れないでください。</translation>
     </message>
     <message>
         <source>Keep the drone still.</source>
-        <translation type="unfinished" />
+        <translation>機体を動かさないでください。</translation>
     </message>
     <message>
         <source>Level</source>
-        <translation type="unfinished" />
+        <translation>水平</translation>
     </message>
     <message>
         <source>Left side</source>
-        <translation type="unfinished" />
+        <translation>左側面を下</translation>
     </message>
     <message>
         <source>Right side</source>
-        <translation type="unfinished" />
+        <translation>右側面を下</translation>
     </message>
     <message>
         <source>Nose down</source>
-        <translation type="unfinished" />
+        <translation>機首を下</translation>
     </message>
     <message>
         <source>Nose up</source>
-        <translation type="unfinished" />
+        <translation>機首を上</translation>
     </message>
     <message>
         <source>Upside down</source>
-        <translation type="unfinished" />
+        <translation>上下逆</translation>
     </message>
     <message>
         <source>Calibration done. Restart the drone to use it.</source>
-        <translation type="unfinished" />
+        <translation>キャリブレーション完了。反映するには機体を再起動してください。</translation>
     </message>
     <message>
         <source>Done.</source>
-        <translation type="unfinished" />
+        <translation>完了。</translation>
     </message>
     <message>
         <source>Calibration cancelled. Nothing was changed.</source>
-        <translation type="unfinished" />
+        <translation>キャリブレーションをキャンセルしました。何も変更されていません。</translation>
     </message>
     <message>
         <source>Calibration failed. Try again away from metal and wind.</source>
-        <translation type="unfinished" />
+        <translation>キャリブレーション失敗。金属や風を避けて再試行してください。</translation>
     </message>
     <message>
         <source>Calibration failed. Hold each position still until the next one is asked, then try again.</source>
-        <translation type="unfinished" />
+        <translation>キャリブレーション失敗。次の姿勢を指示されるまで各姿勢で静止させ、再試行してください。</translation>
     </message>
     <message>
         <source>Calibration failed. Keep the drone still and try again.</source>
-        <translation type="unfinished" />
+        <translation>キャリブレーション失敗。機体を動かさずに再試行してください。</translation>
     </message>
     <message>
         <source>Next</source>
@@ -6238,7 +6238,7 @@
     </message>
     <message>
         <source>Step 1 of 3 · Prepare the drone. The motors will spin.</source>
-        <translation type="unfinished" />
+        <translation>ステップ 1/3 · 機体を準備してください。モーターが回転します。</translation>
     </message>
     <message>
         <source>Step 2 of 3 · Raise the throttle slowly to 75 %, hold 5 seconds, then lower it to zero.</source>
@@ -6246,23 +6246,23 @@
     </message>
     <message>
         <source>Step 3 of 3 · Result. The correction is saved on the drone.</source>
-        <translation type="unfinished" />
+        <translation>ステップ 3/3 · 結果。補正値は機体に保存されました。</translation>
     </message>
     <message>
         <source>Propellers on, flipped and moved one place round the frame: the drone pushes into the ground</source>
-        <translation type="unfinished" />
+        <translation>プロペラを裏返し、フレーム上で 1 つずつずらして取り付け：機体は地面に押し付けられます</translation>
     </message>
     <message>
         <source>Drone tied down so it cannot move</source>
-        <translation type="unfinished" />
+        <translation>機体を動かないように固定</translation>
     </message>
     <message>
         <source>Controller on, throttle at zero</source>
-        <translation type="unfinished" />
+        <translation>送信機オン、スロットル 0</translation>
     </message>
     <message>
         <source>No current sensor: the result follows the throttle only and is less exact.</source>
-        <translation type="unfinished" />
+        <translation>電流センサーがありません：結果はスロットルのみに基づくため、精度が下がります。</translation>
     </message>
     <message>
         <source>Throttle</source>
@@ -6282,7 +6282,7 @@
     </message>
     <message>
         <source>The drone sent no measurement. Raise the throttle higher next time and keep it there for 5 seconds.</source>
-        <translation type="unfinished" />
+        <translation>機体から測定値が送られませんでした。次回はスロットルをもっと上げ、5 秒間保持してください。</translation>
     </message>
     <message>
         <source>Propellers are on and flipped: the drone pushes into the ground. Keep it tied down and stand back.</source>
@@ -6306,11 +6306,11 @@
     </message>
     <message>
         <source>Compass 1</source>
-        <translation type="unfinished" />
+        <translation>コンパス 1</translation>
     </message>
     <message>
         <source>Compass 2</source>
-        <translation type="unfinished" />
+        <translation>コンパス 2</translation>
     </message>
     <message>
         <source>Compass 3</source>
@@ -6318,11 +6318,11 @@
     </message>
     <message>
         <source>internal</source>
-        <translation type="unfinished" />
+        <translation>内蔵</translation>
     </message>
     <message>
         <source>external</source>
-        <translation type="unfinished" />
+        <translation>外付け</translation>
     </message>
     <message>
         <source>Used</source>
@@ -6330,11 +6330,11 @@
     </message>
     <message>
         <source>Internal compasses follow the flight controller.</source>
-        <translation type="unfinished" />
+        <translation>内蔵コンパスはフライトコントローラーの向きに従います。</translation>
     </message>
     <message>
         <source>After a change, restart the drone and calibrate the compass and the accelerometer again (Sensors).</source>
-        <translation type="unfinished" />
+        <translation>変更後は機体を再起動し、コンパスと加速度計を再度キャリブレーションしてください（センサー）。</translation>
     </message>
     <message>
         <source>Mission</source>
@@ -6345,11 +6345,11 @@
     <name>SimpleSetupModes</name>
     <message>
         <source>Manual (self-level)</source>
-        <translation type="unfinished" />
+        <translation>手動（自動水平）</translation>
     </message>
     <message>
         <source>Acro (no self-level)</source>
-        <translation type="unfinished" />
+        <translation>Acro（自動水平復帰なし）</translation>
     </message>
     <message>
         <source>Altitude hold</source>
@@ -6361,7 +6361,7 @@
     </message>
     <message>
         <source>Guided by the app</source>
-        <translation type="unfinished" />
+        <translation>アプリによる誘導</translation>
     </message>
     <message>
         <source>Position hold</source>
@@ -6381,11 +6381,11 @@
     </message>
     <message>
         <source>Drift</source>
-        <translation type="unfinished" />
+        <translation>ドリフト</translation>
     </message>
     <message>
         <source>Sport</source>
-        <translation type="unfinished" />
+        <translation>スポーツ</translation>
     </message>
     <message>
         <source>AutoTune</source>
@@ -6393,7 +6393,7 @@
     </message>
     <message>
         <source>Position hold (pilot)</source>
-        <translation type="unfinished" />
+        <translation>位置保持（操縦者）</translation>
     </message>
     <message>
         <source>Brake</source>
@@ -6401,7 +6401,7 @@
     </message>
     <message>
         <source>Return the way it came</source>
-        <translation type="unfinished" />
+        <translation>来た経路を戻る</translation>
     </message>
     <message>
         <source>Follow</source>
@@ -6409,7 +6409,7 @@
     </message>
     <message>
         <source>Return after mission</source>
-        <translation type="unfinished" />
+        <translation>ミッション後に帰還</translation>
     </message>
     <message>
         <source>Flight modes</source>
@@ -6417,19 +6417,19 @@
     </message>
     <message>
         <source>The six positions of the mode switch (channel %1). The current position is highlighted.</source>
-        <translatorcomment>Draft from Figma example "The six positions of the mode switch (channel 5). The current position is highlighted." - review</translatorcomment><translation type="unfinished">モードスイッチ（チャンネル %1）の 6 つの位置。現在の位置が強調表示されます。</translation>
+        <translation>モードスイッチ（チャンネル %1）の 6 つの位置。現在の位置が強調表示されます。</translation>
     </message>
     <message>
         <source>Position %1</source>
-        <translatorcomment>Draft from Figma example "Position 1" - review</translatorcomment><translation type="unfinished">位置 %1</translation>
+        <translation>位置 %1</translation>
     </message>
     <message>
         <source>PWM %1 +</source>
-        <translatorcomment>Draft from Figma example "PWM 1750 +" - review</translatorcomment><translation type="unfinished">PWM %1 +</translation>
+        <translation>PWM %1 +</translation>
     </message>
     <message>
         <source>PWM %1 – %2</source>
-        <translatorcomment>Draft from Figma example "PWM 1231 – 1360" - review</translatorcomment><translation type="unfinished">PWM %1 – %2</translation>
+        <translation>PWM %1 – %2</translation>
     </message>
     <message>
         <source>Now</source>
@@ -6437,7 +6437,7 @@
     </message>
     <message>
         <source>ArduPilot: %1</source>
-        <translatorcomment>Draft from Figma example "ArduPilot: AltHold" - review</translatorcomment><translation type="unfinished">ArduPilot: %1</translation>
+        <translation>ArduPilot：%1</translation>
     </message>
     <message>
         <source>Close</source>
@@ -6449,11 +6449,11 @@
     </message>
     <message>
         <source>The switch is on position %1 now: the drone changes to the new mode at once.</source>
-        <translation type="unfinished" />
+        <translation>スイッチは現在位置 %1 にあります：機体はすぐに新しいモードに切り替わります。</translation>
     </message>
     <message>
         <source>Change now</source>
-        <translation type="unfinished" />
+        <translation>今すぐ変更</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -6468,7 +6468,7 @@
     </message>
     <message>
         <source>%1 or %2 left</source>
-        <translatorcomment>Draft from Figma example "42.0 V or 2200 mAh left" - review</translatorcomment><translation type="unfinished">残り %1 または %2</translation>
+        <translation>残り %1 または %2</translation>
     </message>
     <message>
         <source>Critical battery</source>
@@ -6480,7 +6480,7 @@
     </message>
     <message>
         <source>Throttle below %1</source>
-        <translatorcomment>Draft from Figma example "Throttle below 975 µs" - review</translatorcomment><translation type="unfinished">スロットル %1 未満</translation>
+        <translation>スロットル %1 未満</translation>
     </message>
     <message>
         <source>Ground station link lost</source>
@@ -6488,11 +6488,11 @@
     </message>
     <message>
         <source>After %1 without the app</source>
-        <translation type="unfinished" />
+        <translation>アプリなしで %1 後</translation>
     </message>
     <message>
         <source>When the app link is lost</source>
-        <translation type="unfinished" />
+        <translation>アプリのリンクロスト時</translation>
     </message>
     <message>
         <source>Navigation error (EKF)</source>
@@ -6512,7 +6512,7 @@
     </message>
     <message>
         <source>Circle %1 · ceiling %2</source>
-        <translatorcomment>Draft from Figma example "Circle 300 m · ceiling 120 m" - review</translatorcomment><translation type="unfinished">円 %1 · 上限 %2</translation>
+        <translation>円 %1 · 上限高度 %2</translation>
     </message>
     <message>
         <source>Pre-arm checks</source>
@@ -6544,11 +6544,11 @@
     </message>
     <message>
         <source>Some off</source>
-        <translation type="unfinished" />
+        <translation>一部オフ</translation>
     </message>
     <message>
         <source>No protection</source>
-        <translation type="unfinished" />
+        <translation>保護なし</translation>
     </message>
     <message>
         <source>Close</source>
@@ -6564,7 +6564,7 @@
     </message>
     <message>
         <source>Company setting</source>
-        <translation type="unfinished" />
+        <translation>会社設定</translation>
     </message>
 </context>
 <context>
@@ -6599,7 +6599,7 @@
     </message>
     <message>
         <source>Drone reads %1 V. Measure the battery and enter the real value.</source>
-        <translatorcomment>Draft from Figma example "Drone reads 50.1 V. Measure the battery and enter the real value." - review</translatorcomment><translation type="unfinished">機体の測定値は %1 V です。バッテリーを測定し、実際の値を入力してください。</translation>
+        <translation>機体の測定値は %1 V です。バッテリーを測定し、実際の値を入力してください。</translation>
     </message>
     <message>
         <source>Calibrate</source>
@@ -6607,7 +6607,7 @@
     </message>
     <message>
         <source>Voltage multiplier set to %1.</source>
-        <translation type="unfinished" />
+        <translation>電圧倍率を %1 に設定しました。</translation>
     </message>
     <message>
         <source>Current sensor</source>
@@ -6623,7 +6623,7 @@
     </message>
     <message>
         <source>Propellers off. Only after replacing ESCs.</source>
-        <translation type="unfinished" />
+        <translation>プロペラを外してください。ESC 交換後のみ。</translation>
     </message>
     <message>
         <source>Start</source>
@@ -6650,19 +6650,19 @@
     </message>
     <message>
         <source>ch %1</source>
-        <translation type="unfinished" />
+        <translation>ch %1</translation>
     </message>
     <message>
         <source>Mode switch · ch %1</source>
-        <translatorcomment>Draft from Figma example "Mode switch · ch 5" - review</translatorcomment><translation type="unfinished">モードスイッチ · ch %1</translation>
+        <translation>モードスイッチ · ch %1</translation>
     </message>
     <message>
         <source>Ch %1 · %2</source>
-        <translatorcomment>Draft from Figma example "Ch 7 · AutoTune" - review</translatorcomment><translation type="unfinished">ch %1 · %2</translation>
+        <translation>ch %1 · %2</translation>
     </message>
     <message>
         <source>Ch %1</source>
-        <translatorcomment>Draft from Figma example "Ch 6" - review</translatorcomment><translation type="unfinished">ch %1</translation>
+        <translation>ch %1</translation>
     </message>
     <message>
         <source>Radio</source>
@@ -6670,11 +6670,11 @@
     </message>
     <message>
         <source>Move each stick and switch to check it. The company controller is calibrated at the factory: calibrate only after a repair or with a new controller.</source>
-        <translation type="unfinished" />
+        <translation>各スティックとスイッチを動かして確認してください。自社の送信機は工場でキャリブレーション済みです：修理後や新しい送信機の場合のみキャリブレーションしてください。</translation>
     </message>
     <message>
         <source>No controller signal yet. Turn on the controller.</source>
-        <translation type="unfinished" />
+        <translation>送信機の信号がまだありません。送信機の電源を入れてください。</translation>
     </message>
     <message>
         <source>Calibrate sticks</source>
@@ -6713,7 +6713,7 @@
     </message>
     <message>
         <source>Channel %1</source>
-        <translatorcomment>Draft from Figma example "Channel 7" - review</translatorcomment><translation type="unfinished">チャンネル %1</translation>
+        <translation>チャンネル %1</translation>
     </message>
     <message>
         <source>Gimbal</source>
@@ -6729,7 +6729,7 @@
     </message>
     <message>
         <source>How the drone talks to the gimbal. Changing it needs a drone restart.</source>
-        <translation type="unfinished" />
+        <translation>機体とジンバルの通信方式。変更すると機体の再起動が必要です。</translation>
     </message>
     <message>
         <source>Tilt control</source>
@@ -6769,15 +6769,15 @@
     </message>
     <message>
         <source>No gimbal is set. Choose the gimbal type above, then restart the drone.</source>
-        <translation type="unfinished" />
+        <translation>ジンバルが設定されていません。上でジンバルの種類を選択し、機体を再起動してください。</translation>
     </message>
     <message>
         <source>Output %1</source>
-        <translatorcomment>Draft from Figma example "Output 10" - review</translatorcomment><translation type="unfinished">出力 %1</translation>
+        <translation>出力 %1</translation>
     </message>
     <message>
         <source>Restart the drone to use the new gimbal type or outputs.</source>
-        <translation type="unfinished" />
+        <translation>新しいジンバルの種類や出力を使うには機体を再起動してください。</translation>
     </message>
     <message>
         <source>Roll range</source>
@@ -6813,11 +6813,11 @@
     </message>
     <message>
         <source>Not connected to a drone output</source>
-        <translation type="unfinished" />
+        <translation>機体の出力に接続されていません</translation>
     </message>
     <message>
         <source>Reverse</source>
-        <translation type="unfinished" />
+        <translation>反転</translation>
     </message>
     <message>
         <source>At start-up</source>
@@ -6920,11 +6920,11 @@
     </message>
     <message>
         <source>Channel %1</source>
-        <translatorcomment>Draft from Figma example "Channel 7" - review</translatorcomment><translation type="unfinished">チャンネル %1</translation>
+        <translation>チャンネル %1</translation>
     </message>
     <message>
         <source>No switch set (Radio › channel options)</source>
-        <translation type="unfinished" />
+        <translation>スイッチ未設定（無線 › チャンネルオプション）</translation>
     </message>
 </context>
 <context>
@@ -6963,7 +6963,7 @@
     </message>
     <message>
         <source>Y6</source>
-        <translation type="unfinished" />
+        <translation>Y6</translation>
     </message>
     <message>
         <source>6 motors, coaxial</source>
@@ -6971,7 +6971,7 @@
     </message>
     <message>
         <source>X8</source>
-        <translation type="unfinished" />
+        <translation>X8</translation>
     </message>
     <message>
         <source>8 motors, coaxial</source>
@@ -6995,7 +6995,7 @@
     </message>
     <message>
         <source>Change the frame to %1 and restart the drone now? A wrong frame makes the drone flip at take-off.</source>
-        <translation type="unfinished" />
+        <translation>フレームを %1 に変更し、今すぐ機体を再起動しますか？フレームが間違っていると、離陸時に機体が転倒します。</translation>
     </message>
     <message>
         <source>After choosing another frame the drone restarts and the motors must be tested (Motors).</source>
@@ -7007,11 +7007,11 @@
     </message>
     <message>
         <source>Change and restart</source>
-        <translation type="unfinished" />
+        <translation>変更して再起動</translation>
     </message>
     <message>
         <source>Frame saved. The drone restarts; then test each motor in Motors.</source>
-        <translation type="unfinished" />
+        <translation>フレームを保存しました。機体が再起動します。その後「モーター」で各モーターをテストしてください。</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -7038,7 +7038,7 @@
     </message>
     <message>
         <source>Motor %1 spinning · %2 s</source>
-        <translation type="unfinished" />
+        <translation>モーター %1 回転中 · %2 秒</translation>
     </message>
     <message>
         <source>Propellers removed</source>
@@ -7058,7 +7058,7 @@
     </message>
     <message>
         <source>Motor %1</source>
-        <translatorcomment>Draft from Figma example "Motor A" - review</translatorcomment><translation type="unfinished">モーター %1</translation>
+        <translation>モーター %1</translation>
     </message>
     <message>
         <source>Test all in order</source>
@@ -7066,7 +7066,7 @@
     </message>
     <message>
         <source>If the order or a direction is wrong, check the frame (Frame) or the motor wiring.</source>
-        <translation type="unfinished" />
+        <translation>順序や方向が違う場合は、フレームの設定（フレーム）またはモーターの配線を確認してください。</translation>
     </message>
 </context>
 <context>
@@ -7113,19 +7113,19 @@
     </message>
     <message>
         <source>UDP port</source>
-        <translation type="unfinished" />
+        <translation>UDP ポート</translation>
     </message>
     <message>
         <source>Port the video arrives on</source>
-        <translation type="unfinished" />
+        <translation>映像を受信するポート</translation>
     </message>
     <message>
         <source>TCP address</source>
-        <translation type="unfinished" />
+        <translation>TCP アドレス</translation>
     </message>
     <message>
         <source>Address of the video server</source>
-        <translation type="unfinished" />
+        <translation>映像サーバーのアドレス</translation>
     </message>
     <message>
         <source>Low latency</source>
@@ -7153,7 +7153,7 @@
     </message>
     <message>
         <source>No limit</source>
-        <translation type="unfinished" />
+        <translation>上限なし</translation>
     </message>
     <message>
         <source>Second video (FPV)</source>
@@ -7165,11 +7165,11 @@
     </message>
     <message>
         <source>FPV address</source>
-        <translation type="unfinished" />
+        <translation>FPV アドレス</translation>
     </message>
     <message>
         <source>Stream address of the FPV camera</source>
-        <translation type="unfinished" />
+        <translation>FPV カメラのストリームアドレス</translation>
     </message>
     <message>
         <source>Fly screen</source>
@@ -7193,11 +7193,11 @@
     </message>
     <message>
         <source>Throttle stick returns to the middle</source>
-        <translation type="unfinished" />
+        <translation>スロットルスティックを中央に戻す</translation>
     </message>
     <message>
         <source>On-screen throttle centres itself</source>
-        <translation type="unfinished" />
+        <translation>画面上のスロットルが中央に戻ります</translation>
     </message>
     <message>
         <source>Go here: maximum distance</source>
@@ -7289,15 +7289,15 @@
     </message>
     <message>
         <source>Not set</source>
-        <translation type="unfinished" />
+        <translation>未設定</translation>
     </message>
     <message>
         <source>Save to SD card</source>
-        <translation type="unfinished" />
+        <translation>SD カードに保存</translation>
     </message>
     <message>
         <source>Use the SD card for logs and media</source>
-        <translation type="unfinished" />
+        <translation>ログとメディアに SD カードを使用</translation>
     </message>
     <message>
         <source>Reset all settings</source>
@@ -7305,7 +7305,7 @@
     </message>
     <message>
         <source>All settings are cleared at the next start. Restart the app.</source>
-        <translation type="unfinished" />
+        <translation>次回起動時にすべての設定が消去されます。アプリを再起動してください。</translation>
     </message>
     <message>
         <source>Back to the first-start screen at the next start</source>
@@ -7317,7 +7317,7 @@
     </message>
     <message>
         <source>Reset at next start</source>
-        <translation type="unfinished" />
+        <translation>次回起動時にリセット</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -7329,31 +7329,31 @@
     </message>
     <message>
         <source>UDP %1 (drone link)</source>
-        <translation type="unfinished" />
+        <translation>UDP %1（機体リンク）</translation>
     </message>
     <message>
         <source>USB auto-connect</source>
-        <translation type="unfinished" />
+        <translation>USB 自動接続</translation>
     </message>
     <message>
         <source>MAVLink forwarding</source>
-        <translation type="unfinished" />
+        <translation>MAVLink 転送</translation>
     </message>
     <message>
         <source>NMEA UDP %1</source>
-        <translation type="unfinished" />
+        <translation>NMEA UDP %1</translation>
     </message>
     <message>
         <source>ADSB server</source>
-        <translation type="unfinished" />
+        <translation>ADSB サーバー</translation>
     </message>
     <message>
         <source>RTK base</source>
-        <translation type="unfinished" />
+        <translation>RTK 基地局</translation>
     </message>
     <message>
         <source>Zero-Conf</source>
-        <translation type="unfinished" />
+        <translation>Zero-Conf</translation>
     </message>
     <message>
         <source>Devices</source>
@@ -7365,15 +7365,15 @@
     </message>
     <message>
         <source>Open now: %1. Everything else is off.</source>
-        <translation type="unfinished" />
+        <translation>現在開いているもの：%1。その他はすべてオフです。</translation>
     </message>
     <message>
         <source>Nothing is open.</source>
-        <translation type="unfinished" />
+        <translation>開いているものはありません。</translation>
     </message>
     <message>
         <source>Drone link · UDP %1</source>
-        <translatorcomment>Draft from Figma example "Drone link · UDP 14550" - review</translatorcomment><translation type="unfinished">機体リンク · UDP %1</translation>
+        <translation>機体リンク · UDP %1</translation>
     </message>
     <message>
         <source>Needed for the Enpulse radio and SITL. Connects to drones on this network.</source>
@@ -7385,7 +7385,7 @@
     </message>
     <message>
         <source>Sends all drone data to %1</source>
-        <translation type="unfinished" />
+        <translation>すべての機体データを %1 に送信します</translation>
     </message>
     <message>
         <source>Sends all drone data to a second address. Off by default.</source>
@@ -7393,11 +7393,11 @@
     </message>
     <message>
         <source>Forward to</source>
-        <translation type="unfinished" />
+        <translation>転送先</translation>
     </message>
     <message>
         <source>host:port, e.g. localhost:14445</source>
-        <translation type="unfinished" />
+        <translation>ホスト:ポート、例：localhost:14445</translation>
     </message>
     <message>
         <source>NMEA GPS input · UDP</source>
@@ -7409,11 +7409,11 @@
     </message>
     <message>
         <source>NMEA UDP port</source>
-        <translation type="unfinished" />
+        <translation>NMEA UDP ポート</translation>
     </message>
     <message>
         <source>Port the GPS sends to</source>
-        <translation type="unfinished" />
+        <translation>GPS の送信先ポート</translation>
     </message>
     <message>
         <source>ADSB traffic server · TCP</source>
@@ -7425,7 +7425,7 @@
     </message>
     <message>
         <source>Address and port</source>
-        <translation type="unfinished" />
+        <translation>アドレスとポート</translation>
     </message>
     <message>
         <source>RTK base station · USB</source>
@@ -7437,19 +7437,19 @@
     </message>
     <message>
         <source>Survey-in accuracy</source>
-        <translation type="unfinished" />
+        <translation>サーベイイン精度</translation>
     </message>
     <message>
         <source>The base starts sending when it is this accurate</source>
-        <translation type="unfinished" />
+        <translation>この精度に達すると基地局が送信を開始します</translation>
     </message>
     <message>
         <source>Survey-in time</source>
-        <translation type="unfinished" />
+        <translation>サーベイイン時間</translation>
     </message>
     <message>
         <source>Shortest time the base measures</source>
-        <translation type="unfinished" />
+        <translation>基地局が測定する最短時間</translation>
     </message>
     <message>
         <source>Serial auto-connect · USB</source>
@@ -7477,7 +7477,7 @@
     </message>
     <message>
         <source>Product</source>
-        <translation type="unfinished" />
+        <translation>製品</translation>
     </message>
     <message>
         <source>Change</source>
@@ -7489,29 +7489,29 @@
     </message>
     <message>
         <source>Actions file</source>
-        <translation type="unfinished" />
+        <translation>アクションファイル</translation>
     </message>
     <message>
         <source>Put a .json file in %1</source>
-        <translation type="unfinished" />
+        <translation>%1 に .json ファイルを置いてください</translation>
     </message>
     <message numerus="yes">
         <source>%n action(s) loaded</source>
-        <translation type="unfinished">
-            <numerusform />
+        <translation>
+            <numerusform>%n 件の操作を読込済み</numerusform>
         </translation>
     </message>
     <message>
         <source>No actions in this file (check the file format)</source>
-        <translation type="unfinished" />
+        <translation>このファイルに操作がありません（ファイル形式を確認してください）</translation>
     </message>
     <message>
         <source>No file</source>
-        <translation type="unfinished" />
+        <translation>ファイルなし</translation>
     </message>
     <message>
         <source>Reload</source>
-        <translation type="unfinished" />
+        <translation>再読込</translation>
     </message>
     <message>
         <source>USB gamepad</source>
@@ -7519,11 +7519,11 @@
     </message>
     <message>
         <source>%1 · fly with a gamepad instead of the on-screen sticks</source>
-        <translation type="unfinished" />
+        <translation>%1 · 画面上のスティックの代わりにゲームパッドで操縦</translation>
     </message>
     <message>
         <source>Fly with a gamepad instead of the on-screen sticks. None found.</source>
-        <translation type="unfinished" />
+        <translation>画面上のスティックの代わりにゲームパッドで操縦します。見つかりません。</translation>
     </message>
     <message>
         <source>The map, on-screen sticks, Go here and extra buttons.</source>
@@ -7546,7 +7546,7 @@
     </message>
     <message>
         <source>Hold to arm</source>
-        <translation type="unfinished" />
+        <translation>長押しでアーム</translation>
     </message>
     <message>
         <source>Emergency stop</source>
@@ -7558,7 +7558,7 @@
     </message>
     <message>
         <source>Hold 3 s to stop the motors</source>
-        <translation type="unfinished" />
+        <translation>3 秒長押しでモーター停止</translation>
     </message>
     <message>
         <source>Change speed</source>
@@ -7566,11 +7566,11 @@
     </message>
     <message>
         <source>Horizontal speed for this flight</source>
-        <translation type="unfinished" />
+        <translation>この飛行の水平速度</translation>
     </message>
     <message>
         <source>In flight, not during a mission</source>
-        <translation type="unfinished" />
+        <translation>飛行中、ミッション中以外</translation>
     </message>
     <message>
         <source>Apply</source>
@@ -7586,11 +7586,11 @@
     </message>
     <message>
         <source>Set home here…</source>
-        <translation type="unfinished" />
+        <translation>ここをホームに設定…</translation>
     </message>
     <message>
         <source>Set home</source>
-        <translation type="unfinished" />
+        <translation>ホームを設定</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -7610,7 +7610,7 @@
     </message>
     <message>
         <source>Show</source>
-        <translation type="unfinished" />
+        <translation>表示</translation>
     </message>
     <message>
         <source>Custom actions</source>
@@ -7618,13 +7618,13 @@
     </message>
     <message numerus="yes">
         <source>From the actions file · %n button(s)</source>
-        <translation type="unfinished">
-            <numerusform />
+        <translation>
+            <numerusform>アクションファイルから · ボタン %n 個</numerusform>
         </translation>
     </message>
     <message>
         <source>Send “%1” to the drone now?</source>
-        <translation type="unfinished" />
+        <translation>「%1」を今すぐ機体に送信しますか？</translation>
     </message>
     <message>
         <source>Send</source>
@@ -7707,11 +7707,11 @@
     </message>
     <message>
         <source>Tap map to add</source>
-        <translation type="unfinished" />
+        <translation>地図をタップして追加</translation>
     </message>
     <message>
         <source>Adding points</source>
-        <translation type="unfinished" />
+        <translation>ポイント追加中</translation>
     </message>
     <message>
         <source>Add point</source>
@@ -7719,7 +7719,7 @@
     </message>
     <message>
         <source>Mission (%1)</source>
-        <translatorcomment>Draft from Figma example "Mission (9)" - review</translatorcomment><translation type="unfinished">ミッション (%1)</translation>
+        <translation>ミッション（%1）</translation>
     </message>
     <message>
         <source>Fence</source>
@@ -7731,7 +7731,7 @@
     </message>
     <message>
         <source>Item %1 · %2</source>
-        <translation type="unfinished" />
+        <translation>項目 %1 · %2</translation>
     </message>
     <message>
         <source>Command</source>
@@ -7743,19 +7743,19 @@
     </message>
     <message>
         <source>above home</source>
-        <translation type="unfinished" />
+        <translation>ホーム基準</translation>
     </message>
     <message>
         <source>A pattern made with the mission wizards. Change its area or settings there; here it can be deleted.</source>
-        <translation type="unfinished" />
+        <translation>ミッションウィザードで作成したパターンです。エリアや設定はウィザードで変更します。ここでは削除できます。</translation>
     </message>
     <message>
         <source>Inclusion: the drone stays inside. Exclusion: the drone stays out. Drag the corners on the map. My zones (Map &amp; flight zones) are added when the mission is sent.</source>
-        <translation type="unfinished" />
+        <translation>包含：機体は内側にとどまります。除外：機体は外側にとどまります。地図上で角をドラッグします。マイゾーン（地図と飛行ゾーン）はミッション送信時に追加されます。</translation>
     </message>
     <message>
         <source>Polygon</source>
-        <translation type="unfinished" />
+        <translation>ポリゴン</translation>
     </message>
     <message>
         <source>Circle</source>
@@ -7763,35 +7763,35 @@
     </message>
     <message>
         <source>Polygon %1 · %2 corners</source>
-        <translation type="unfinished" />
+        <translation>ポリゴン %1 · 角 %2</translation>
     </message>
     <message>
         <source>Inclusion</source>
-        <translation type="unfinished" />
+        <translation>包含</translation>
     </message>
     <message>
         <source>Exclusion</source>
-        <translation type="unfinished" />
+        <translation>除外</translation>
     </message>
     <message>
         <source>Circle %1 · %2 m</source>
-        <translation type="unfinished" />
+        <translation>円 %1 · %2 m</translation>
     </message>
     <message>
         <source>No fence in this mission.</source>
-        <translation type="unfinished" />
+        <translation>このミッションにフェンスはありません。</translation>
     </message>
     <message>
         <source>Safe places to return to instead of home. Tap the map to add one; drag it on the map to move it.</source>
-        <translation type="unfinished" />
+        <translation>ホームの代わりに戻る安全な場所です。地図をタップして追加し、地図上でドラッグして移動します。</translation>
     </message>
     <message>
         <source>Point %1 · %2, %3</source>
-        <translation type="unfinished" />
+        <translation>ポイント %1 · %2、%3</translation>
     </message>
     <message>
         <source>No rally points.</source>
-        <translation type="unfinished" />
+        <translation>ラリーポイントはありません。</translation>
     </message>
     <message>
         <source>Check &amp; send</source>
@@ -7806,11 +7806,11 @@
     </message>
     <message>
         <source>Ch %1</source>
-        <translatorcomment>Draft from Figma example "Ch 6" - review</translatorcomment><translation type="unfinished">ch %1</translation>
+        <translation>ch %1</translation>
     </message>
     <message>
         <source>Step 1 of 3 · Put both sticks in the centre and the throttle all the way down. Leave the switches where they are.</source>
-        <translation type="unfinished" />
+        <translation>ステップ 1/3 · 両スティックを中央に、スロットルをいちばん下にしてください。スイッチはそのままにしてください。</translation>
     </message>
     <message>
         <source>Step 2 of 3 · Move both sticks to every corner and all switches to every position. The bars grow while you move.</source>
@@ -7818,21 +7818,21 @@
     </message>
     <message>
         <source>Step 3 of 3 · Check the values. Channels you did not move keep their old values.</source>
-        <translation type="unfinished" />
+        <translation>ステップ 3/3 · 値を確認してください。動かさなかったチャンネルは以前の値を保持します。</translation>
     </message>
     <message numerus="yes">
         <source>Saved %n channel(s).</source>
-        <translation type="unfinished">
-            <numerusform />
+        <translation>
+            <numerusform>%n チャンネルを保存しました。</numerusform>
         </translation>
     </message>
     <message>
         <source>Nothing moved: no values changed.</source>
-        <translation type="unfinished" />
+        <translation>何も動かされていません：値は変更していません。</translation>
     </message>
     <message>
         <source>not moved</source>
-        <translation type="unfinished" />
+        <translation>未操作</translation>
     </message>
     <message>
         <source>Throttle has not reached the top yet. Push it all the way up once.</source>
@@ -7840,15 +7840,15 @@
     </message>
     <message>
         <source>Small range on: %1. Move it to both ends.</source>
-        <translation type="unfinished" />
+        <translation>範囲が狭い：%1。両端まで動かしてください。</translation>
     </message>
     <message>
         <source>Minimum · centre · maximum. The throttle centre is its minimum.</source>
-        <translation type="unfinished" />
+        <translation>最小 · 中央 · 最大。スロットルの中央は最小値です。</translation>
     </message>
     <message>
         <source>The drone is armed. Stop the motors first.</source>
-        <translation type="unfinished" />
+        <translation>機体はアームされています。先にモーターを停止してください。</translation>
     </message>
     <message>
         <source>The motors stay off. The drone must not be armed.</source>
@@ -7887,7 +7887,7 @@
     </message>
     <message>
         <source>Tap to confirm. All propellers must be off.</source>
-        <translation type="unfinished" />
+        <translation>タップして確認。すべてのプロペラを外してください。</translation>
     </message>
     <message>
         <source>Unplug the battery and USB</source>
@@ -7915,15 +7915,15 @@
     </message>
     <message>
         <source>ESC calibration done.</source>
-        <translation type="unfinished" />
+        <translation>ESC キャリブレーション完了。</translation>
     </message>
     <message>
         <source>The drone did not calibrate the ESCs. The setting is back to off. Try again and keep the battery in until the long beep.</source>
-        <translation type="unfinished" />
+        <translation>機体は ESC をキャリブレーションしませんでした。設定はオフに戻りました。長いビープ音が鳴るまでバッテリーを接続したまま、もう一度試してください。</translation>
     </message>
     <message>
         <source>This drone has no ESC calibration setting.</source>
-        <translation type="unfinished" />
+        <translation>この機体には ESC キャリブレーションの設定がありません。</translation>
     </message>
     <message>
         <source>Keep hands away from the motors while the battery is plugged in.</source>
@@ -7947,7 +7947,7 @@
     </message>
     <message>
         <source>I heard the long beep</source>
-        <translation type="unfinished" />
+        <translation>長いビープ音を聞いた</translation>
     </message>
     <message>
         <source>Done</source>
@@ -8018,7 +8018,7 @@
     </message>
     <message>
         <source>Rangefinder</source>
-        <translation type="unfinished" />
+        <translation>距離センサー</translation>
     </message>
     <message>
         <source>Camera</source>
@@ -8026,31 +8026,31 @@
     </message>
     <message>
         <source>Auxiliary authorisation</source>
-        <translation type="unfinished" />
+        <translation>補助認証</translation>
     </message>
     <message>
         <source>Visual odometry</source>
-        <translation type="unfinished" />
+        <translation>ビジュアルオドメトリー</translation>
     </message>
     <message>
         <source>FFT</source>
-        <translation type="unfinished" />
+        <translation>FFT</translation>
     </message>
     <message>
         <source>No checks: the drone starts even with a fault.</source>
-        <translation type="unfinished" />
+        <translation>チェックなし：故障があっても機体は始動します。</translation>
     </message>
     <message>
         <source>The drone is armed. Stop the motors first.</source>
-        <translation type="unfinished" />
+        <translation>機体はアームされています。先にモーターを停止してください。</translation>
     </message>
     <message>
         <source>Turn off every check? The drone will start even with a broken sensor or no GPS.</source>
-        <translation type="unfinished" />
+        <translation>すべてのチェックをオフにしますか？センサーの故障や GPS がなくても機体は始動します。</translation>
     </message>
     <message>
         <source>Keep this check on</source>
-        <translation type="unfinished" />
+        <translation>このチェックをオンのままにする</translation>
     </message>
     <message>
         <source>Turn all off</source>
@@ -8066,20 +8066,20 @@
     </message>
     <message>
         <source>All checks on</source>
-        <translation type="unfinished" />
+        <translation>すべてのチェックがオン</translation>
     </message>
     <message>
         <source>%1 reference</source>
-        <translation type="unfinished" />
+        <translation>%1 の基準値</translation>
     </message>
     <message>
         <source>Off in the company setting</source>
-        <translation type="unfinished" />
+        <translation>会社設定でもオフ</translation>
     </message>
     <message numerus="yes">
         <source>%n check(s) off that the company setting has on: %1. Turn them back on before normal flights.</source>
-        <translation type="unfinished">
-            <numerusform />
+        <translation>
+            <numerusform>会社設定ではオンのチェック %n 件がオフです：%1。通常の飛行の前にオンに戻してください。</numerusform>
         </translation>
     </message>
 </context>
@@ -8091,7 +8091,7 @@
     </message>
     <message>
         <source>Save parameters to a file</source>
-        <translation type="unfinished" />
+        <translation>パラメーターをファイルに保存</translation>
     </message>
     <message>
         <source>Pick a file saved with “Save to file”. Only the values that differ are sent.</source>
@@ -8099,31 +8099,31 @@
     </message>
     <message>
         <source>All values of the drone are saved in the parameters folder of this tablet.</source>
-        <translation type="unfinished" />
+        <translation>機体のすべての値をこのタブレットのパラメーターフォルダーに保存します。</translation>
     </message>
     <message>
         <source>This file cannot be read.</source>
-        <translation type="unfinished" />
+        <translation>このファイルは読み込めません。</translation>
     </message>
     <message numerus="yes">
         <source>%n value(s) sent to the drone.</source>
-        <translation type="unfinished">
-            <numerusform />
+        <translation>
+            <numerusform>%n 個の値を機体に送信しました。</numerusform>
         </translation>
     </message>
     <message>
         <source>No parameter files yet. Use “Save to file” first.</source>
-        <translation type="unfinished" />
+        <translation>パラメーターファイルはまだありません。先に「ファイルに保存」を使用してください。</translation>
     </message>
     <message numerus="yes">
         <source>%n value(s) differ</source>
-        <translation type="unfinished">
-            <numerusform />
+        <translation>
+            <numerusform>異なる値 %n 個</numerusform>
         </translation>
     </message>
     <message>
         <source>Same as the drone</source>
-        <translation type="unfinished" />
+        <translation>機体と同じ</translation>
     </message>
     <message>
         <source>Now → In file</source>
@@ -8131,11 +8131,11 @@
     </message>
     <message>
         <source>not on drone</source>
-        <translation type="unfinished" />
+        <translation>機体にない</translation>
     </message>
     <message>
         <source>This file is from another drone. Tick only the values you are sure about.</source>
-        <translation type="unfinished" />
+        <translation>このファイルは別の機体のものです。確実な値だけにチェックを入れてください。</translation>
     </message>
     <message>
         <source>The drone uses the new values at once. Check the flight with care after loading.</source>
@@ -8143,15 +8143,15 @@
     </message>
     <message>
         <source>The drone is armed. Stop the motors first.</source>
-        <translation type="unfinished" />
+        <translation>機体はアームされています。先にモーターを停止してください。</translation>
     </message>
     <message>
         <source>File name</source>
-        <translation type="unfinished" />
+        <translation>ファイル名</translation>
     </message>
     <message>
         <source>Folder: %1</source>
-        <translation type="unfinished" />
+        <translation>フォルダー：%1</translation>
     </message>
     <message>
         <source>Close</source>
@@ -8167,8 +8167,8 @@
     </message>
     <message numerus="yes">
         <source>Send %n value(s)</source>
-        <translation type="unfinished">
-            <numerusform />
+        <translation>
+            <numerusform>%n 個の値を送信</numerusform>
         </translation>
     </message>
 </context>
@@ -8208,7 +8208,7 @@
     </message>
     <message>
         <source>RTK / GPS</source>
-        <translation type="unfinished" />
+        <translation>RTK / GPS</translation>
     </message>
     <message>
         <source>Search categories</source>
@@ -8216,11 +8216,11 @@
     </message>
     <message>
         <source>Show common groups</source>
-        <translation type="unfinished" />
+        <translation>よく使うグループを表示</translation>
     </message>
     <message>
         <source>Show all %1 categories</source>
-        <translatorcomment>Draft from Figma example "Show all 84 categories" - review</translatorcomment><translation type="unfinished">%1 カテゴリーをすべて表示</translation>
+        <translation>%1 カテゴリーをすべて表示</translation>
     </message>
     <message>
         <source>Turn all off</source>
@@ -8243,7 +8243,7 @@
     </message>
     <message>
         <source>%1 · from the drone, %2 values per second</source>
-        <translatorcomment>Draft from Figma example "ATTITUDE · from the drone, 10 values per second" - review</translatorcomment><translation type="unfinished">%1 · 機体から、毎秒 %2 値</translation>
+        <translation>%1 · 機体から毎秒 %2 個の値</translation>
     </message>
     <message>
         <source>Tick “Chart” on a field to add it (max 2)</source>
@@ -8251,7 +8251,7 @@
     </message>
     <message>
         <source>No field chosen</source>
-        <translation type="unfinished" />
+        <translation>項目が選択されていません</translation>
     </message>
     <message>
         <source>Scale: auto</source>
@@ -8278,15 +8278,15 @@
     </message>
     <message>
         <source>Logs, missions, parameters and photos are saved in folders inside this one. Files already saved stay where they are.</source>
-        <translation type="unfinished" />
+        <translation>ログ、ミッション、パラメーター、写真はこのフォルダー内のフォルダーに保存されます。保存済みのファイルはそのまま残ります。</translation>
     </message>
     <message>
         <source>Free: %1 GB</source>
-        <translatorcomment>Draft from Figma example "Free: 412 GB" - review</translatorcomment><translation type="unfinished">空き：%1 GB</translation>
+        <translation>空き：%1 GB</translation>
     </message>
     <message>
         <source>Free: %1 MB</source>
-        <translation type="unfinished" />
+        <translation>空き：%1 MB</translation>
     </message>
     <message>
         <source>This PC</source>
@@ -8298,7 +8298,7 @@
     </message>
     <message>
         <source>Used now</source>
-        <translation type="unfinished" />
+        <translation>現在使用中</translation>
     </message>
     <message>
         <source>+ New folder</source>
@@ -8306,15 +8306,15 @@
     </message>
     <message>
         <source>Folder name</source>
-        <translation type="unfinished" />
+        <translation>フォルダー名</translation>
     </message>
     <message>
         <source>Create</source>
-        <translation type="unfinished" />
+        <translation>作成</translation>
     </message>
     <message>
         <source>This folder cannot be made here.</source>
-        <translation type="unfinished" />
+        <translation>ここにはこのフォルダーを作成できません。</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -8322,26 +8322,26 @@
     </message>
     <message>
         <source>The app cannot write in this folder. Pick another one.</source>
-        <translation type="unfinished" />
+        <translation>アプリはこのフォルダーに書き込めません。別のフォルダーを選択してください。</translation>
     </message>
     <message>
         <source>Use</source>
-        <translation type="unfinished" />
+        <translation>使用</translation>
     </message>
     <message>
         <source>Use “%1”</source>
-        <translatorcomment>Draft from Figma example "Use "ALES_QGC"" - review</translatorcomment><translation type="unfinished">「%1」を使用</translation>
+        <translation>「%1」を使用</translation>
     </message>
 </context>
 <context>
     <name>SimpleSetupFirmware</name>
     <message>
         <source>Choose a firmware file</source>
-        <translation type="unfinished" />
+        <translation>ファームウェアファイルを選択</translation>
     </message>
     <message>
         <source>Firmware files (*.apj)</source>
-        <translation type="unfinished" />
+        <translation>ファームウェアファイル（*.apj）</translation>
     </message>
     <message>
         <source>Firmware</source>
@@ -8353,15 +8353,15 @@
     </message>
     <message>
         <source>Firmware is updated from a PC with a USB cable.</source>
-        <translation type="unfinished" />
+        <translation>ファームウェアは PC から USB ケーブルで更新します。</translation>
     </message>
     <message>
         <source>Installed · %1 %2.%3.%4</source>
-        <translation type="unfinished" />
+        <translation>インストール済み · %1 %2.%3.%4</translation>
     </message>
     <message>
         <source>Installed · drone not connected</source>
-        <translation type="unfinished" />
+        <translation>インストール済み · 機体未接続</translation>
     </message>
     <message>
         <source>Signature check on the drone (secure boot): not set up yet</source>
@@ -8373,11 +8373,11 @@
     </message>
     <message>
         <source>Update file · %1</source>
-        <translatorcomment>Draft from Figma example "Update file · Z01.08.00EASA" - review</translatorcomment><translation type="unfinished">更新ファイル · %1</translation>
+        <translation>更新ファイル · %1</translation>
     </message>
     <message>
         <source>No update file chosen</source>
-        <translation type="unfinished" />
+        <translation>更新ファイルが選択されていません</translation>
     </message>
     <message>
         <source>Signature and version are not checked yet: install only files from ARGOSDYNE support.</source>
@@ -8385,7 +8385,7 @@
     </message>
     <message>
         <source>Get the file from ARGOSDYNE support, then choose it here.</source>
-        <translation type="unfinished" />
+        <translation>ARGOSDYNE サポートからファイルを入手し、ここで選択してください。</translation>
     </message>
     <message>
         <source>Signature not checked</source>
@@ -8413,19 +8413,19 @@
     </message>
     <message>
         <source>Unplug the USB cable, wait 2 seconds and plug it in again.</source>
-        <translation type="unfinished" />
+        <translation>USB ケーブルを抜き、2 秒待ってから再び差し込んでください。</translation>
     </message>
     <message>
         <source>Installing. Do not unplug the drone.</source>
-        <translation type="unfinished" />
+        <translation>インストール中です。機体を取り外さないでください。</translation>
     </message>
     <message>
         <source>Firmware installed. The drone restarts.</source>
-        <translation type="unfinished" />
+        <translation>ファームウェアをインストールしました。機体が再起動します。</translation>
     </message>
     <message>
         <source>Install failed. Plug the drone straight into a USB port of the PC (no hub) and try again.</source>
-        <translation type="unfinished" />
+        <translation>インストールに失敗しました。機体を PC の USB ポートに直接（ハブなしで）接続し、もう一度試してください。</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -8433,7 +8433,7 @@
     </message>
     <message>
         <source>Do not unplug the drone while installing. If the power is lost, plug it in again and install once more.</source>
-        <translation type="unfinished" />
+        <translation>インストール中は機体を取り外さないでください。電源が切れた場合は、再接続してもう一度インストールしてください。</translation>
     </message>
 </context>
 <context>
@@ -8452,7 +8452,7 @@
     </message>
     <message>
         <source>%1 · stopped after waypoint %2</source>
-        <translation type="unfinished" />
+        <translation>%1 · ウェイポイント %2 の後に停止</translation>
     </message>
     <message>
         <source>FLIGHT TIME</source>
@@ -8472,19 +8472,19 @@
     </message>
     <message>
         <source>Flight log saved.</source>
-        <translation type="unfinished" />
+        <translation>フライトログを保存しました。</translation>
     </message>
     <message>
         <source>Ready: the next flight starts at waypoint %1.</source>
-        <translation type="unfinished" />
+        <translation>準備完了：次の飛行はウェイポイント %1 から開始します。</translation>
     </message>
     <message>
         <source>The mission stays on the drone: Start mission flies it again.</source>
-        <translation type="unfinished" />
+        <translation>ミッションは機体に残ります：ミッション開始で再度飛行します。</translation>
     </message>
     <message>
         <source>Next flight can continue from waypoint %1 (photos already taken are kept).</source>
-        <translation type="unfinished" />
+        <translation>次の飛行はウェイポイント %1 から続行できます（撮影済みの写真は残ります）。</translation>
     </message>
     <message>
         <source>Remove mission from drone</source>
@@ -8496,7 +8496,7 @@
     </message>
     <message>
         <source>Mission removed from the drone</source>
-        <translation type="unfinished" />
+        <translation>機体からミッションを削除しました</translation>
     </message>
     <message>
         <source>Keep as is</source>
@@ -8508,7 +8508,7 @@
     </message>
     <message>
         <source>Continue from waypoint %1</source>
-        <translatorcomment>Draft from Figma example "Continue from waypoint 7" - review</translatorcomment><translation type="unfinished">ウェイポイント %1 から再開</translation>
+        <translation>ウェイポイント %1 から再開</translation>
     </message>
 </context>
 <context>
@@ -8523,19 +8523,19 @@
     </message>
     <message>
         <source>Serial</source>
-        <translation type="unfinished" />
+        <translation>シリアル</translation>
     </message>
     <message>
         <source>listen %1</source>
-        <translation type="unfinished" />
+        <translation>受信 %1</translation>
     </message>
     <message>
         <source>send to %1</source>
-        <translation type="unfinished" />
+        <translation>送信先 %1</translation>
     </message>
     <message>
         <source>connects when the app starts</source>
-        <translation type="unfinished" />
+        <translation>アプリ起動時に接続</translation>
     </message>
     <message>
         <source>Manual connections</source>
@@ -8571,7 +8571,7 @@
     </message>
     <message>
         <source>Edit connection</source>
-        <translation type="unfinished" />
+        <translation>接続を編集</translation>
     </message>
     <message>
         <source>Saved on this tablet. The drone link still connects by itself — add a connection only for other links.</source>
@@ -8587,7 +8587,7 @@
     </message>
     <message>
         <source>e.g. Telemetry radio</source>
-        <translation type="unfinished" />
+        <translation>例：テレメトリー無線</translation>
     </message>
     <message>
         <source>Type</source>
@@ -8599,7 +8599,7 @@
     </message>
     <message>
         <source>No serial port found</source>
-        <translation type="unfinished" />
+        <translation>シリアルポートが見つかりません</translation>
     </message>
     <message>
         <source>Speed (baud)</source>
@@ -8607,27 +8607,27 @@
     </message>
     <message>
         <source>Listening port</source>
-        <translation type="unfinished" />
+        <translation>受信ポート</translation>
     </message>
     <message>
         <source>Send to (optional)</source>
-        <translation type="unfinished" />
+        <translation>送信先（任意）</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished" />
+        <translation>削除</translation>
     </message>
     <message>
         <source>host:port, e.g. 192.168.1.20:14550</source>
-        <translation type="unfinished" />
+        <translation>ホスト:ポート、例：192.168.1.20:14550</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished" />
+        <translation>追加</translation>
     </message>
     <message>
         <source>Server address</source>
-        <translation type="unfinished" />
+        <translation>サーバーアドレス</translation>
     </message>
     <message>
         <source>Connect when the app starts</source>
@@ -8635,7 +8635,7 @@
     </message>
     <message>
         <source>Delete “%1”? A running connection is closed first.</source>
-        <translation type="unfinished" />
+        <translation>「%1」を削除しますか？接続中の場合は先に切断します。</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -8643,7 +8643,7 @@
     </message>
     <message>
         <source>Delete…</source>
-        <translation type="unfinished" />
+        <translation>削除…</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -8674,11 +8674,11 @@
     </message>
     <message>
         <source>No gamepad found. Plug one in by USB or pair it by Bluetooth.</source>
-        <translation type="unfinished" />
+        <translation>ゲームパッドが見つかりません。USB で接続するか、Bluetooth でペアリングしてください。</translation>
     </message>
     <message>
         <source>Buttons only</source>
-        <translation type="unfinished" />
+        <translation>ボタンのみ</translation>
     </message>
     <message>
         <source>Calibrated</source>
@@ -8686,7 +8686,7 @@
     </message>
     <message>
         <source>Not calibrated</source>
-        <translation type="unfinished" />
+        <translation>未キャリブレーション</translation>
     </message>
     <message>
         <source>Gamepad</source>
@@ -8698,11 +8698,11 @@
     </message>
     <message>
         <source>· connect a drone first</source>
-        <translation type="unfinished" />
+        <translation>· 先に機体を接続してください</translation>
     </message>
     <message>
         <source>· calibrate first</source>
-        <translation type="unfinished" />
+        <translation>· 先にキャリブレーションしてください</translation>
     </message>
     <message>
         <source>· turns the on-screen sticks off</source>
@@ -8714,7 +8714,7 @@
     </message>
     <message>
         <source>Axis %1</source>
-        <translatorcomment>Draft from Figma example "Axis 1" - review</translatorcomment><translation type="unfinished">軸 %1</translation>
+        <translation>軸 %1</translation>
     </message>
     <message>
         <source>Calibrate sticks…</source>
@@ -8742,43 +8742,43 @@
     </message>
     <message>
         <source>Calibrate gamepad sticks</source>
-        <translation type="unfinished" />
+        <translation>ゲームパッドのスティックのキャリブレーション</translation>
     </message>
     <message>
         <source>Choose the stick layout, press Start and move the sticks as shown. Keep the gamepad still between steps.</source>
-        <translation type="unfinished" />
+        <translation>スティック配置を選択し、「開始」を押して表示どおりにスティックを動かしてください。ステップの間はゲームパッドを動かさないでください。</translation>
     </message>
     <message>
         <source>Stick layout</source>
-        <translation type="unfinished" />
+        <translation>スティック配置</translation>
     </message>
     <message>
         <source>Mode 1</source>
-        <translation type="unfinished" />
+        <translation>モード 1</translation>
     </message>
     <message>
         <source>Mode 2</source>
-        <translation type="unfinished" />
+        <translation>モード 2</translation>
     </message>
     <message>
         <source>Mode 3</source>
-        <translation type="unfinished" />
+        <translation>モード 3</translation>
     </message>
     <message>
         <source>Mode 4</source>
-        <translation type="unfinished" />
+        <translation>モード 4</translation>
     </message>
     <message>
         <source>Left stick</source>
-        <translation type="unfinished" />
+        <translation>左スティック</translation>
     </message>
     <message>
         <source>Right stick</source>
-        <translation type="unfinished" />
+        <translation>右スティック</translation>
     </message>
     <message>
         <source>Press Start.</source>
-        <translation type="unfinished" />
+        <translation>「開始」を押してください。</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -8790,7 +8790,7 @@
     </message>
     <message>
         <source>Skip</source>
-        <translation type="unfinished" />
+        <translation>スキップ</translation>
     </message>
     <message>
         <source>Next</source>
@@ -8813,7 +8813,7 @@
     </message>
     <message>
         <source>Locked while the drone is armed.</source>
-        <translation type="unfinished" />
+        <translation>機体のアーム中はロックされます。</translation>
     </message>
     <message>
         <source>Clear the mission when the drone restarts</source>
@@ -8841,7 +8841,7 @@
     </message>
     <message>
         <source>Sending…</source>
-        <translation type="unfinished" />
+        <translation>送信中…</translation>
     </message>
     <message>
         <source>Apply</source>
@@ -8849,31 +8849,31 @@
     </message>
     <message>
         <source>Applied.</source>
-        <translation type="unfinished" />
+        <translation>適用しました。</translation>
     </message>
     <message>
         <source>Clearing on restart changes after the next restart.</source>
-        <translation type="unfinished" />
+        <translation>「再起動時に消去」の変更は次回の再起動後に反映されます。</translation>
     </message>
     <message>
         <source>Continue after landing changes at the next landing.</source>
-        <translation type="unfinished" />
+        <translation>「着陸後に継続」の変更は次回の着陸から反映されます。</translation>
     </message>
     <message>
         <source>Could not apply the setting. The previous value is back.</source>
-        <translation type="unfinished" />
+        <translation>設定を適用できませんでした。以前の値に戻しました。</translation>
     </message>
     <message>
         <source>Could not read MIS_OPTIONS from the drone.</source>
-        <translation type="unfinished" />
+        <translation>機体から MIS_OPTIONS を読み込めませんでした。</translation>
     </message>
     <message>
         <source>Current value: MIS_OPTIONS = %1</source>
-        <translation type="unfinished" />
+        <translation>現在の値：MIS_OPTIONS = %1</translation>
     </message>
     <message>
         <source>Reading MIS_OPTIONS…</source>
-        <translation type="unfinished" />
+        <translation>MIS_OPTIONS を読み込み中…</translation>
     </message>
 </context>
 <context>
@@ -8884,19 +8884,19 @@
     </message>
     <message>
         <source>What the camera reports — the list differs by camera.</source>
-        <translation type="unfinished" />
+        <translation>カメラが報告する設定です — 一覧はカメラによって異なります。</translation>
     </message>
     <message>
         <source>Camera %1</source>
-        <translation type="unfinished" />
+        <translation>カメラ %1</translation>
     </message>
     <message>
         <source>firmware %1</source>
-        <translation type="unfinished" />
+        <translation>ファームウェア %1</translation>
     </message>
     <message>
         <source>The drone reports no camera with settings.</source>
-        <translation type="unfinished" />
+        <translation>設定可能なカメラが機体から報告されていません。</translation>
     </message>
     <message>
         <source>Camera</source>
@@ -8920,11 +8920,11 @@
     </message>
     <message>
         <source>Blend</source>
-        <translation type="unfinished" />
+        <translation>ブレンド</translation>
     </message>
     <message>
         <source>Full</source>
-        <translation type="unfinished" />
+        <translation>全体</translation>
     </message>
     <message>
         <source>Picture in picture</source>
@@ -8932,7 +8932,7 @@
     </message>
     <message>
         <source>How much of the thermal picture shows</source>
-        <translation type="unfinished" />
+        <translation>サーマル映像の表示割合</translation>
     </message>
     <message>
         <source>Video fit</source>
@@ -8940,7 +8940,7 @@
     </message>
     <message>
         <source>How the video fills the screen</source>
-        <translation type="unfinished" />
+        <translation>映像を画面に合わせる方法</translation>
     </message>
     <message>
         <source>SD CARD</source>
@@ -8948,23 +8948,23 @@
     </message>
     <message>
         <source>No SD card</source>
-        <translation type="unfinished" />
+        <translation>SD カードなし</translation>
     </message>
     <message>
         <source>SD card not formatted</source>
-        <translation type="unfinished" />
+        <translation>SD カード未フォーマット</translation>
     </message>
     <message>
         <source>%1 free of %2</source>
-        <translatorcomment>Draft from Figma example "41 GB free of 64 GB" - review</translatorcomment><translation type="unfinished">空き %1 / %2</translation>
+        <translation>空き %1 / %2</translation>
     </message>
     <message>
         <source>%1 free</source>
-        <translatorcomment>Draft from Figma example "41 GB free" - review</translatorcomment><translation type="unfinished">空き %1</translation>
+        <translation>空き %1</translation>
     </message>
     <message>
         <source>Stop recording and photos first</source>
-        <translation type="unfinished" />
+        <translation>先に録画と撮影を停止してください</translation>
     </message>
     <message>
         <source>Format SD card…</source>
@@ -8980,11 +8980,11 @@
     </message>
     <message>
         <source>Erase all photos and videos on the camera's SD card? This cannot be undone.</source>
-        <translation type="unfinished" />
+        <translation>カメラの SD カードのすべての写真と動画を消去しますか？元に戻せません。</translation>
     </message>
     <message>
         <source>Set every camera setting back to its factory value?</source>
-        <translation type="unfinished" />
+        <translation>すべてのカメラ設定を工場出荷時の値に戻しますか？</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -9000,11 +9000,11 @@
     </message>
     <message>
         <source>Formatting the SD card…</source>
-        <translation type="unfinished" />
+        <translation>SD カードをフォーマット中…</translation>
     </message>
     <message>
         <source>Camera settings reset.</source>
-        <translation type="unfinished" />
+        <translation>カメラ設定をリセットしました。</translation>
     </message>
     <message>
         <source>Done</source>
@@ -9015,15 +9015,15 @@
     <name>SimpleRoot</name>
     <message>
         <source>The drone restarted — check the mission on the fly screen</source>
-        <translation type="unfinished" />
+        <translation>機体が再起動しました — 飛行画面でミッションを確認してください</translation>
     </message>
     <message>
         <source>%1 saved. Restart the drone to use the new value.</source>
-        <translation type="unfinished" />
+        <translation>%1 を保存しました。新しい値を使うには機体を再起動してください。</translation>
     </message>
     <message>
         <source>“%1” changes after the app restarts.</source>
-        <translation type="unfinished" />
+        <translation>「%1」はアプリの再起動後に反映されます。</translation>
     </message>
 </context>
 </TS>

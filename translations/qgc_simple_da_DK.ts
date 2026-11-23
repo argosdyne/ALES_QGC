@@ -32,11 +32,11 @@
     </message>
     <message>
         <source>Last received values</source>
-        <translation type="unfinished" />
+        <translation>Senest modtagne værdier</translation>
     </message>
     <message>
         <source>Alarm</source>
-        <translation type="unfinished" />
+        <translation>Alarm</translation>
     </message>
     <message>
         <source>CABLE OUT</source>
@@ -87,7 +87,7 @@
     </message>
     <message>
         <source>30 % / 20 %</source>
-        <translation type="unfinished" />
+        <translation>30 % / 20 %</translation>
     </message>
     <message>
         <source>Quality</source>
@@ -115,7 +115,7 @@
     </message>
     <message>
         <source>not reported</source>
-        <translation type="unfinished" />
+        <translation>ikke rapporteret</translation>
     </message>
     <message>
         <source>Distance to drone</source>
@@ -135,7 +135,7 @@
     </message>
     <message>
         <source>Not enabled</source>
-        <translation type="unfinished" />
+        <translation>Ikke aktiveret</translation>
     </message>
     <message>
         <source>Broadcasting</source>
@@ -143,7 +143,7 @@
     </message>
     <message>
         <source>Check</source>
-        <translation type="unfinished" />
+        <translation>Kontrollér</translation>
     </message>
     <message>
         <source>Message</source>
@@ -159,7 +159,7 @@
     </message>
     <message>
         <source>Missing or invalid</source>
-        <translation type="unfinished" />
+        <translation>Mangler eller ugyldig</translation>
     </message>
     <message>
         <source>Signed (MAVLink)</source>
@@ -167,11 +167,11 @@
     </message>
     <message>
         <source>Key mismatch</source>
-        <translation type="unfinished" />
+        <translation>Nøglen passer ikke</translation>
     </message>
     <message>
         <source>Not protected</source>
-        <translation type="unfinished" />
+        <translation>Ikke beskyttet</translation>
     </message>
     <message>
         <source>Link protection</source>
@@ -186,15 +186,15 @@
     </message>
     <message>
         <source>1  Turn on the controller and the radio</source>
-        <translation type="unfinished" />
+        <translation>1  Tænd fjernbetjeningen og radioen</translation>
     </message>
     <message>
         <source>2  Turn on the drone and wait for the lights</source>
-        <translation type="unfinished" />
+        <translation>2  Tænd dronen, og vent på lysene</translation>
     </message>
     <message>
         <source>3  The app connects automatically</source>
-        <translation type="unfinished" />
+        <translation>3  Appen forbinder automatisk</translation>
     </message>
     <message>
         <source>Connection help</source>
@@ -209,15 +209,15 @@
     <name>SimpleFlyOverlay</name>
     <message>
         <source>The drone keeps its mission after a restart. Check it before starting.</source>
-        <translation type="unfinished" />
+        <translation>Dronen beholder sin mission efter en genstart. Kontrollér den før start.</translation>
     </message>
     <message>
         <source>The drone clears its mission at a restart. Send the mission again before flying.</source>
-        <translation type="unfinished" />
+        <translation>Dronen rydder sin mission ved en genstart. Send missionen igen før flyvning.</translation>
     </message>
     <message>
         <source>Check the mission on the drone again.</source>
-        <translation type="unfinished" />
+        <translation>Kontrollér missionen på dronen igen.</translation>
     </message>
     <message>
         <source>Take off</source>
@@ -253,7 +253,7 @@
     </message>
     <message>
         <source>Landing</source>
-        <translation type="unfinished" />
+        <translation>Lander</translation>
     </message>
     <message>
         <source>Battery low — returning home</source>
@@ -265,11 +265,11 @@
     </message>
     <message>
         <source>Pause stops the drone in place.</source>
-        <translation type="unfinished" />
+        <translation>Pause stopper dronen på stedet.</translation>
     </message>
     <message>
         <source>Pause stops the drone in place. Land lands here.</source>
-        <translation type="unfinished" />
+        <translation>Pause stopper dronen på stedet. Land lander her.</translation>
     </message>
     <message>
         <source>Paused — holding position</source>
@@ -281,7 +281,7 @@
     </message>
     <message>
         <source>Use Return home or Land, or change the flight mode.</source>
-        <translation type="unfinished" />
+        <translation>Brug Returner hjem eller Land, eller skift flyvetilstand.</translation>
     </message>
     <message>
         <source>Resume mission</source>
@@ -289,7 +289,7 @@
     </message>
     <message>
         <source>Land here</source>
-        <translation type="unfinished" />
+        <translation>Land her</translation>
     </message>
     <message>
         <source>The drone climbs to the return-home altitude, flies back to the home point and lands.</source>
@@ -297,15 +297,15 @@
     </message>
     <message>
         <source>The drone descends and lands straight below its current position.</source>
-        <translation type="unfinished" />
+        <translation>Dronen går ned og lander lige under sin nuværende position.</translation>
     </message>
     <message>
         <source>The drone takes off and flies the mission on the map. It returns home when the mission ends.</source>
-        <translation type="unfinished" />
+        <translation>Dronen starter og flyver missionen på kortet. Den returnerer hjem, når missionen slutter.</translation>
     </message>
     <message>
         <source>You can stop it any time with Pause.</source>
-        <translation type="unfinished" />
+        <translation>Du kan stoppe den når som helst med Pause.</translation>
     </message>
     <message>
         <source>You can stop it any time with Pause. Return-home altitude: Settings › Safety</source>
@@ -317,19 +317,19 @@
     </message>
     <message>
         <source>Slide to land</source>
-        <translation type="unfinished" />
+        <translation>Skub for at lande</translation>
     </message>
     <message>
         <source>Slide to start</source>
-        <translation type="unfinished" />
+        <translation>Skub for at starte</translation>
     </message>
     <message>
         <source>REC %1</source>
-        <translation type="unfinished" />
+        <translation>REC %1</translation>
     </message>
     <message>
         <source>%1 left</source>
-        <translatorcomment>Draft from Figma example "4K 30 fps · SD 28.4 GB left" - review</translatorcomment><translation type="unfinished">%1 tilbage</translation>
+        <translation>%1 tilbage</translation>
     </message>
     <message>
         <source>Zoom</source>
@@ -337,11 +337,11 @@
     </message>
     <message>
         <source>Pitch %1° · Yaw %2°</source>
-        <translatorcomment>Draft from Figma example "Pitch −30° · Yaw 0°" - review</translatorcomment><translation type="unfinished">Pitch %1°  ·  Yaw %2°</translation>
+        <translation>Pitch %1° · Yaw %2°</translation>
     </message>
     <message>
         <source>No video — flight is not affected</source>
-        <translation type="unfinished" />
+        <translation>Ingen video — flyvningen påvirkes ikke</translation>
     </message>
     <message>
         <source>Waiting for video…</source>
@@ -349,7 +349,7 @@
     </message>
     <message>
         <source>The drone keeps flying normally. Check the camera and the video link, or use the map.</source>
-        <translation type="unfinished" />
+        <translation>Dronen flyver normalt videre. Kontrollér kameraet og videoforbindelsen, eller brug kortet.</translation>
     </message>
     <message>
         <source>The camera is starting. This usually takes about 10 seconds.</source>
@@ -357,15 +357,15 @@
     </message>
     <message>
         <source>Camera %1 connected</source>
-        <translatorcomment>Draft from Figma example "Camera RHYTHM 3 connected" - review</translatorcomment><translation type="unfinished">Kamera %1 forbundet</translation>
+        <translation>Kamera %1 forbundet</translation>
     </message>
     <message>
         <source>Camera not reported by the drone</source>
-        <translation type="unfinished" />
+        <translation>Kamera ikke rapporteret af dronen</translation>
     </message>
     <message>
         <source>Video link connected · waiting for the first picture</source>
-        <translation type="unfinished" />
+        <translation>Videoforbindelse oprettet · venter på første billede</translation>
     </message>
     <message>
         <source>Video link: searching</source>
@@ -381,51 +381,51 @@
     </message>
     <message>
         <source>1. Camera: powered on and its cable plugged in.  2. Video link: the radio is connected (Settings › Connection).  3. Video address: Settings › Payloads › Camera &amp; gimbal. Error details are in the messages (bell).</source>
-        <translation type="unfinished" />
+        <translation>1. Kamera: tændt og kablet tilsluttet.  2. Videoforbindelse: radioen er forbundet (Indstillinger › Forbindelse).  3. Videoadresse: Indstillinger › Nyttelast › Kamera &amp; gimbal. Fejldetaljer findes i beskederne (klokken).</translation>
     </message>
     <message>
         <source>Battery very low (%1 %) — return home now</source>
-        <translation type="unfinished" />
+        <translation>Batteri meget lavt (%1 %) — returner hjem nu</translation>
     </message>
     <message>
         <source>Battery low (%1 %) — plan to return home</source>
-        <translation type="unfinished" />
+        <translation>Lavt batteri (%1 %) — planlæg at returnere hjem</translation>
     </message>
     <message>
         <source>About %1 of flight left.</source>
-        <translation type="unfinished" />
+        <translation>Ca. %1 flyvetid tilbage.</translation>
     </message>
     <message>
         <source>Bring the drone back while there is enough battery.</source>
-        <translation type="unfinished" />
+        <translation>Bring dronen tilbage, mens der er nok batteri.</translation>
     </message>
     <message>
         <source>Prohibited zone</source>
-        <translation type="unfinished" />
+        <translation>Forbudt zone</translation>
     </message>
     <message>
         <source>Authorisation zone</source>
-        <translation type="unfinished" />
+        <translation>Tilladelseszone</translation>
     </message>
     <message>
         <source>My zone</source>
-        <translation type="unfinished" />
+        <translation>Min zone</translation>
     </message>
     <message>
         <source>Flight zone</source>
-        <translation type="unfinished" />
+        <translation>Flyzone</translation>
     </message>
     <message>
         <source>Inside: %1</source>
-        <translation type="unfinished" />
+        <translation>Inde i: %1</translation>
     </message>
     <message>
         <source>%1 %2 ahead</source>
-        <translation type="unfinished" />
+        <translation>%1 %2 forude</translation>
     </message>
     <message>
         <source>Leave the zone: return home or fly back out.</source>
-        <translation type="unfinished" />
+        <translation>Forlad zonen: returner hjem, eller flyv ud igen.</translation>
     </message>
     <message>
         <source>Turn back or stop.</source>
@@ -433,27 +433,27 @@
     </message>
     <message>
         <source>No-entry zone</source>
-        <translation type="unfinished" />
+        <translation>Ingen adgang-zone</translation>
     </message>
     <message>
         <source>Drone: %1</source>
-        <translation type="unfinished" />
+        <translation>Drone: %1</translation>
     </message>
     <message>
         <source>Land lands here.</source>
-        <translation type="unfinished" />
+        <translation>Land lander her.</translation>
     </message>
     <message>
         <source>Tap the map to choose a new point</source>
-        <translation type="unfinished" />
+        <translation>Tryk på kortet for at vælge et nyt punkt</translation>
     </message>
     <message>
         <source>Arrived — holding position</source>
-        <translation type="unfinished" />
+        <translation>Fremme — holder position</translation>
     </message>
     <message>
         <source>Obstacle %1 ahead — drone stopped</source>
-        <translatorcomment>Draft from Figma example "Obstacle 6 m ahead — drone stopped" - review</translatorcomment><translation type="unfinished">Forhindring %1 forude — dronen stoppet</translation>
+        <translation>Forhindring %1 forude — dronen stoppet</translation>
     </message>
     <message>
         <source>Choose what to do. The drone keeps holding until you choose.</source>
@@ -469,19 +469,19 @@
     </message>
     <message>
         <source>Obstacle %1 ahead — going around it</source>
-        <translation type="unfinished" />
+        <translation>Forhindring %1 forude — flyver udenom</translation>
     </message>
     <message>
         <source>The drone finds its own way to the point. Stop on the card holds it in place.</source>
-        <translation type="unfinished" />
+        <translation>Dronen finder selv vej til punktet. Stop på panelet holder den på stedet.</translation>
     </message>
     <message>
         <source>Go here stopped. Continue or Cancel on the card below.</source>
-        <translation type="unfinished" />
+        <translation>Flyv hertil stoppet. Fortsæt eller Annullér på panelet nedenfor.</translation>
     </message>
     <message>
         <source>The drone did not take Go here. Try again.</source>
-        <translation type="unfinished" />
+        <translation>Dronen modtog ikke Flyv hertil. Prøv igen.</translation>
     </message>
     <message>
         <source>Set as home point</source>
@@ -497,7 +497,7 @@
     </message>
     <message>
         <source>Home point sent to the drone</source>
-        <translation type="unfinished" />
+        <translation>Hjemsted sendt til dronen</translation>
     </message>
     <message>
         <source>LiDAR can't start recording</source>
@@ -505,15 +505,15 @@
     </message>
     <message>
         <source>Check the generator and the ground unit. Land if power does not return.</source>
-        <translation type="unfinished" />
+        <translation>Kontrollér generatoren og jordenheden. Land, hvis strømmen ikke kommer tilbage.</translation>
     </message>
     <message>
         <source>Continue</source>
-        <translation type="unfinished" />
+        <translation>Fortsæt</translation>
     </message>
     <message>
         <source>Keep the area below clear.</source>
-        <translation type="unfinished" />
+        <translation>Hold området under den frit.</translation>
     </message>
     <message>
         <source>Land now</source>
@@ -521,7 +521,7 @@
     </message>
     <message>
         <source>Landing is recommended. Keep the area below clear.</source>
-        <translation type="unfinished" />
+        <translation>Landing anbefales. Hold området under den frit.</translation>
     </message>
     <message>
         <source>OK</source>
@@ -533,23 +533,23 @@
     </message>
     <message>
         <source>Return to the tether station</source>
-        <translation type="unfinished" />
+        <translation>Vend tilbage til tether-stationen</translation>
     </message>
     <message>
         <source>Slide to return</source>
-        <translation type="unfinished" />
+        <translation>Skub for at vende tilbage</translation>
     </message>
     <message>
         <source>Slide to turn power off</source>
-        <translation type="unfinished" />
+        <translation>Skub for at slukke strømmen</translation>
     </message>
     <message>
         <source>Tether power is lost. The drone flies back to the station on its onboard battery and lands.</source>
-        <translation type="unfinished" />
+        <translation>Tether-strømmen er tabt. Dronen flyver tilbage til stationen på det indbyggede batteri og lander.</translation>
     </message>
     <message>
         <source>Tether power is lost. The drone lands at its current position on its onboard battery.</source>
-        <translation type="unfinished" />
+        <translation>Tether-strømmen er tabt. Dronen lander på sin nuværende position på det indbyggede batteri.</translation>
     </message>
     <message>
         <source>Tether power lost — the drone is on its onboard battery</source>
@@ -561,7 +561,7 @@
     </message>
     <message>
         <source>The drone may fall if its battery is too low.</source>
-        <translation type="unfinished" />
+        <translation>Dronen kan falde ned, hvis batteriet er for lavt.</translation>
     </message>
     <message>
         <source>To station</source>
@@ -569,35 +569,35 @@
     </message>
     <message>
         <source>Turn tether power off?</source>
-        <translation type="unfinished" />
+        <translation>Sluk tether-strømmen?</translation>
     </message>
     <message>
         <source>Backup battery low (%1 %)</source>
-        <translation type="unfinished" />
+        <translation>Backupbatteri lavt (%1 %)</translation>
     </message>
     <message>
         <source>Backup battery very low (%1 %) — land now</source>
-        <translation type="unfinished" />
+        <translation>Backupbatteri meget lavt (%1 %) — land nu</translation>
     </message>
     <message>
         <source>Cable %1 m</source>
-        <translatorcomment>Draft from Figma example "Cable 52 m" - review</translatorcomment><translation type="unfinished">Kabel %1 m</translation>
+        <translation>Kabel %1 m</translation>
     </message>
     <message>
         <source>Cable near its limit (%1 of %2 m)</source>
-        <translation type="unfinished" />
+        <translation>Kablet nær sin grænse (%1 af %2 m)</translation>
     </message>
     <message>
         <source>Check the cable and the station. Land if the alarm stays.</source>
-        <translation type="unfinished" />
+        <translation>Kontrollér kablet og stationen. Land, hvis alarmen fortsætter.</translation>
     </message>
     <message>
         <source>Check the ground power. The backup battery keeps the drone up only for a short time.</source>
-        <translation type="unfinished" />
+        <translation>Kontrollér jordstrømmen. Backupbatteriet holder kun dronen oppe i kort tid.</translation>
     </message>
     <message>
         <source>Height + is off. Lower the drone or come closer to the station.</source>
-        <translation type="unfinished" />
+        <translation>Højde + er slået fra. Sænk dronen, eller kom tættere på stationen.</translation>
     </message>
     <message>
         <source>Height</source>
@@ -605,7 +605,7 @@
     </message>
     <message>
         <source>Tether alarm — %1</source>
-        <translation type="unfinished" />
+        <translation>Tether-alarm — %1</translation>
     </message>
     <message>
         <source>More</source>
@@ -637,47 +637,47 @@
     </message>
     <message>
         <source>Is drone %1 the one on this tether? Check it, then confirm. Confirming sends nothing to the drone.</source>
-        <translation type="unfinished" />
+        <translation>Er drone %1 den, der sidder på denne tether? Kontrollér det, og bekræft. Bekræftelse sender intet til dronen.</translation>
     </message>
     <message>
         <source>The drone on the tether is not connected. Land it with its own controls.</source>
-        <translation type="unfinished" />
+        <translation>Dronen på tetheren er ikke forbundet. Land den med dens egen styring.</translation>
     </message>
     <message>
         <source>Yes, this drone</source>
-        <translation type="unfinished" />
+        <translation>Ja, denne drone</translation>
     </message>
     <message>
         <source>LiDAR not responding — no status for %1 s</source>
-        <translatorcomment>Draft from Figma example "LiDAR not responding — no status for 5 s" - review</translatorcomment><translation type="unfinished">LiDAR svarer ikke — ingen status i %1 s</translation>
+        <translation>LiDAR svarer ikke — ingen status i %1 s</translation>
     </message>
     <message>
         <source>Acquisition state unknown. Check the LiDAR power and cable.</source>
-        <translation type="unfinished" />
+        <translation>Optagestatus ukendt. Kontrollér LiDAR-strøm og -kabel.</translation>
     </message>
     <message>
         <source>Acquisition state unknown (last known: %1). Check the LiDAR power and cable.</source>
-        <translation type="unfinished" />
+        <translation>Optagestatus ukendt (senest kendt: %1). Kontrollér LiDAR-strøm og -kabel.</translation>
     </message>
     <message>
         <source>recording</source>
-        <translation type="unfinished" />
+        <translation>optager</translation>
     </message>
     <message>
         <source>not recording</source>
-        <translation type="unfinished" />
+        <translation>optager ikke</translation>
     </message>
     <message>
         <source>LiDAR — check now (%1 more)</source>
-        <translation type="unfinished" />
+        <translation>LiDAR — kontrollér nu (%1 til)</translation>
     </message>
     <message>
         <source>LiDAR — check now</source>
-        <translation type="unfinished" />
+        <translation>LiDAR — kontrollér nu</translation>
     </message>
     <message>
         <source>(%1 older not shown)</source>
-        <translation type="unfinished" />
+        <translation>(%1 ældre ikke vist)</translation>
     </message>
     <message>
         <source>Hold to stop LiDAR</source>
@@ -685,30 +685,30 @@
     </message>
     <message>
         <source>LiDAR warning</source>
-        <translation type="unfinished" />
+        <translation>LiDAR-advarsel</translation>
     </message>
     <message>
         <source>The drone restarted — check the mission</source>
-        <translation type="unfinished" />
+        <translation>Dronen er genstartet — kontrollér missionen</translation>
     </message>
     <message>
         <source>Mission on the drone</source>
-        <translation type="unfinished" />
+        <translation>Mission på dronen</translation>
     </message>
     <message>
         <source>Mission settings</source>
-        <translation type="unfinished" />
+        <translation>Missionsindstillinger</translation>
     </message>
     <message>
         <source>Dismiss all</source>
-        <translation type="unfinished" />
+        <translation>Luk alle</translation>
     </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
     <message>
         <source>No drone</source>
-        <translation type="unfinished" />
+        <translation>Ingen drone</translation>
     </message>
     <message>
         <source>Connected</source>
@@ -716,7 +716,7 @@
     </message>
     <message>
         <source>Connection lost</source>
-        <translation type="unfinished" />
+        <translation>Forbindelse tabt</translation>
     </message>
     <message>
         <source>Not connected</source>
@@ -780,11 +780,11 @@
     </message>
     <message>
         <source>Inspection / Surveillance</source>
-        <translation type="unfinished" />
+        <translation>Inspektion / overvågning</translation>
     </message>
     <message>
         <source>Mapping</source>
-        <translation type="unfinished" />
+        <translation>Kortlægning</translation>
     </message>
     <message>
         <source>Tether</source>
@@ -844,7 +844,7 @@
     </message>
     <message>
         <source>%1 · change</source>
-        <translation type="unfinished" />
+        <translation>%1 · skift</translation>
     </message>
     <message>
         <source>Return to Simple</source>
@@ -863,7 +863,7 @@
     </message>
     <message>
         <source>No messages</source>
-        <translation type="unfinished" />
+        <translation>Ingen beskeder</translation>
     </message>
 </context>
 <context>
@@ -878,7 +878,7 @@
     </message>
     <message>
         <source>Holds position and height when you let go of the sticks</source>
-        <translation type="unfinished" />
+        <translation>Holder position og højde, når du slipper pindene</translation>
     </message>
     <message>
         <source>Altitude hold</source>
@@ -886,11 +886,11 @@
     </message>
     <message>
         <source>Holds height only — the drone drifts with the wind</source>
-        <translation type="unfinished" />
+        <translation>Holder kun højde — dronen driver med vinden</translation>
     </message>
     <message>
         <source>Other flight modes are available in Advanced mode.</source>
-        <translation type="unfinished" />
+        <translation>Andre flyvetilstande findes i avanceret tilstand.</translation>
     </message>
     <message>
         <source>Flight mode · all modes</source>
@@ -906,11 +906,11 @@
     </message>
     <message>
         <source>Position hold (pilot)</source>
-        <translation type="unfinished" />
+        <translation>Hold position (pilot)</translation>
     </message>
     <message>
         <source>Like position hold, with direct stick feel</source>
-        <translation type="unfinished" />
+        <translation>Som Hold position, med direkte pindfølelse</translation>
     </message>
     <message>
         <source>Brake</source>
@@ -950,19 +950,19 @@
     </message>
     <message>
         <source>Sport</source>
-        <translation type="unfinished" />
+        <translation>Sport</translation>
     </message>
     <message>
         <source>Rate control with height hold</source>
-        <translation type="unfinished" />
+        <translation>Ratestyring med højdehold</translation>
     </message>
     <message>
         <source>Drift</source>
-        <translation type="unfinished" />
+        <translation>Drift</translation>
     </message>
     <message>
         <source>Car-like turns, no position hold</source>
-        <translation type="unfinished" />
+        <translation>Bilagtige sving, intet positionshold</translation>
     </message>
     <message>
         <source>AUTOMATIC</source>
@@ -1002,11 +1002,11 @@
     </message>
     <message>
         <source>ZigZag</source>
-        <translation type="unfinished" />
+        <translation>ZigZag</translation>
     </message>
     <message>
         <source>Flies back and forth between two points</source>
-        <translation type="unfinished" />
+        <translation>Flyver frem og tilbage mellem to punkter</translation>
     </message>
     <message>
         <source>RETURN AND LAND</source>
@@ -1030,11 +1030,11 @@
     </message>
     <message>
         <source>Return after mission</source>
-        <translation type="unfinished" />
+        <translation>Retur efter mission</translation>
     </message>
     <message>
         <source>Goes to the mission's landing</source>
-        <translation type="unfinished" />
+        <translation>Flyver til missionens landing</translation>
     </message>
     <message>
         <source>Land</source>
@@ -1046,11 +1046,11 @@
     </message>
     <message>
         <source>OTHER</source>
-        <translation type="unfinished" />
+        <translation>ANDRE</translation>
     </message>
     <message>
         <source>No GPS hold. Tap again to change.</source>
-        <translation type="unfinished" />
+        <translation>Intet GPS-hold. Tryk igen for at skifte.</translation>
     </message>
 </context>
 <context>
@@ -1065,7 +1065,7 @@
     </message>
     <message>
         <source>%1 m (limit %2 m)</source>
-        <translation type="unfinished" />
+        <translation>%1 m (grænse %2 m)</translation>
     </message>
     <message>
         <source>Distance</source>
@@ -1073,7 +1073,7 @@
     </message>
     <message>
         <source>Farthest point %1 m (limit %2 m)</source>
-        <translation type="unfinished" />
+        <translation>Fjerneste punkt %1 m (grænse %2 m)</translation>
     </message>
     <message>
         <source>Battery</source>
@@ -1081,7 +1081,7 @@
     </message>
     <message>
         <source>Needs %1 batteries — the drone returns to swap</source>
-        <translatorcomment>Draft from Figma example "Needs 2 batteries — the drone returns to swap" - review</translatorcomment><translation type="unfinished">Kræver %1 batterier — dronen returnerer til hjemstedet for at skifte</translation>
+        <translation>Kræver %1 batterier — dronen vender tilbage for at skifte</translation>
     </message>
     <message>
         <source>Fits one battery</source>
@@ -1089,7 +1089,7 @@
     </message>
     <message>
         <source>Not estimated for this drone</source>
-        <translation type="unfinished" />
+        <translation>Ikke estimeret for denne drone</translation>
     </message>
     <message>
         <source>Flight zones</source>
@@ -1097,7 +1097,7 @@
     </message>
     <message>
         <source>Check the zones on the map yourself</source>
-        <translation type="unfinished" />
+        <translation>Kontrollér selv zonerne på kortet</translation>
     </message>
     <message>
         <source>Drone</source>
@@ -1109,23 +1109,23 @@
     </message>
     <message>
         <source>Not connected — the mission stays on this tablet</source>
-        <translation type="unfinished" />
+        <translation>Ikke forbundet — missionen bliver på denne tablet</translation>
     </message>
     <message>
         <source>Sending to drone… %1 %</source>
-        <translatorcomment>Draft from Figma example "Sending to drone… 64 %" - review</translatorcomment><translation type="unfinished">Sender til drone… %1 %</translation>
+        <translation>Sender til drone… %1 %</translation>
     </message>
     <message>
         <source>Fix the red items before sending.</source>
-        <translation type="unfinished" />
+        <translation>Ret de røde punkter før afsendelse.</translation>
     </message>
     <message>
         <source>Send to drone</source>
-        <translation type="unfinished" />
+        <translation>Send til drone</translation>
     </message>
     <message>
         <source>Sent — go to Fly</source>
-        <translation type="unfinished" />
+        <translation>Sendt — gå til Flyv</translation>
     </message>
     <message>
         <source>No restricted zone on the route</source>
@@ -1133,35 +1133,35 @@
     </message>
     <message>
         <source>No zone data — check the zones yourself</source>
-        <translation type="unfinished" />
+        <translation>Ingen zonedata — kontrollér selv zonerne</translation>
     </message>
     <message>
         <source>The route enters a no-fly zone (%1). Move the area.</source>
-        <translation type="unfinished" />
+        <translation>Ruten går ind i en flyveforbudszone (%1). Flyt området.</translation>
     </message>
     <message>
         <source>Information zone on the route (%1)</source>
-        <translation type="unfinished" />
+        <translation>Informationszone på ruten (%1)</translation>
     </message>
     <message>
         <source>The route touches %1. Check that you may fly there.</source>
-        <translation type="unfinished" />
+        <translation>Ruten berører %1. Kontrollér, at du må flyve der.</translation>
     </message>
     <message>
         <source>The drone did not accept the mission. Check the message, change the mission and send again.</source>
-        <translation type="unfinished" />
+        <translation>Dronen accepterede ikke missionen. Kontrollér beskeden, ret missionen, og send igen.</translation>
     </message>
     <message>
         <source>Over the limit: %1 m (limit %2 m). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
-        <translation type="unfinished" />
+        <translation>Over grænsen: %1 m (grænse %2 m). Gør området mindre, eller hæv Maks. afstand under Indstillinger › Sikkerhed.</translation>
     </message>
     <message>
         <source>Not enforced (geofence off): %1 m, limit %2 m</source>
-        <translation type="unfinished" />
+        <translation>Håndhæves ikke (geofence fra): %1 m, grænse %2 m</translation>
     </message>
     <message>
         <source>Not enforced (no distance limit in the drone's fence): %1 m, limit %2 m</source>
-        <translation type="unfinished" />
+        <translation>Håndhæves ikke (ingen afstandsgrænse i dronens geofence): %1 m, grænse %2 m</translation>
     </message>
 </context>
 <context>
@@ -1240,7 +1240,7 @@
     </message>
     <message>
         <source>Next version</source>
-        <translation type="unfinished" />
+        <translation>Næste version</translation>
     </message>
     <message>
         <source>Flight height</source>
@@ -1248,11 +1248,11 @@
     </message>
     <message>
         <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translatorcomment>Draft from Figma example "Photo detail ≈ 2.2 cm per pixel · limited to 120 m" - review</translatorcomment><translation type="unfinished">Fotodetalje ≈ %1 pr. pixel  ·  begrænset til %2 m</translation>
+        <translation>Fotodetalje ≈ %1 pr. pixel · begrænset til %2 m</translation>
     </message>
     <message>
         <source>Limited to %1 m (maximum altitude)</source>
-        <translation type="unfinished" />
+        <translation>Begrænset til %1 m (maks. højde)</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -1296,7 +1296,7 @@
     </message>
     <message>
         <source>A mission with this name exists and will be replaced.</source>
-        <translation type="unfinished" />
+        <translation>Der findes en mission med dette navn, og den bliver erstattet.</translation>
     </message>
     <message>
         <source>Name</source>
@@ -1304,11 +1304,11 @@
     </message>
     <message>
         <source>New mission · not saved</source>
-        <translation type="unfinished" />
+        <translation>Ny mission · ikke gemt</translation>
     </message>
     <message>
         <source>No area found in this file. Lines (corridors) come with corridor mapping.</source>
-        <translation type="unfinished" />
+        <translation>Intet område fundet i denne fil. Linjer (korridorer) hører til korridorkortlægning.</translation>
     </message>
     <message>
         <source>Replace</source>
@@ -1316,7 +1316,7 @@
     </message>
     <message>
         <source>Save mission</source>
-        <translation type="unfinished" />
+        <translation>Gem mission</translation>
     </message>
     <message>
         <source>Save</source>
@@ -1324,7 +1324,7 @@
     </message>
     <message>
         <source>Saved mission</source>
-        <translation type="unfinished" />
+        <translation>Gemt mission</translation>
     </message>
     <message>
         <source>Saved missions</source>
@@ -1332,31 +1332,31 @@
     </message>
     <message>
         <source>Saved on this tablet · Plan › Open saved mission</source>
-        <translation type="unfinished" />
+        <translation>Gemt på denne tablet · Plan › Åbn gemt mission</translation>
     </message>
     <message>
         <source>e.g. Field A survey</source>
-        <translation type="unfinished" />
+        <translation>f.eks. Opmåling mark A</translation>
     </message>
     <message>
         <source>Only .plan and .kml files can be imported. Save a KMZ as KML in Google Earth first.</source>
-        <translation type="unfinished" />
+        <translation>Kun .plan- og .kml-filer kan importeres. Gem først en KMZ som KML i Google Earth.</translation>
     </message>
     <message>
         <source>Replace the plan being edited?</source>
-        <translation type="unfinished" />
+        <translation>Erstat den plan, der redigeres?</translation>
     </message>
     <message>
         <source>Slide to replace</source>
-        <translation type="unfinished" />
+        <translation>Skub for at erstatte</translation>
     </message>
     <message>
         <source>The current plan is not saved on this tablet. It is replaced by the mission you open.</source>
-        <translation type="unfinished" />
+        <translation>Den aktuelle plan er ikke gemt på denne tablet. Den erstattes af den mission, du åbner.</translation>
     </message>
     <message>
         <source>To keep it, close this and use Save first.</source>
-        <translation type="unfinished" />
+        <translation>For at beholde den skal du lukke dette og bruge Gem først.</translation>
     </message>
     <message>
         <source>Draw line</source>
@@ -1372,11 +1372,11 @@
     </message>
     <message>
         <source>Tap around the structure to outline it</source>
-        <translation type="unfinished" />
+        <translation>Tryk rundt om bygværket for at tegne omridset</translation>
     </message>
     <message>
         <source>Drag the corners to fit the structure, or pick a shape</source>
-        <translation type="unfinished" />
+        <translation>Træk hjørnerne for at tilpasse bygværket, eller vælg en form</translation>
     </message>
     <message>
         <source>Turn on YellowScan in Settings › Payloads</source>
@@ -1392,7 +1392,7 @@
     </message>
     <message>
         <source>Every item, fence and rally points (Advanced)</source>
-        <translation type="unfinished" />
+        <translation>Alle elementer, geofence og samlepunkter (avanceret)</translation>
     </message>
 </context>
 <context>
@@ -1403,7 +1403,7 @@
     </message>
     <message>
         <source>Drone connected</source>
-        <translation type="unfinished" />
+        <translation>Drone forbundet</translation>
     </message>
     <message>
         <source>Radio link is working</source>
@@ -1411,11 +1411,11 @@
     </message>
     <message>
         <source>Turn on the drone and the controller</source>
-        <translation type="unfinished" />
+        <translation>Tænd dronen og fjernbetjeningen</translation>
     </message>
     <message>
         <source>Weak</source>
-        <translation type="unfinished" />
+        <translation>Svagt</translation>
     </message>
     <message>
         <source>GPS</source>
@@ -1423,11 +1423,11 @@
     </message>
     <message>
         <source>%1 satellites · %2</source>
-        <translation type="unfinished" />
+        <translation>%1 satellitter · %2</translation>
     </message>
     <message>
         <source>Waiting for GPS — move away from buildings and metal</source>
-        <translation type="unfinished" />
+        <translation>Venter på GPS — gå væk fra bygninger og metal</translation>
     </message>
     <message>
         <source>Battery</source>
@@ -1435,11 +1435,11 @@
     </message>
     <message>
         <source>Battery level not reported</source>
-        <translation type="unfinished" />
+        <translation>Batteriniveau ikke rapporteret</translation>
     </message>
     <message>
         <source>%1 % — at least 30 % needed to take off</source>
-        <translation type="unfinished" />
+        <translation>%1 % — mindst 30 % kræves for at starte</translation>
     </message>
     <message>
         <source>Sensors (compass, IMU)</source>
@@ -1447,11 +1447,11 @@
     </message>
     <message>
         <source>All sensors healthy</source>
-        <translation type="unfinished" />
+        <translation>Alle sensorer OK</translation>
     </message>
     <message>
         <source>A sensor needs attention</source>
-        <translation type="unfinished" />
+        <translation>En sensor kræver opmærksomhed</translation>
     </message>
     <message>
         <source>Home point</source>
@@ -1463,7 +1463,7 @@
     </message>
     <message>
         <source>Set automatically once GPS is good</source>
-        <translation type="unfinished" />
+        <translation>Sættes automatisk, når GPS er god</translation>
     </message>
     <message>
         <source>Remote ID</source>
@@ -1471,7 +1471,7 @@
     </message>
     <message>
         <source>Not enabled on this tablet</source>
-        <translation type="unfinished" />
+        <translation>Ikke aktiveret på denne tablet</translation>
     </message>
     <message>
         <source>Broadcasting</source>
@@ -1491,11 +1491,11 @@
     </message>
     <message>
         <source>No Remote ID module found on the drone. If it is not required here, turn it off in Settings › Remote ID.</source>
-        <translation type="unfinished" />
+        <translation>Intet Remote ID-modul fundet på dronen. Hvis det ikke er påkrævet her, så slå det fra under Indstillinger › Remote ID.</translation>
     </message>
     <message>
         <source>The Remote ID module is not ready</source>
-        <translation type="unfinished" />
+        <translation>Remote ID-modulet er ikke klar</translation>
     </message>
     <message>
         <source>Flight zones</source>
@@ -1507,35 +1507,35 @@
     </message>
     <message>
         <source>The drone is in a no-fly zone (%1). Move to another place to take off.</source>
-        <translation type="unfinished" />
+        <translation>Dronen er i en flyveforbudszone (%1). Flyt til et andet sted for at starte.</translation>
     </message>
     <message>
         <source>The drone is in a zone that needs care (%1). Check that you may fly here.</source>
-        <translation type="unfinished" />
+        <translation>Dronen er i en zone, der kræver forsigtighed (%1). Kontrollér, at du må flyve her.</translation>
     </message>
     <message>
         <source>%1 — turn the tether power on in the Payloads panel</source>
-        <translation type="unfinished" />
+        <translation>%1 — tænd tether-strømmen i Nyttelast-panelet</translation>
     </message>
     <message>
         <source>Ground unit on · %1 W</source>
-        <translation type="unfinished" />
+        <translation>Jordenhed tændt · %1 W</translation>
     </message>
     <message>
         <source>Tether power</source>
-        <translation type="unfinished" />
+        <translation>Tether-strøm</translation>
     </message>
     <message>
         <source>GPS has no good position yet. Wait in the open, away from buildings.</source>
-        <translation type="unfinished" />
+        <translation>GPS har endnu ingen god position. Vent i det fri, væk fra bygninger.</translation>
     </message>
     <message>
         <source>GPS position is not accurate enough yet. Wait a little.</source>
-        <translation type="unfinished" />
+        <translation>GPS-positionen er endnu ikke præcis nok. Vent lidt.</translation>
     </message>
     <message>
         <source>The drone is still working out its position. Wait for GPS.</source>
-        <translation type="unfinished" />
+        <translation>Dronen er stadig ved at bestemme sin position. Vent på GPS.</translation>
     </message>
     <message>
         <source>The compass needs calibrating (Vehicle setup › Sensors).</source>
@@ -1543,35 +1543,35 @@
     </message>
     <message>
         <source>The compass reading is off. Move away from metal or calibrate it.</source>
-        <translation type="unfinished" />
+        <translation>Kompasaflæsningen er forkert. Gå væk fra metal, eller kalibrér det.</translation>
     </message>
     <message>
         <source>The accelerometer needs calibrating (Vehicle setup › Sensors).</source>
-        <translation type="unfinished" />
+        <translation>Accelerometeret skal kalibreres (Droneopsætning › Sensorer).</translation>
     </message>
     <message>
         <source>Motion sensor (IMU) problem. Keep the drone still or restart it.</source>
-        <translation type="unfinished" />
+        <translation>Problem med bevægelsessensor (IMU). Hold dronen stille, eller genstart den.</translation>
     </message>
     <message>
         <source>Barometer problem. Restart the drone.</source>
-        <translation type="unfinished" />
+        <translation>Problem med barometer. Genstart dronen.</translation>
     </message>
     <message>
         <source>The controller is not ready. Check the controller and its calibration.</source>
-        <translation type="unfinished" />
+        <translation>Fjernbetjeningen er ikke klar. Kontrollér fjernbetjeningen og dens kalibrering.</translation>
     </message>
     <message>
         <source>The drone's battery check failed.</source>
-        <translation type="unfinished" />
+        <translation>Dronens batterikontrol fejlede.</translation>
     </message>
     <message>
         <source>Geofence problem. Check Settings › Safety.</source>
-        <translation type="unfinished" />
+        <translation>Problem med geofence. Kontrollér Indstillinger › Sikkerhed.</translation>
     </message>
     <message>
         <source>Flight log problem (SD card in the drone).</source>
-        <translation type="unfinished" />
+        <translation>Problem med flyvelog (SD-kort i dronen).</translation>
     </message>
 </context>
 <context>
@@ -1634,11 +1634,11 @@
     </message>
     <message>
         <source>Restart alesQGC to show the new units everywhere</source>
-        <translation type="unfinished" />
+        <translation>Genstart alesQGC for at vise de nye enheder overalt</translation>
     </message>
     <message>
         <source>Height, distance, speed, area and temperature</source>
-        <translation type="unfinished" />
+        <translation>Højde, afstand, hastighed, areal og temperatur</translation>
     </message>
     <message>
         <source>Metric</source>
@@ -1690,19 +1690,19 @@
     </message>
     <message>
         <source>Connect the drone to change this</source>
-        <translation type="unfinished" />
+        <translation>Forbind dronen for at ændre dette</translation>
     </message>
     <message>
         <source>Change on the ground (motors off)</source>
-        <translation type="unfinished" />
+        <translation>Ændr på jorden (motorer slukket)</translation>
     </message>
     <message>
         <source>Warning only · keeps flying</source>
-        <translation type="unfinished" />
+        <translation>Kun advarsel · flyver videre</translation>
     </message>
     <message>
         <source>Land where it is</source>
-        <translation type="unfinished" />
+        <translation>Land, hvor den er</translation>
     </message>
     <message>
         <source>Return home</source>
@@ -1710,71 +1710,71 @@
     </message>
     <message>
         <source>Return home by the flown path</source>
-        <translation type="unfinished" />
+        <translation>Returner hjem ad den fløjne rute</translation>
     </message>
     <message>
         <source>Return by the flown path, or land</source>
-        <translation type="unfinished" />
+        <translation>Retur ad den fløjne rute, eller land</translation>
     </message>
     <message>
         <source>Stop motors (drone falls)</source>
-        <translation type="unfinished" />
+        <translation>Stop motorer (dronen falder)</translation>
     </message>
     <message>
         <source>Go to the mission landing point, or return home</source>
-        <translation type="unfinished" />
+        <translation>Flyv til missionens landingspunkt, eller returner hjem</translation>
     </message>
     <message>
         <source>Stop, then land</source>
-        <translation type="unfinished" />
+        <translation>Stop, derefter land</translation>
     </message>
     <message>
         <source>Return home, land if very low</source>
-        <translation type="unfinished" />
+        <translation>Returner hjem, land hvis meget lavt</translation>
     </message>
     <message>
         <source>Nothing · keeps flying</source>
-        <translation type="unfinished" />
+        <translation>Intet · flyver videre</translation>
     </message>
     <message>
         <source>Finish the mission, otherwise return home</source>
-        <translation type="unfinished" />
+        <translation>Fuldfør missionen, ellers returner hjem</translation>
     </message>
     <message>
         <source>Hover in place</source>
-        <translation type="unfinished" />
+        <translation>Svæv på stedet</translation>
     </message>
     <message>
         <source>Lock motors</source>
-        <translation type="unfinished" />
+        <translation>Lås motorer</translation>
     </message>
     <message>
         <source>Acts when %1 % is left</source>
-        <translation type="unfinished" />
+        <translation>Reagerer, når der er %1 % tilbage</translation>
     </message>
     <message>
         <source>Acts below %1 V</source>
-        <translation type="unfinished" />
+        <translation>Reagerer under %1 V</translation>
     </message>
     <message>
         <source>No low-battery level set on the drone</source>
-        <translation type="unfinished" />
+        <translation>Intet lavt batteriniveau indstillet på dronen</translation>
     </message>
     <message>
         <source>Warning at %1 %, action at %2 %</source>
-        <translation type="unfinished" />
+        <translation>Advarsel ved %1 %, handling ved %2 %</translation>
     </message>
     <message>
         <source>Level set on the drone</source>
-        <translation type="unfinished" />
+        <translation>Niveau indstillet på dronen</translation>
     </message>
     <message>
         <source>After %1 s without signal</source>
-        <translation type="unfinished" />
+        <translation>Efter %1 s uden signal</translation>
     </message>
     <message>
         <source>When the controller signal is lost</source>
-        <translation type="unfinished" />
+        <translation>Når signalet fra fjernbetjeningen tabes</translation>
     </message>
     <message>
         <source>What the drone does when something goes wrong. Defaults follow local rules.</source>
@@ -1794,7 +1794,7 @@
     </message>
     <message>
         <source>Above take-off point · EU and most countries: 120 m</source>
-        <translation type="unfinished" />
+        <translation>Over startpunktet · EU og de fleste lande: 120 m</translation>
     </message>
     <message>
         <source>Maximum distance</source>
@@ -1814,7 +1814,7 @@
     </message>
     <message>
         <source>Versions and help from ARGOSDYNE.</source>
-        <translation type="unfinished" />
+        <translation>Versioner og hjælp fra ARGOSDYNE.</translation>
     </message>
     <message>
         <source>alesQGC app</source>
@@ -1842,7 +1842,7 @@
     </message>
     <message>
         <source>alesQGC uses this open-source software. Tap an item to show the full license.</source>
-        <translation type="unfinished" />
+        <translation>alesQGC bruger denne open source-software. Tryk på et punkt for at vise hele licensen.</translation>
     </message>
     <message>
         <source>2.4 GHz</source>
@@ -1854,27 +1854,27 @@
     </message>
     <message>
         <source>Band unknown</source>
-        <translation type="unfinished" />
+        <translation>Bånd ukendt</translation>
     </message>
     <message>
         <source>Changing both radios to 2.4 GHz. The link drops and comes back in about a minute.</source>
-        <translation type="unfinished" />
+        <translation>Skifter begge radioer til 2.4 GHz. Forbindelsen afbrydes og kommer tilbage efter ca. et minut.</translation>
     </message>
     <message>
         <source>Changing both radios to 5.8 GHz. The link drops and comes back in about a minute.</source>
-        <translation type="unfinished" />
+        <translation>Skifter begge radioer til 5.8 GHz. Forbindelsen afbrydes og kommer tilbage efter ca. et minut.</translation>
     </message>
     <message>
         <source>Fill in server, mountpoint, user and password, then turn this on.</source>
-        <translation type="unfinished" />
+        <translation>Udfyld server, mountpoint, bruger og adgangskode, og slå så dette til.</translation>
     </message>
     <message>
         <source>Could not log in. Check server, port, mountpoint, user and password. Trying again every 5 s.</source>
-        <translation type="unfinished" />
+        <translation>Kunne ikke logge ind. Kontrollér server, port, mountpoint, bruger og adgangskode. Prøver igen hvert 5. s.</translation>
     </message>
     <message>
         <source>Retrying…</source>
-        <translation type="unfinished" />
+        <translation>Prøver igen…</translation>
     </message>
     <message>
         <source>Radio link and RTK correction. Payload settings are under Payloads.</source>
@@ -1882,11 +1882,11 @@
     </message>
     <message>
         <source>Radio link · M2</source>
-        <translation type="unfinished" />
+        <translation>Radioforbindelse · M2</translation>
     </message>
     <message>
         <source>Radio link · DoodleLabs</source>
-        <translation type="unfinished" />
+        <translation>Radioforbindelse · DoodleLabs</translation>
     </message>
     <message>
         <source>Radio link · Enpulse</source>
@@ -1894,11 +1894,11 @@
     </message>
     <message>
         <source>Pairing…</source>
-        <translation type="unfinished" />
+        <translation>Parrer…</translation>
     </message>
     <message>
         <source>No radio</source>
-        <translation type="unfinished" />
+        <translation>Ingen radio</translation>
     </message>
     <message>
         <source>Connected</source>
@@ -1906,27 +1906,27 @@
     </message>
     <message>
         <source>Not paired</source>
-        <translation type="unfinished" />
+        <translation>Ikke parret</translation>
     </message>
     <message>
         <source>No radio found. Check that the controller is on and its radio is connected.</source>
-        <translation type="unfinished" />
+        <translation>Ingen radio fundet. Kontrollér, at fjernbetjeningen er tændt, og at dens radio er forbundet.</translation>
     </message>
     <message>
         <source>Pairing… Keep the drone close and turned on.</source>
-        <translation type="unfinished" />
+        <translation>Parrer… Hold dronen tæt på og tændt.</translation>
     </message>
     <message>
         <source>signal %1 dB</source>
-        <translation type="unfinished" />
+        <translation>signal %1 dB</translation>
     </message>
     <message>
         <source>drone radio paired</source>
-        <translation type="unfinished" />
+        <translation>dronens radio parret</translation>
     </message>
     <message>
         <source>drone radio not paired</source>
-        <translation type="unfinished" />
+        <translation>dronens radio ikke parret</translation>
     </message>
     <message>
         <source>Band</source>
@@ -1942,19 +1942,19 @@
     </message>
     <message>
         <source>Change both radios to 2.4 GHz? The drone and controller restart their radios. The link is lost for about a minute.</source>
-        <translation type="unfinished" />
+        <translation>Skift begge radioer til 2.4 GHz? Dronen og fjernbetjeningen genstarter deres radioer. Forbindelsen tabes i ca. et minut.</translation>
     </message>
     <message>
         <source>Change both radios to 5.8 GHz? The drone and controller restart their radios. The link is lost for about a minute.</source>
-        <translation type="unfinished" />
+        <translation>Skift begge radioer til 5.8 GHz? Dronen og fjernbetjeningen genstarter deres radioer. Forbindelsen tabes i ca. et minut.</translation>
     </message>
     <message>
         <source>Pair a new radio? The current pairing ends. Put the drone's radio in pairing mode within 1 minute.</source>
-        <translation type="unfinished" />
+        <translation>Par en ny radio? Den nuværende parring ophører. Sæt dronens radio i parringstilstand inden for 1 minut.</translation>
     </message>
     <message>
         <source>Restart the controller radio? The link is lost for about a minute.</source>
-        <translation type="unfinished" />
+        <translation>Genstart fjernbetjeningens radio? Forbindelsen tabes i ca. et minut.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -1962,23 +1962,23 @@
     </message>
     <message>
         <source>Pair</source>
-        <translation type="unfinished" />
+        <translation>Par</translation>
     </message>
     <message>
         <source>Restart</source>
-        <translation type="unfinished" />
+        <translation>Genstart</translation>
     </message>
     <message>
         <source>Change band</source>
-        <translation type="unfinished" />
+        <translation>Skift bånd</translation>
     </message>
     <message>
         <source>Restarting the controller radio. The link comes back in about a minute.</source>
-        <translation type="unfinished" />
+        <translation>Genstarter fjernbetjeningens radio. Forbindelsen kommer tilbage efter ca. et minut.</translation>
     </message>
     <message>
         <source>Change radio settings on the ground (motors off)</source>
-        <translation type="unfinished" />
+        <translation>Skift radioindstillinger på jorden (motorer slukket)</translation>
     </message>
     <message>
         <source>RTK correction · NTRIP</source>
@@ -1990,15 +1990,15 @@
     </message>
     <message>
         <source>RTK float</source>
-        <translation type="unfinished" />
+        <translation>RTK float</translation>
     </message>
     <message>
         <source>Logging in…</source>
-        <translation type="unfinished" />
+        <translation>Logger ind…</translation>
     </message>
     <message>
         <source>Correction on · no RTK yet</source>
-        <translation type="unfinished" />
+        <translation>Korrektion til · endnu ingen RTK</translation>
     </message>
     <message>
         <source>Off</source>
@@ -2030,35 +2030,35 @@
     </message>
     <message>
         <source>Turn on RTK correction to enter the NTRIP server.</source>
-        <translation type="unfinished" />
+        <translation>Slå RTK-korrektion til for at indtaste NTRIP-serveren.</translation>
     </message>
     <message>
         <source>Camera and payload network settings moved to Settings › Payloads (detected payloads connect automatically)</source>
-        <translation type="unfinished" />
+        <translation>Kamera- og nyttelastnetværksindstillinger er flyttet til Indstillinger › Nyttelast (fundne nyttelaster forbinder automatisk)</translation>
     </message>
     <message>
         <source>Required in the EU</source>
-        <translation type="unfinished" />
+        <translation>Påkrævet i EU</translation>
     </message>
     <message>
         <source>Enter the full number: 16 characters, a dash and the 3 secret characters (for example FIN87astrdge12k8-xyz). Only the first 16 are saved.</source>
-        <translation type="unfinished" />
+        <translation>Indtast hele nummeret: 16 tegn, en bindestreg og de 3 hemmelige tegn (for eksempel FIN87astrdge12k8-xyz). Kun de første 16 gemmes.</translation>
     </message>
     <message>
         <source>The number starts with the 3-letter country code in capitals, for example FIN</source>
-        <translation type="unfinished" />
+        <translation>Nummeret starter med den 3-bogstavs landekode med store bogstaver, for eksempel FIN</translation>
     </message>
     <message>
         <source>The saved number did not pass the check. Enter it again.</source>
-        <translation type="unfinished" />
+        <translation>Det gemte nummer bestod ikke kontrollen. Indtast det igen.</translation>
     </message>
     <message>
         <source>The check character does not match. Check the number for typos.</source>
-        <translation type="unfinished" />
+        <translation>Kontroltegnet passer ikke. Kontrollér nummeret for tastefejl.</translation>
     </message>
     <message>
         <source>Saved. This app now sends Remote ID data to the drone.</source>
-        <translation type="unfinished" />
+        <translation>Gemt. Denne app sender nu Remote ID-data til dronen.</translation>
     </message>
     <message>
         <source>Required in the EU and many other countries. The drone broadcasts this while flying.</source>
@@ -2070,23 +2070,23 @@
     </message>
     <message>
         <source>Connect the drone to check the module</source>
-        <translation type="unfinished" />
+        <translation>Forbind dronen for at kontrollere modulet</translation>
     </message>
     <message>
         <source>No module found on the drone</source>
-        <translation type="unfinished" />
+        <translation>Intet modul fundet på dronen</translation>
     </message>
     <message>
         <source>Detected · ID %1</source>
-        <translation type="unfinished" />
+        <translation>Fundet · ID %1</translation>
     </message>
     <message>
         <source>Detected</source>
-        <translation type="unfinished" />
+        <translation>Fundet</translation>
     </message>
     <message>
         <source>this app is not sending data yet, save below</source>
-        <translation type="unfinished" />
+        <translation>denne app sender endnu ikke data, gem nedenfor</translation>
     </message>
     <message>
         <source>Not detected</source>
@@ -2094,7 +2094,7 @@
     </message>
     <message>
         <source>Not ready</source>
-        <translation type="unfinished" />
+        <translation>Ikke klar</translation>
     </message>
     <message>
         <source>Broadcasting</source>
@@ -2110,11 +2110,11 @@
     </message>
     <message>
         <source>Optional in the US. Sent with the Remote ID data when filled in.</source>
-        <translation type="unfinished" />
+        <translation>Valgfrit i USA. Sendes med Remote ID-dataene, når det er udfyldt.</translation>
     </message>
     <message>
         <source>Saved and checked · secret characters are not stored</source>
-        <translation type="unfinished" />
+        <translation>Gemt og kontrolleret · hemmelige tegn gemmes ikke</translation>
     </message>
     <message>
         <source>Region rules</source>
@@ -2138,7 +2138,7 @@
     </message>
     <message>
         <source>The US rules use the tablet's live position</source>
-        <translation type="unfinished" />
+        <translation>De amerikanske regler bruger tablettens aktuelle position</translation>
     </message>
     <message>
         <source>Where your position is taken from</source>
@@ -2162,7 +2162,7 @@
     </message>
     <message>
         <source>Altitude (m)</source>
-        <translation type="unfinished" />
+        <translation>Højde (m)</translation>
     </message>
     <message>
         <source>Emergency status</source>
@@ -2170,11 +2170,11 @@
     </message>
     <message>
         <source>Connect the drone to use this</source>
-        <translation type="unfinished" />
+        <translation>Forbind dronen for at bruge dette</translation>
     </message>
     <message>
         <source>Others see 'emergency' now. Turn off when the emergency is over.</source>
-        <translation type="unfinished" />
+        <translation>Andre ser 'nød' nu. Slå fra, når nødsituationen er overstået.</translation>
     </message>
     <message>
         <source>Turn on in an emergency. Others see 'emergency' until you turn it off.</source>
@@ -2182,7 +2182,7 @@
     </message>
     <message>
         <source>Save Remote ID settings first</source>
-        <translation type="unfinished" />
+        <translation>Gem Remote ID-indstillingerne først</translation>
     </message>
     <message>
         <source>Save</source>
@@ -2190,11 +2190,11 @@
     </message>
     <message>
         <source>Enter a valid fixed point to save</source>
-        <translation type="unfinished" />
+        <translation>Indtast et gyldigt fast punkt for at gemme</translation>
     </message>
     <message>
         <source>Fix the operator number to save</source>
-        <translation type="unfinished" />
+        <translation>Ret operatørnummeret for at gemme</translation>
     </message>
     <message>
         <source>Turn off Remote ID</source>
@@ -2202,7 +2202,7 @@
     </message>
     <message>
         <source>Remote ID is off. This app no longer sends Remote ID data.</source>
-        <translation type="unfinished" />
+        <translation>Remote ID er slået fra. Denne app sender ikke længere Remote ID-data.</translation>
     </message>
     <message>
         <source>Map style, maps saved for offline use and flight zone data.</source>
@@ -2214,7 +2214,7 @@
     </message>
     <message>
         <source>Current: %1 %2</source>
-        <translation type="unfinished" />
+        <translation>Aktuel: %1 %2</translation>
     </message>
     <message>
         <source>Satellite</source>
@@ -2238,31 +2238,31 @@
     </message>
     <message>
         <source>No maps saved for offline use yet. Download an area before flying where there is no internet.</source>
-        <translation type="unfinished" />
+        <translation>Ingen kort gemt til offlinebrug endnu. Hent et område, før du flyver, hvor der ikke er internet.</translation>
     </message>
     <message>
         <source>Delete this map? This cannot be undone.</source>
-        <translation type="unfinished" />
+        <translation>Slet dette kort? Dette kan ikke fortrydes.</translation>
     </message>
     <message>
         <source>Deleting…</source>
-        <translation type="unfinished" />
+        <translation>Sletter…</translation>
     </message>
     <message>
         <source>%1 · saved %2</source>
-        <translatorcomment>Draft from Figma example "1.2 GB · saved 2026-10-28" - review</translatorcomment><translation type="unfinished">%1 · gemt %2</translation>
+        <translation>%1 · gemt %2</translation>
     </message>
     <message>
         <source>Downloading… %1 %</source>
-        <translatorcomment>Draft from Figma example "Downloading… 64 %" - review</translatorcomment><translation type="unfinished">Henter… %1 %</translation>
+        <translation>Henter… %1 %</translation>
     </message>
     <message>
         <source>Stopped at %1 % · %2 tiles could not be downloaded</source>
-        <translation type="unfinished" />
+        <translation>Stoppet ved %1 % · %2 fliser kunne ikke hentes</translation>
     </message>
     <message>
         <source>Paused at %1 %</source>
-        <translation type="unfinished" />
+        <translation>Pause ved %1 %</translation>
     </message>
     <message>
         <source>Resume</source>
@@ -2282,11 +2282,11 @@
     </message>
     <message>
         <source>Choose a flight zone file</source>
-        <translation type="unfinished" />
+        <translation>Vælg en flyzonefil</translation>
     </message>
     <message>
         <source>Zone files (*.geojson *.json)</source>
-        <translation type="unfinished" />
+        <translation>Zonefiler (*.geojson *.json)</translation>
     </message>
     <message>
         <source>FLIGHT ZONE DATA</source>
@@ -2294,39 +2294,39 @@
     </message>
     <message>
         <source>Zone source</source>
-        <translation type="unfinished" />
+        <translation>Zonekilde</translation>
     </message>
     <message>
         <source>Zones for the visible map area, downloaded while you move the map</source>
-        <translation type="unfinished" />
+        <translation>Zoner for det synlige kortområde, hentes mens du flytter kortet</translation>
     </message>
     <message>
         <source>A GeoJSON file (ED-318 or Altitude Angel format) saved in the app</source>
-        <translation type="unfinished" />
+        <translation>En GeoJSON-fil (ED-318- eller Altitude Angel-format) gemt i appen</translation>
     </message>
     <message>
         <source>Locked while the motors are running</source>
-        <translation type="unfinished" />
+        <translation>Låst, mens motorerne kører</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished" />
+        <translation>Fil</translation>
     </message>
     <message>
         <source>Online</source>
-        <translation type="unfinished" />
+        <translation>Online</translation>
     </message>
     <message>
         <source>Updated %1 · %2 zones · %3</source>
-        <translation type="unfinished" />
+        <translation>Opdateret %1 · %2 zoner · %3</translation>
     </message>
     <message>
         <source>shown on map</source>
-        <translation type="unfinished" />
+        <translation>vist på kort</translation>
     </message>
     <message>
         <source>hidden on map (Layers)</source>
-        <translation type="unfinished" />
+        <translation>skjult på kort (Lag)</translation>
     </message>
     <message>
         <source>Replace</source>
@@ -2334,11 +2334,11 @@
     </message>
     <message>
         <source>No flight zone file</source>
-        <translation type="unfinished" />
+        <translation>Ingen flyzonefil</translation>
     </message>
     <message>
         <source>Import the zone file of the country where you fly. Zones are shown on the map and the app warns near them.</source>
-        <translation type="unfinished" />
+        <translation>Importér zonefilen for det land, hvor du flyver. Zoner vises på kortet, og appen advarer nær dem.</translation>
     </message>
     <message>
         <source>Choose file</source>
@@ -2350,27 +2350,27 @@
     </message>
     <message>
         <source>%1: %2 Nothing was changed.</source>
-        <translation type="unfinished" />
+        <translation>%1: %2 Intet blev ændret.</translation>
     </message>
     <message>
         <source>Altitude Angel</source>
-        <translation type="unfinished" />
+        <translation>Altitude Angel</translation>
     </message>
     <message>
         <source>API key</source>
-        <translation type="unfinished" />
+        <translation>API-nøgle</translation>
     </message>
     <message>
         <source>Reload</source>
-        <translation type="unfinished" />
+        <translation>Genindlæs</translation>
     </message>
     <message>
         <source>Zones you draw: do not enter or warn only</source>
-        <translation type="unfinished" />
+        <translation>Zoner du tegner: ingen adgang eller kun advarsel</translation>
     </message>
     <message>
         <source>%1 zones you drew · %2 do not enter, %3 warn only</source>
-        <translation type="unfinished" />
+        <translation>%1 zoner du har tegnet · %2 ingen adgang, %3 kun advarsel</translation>
     </message>
     <message>
         <source>Edit on map</source>
@@ -2382,39 +2382,39 @@
     </message>
     <message>
         <source>Drone link protected — open Link security</source>
-        <translation type="unfinished" />
+        <translation>Droneforbindelse beskyttet — åbn Forbindelsessikkerhed</translation>
     </message>
     <message>
         <source>Key mismatch: this app and the drone use different keys — open Link security</source>
-        <translation type="unfinished" />
+        <translation>Nøglen passer ikke: denne app og dronen bruger forskellige nøgler — åbn Forbindelsessikkerhed</translation>
     </message>
     <message>
         <source>A key is set · this drone link is not protected yet — open Link security</source>
-        <translation type="unfinished" />
+        <translation>En nøgle er angivet · denne droneforbindelse er endnu ikke beskyttet — åbn Forbindelsessikkerhed</translation>
     </message>
     <message>
         <source>Drone link not protected (no key) — open Link security</source>
-        <translation type="unfinished" />
+        <translation>Droneforbindelse ikke beskyttet (ingen nøgle) — åbn Forbindelsessikkerhed</translation>
     </message>
     <message>
         <source>Radio factory password still in use — open Link security</source>
-        <translation type="unfinished" />
+        <translation>Radioens fabriksadgangskode bruges stadig — åbn Forbindelsessikkerhed</translation>
     </message>
     <message>
         <source>%1 zones in the visible map area · needs internet · your API key</source>
-        <translation type="unfinished" />
+        <translation>%1 zoner i det synlige kortområde · kræver internet · din API-nøgle</translation>
     </message>
     <message>
         <source>%1 zones in the visible map area · needs internet · company key</source>
-        <translation type="unfinished" />
+        <translation>%1 zoner i det synlige kortområde · kræver internet · firmanøgle</translation>
     </message>
     <message>
         <source>Enter an Altitude Angel API key to load the zones</source>
-        <translation type="unfinished" />
+        <translation>Indtast en Altitude Angel API-nøgle for at indlæse zonerne</translation>
     </message>
     <message>
         <source>Company key</source>
-        <translation type="unfinished" />
+        <translation>Firmanøgle</translation>
     </message>
     <message>
         <source>Security, privacy &amp; legal</source>
@@ -2422,7 +2422,7 @@
     </message>
     <message>
         <source>Data on this tablet, delete my data, security log, open-source licenses</source>
-        <translation type="unfinished" />
+        <translation>Data på denne tablet, slet mine data, sikkerhedslog, open source-licenser</translation>
     </message>
     <message>
         <source>Security &amp; privacy</source>
@@ -2450,15 +2450,15 @@
     </message>
     <message>
         <source> · change in Vehicle setup › Safety</source>
-        <translation type="unfinished" />
+        <translation> · skift under Droneopsætning › Sikkerhed</translation>
     </message>
     <message>
         <source> · change in Advanced mode › Vehicle setup › Safety</source>
-        <translation type="unfinished" />
+        <translation> · skift under Avanceret tilstand › Droneopsætning › Sikkerhed</translation>
     </message>
     <message>
         <source>This app does not change the settings of the M2 radio.</source>
-        <translation type="unfinished" />
+        <translation>Denne app ændrer ikke M2-radioens indstillinger.</translation>
     </message>
     <message>
         <source>RTK correction · Serial port</source>
@@ -2466,11 +2466,11 @@
     </message>
     <message>
         <source>Receiving · no RTK yet</source>
-        <translation type="unfinished" />
+        <translation>Modtager · endnu ingen RTK</translation>
     </message>
     <message>
         <source>No data from the port</source>
-        <translation type="unfinished" />
+        <translation>Ingen data fra porten</translation>
     </message>
     <message>
         <source>Source</source>
@@ -2486,11 +2486,11 @@
     </message>
     <message>
         <source>Correction comes from a GNSS receiver on a serial port. Turn on Advanced mode to change this.</source>
-        <translation type="unfinished" />
+        <translation>Korrektionen kommer fra en GNSS-modtager på en seriel port. Slå avanceret tilstand til for at ændre dette.</translation>
     </message>
     <message>
         <source>No serial port found</source>
-        <translation type="unfinished" />
+        <translation>Ingen seriel port fundet</translation>
     </message>
     <message>
         <source>Speed (baud)</source>
@@ -2498,11 +2498,11 @@
     </message>
     <message>
         <source>Turn this on to choose the port. Correction data from the GNSS receiver is sent to the drone.</source>
-        <translation type="unfinished" />
+        <translation>Slå dette til for at vælge porten. Korrektionsdata fra GNSS-modtageren sendes til dronen.</translation>
     </message>
     <message>
         <source>Correction data comes from a GNSS receiver on this port and is sent to the drone.</source>
-        <translation type="unfinished" />
+        <translation>Korrektionsdata kommer fra en GNSS-modtager på denne port og sendes til dronen.</translation>
     </message>
 </context>
 <context>
@@ -2513,7 +2513,7 @@
     </message>
     <message>
         <source>The drone arms its motors, climbs to %1 m and holds position. Maximum %2 m.</source>
-        <translatorcomment>Draft from Figma example "The drone arms its motors, climbs to 10 m and holds position. Maximum 120 m." - review</translatorcomment><translation type="unfinished">Dronen armerer motorerne, stiger til %1 m og holder positionen. Maks. %2 m.</translation>
+        <translation>Dronen armerer motorerne, stiger til %1 m og holder positionen. Maks. %2 m.</translation>
     </message>
     <message>
         <source>Slide to take off</source>
@@ -2532,7 +2532,7 @@
     </message>
     <message>
         <source>Landing</source>
-        <translation type="unfinished" />
+        <translation>Lander</translation>
     </message>
     <message>
         <source>Returning home</source>
@@ -2588,7 +2588,7 @@
     </message>
     <message>
         <source>Check</source>
-        <translation type="unfinished" />
+        <translation>Kontrollér</translation>
     </message>
     <message>
         <source>Remote ID</source>
@@ -2608,30 +2608,30 @@
     </message>
     <message>
         <source>%1 items to fix</source>
-        <translation type="unfinished" />
+        <translation>%1 punkter skal rettes</translation>
     </message>
 </context>
 <context>
     <name>SimpleVehicleState</name>
     <message>
         <source>Compass problem</source>
-        <translation type="unfinished" />
+        <translation>Kompasproblem</translation>
     </message>
     <message>
         <source>Warning — see the messages (bell)</source>
-        <translation type="unfinished" />
+        <translation>Advarsel — se beskederne (klokken)</translation>
     </message>
     <message>
         <source>No fix</source>
-        <translation type="unfinished" />
+        <translation>Ingen fix</translation>
     </message>
     <message>
         <source>RTK</source>
-        <translation type="unfinished" />
+        <translation>RTK</translation>
     </message>
     <message>
         <source>Weak</source>
-        <translation type="unfinished" />
+        <translation>Svagt</translation>
     </message>
     <message>
         <source>Good</source>
@@ -2655,15 +2655,15 @@
     </message>
     <message>
         <source>Fair</source>
-        <translation type="unfinished" />
+        <translation>Middel</translation>
     </message>
     <message>
         <source>No power</source>
-        <translation type="unfinished" />
+        <translation>Ingen strøm</translation>
     </message>
     <message>
         <source>No station</source>
-        <translation type="unfinished" />
+        <translation>Ingen station</translation>
     </message>
     <message>
         <source>Power OK</source>
@@ -2671,19 +2671,19 @@
     </message>
     <message>
         <source>Power off</source>
-        <translation type="unfinished" />
+        <translation>Strøm fra</translation>
     </message>
     <message>
         <source>Station lost</source>
-        <translation type="unfinished" />
+        <translation>Station tabt</translation>
     </message>
     <message>
         <source>Crash detected</source>
-        <translation type="unfinished" />
+        <translation>Styrt registreret</translation>
     </message>
     <message>
         <source>GPS or position lost</source>
-        <translation type="unfinished" />
+        <translation>GPS eller position tabt</translation>
     </message>
     <message>
         <source>Battery low</source>
@@ -2695,19 +2695,19 @@
     </message>
     <message>
         <source>App link lost</source>
-        <translation type="unfinished" />
+        <translation>App-forbindelse tabt</translation>
     </message>
     <message>
         <source>Geofence reached</source>
-        <translation type="unfinished" />
+        <translation>Geofence nået</translation>
     </message>
     <message>
         <source>Terrain data problem</source>
-        <translation type="unfinished" />
+        <translation>Problem med terrændata</translation>
     </message>
     <message>
         <source>Strong vibration</source>
-        <translation type="unfinished" />
+        <translation>Kraftig vibration</translation>
     </message>
     <message>
         <source>Strong wind</source>
@@ -2750,7 +2750,7 @@
     </message>
     <message>
         <source>A drone is connected: restart alesQGC after Start to show the new units everywhere.</source>
-        <translation type="unfinished" />
+        <translation>En drone er forbundet: genstart alesQGC efter Start for at vise de nye enheder overalt.</translation>
     </message>
     <message>
         <source>Drone type for planning without a drone: ArduPilot multicopter. A connected drone always uses its own settings.</source>
@@ -2765,11 +2765,11 @@
     <name>SimpleMapDownload</name>
     <message>
         <source>Enter a name</source>
-        <translation type="unfinished" />
+        <translation>Indtast et navn</translation>
     </message>
     <message>
         <source>A saved map already has this name</source>
-        <translation type="unfinished" />
+        <translation>Et gemt kort har allerede dette navn</translation>
     </message>
     <message>
         <source>Map &amp; flight zones</source>
@@ -2781,7 +2781,7 @@
     </message>
     <message>
         <source>Move and zoom the map so the area fits the frame</source>
-        <translation type="unfinished" />
+        <translation>Flyt og zoom kortet, så området passer i rammen</translation>
     </message>
     <message>
         <source>Name</source>
@@ -2789,11 +2789,11 @@
     </message>
     <message>
         <source>area</source>
-        <translation type="unfinished" />
+        <translation>område</translation>
     </message>
     <message>
         <source>Detail</source>
-        <translation type="unfinished" />
+        <translation>Detaljer</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -2805,70 +2805,70 @@
     </message>
     <message>
         <source>Buildings and small paths. Needs much more space.</source>
-        <translation type="unfinished" />
+        <translation>Bygninger og små stier. Kræver meget mere plads.</translation>
     </message>
     <message>
         <source>Roads, fields and large buildings.</source>
-        <translation type="unfinished" />
+        <translation>Veje, marker og store bygninger.</translation>
     </message>
     <message>
         <source>SIZE</source>
-        <translation type="unfinished" />
+        <translation>STØRRELSE</translation>
     </message>
     <message>
         <source>MAP TILES</source>
-        <translation type="unfinished" />
+        <translation>KORTFLISER</translation>
     </message>
     <message>
         <source>Area too large. Zoom in or choose Standard detail.</source>
-        <translation type="unfinished" />
+        <translation>Området er for stort. Zoom ind, eller vælg detaljer Standard.</translation>
     </message>
     <message>
         <source>Free space on this device: %1</source>
-        <translation type="unfinished" />
+        <translation>Ledig plads på denne enhed: %1</translation>
     </message>
     <message>
         <source>Download</source>
-        <translation type="unfinished" />
+        <translation>Hent</translation>
     </message>
 </context>
 <context>
     <name>SimplePayloadSettings</name>
     <message>
         <source>% of the station's maximum power</source>
-        <translation type="unfinished" />
+        <translation>% af stationens maksimale effekt</translation>
     </message>
     <message>
         <source>IP address of the camera on the drone's network</source>
-        <translation type="unfinished" />
+        <translation>Kameraets IP-adresse på dronens netværk</translation>
     </message>
     <message>
         <source>%1 flights in total</source>
-        <translation type="unfinished" />
+        <translation>%1 flyvninger i alt</translation>
     </message>
     <message>
         <source>%1 m</source>
-        <translatorcomment>Draft from Figma example "0.0 / 100 m" - review</translatorcomment><translation type="unfinished">%1 m</translation>
+        <translation>%1 m</translation>
     </message>
     <message>
         <source>%1 of %2 h</source>
-        <translatorcomment>Draft from Figma example "38 of 50 h" - review</translatorcomment><translation type="unfinished">%1 af %2 t</translation>
+        <translation>%1 af %2 t</translation>
     </message>
     <message>
         <source>%1 s</source>
-        <translatorcomment>Draft from Figma example "1 s" - review</translatorcomment><translation type="unfinished">%1 s</translation>
+        <translation>%1 s</translation>
     </message>
     <message>
         <source>ALARMS (SAVED IN STATION)</source>
-        <translation type="unfinished" />
+        <translation>ALARMER (GEMT I STATIONEN)</translation>
     </message>
     <message>
         <source>Allowed 0–100 %</source>
-        <translation type="unfinished" />
+        <translation>Tilladt 0–100 %</translation>
     </message>
     <message>
         <source>Allowed 0–200 m</source>
-        <translation type="unfinished" />
+        <translation>Tilladt 0–200 m</translation>
     </message>
     <message>
         <source>Anti-entrapment</source>
@@ -2876,7 +2876,7 @@
     </message>
     <message>
         <source>Asks the LiDAR for its status once</source>
-        <translation type="unfinished" />
+        <translation>Spørger LiDAR om dens status én gang</translation>
     </message>
     <message>
         <source>Auto land</source>
@@ -2884,7 +2884,7 @@
     </message>
     <message>
         <source>CAMERA</source>
-        <translation type="unfinished" />
+        <translation>KAMERA</translation>
     </message>
     <message>
         <source>Cable end alert</source>
@@ -2900,7 +2900,7 @@
     </message>
     <message>
         <source>Camera type on this drone</source>
-        <translation type="unfinished" />
+        <translation>Kameratype på denne drone</translation>
     </message>
     <message>
         <source>Camera</source>
@@ -2912,15 +2912,15 @@
     </message>
     <message>
         <source>Cannot connect — check the address and the network</source>
-        <translation type="unfinished" />
+        <translation>Kan ikke forbinde — kontrollér adressen og netværket</translation>
     </message>
     <message>
         <source>Cannot connect</source>
-        <translation type="unfinished" />
+        <translation>Kan ikke forbinde</translation>
     </message>
     <message>
         <source>Change on the ground (motors off)</source>
-        <translation type="unfinished" />
+        <translation>Ændr på jorden (motorer slukket)</translation>
     </message>
     <message>
         <source>Computer temperature</source>
@@ -2928,15 +2928,15 @@
     </message>
     <message>
         <source>Connect the drone to change this</source>
-        <translation type="unfinished" />
+        <translation>Forbind dronen for at ændre dette</translation>
     </message>
     <message>
         <source>Connect the drone to set the tilt limits.</source>
-        <translation type="unfinished" />
+        <translation>Forbind dronen for at indstille tiltgrænserne.</translation>
     </message>
     <message>
         <source>Connect the station to change its settings</source>
-        <translation type="unfinished" />
+        <translation>Forbind stationen for at ændre dens indstillinger</translation>
     </message>
     <message>
         <source>Connect</source>
@@ -2948,7 +2948,7 @@
     </message>
     <message>
         <source>Connected · power on</source>
-        <translation type="unfinished" />
+        <translation>Forbundet · strøm til</translation>
     </message>
     <message>
         <source>Connected</source>
@@ -2956,15 +2956,15 @@
     </message>
     <message>
         <source>Connecting…</source>
-        <translation type="unfinished" />
+        <translation>Forbinder…</translation>
     </message>
     <message>
         <source>DEVICE</source>
-        <translation type="unfinished" />
+        <translation>ENHED</translation>
     </message>
     <message>
         <source>Devices the drone carries. Tap one to set it up.</source>
-        <translation type="unfinished" />
+        <translation>Enheder, som dronen bærer. Tryk på en for at opsætte den.</translation>
     </message>
     <message>
         <source>Disconnect</source>
@@ -2972,11 +2972,11 @@
     </message>
     <message>
         <source>Drone not connected</source>
-        <translation type="unfinished" />
+        <translation>Drone ikke forbundet</translation>
     </message>
     <message>
         <source>EMBEDDED CAMERA (SAVED IN LIDAR)</source>
-        <translation type="unfinished" />
+        <translation>INDBYGGET KAMERA (GEMT I LIDAR)</translation>
     </message>
     <message>
         <source>Fast</source>
@@ -2984,11 +2984,11 @@
     </message>
     <message>
         <source>Filled in automatically when the camera connects.</source>
-        <translation type="unfinished" />
+        <translation>Udfyldes automatisk, når kameraet forbinder.</translation>
     </message>
     <message>
         <source>For tethered flights</source>
-        <translation type="unfinished" />
+        <translation>Til tether-flyvninger</translation>
     </message>
     <message>
         <source>From where recording starts</source>
@@ -2996,7 +2996,7 @@
     </message>
     <message>
         <source>GIMBAL</source>
-        <translation type="unfinished" />
+        <translation>GIMBAL</translation>
     </message>
     <message>
         <source>Gimbal speed</source>
@@ -3004,7 +3004,7 @@
     </message>
     <message>
         <source>Gremsy Lynx</source>
-        <translation type="unfinished" />
+        <translation>Gremsy Lynx</translation>
     </message>
     <message>
         <source>Highest tilt</source>
@@ -3012,7 +3012,7 @@
     </message>
     <message>
         <source>How fast the gimbal turns with the on-screen controls</source>
-        <translation type="unfinished" />
+        <translation>Hvor hurtigt gimbalen drejer med skærmknapperne</translation>
     </message>
     <message>
         <source>If ground power is lost</source>
@@ -3024,23 +3024,23 @@
     </message>
     <message>
         <source>Level = 0°</source>
-        <translation type="unfinished" />
+        <translation>Vandret = 0°</translation>
     </message>
     <message>
         <source>Link lost</source>
-        <translation type="unfinished" />
+        <translation>Forbindelse tabt</translation>
     </message>
     <message>
         <source>Locked while flying (station power above 200 W)</source>
-        <translation type="unfinished" />
+        <translation>Låst under flyvning (stationseffekt over 200 W)</translation>
     </message>
     <message>
         <source>Locked while the motors are on</source>
-        <translation type="unfinished" />
+        <translation>Låst, mens motorerne er tændt</translation>
     </message>
     <message>
         <source>Locked: the station reports no power</source>
-        <translation type="unfinished" />
+        <translation>Låst: stationen melder ingen strøm</translation>
     </message>
     <message>
         <source>Lowest tilt</source>
@@ -3048,7 +3048,7 @@
     </message>
     <message>
         <source>MAINTENANCE</source>
-        <translation type="unfinished" />
+        <translation>VEDLIGEHOLDELSE</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -3056,7 +3056,7 @@
     </message>
     <message>
         <source>Metres before the cable runs out</source>
-        <translation type="unfinished" />
+        <translation>Meter, før kablet slipper op</translation>
     </message>
     <message>
         <source>Model</source>
@@ -3068,11 +3068,11 @@
     </message>
     <message>
         <source>NextVision</source>
-        <translation type="unfinished" />
+        <translation>NextVision</translation>
     </message>
     <message>
         <source>No reply</source>
-        <translation type="unfinished" />
+        <translation>Intet svar</translation>
     </message>
     <message>
         <source>Normal</source>
@@ -3080,7 +3080,7 @@
     </message>
     <message>
         <source>Not available</source>
-        <translation type="unfinished" />
+        <translation>Ikke tilgængelig</translation>
     </message>
     <message>
         <source>Not connected</source>
@@ -3088,15 +3088,15 @@
     </message>
     <message>
         <source>Not read</source>
-        <translation type="unfinished" />
+        <translation>Ikke læst</translation>
     </message>
     <message>
         <source>Not ready</source>
-        <translation type="unfinished" />
+        <translation>Ikke klar</translation>
     </message>
     <message>
         <source>Not used</source>
-        <translation type="unfinished" />
+        <translation>Ikke brugt</translation>
     </message>
     <message>
         <source>OK</source>
@@ -3128,11 +3128,11 @@
     </message>
     <message>
         <source>Power off sent. Turn it on again with the button on the drone.</source>
-        <translation type="unfinished" />
+        <translation>Sluk sendt. Tænd igen med knappen på dronen.</translation>
     </message>
     <message>
         <source>Power off</source>
-        <translation type="unfinished" />
+        <translation>Sluk</translation>
     </message>
     <message>
         <source>Power off…</source>
@@ -3140,15 +3140,15 @@
     </message>
     <message>
         <source>Powered off</source>
-        <translation type="unfinished" />
+        <translation>Slukket</translation>
     </message>
     <message>
         <source>Problem</source>
-        <translation type="unfinished" />
+        <translation>Problem</translation>
     </message>
     <message>
         <source>Read from the LiDAR. Changing these needs Set Parameter support in the companion board (not yet available).</source>
-        <translation type="unfinished" />
+        <translation>Læst fra LiDAR. Ændring kræver Set Parameter-understøttelse i companion-kortet (endnu ikke tilgængelig).</translation>
     </message>
     <message>
         <source>Read from the station</source>
@@ -3160,11 +3160,11 @@
     </message>
     <message>
         <source>Recommend landing</source>
-        <translation type="unfinished" />
+        <translation>Landing anbefales</translation>
     </message>
     <message>
         <source>Recording</source>
-        <translation type="unfinished" />
+        <translation>Optager</translation>
     </message>
     <message>
         <source>Restart needs the button on the drone</source>
@@ -3176,7 +3176,7 @@
     </message>
     <message>
         <source>Shows the LiDAR panel and checks in flight</source>
-        <translation type="unfinished" />
+        <translation>Viser LiDAR-panelet og kontroller under flyvning</translation>
     </message>
     <message>
         <source>Since last service</source>
@@ -3204,7 +3204,7 @@
     </message>
     <message>
         <source>Take a photo every</source>
-        <translation type="unfinished" />
+        <translation>Tag et foto hver</translation>
     </message>
     <message>
         <source>Take photos</source>
@@ -3212,7 +3212,7 @@
     </message>
     <message>
         <source>Talking to the station…</source>
-        <translation type="unfinished" />
+        <translation>Kommunikerer med stationen…</translation>
     </message>
     <message>
         <source>Test connection</source>
@@ -3224,7 +3224,7 @@
     </message>
     <message>
         <source>Testing…</source>
-        <translation type="unfinished" />
+        <translation>Tester…</translation>
     </message>
     <message>
         <source>Tether station (SAFE-T)</source>
@@ -3232,15 +3232,15 @@
     </message>
     <message>
         <source>Tether support is not available</source>
-        <translation type="unfinished" />
+        <translation>Tether-understøttelse er ikke tilgængelig</translation>
     </message>
     <message>
         <source>The LiDAR reports only OK or a warning</source>
-        <translation type="unfinished" />
+        <translation>LiDAR melder kun OK eller en advarsel</translation>
     </message>
     <message>
         <source>This drone has no gimbal tilt limit parameters.</source>
-        <translation type="unfinished" />
+        <translation>Denne drone har ingen parametre for gimbalens tiltgrænser.</translation>
     </message>
     <message>
         <source>USB stick</source>
@@ -3248,7 +3248,7 @@
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished" />
+        <translation>Ukendt</translation>
     </message>
     <message>
         <source>Use YellowScan LiDAR</source>
@@ -3260,7 +3260,7 @@
     </message>
     <message>
         <source>Video stream (RTSP)</source>
-        <translation type="unfinished" />
+        <translation>Videostream (RTSP)</translation>
     </message>
     <message>
         <source>Warn only</source>
@@ -3272,11 +3272,11 @@
     </message>
     <message>
         <source>Allow strobe *</source>
-        <translation type="unfinished" />
+        <translation>Tillad strobe *</translation>
     </message>
     <message>
         <source>Also shows the life jacket drop on the flight screen</source>
-        <translation type="unfinished" />
+        <translation>Viser også slip af redningsvest på flyveskærmen</translation>
     </message>
     <message>
         <source>Auto stop at</source>
@@ -3284,7 +3284,7 @@
     </message>
     <message>
         <source>BirdCom searchlight and life jacket</source>
-        <translation type="unfinished" />
+        <translation>BirdCom-projektør og redningsvest</translation>
     </message>
     <message>
         <source>Cleaning device</source>
@@ -3292,11 +3292,11 @@
     </message>
     <message>
         <source>Clips stored on the speaker</source>
-        <translation type="unfinished" />
+        <translation>Klip gemt på højttaleren</translation>
     </message>
     <message>
         <source>Distance to wall *</source>
-        <translation type="unfinished" />
+        <translation>Afstand til væg *</translation>
     </message>
     <message>
         <source>English</source>
@@ -3304,7 +3304,7 @@
     </message>
     <message>
         <source>Fitted</source>
-        <translation type="unfinished" />
+        <translation>Monteret</translation>
     </message>
     <message>
         <source>For typed messages</source>
@@ -3320,7 +3320,7 @@
     </message>
     <message>
         <source>Hook for drops</source>
-        <translation type="unfinished" />
+        <translation>Krog til nedkast</translation>
     </message>
     <message>
         <source>Hook opens · on the ground, motors off</source>
@@ -3328,11 +3328,11 @@
     </message>
     <message>
         <source>How long Release must be held on the flight screen</source>
-        <translation type="unfinished" />
+        <translation>Hvor længe Udløs skal holdes på flyveskærmen</translation>
     </message>
     <message>
         <source>Korean</source>
-        <translation type="unfinished" />
+        <translation>Koreansk</translation>
     </message>
     <message>
         <source>Low</source>
@@ -3340,15 +3340,15 @@
     </message>
     <message>
         <source>Lowering speed *</source>
-        <translation type="unfinished" />
+        <translation>Sænkehastighed *</translation>
     </message>
     <message>
         <source>Max brightness *</source>
-        <translation type="unfinished" />
+        <translation>Maks. lysstyrke *</translation>
     </message>
     <message>
         <source>Max volume *</source>
-        <translation type="unfinished" />
+        <translation>Maks. lydstyrke *</translation>
     </message>
     <message>
         <source>Megaphone</source>
@@ -3360,11 +3360,11 @@
     </message>
     <message>
         <source>No cleaning device is connected. The card becomes active when the app supports the device.</source>
-        <translation type="unfinished" />
+        <translation>Ingen rengøringsenhed er forbundet. Panelet bliver aktivt, når appen understøtter enheden.</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished" />
+        <translation>Nej</translation>
     </message>
     <message>
         <source>Not detected</source>
@@ -3372,15 +3372,15 @@
     </message>
     <message>
         <source>Not fitted</source>
-        <translation type="unfinished" />
+        <translation>Ikke monteret</translation>
     </message>
     <message>
         <source>Not supported by this app yet</source>
-        <translation type="unfinished" />
+        <translation>Endnu ikke understøttet af denne app</translation>
     </message>
     <message>
         <source>Release sent to the drone</source>
-        <translation type="unfinished" />
+        <translation>Udløsning sendt til dronen</translation>
     </message>
     <message>
         <source>Safety limit, fixed</source>
@@ -3392,19 +3392,19 @@
     </message>
     <message>
         <source>Set on the drone (parameter GRIP_ENABLE) · Advanced › Parameters</source>
-        <translation type="unfinished" />
+        <translation>Indstilles på dronen (parameter GRIP_ENABLE) · Avanceret › Parametre</translation>
     </message>
     <message>
         <source>Shows the megaphone card on the flight screen</source>
-        <translation type="unfinished" />
+        <translation>Viser megafonpanelet på flyveskærmen</translation>
     </message>
     <message>
         <source>Speech language *</source>
-        <translation type="unfinished" />
+        <translation>Talesprog *</translation>
     </message>
     <message>
         <source>Spray pressure *</source>
-        <translation type="unfinished" />
+        <translation>Sprøjtetryk *</translation>
     </message>
     <message>
         <source>Stop sound on landing</source>
@@ -3420,15 +3420,15 @@
     </message>
     <message>
         <source>Use BirdCom searchlight</source>
-        <translation type="unfinished" />
+        <translation>Brug BirdCom-projektør</translation>
     </message>
     <message>
         <source>Use megaphone</source>
-        <translation type="unfinished" />
+        <translation>Brug megafon</translation>
     </message>
     <message>
         <source>Values marked * are kept in the app and used once the device accepts them.</source>
-        <translation type="unfinished" />
+        <translation>Værdier markeret med * gemmes i appen og bruges, når enheden accepterer dem.</translation>
     </message>
     <message>
         <source>Winch</source>
@@ -3436,7 +3436,7 @@
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished" />
+        <translation>Ja</translation>
     </message>
     <message>
         <source>On · stop</source>
@@ -3444,7 +3444,7 @@
     </message>
     <message>
         <source>On · avoid</source>
-        <translation type="unfinished" />
+        <translation>Til · undvig</translation>
     </message>
     <message>
         <source>Vision LiDAR</source>
@@ -3452,7 +3452,7 @@
     </message>
     <message>
         <source>BirdCom obstacle detection</source>
-        <translation type="unfinished" />
+        <translation>BirdCom-forhindringsdetektion</translation>
     </message>
     <message>
         <source>BirdCom obstacle sensor. The drone stops when something is closer than the detection distance.</source>
@@ -3492,23 +3492,23 @@
     </message>
     <message>
         <source>No reply from the Vision LiDAR. Check that it is fitted and powered.</source>
-        <translation type="unfinished" />
+        <translation>Intet svar fra Vision LiDAR. Kontrollér, at den er monteret og har strøm.</translation>
     </message>
     <message>
         <source>Connect the drone to change these settings.</source>
-        <translation type="unfinished" />
+        <translation>Forbind dronen for at ændre disse indstillinger.</translation>
     </message>
     <message>
         <source>These settings need station frame version Extended V1</source>
-        <translation type="unfinished" />
+        <translation>Disse indstillinger kræver stationsrammeversion Extended V1</translation>
     </message>
     <message>
         <source>Gimbal type, servo outputs and angle ranges: Vehicle setup › Gimbal ›</source>
-        <translation type="unfinished" />
+        <translation>Gimbaltype, servoudgange og vinkelområder: Droneopsætning › Gimbal ›</translation>
     </message>
     <message>
         <source>From the LiDAR panel on the flight screen</source>
-        <translation type="unfinished" />
+        <translation>Fra LiDAR-panelet på flyveskærmen</translation>
     </message>
     <message>
         <source>Auto</source>
@@ -3552,11 +3552,11 @@
     </message>
     <message>
         <source>Extended V1</source>
-        <translation type="unfinished" />
+        <translation>Extended V1</translation>
     </message>
     <message>
         <source>Extended V0</source>
-        <translation type="unfinished" />
+        <translation>Extended V0</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -3564,43 +3564,43 @@
     </message>
     <message>
         <source>Changed in Advanced mode</source>
-        <translation type="unfinished" />
+        <translation>Ændres i avanceret tilstand</translation>
     </message>
     <message>
         <source>What the app does when the station loses ground power</source>
-        <translation type="unfinished" />
+        <translation>Hvad appen gør, når stationen mister jordstrømmen</translation>
     </message>
     <message>
         <source>Auto land sends Land without asking when the cable has no power. Use it only for the drone tethered to this station.</source>
-        <translation type="unfinished" />
+        <translation>Automatisk landing sender Land uden at spørge, når kablet ikke har strøm. Brug det kun til dronen, der er forbundet med tether til denne station.</translation>
     </message>
     <message>
         <source>Use auto land</source>
-        <translation type="unfinished" />
+        <translation>Brug automatisk landing</translation>
     </message>
     <message>
         <source>S/N %1</source>
-        <translation type="unfinished" />
+        <translation>S/N %1</translation>
     </message>
     <message>
         <source>Turn on the tether station first</source>
-        <translation type="unfinished" />
+        <translation>Tænd tether-stationen først</translation>
     </message>
     <message>
         <source>No reply · trying again (%1)</source>
-        <translation type="unfinished" />
+        <translation>Intet svar · prøver igen (%1)</translation>
     </message>
     <message>
         <source>No reply from the station</source>
-        <translation type="unfinished" />
+        <translation>Intet svar fra stationen</translation>
     </message>
     <message>
         <source>The tablet must be on the station's network</source>
-        <translation type="unfinished" />
+        <translation>Tabletten skal være på stationens netværk</translation>
     </message>
     <message>
         <source>Starts at the first scan item (the Init Path figure 8 in a LiDAR plan) and stops after the last one. Start / Stop on the flight screen still works.</source>
-        <translation type="unfinished" />
+        <translation>Starter ved første scanningselement (init-rutens ottetal i en LiDAR-plan) og stopper efter det sidste. Start / Stop på flyveskærmen virker stadig.</translation>
     </message>
 </context>
 <context>
@@ -3639,15 +3639,15 @@
     </message>
     <message>
         <source>Offline map: 1 area downloaded</source>
-        <translation type="unfinished" />
+        <translation>Offlinekort: 1 område hentet</translation>
     </message>
     <message>
         <source>Offline maps: %1 areas downloaded</source>
-        <translation type="unfinished" />
+        <translation>Offlinekort: %1 områder hentet</translation>
     </message>
     <message>
         <source>No offline maps (Settings › Map &amp; flight zones)</source>
-        <translation type="unfinished" />
+        <translation>Ingen offlinekort (Indstillinger › Kort &amp; flyzoner)</translation>
     </message>
     <message>
         <source>Flight zones</source>
@@ -3655,11 +3655,11 @@
     </message>
     <message>
         <source>%1 zones loaded</source>
-        <translation type="unfinished" />
+        <translation>%1 zoner indlæst</translation>
     </message>
     <message>
         <source>No zone data (Settings › Map &amp; flight zones)</source>
-        <translation type="unfinished" />
+        <translation>Ingen zonedata (Indstillinger › Kort &amp; flyzoner)</translation>
     </message>
     <message>
         <source>Prohibited</source>
@@ -3675,7 +3675,7 @@
     </message>
     <message>
         <source>My zone</source>
-        <translation type="unfinished" />
+        <translation>Min zone</translation>
     </message>
     <message>
         <source>My zones</source>
@@ -3683,15 +3683,15 @@
     </message>
     <message>
         <source>Ground</source>
-        <translation type="unfinished" />
+        <translation>Jord</translation>
     </message>
     <message>
         <source>%1 and up</source>
-        <translation type="unfinished" />
+        <translation>%1 og op</translation>
     </message>
     <message>
         <source>Altitude Angel (online)</source>
-        <translation type="unfinished" />
+        <translation>Altitude Angel (online)</translation>
     </message>
     <message>
         <source>Zone details</source>
@@ -3707,7 +3707,7 @@
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished" />
+        <translation>Detaljer</translation>
     </message>
     <message>
         <source>Source</source>
@@ -3715,46 +3715,46 @@
     </message>
     <message>
         <source>%1 zones overlap here — the most restrictive one is shown first.</source>
-        <translation type="unfinished" />
+        <translation>%1 zoner overlapper her — den mest restriktive vises først.</translation>
     </message>
     <message>
         <source>Zoom in to see the zones</source>
-        <translation type="unfinished" />
+        <translation>Zoom ind for at se zonerne</translation>
     </message>
 </context>
 <context>
     <name>FlightZoneManager</name>
     <message>
         <source>The file cannot be opened.</source>
-        <translation type="unfinished" />
+        <translation>Filen kan ikke åbnes.</translation>
     </message>
     <message>
         <source>This is not a GeoJSON file (%1).</source>
-        <translation type="unfinished" />
+        <translation>Dette er ikke en GeoJSON-fil (%1).</translation>
     </message>
     <message>
         <source>The file has no zone areas (GeoJSON Polygon or MultiPolygon features).</source>
-        <translation type="unfinished" />
+        <translation>Filen har ingen zoneområder (GeoJSON Polygon- eller MultiPolygon-features).</translation>
     </message>
     <message>
         <source>The file cannot be copied to the app folder.</source>
-        <translation type="unfinished" />
+        <translation>Filen kan ikke kopieres til appmappen.</translation>
     </message>
     <message>
         <source>Inside a prohibited zone</source>
-        <translation type="unfinished" />
+        <translation>Inde i en forbudt zone</translation>
     </message>
     <message>
         <source>Inside a flight zone</source>
-        <translation type="unfinished" />
+        <translation>Inde i en flyzone</translation>
     </message>
     <message>
         <source>Prohibited zone ahead</source>
-        <translation type="unfinished" />
+        <translation>Forbudt zone forude</translation>
     </message>
     <message>
         <source>Flight zone ahead</source>
-        <translation type="unfinished" />
+        <translation>Flyzone forude</translation>
     </message>
     <message>
         <source>Do not enter</source>
@@ -3766,34 +3766,34 @@
     </message>
     <message>
         <source>The zone server sent data that cannot be read.</source>
-        <translation type="unfinished" />
+        <translation>Zoneserveren sendte data, der ikke kan læses.</translation>
     </message>
     <message>
         <source>The zone server refused the API key.</source>
-        <translation type="unfinished" />
+        <translation>Zoneserveren afviste API-nøglen.</translation>
     </message>
     <message>
         <source>Zones cannot be downloaded: %1</source>
-        <translation type="unfinished" />
+        <translation>Zoner kan ikke hentes: %1</translation>
     </message>
     <message>
         <source>The zone file cannot be opened: %1</source>
-        <translation type="unfinished" />
+        <translation>Zonefilen kan ikke åbnes: %1</translation>
     </message>
     <message>
         <source>The zone file is not valid GeoJSON: %1</source>
-        <translation type="unfinished" />
+        <translation>Zonefilen er ikke gyldig GeoJSON: %1</translation>
     </message>
     <message>
         <source>heights above sea level</source>
-        <translation type="unfinished" />
+        <translation>højder over havets overflade</translation>
     </message>
 </context>
 <context>
     <name>SimpleMyZones</name>
     <message>
         <source>My zone %1</source>
-        <translation type="unfinished" />
+        <translation>Min zone %1</translation>
     </message>
     <message>
         <source>Settings</source>
@@ -3805,7 +3805,7 @@
     </message>
     <message>
         <source>Edit flight zone</source>
-        <translation type="unfinished" />
+        <translation>Redigér flyzone</translation>
     </message>
     <message>
         <source>My flight zones</source>
@@ -3829,15 +3829,15 @@
     </message>
     <message>
         <source>Locked while the motors are running.</source>
-        <translation type="unfinished" />
+        <translation>Låst, mens motorerne kører.</translation>
     </message>
     <message>
         <source>Tap the map to add corners, drag a corner to move it. Official zones cannot be edited.</source>
-        <translation type="unfinished" />
+        <translation>Tryk på kortet for at tilføje hjørner, træk et hjørne for at flytte det. Officielle zoner kan ikke redigeres.</translation>
     </message>
     <message>
         <source>%1 zones you drew</source>
-        <translation type="unfinished" />
+        <translation>%1 zoner du har tegnet</translation>
     </message>
     <message>
         <source>Draw a zone the drone must not enter (for example a building or a crowd area) or a zone to be warned about.</source>
@@ -3889,11 +3889,11 @@
     </message>
     <message>
         <source>'Do not enter' blocks take-off and plan sending inside the zone, and goes to the drone's fence when it is uploaded — the drone stops at the edge.</source>
-        <translation type="unfinished" />
+        <translation>'Ingen adgang' blokerer start og afsendelse af planer inde i zonen og overføres til dronens geofence, når den uploades — dronen stopper ved kanten.</translation>
     </message>
     <message>
         <source>'Warn only' shows an orange warning and speaks when the drone comes closer than the warning distance.</source>
-        <translation type="unfinished" />
+        <translation>'Kun advarsel' viser en orange advarsel og siger til, når dronen kommer tættere på end advarselsafstanden.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -3905,27 +3905,27 @@
     </message>
     <message>
         <source>Add at least 3 corners.</source>
-        <translation type="unfinished" />
+        <translation>Tilføj mindst 3 hjørner.</translation>
     </message>
     <message>
         <source>only reports the breach</source>
-        <translation type="unfinished" />
+        <translation>melder kun overtrædelsen</translation>
     </message>
     <message>
         <source>lands</source>
-        <translation type="unfinished" />
+        <translation>lander</translation>
     </message>
     <message>
         <source>brakes, or lands</source>
-        <translation type="unfinished" />
+        <translation>bremser eller lander</translation>
     </message>
     <message>
         <source>returns on its own path, or lands</source>
-        <translation type="unfinished" />
+        <translation>vender tilbage ad sin egen rute eller lander</translation>
     </message>
     <message>
         <source>returns home, or lands</source>
-        <translation type="unfinished" />
+        <translation>returnerer hjem eller lander</translation>
     </message>
     <message>
         <source>DRONE FENCE</source>
@@ -3933,55 +3933,55 @@
     </message>
     <message>
         <source>Connect the drone to upload the 'do not enter' zones to its fence.</source>
-        <translation type="unfinished" />
+        <translation>Forbind dronen for at uploade 'ingen adgang'-zonerne til dens geofence.</translation>
     </message>
     <message>
         <source>The fence can be uploaded only on the ground with the motors off.</source>
-        <translation type="unfinished" />
+        <translation>Geofencen kan kun uploades på jorden med motorerne slukket.</translation>
     </message>
     <message>
         <source>This drone has no fence parameters.</source>
-        <translation type="unfinished" />
+        <translation>Denne drone har ingen geofence-parametre.</translation>
     </message>
     <message>
         <source>Polygon fence on. At a zone edge the drone %1.</source>
-        <translation type="unfinished" />
+        <translation>Polygon-geofence til. Når dronen når en zonekant: %1.</translation>
     </message>
     <message>
         <source>The drone's polygon fence is off.</source>
-        <translation type="unfinished" />
+        <translation>Dronens polygon-geofence er slået fra.</translation>
     </message>
     <message>
         <source>Uploaded to the drone.</source>
-        <translation type="unfinished" />
+        <translation>Uploadet til dronen.</translation>
     </message>
     <message>
         <source>Uploading…</source>
-        <translation type="unfinished" />
+        <translation>Uploader…</translation>
     </message>
     <message>
         <source>Upload</source>
-        <translation type="unfinished" />
+        <translation>Upload</translation>
     </message>
     <message>
         <source>Upload to drone (%1 zones)</source>
-        <translatorcomment>Draft from Figma example "Upload to drone (1 zones)" - review</translatorcomment><translation type="unfinished">Upload til drone (%1 zone)</translation>
+        <translation>Upload til drone (%1 zoner)</translation>
     </message>
     <message>
         <source>Upload %1 'do not enter' zones to the drone? The drone's fence is off: only the polygon fence is turned on (FENCE_ENABLE = 1, FENCE_TYPE = polygon).</source>
-        <translation type="unfinished" />
+        <translation>Upload %1 'ingen adgang'-zoner til dronen? Dronens geofence er slået fra: kun polygon-geofencen slås til (FENCE_ENABLE = 1, FENCE_TYPE = polygon).</translation>
     </message>
     <message>
         <source>Upload %1 'do not enter' zones to the drone? They replace the exclusion areas on the drone; the circle, altitude and inclusion fences stay as they are.</source>
-        <translation type="unfinished" />
+        <translation>Upload %1 'ingen adgang'-zoner til dronen? De erstatter udelukkelsesområderne på dronen; cirkel-, højde- og inklusionsgeofencerne forbliver som de er.</translation>
     </message>
     <message>
         <source>The drone is still sending its mission or fence. Try again in a moment.</source>
-        <translation type="unfinished" />
+        <translation>Dronen sender stadig sin mission eller geofence. Prøv igen om et øjeblik.</translation>
     </message>
     <message>
         <source>The drone did not confirm the fence. Check the connection and try again.</source>
-        <translation type="unfinished" />
+        <translation>Dronen bekræftede ikke geofencen. Kontrollér forbindelsen, og prøv igen.</translation>
     </message>
 </context>
 <context>
@@ -3992,19 +3992,19 @@
     </message>
     <message>
         <source>now %1</source>
-        <translatorcomment>Draft from Figma example "now 50 m" - review</translatorcomment><translation type="unfinished">nu %1</translation>
+        <translation>nu %1</translation>
     </message>
     <message>
         <source>Height above the home point · allowed %1 – %2 %3 · the drone then holds position</source>
-        <translation type="unfinished" />
+        <translation>Højde over hjemstedet · tilladt %1 – %2 %3 · dronen holder derefter position</translation>
     </message>
     <message>
         <source>Already at %1 %2</source>
-        <translation type="unfinished" />
+        <translation>Allerede på %1 %2</translation>
     </message>
     <message>
         <source>Slide to change to %1 %2</source>
-        <translatorcomment>Draft from Figma example "Slide to change to 65 m" - review</translatorcomment><translation type="unfinished">Skub for at ændre til %1 %2</translation>
+        <translation>Skub for at ændre til %1 %2</translation>
     </message>
 </context>
 <context>
@@ -4023,11 +4023,11 @@
     </message>
     <message>
         <source>Latitude must be between -90 and 90.</source>
-        <translation type="unfinished" />
+        <translation>Breddegrad skal være mellem -90 og 90.</translation>
     </message>
     <message>
         <source>Longitude must be between -180 and 180.</source>
-        <translation type="unfinished" />
+        <translation>Længdegrad skal være mellem -180 og 180.</translation>
     </message>
     <message>
         <source>Decimal degrees, for example 37.5665 and 126.9780.</source>
@@ -4042,7 +4042,7 @@
     <name>SimpleGoHereCard</name>
     <message>
         <source>Stopped</source>
-        <translation type="unfinished" />
+        <translation>Stoppet</translation>
     </message>
     <message>
         <source>Going to point</source>
@@ -4050,19 +4050,19 @@
     </message>
     <message>
         <source>%1 left</source>
-        <translatorcomment>Draft from Figma example "4K 30 fps · SD 28.4 GB left" - review</translatorcomment><translation type="unfinished">%1 tilbage</translation>
+        <translation>%1 tilbage</translation>
     </message>
     <message>
         <source>obstacle detection on</source>
-        <translation type="unfinished" />
+        <translation>forhindringsdetektion til</translation>
     </message>
     <message>
         <source>no obstacle detection</source>
-        <translation type="unfinished" />
+        <translation>ingen forhindringsdetektion</translation>
     </message>
     <message>
         <source>Continue</source>
-        <translation type="unfinished" />
+        <translation>Fortsæt</translation>
     </message>
     <message>
         <source>Change target</source>
@@ -4081,11 +4081,11 @@
     <name>SimpleGoHereSheet</name>
     <message>
         <source>%1 s</source>
-        <translatorcomment>Draft from Figma example "1 s" - review</translatorcomment><translation type="unfinished">%1 s</translation>
+        <translation>%1 s</translation>
     </message>
     <message>
         <source>%1 min %2 s</source>
-        <translation type="unfinished" />
+        <translation>%1 min %2 s</translation>
     </message>
     <message>
         <source>Go here</source>
@@ -4093,74 +4093,74 @@
     </message>
     <message>
         <source>Height above home</source>
-        <translation type="unfinished" />
+        <translation>Højde over hjem</translation>
     </message>
     <message>
         <source>Now %1 · allowed %2 – %3</source>
-        <translation type="unfinished" />
+        <translation>Nu %1 · tilladt %2 – %3</translation>
     </message>
     <message>
         <source>The drone flies straight to the pin (%1, about %2) and holds position there.</source>
-        <translation type="unfinished" />
+        <translation>Dronen flyver lige til nålen (%1, ca. %2) og holder positionen der.</translation>
     </message>
     <message>
         <source>Obstacle detection on — the drone stops in front of obstacles.</source>
-        <translation type="unfinished" />
+        <translation>Forhindringsdetektion til — dronen stopper foran forhindringer.</translation>
     </message>
     <message>
         <source>This drone cannot detect obstacles. Check that the way is clear.</source>
-        <translation type="unfinished" />
+        <translation>Denne drone kan ikke registrere forhindringer. Kontrollér, at vejen er fri.</translation>
     </message>
     <message>
         <source>Slide to go</source>
-        <translation type="unfinished" />
+        <translation>Skub for at flyve</translation>
     </message>
     <message>
         <source>Height is above the home point, not above the ground. Check for hills and buildings on the way.</source>
-        <translation type="unfinished" />
+        <translation>Højden er over hjemstedet, ikke over jorden. Hold øje med bakker og bygninger på vejen.</translation>
     </message>
 </context>
 <context>
     <name>SimpleMapTapMenu</name>
     <message>
         <source>No drone connected</source>
-        <translation type="unfinished" />
+        <translation>Ingen drone forbundet</translation>
     </message>
     <message>
         <source>Not available while the signal is lost</source>
-        <translation type="unfinished" />
+        <translation>Ikke tilgængelig, mens signalet er tabt</translation>
     </message>
     <message>
         <source>Available after take-off</source>
-        <translation type="unfinished" />
+        <translation>Tilgængelig efter start</translation>
     </message>
     <message>
         <source>Not available now</source>
-        <translation type="unfinished" />
+        <translation>Ikke tilgængelig nu</translation>
     </message>
     <message>
         <source>Drone position unknown</source>
-        <translation type="unfinished" />
+        <translation>Dronens position ukendt</translation>
     </message>
     <message>
         <source>Inside %1 — the drone may not fly there</source>
-        <translation type="unfinished" />
+        <translation>Inde i %1 — dronen må ikke flyve der</translation>
     </message>
     <message>
         <source>a prohibited zone</source>
-        <translation type="unfinished" />
+        <translation>en forbudt zone</translation>
     </message>
     <message>
         <source>The way crosses %1 — choose another point</source>
-        <translation type="unfinished" />
+        <translation>Vejen krydser %1 — vælg et andet punkt</translation>
     </message>
     <message>
         <source>Too far — Go here reaches up to %1</source>
-        <translation type="unfinished" />
+        <translation>For langt — Flyv hertil rækker op til %1</translation>
     </message>
     <message>
         <source>%1 away · %2°</source>
-        <translatorcomment>Draft from Figma example "360 m away · 52°" - review</translatorcomment><translation type="unfinished">%1 væk · %2°</translation>
+        <translation>%1 væk · %2°</translation>
     </message>
     <message>
         <source>Prohibited</source>
@@ -4172,7 +4172,7 @@
     </message>
     <message>
         <source>My zone</source>
-        <translation type="unfinished" />
+        <translation>Min zone</translation>
     </message>
     <message>
         <source>Information</source>
@@ -4180,7 +4180,7 @@
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished" />
+        <translation>Detaljer</translation>
     </message>
     <message>
         <source>Go here</source>
@@ -4188,7 +4188,7 @@
     </message>
     <message>
         <source>Fly to this point at %1</source>
-        <translatorcomment>Draft from Figma example "Fly to this point at 42 m" - review</translatorcomment><translation type="unfinished">Flyv til dette punkt i %1</translation>
+        <translation>Flyv til dette punkt i %1</translation>
     </message>
     <message>
         <source>Set as home point</source>
@@ -4208,18 +4208,18 @@
     </message>
     <message>
         <source>Outside the geofence or in an excluded area — choose another point</source>
-        <translation type="unfinished" />
+        <translation>Uden for geofencen eller i et udelukket område — vælg et andet punkt</translation>
     </message>
 </context>
 <context>
     <name>SimplePayloadPanel</name>
     <message>
         <source>%1 W · cable %2 m · spool %3 °C</source>
-        <translation type="unfinished" />
+        <translation>%1 W · kabel %2 m · spole %3 °C</translation>
     </message>
     <message>
         <source>%1 of 11</source>
-        <translation type="unfinished" />
+        <translation>%1 af 11</translation>
     </message>
     <message>
         <source>Automatic torque</source>
@@ -4231,27 +4231,27 @@
     </message>
     <message>
         <source>Clip %1</source>
-        <translation type="unfinished" />
+        <translation>Klip %1</translation>
     </message>
     <message>
         <source>Drone not connected</source>
-        <translation type="unfinished" />
+        <translation>Drone ikke forbundet</translation>
     </message>
     <message>
         <source>Hold 2 s to drop the life jacket</source>
-        <translation type="unfinished" />
+        <translation>Hold 2 s for at slippe redningsvesten</translation>
     </message>
     <message>
         <source>Hold 2 s to stop</source>
-        <translation type="unfinished" />
+        <translation>Hold 2 s for at stoppe</translation>
     </message>
     <message>
         <source>Hook</source>
-        <translation type="unfinished" />
+        <translation>Hægt på</translation>
     </message>
     <message>
         <source>Hooked</source>
-        <translation type="unfinished" />
+        <translation>Hægtet på</translation>
     </message>
     <message>
         <source>INS not locked — fly the init path first</source>
@@ -4259,23 +4259,23 @@
     </message>
     <message>
         <source>Inspection / Surveillance</source>
-        <translation type="unfinished" />
+        <translation>Inspektion / overvågning</translation>
     </message>
     <message>
         <source>Life jacket</source>
-        <translation type="unfinished" />
+        <translation>Redningsvest</translation>
     </message>
     <message>
         <source>Light</source>
-        <translation type="unfinished" />
+        <translation>Lys</translation>
     </message>
     <message>
         <source>Link lost</source>
-        <translation type="unfinished" />
+        <translation>Forbindelse tabt</translation>
     </message>
     <message>
         <source>Mapping</source>
-        <translation type="unfinished" />
+        <translation>Kortlægning</translation>
     </message>
     <message>
         <source>Megaphone</source>
@@ -4283,15 +4283,15 @@
     </message>
     <message>
         <source>No payload connected. Payloads are set up in Settings › Payloads.</source>
-        <translation type="unfinished" />
+        <translation>Ingen nyttelast forbundet. Nyttelast opsættes under Indstillinger › Nyttelast.</translation>
     </message>
     <message>
         <source>No power</source>
-        <translation type="unfinished" />
+        <translation>Ingen strøm</translation>
     </message>
     <message>
         <source>No reply</source>
-        <translation type="unfinished" />
+        <translation>Intet svar</translation>
     </message>
     <message>
         <source>Not connected</source>
@@ -4299,7 +4299,7 @@
     </message>
     <message>
         <source>Not ready</source>
-        <translation type="unfinished" />
+        <translation>Ikke klar</translation>
     </message>
     <message>
         <source>Off</source>
@@ -4319,7 +4319,7 @@
     </message>
     <message>
         <source>Power off</source>
-        <translation type="unfinished" />
+        <translation>Sluk</translation>
     </message>
     <message>
         <source>Power on</source>
@@ -4327,11 +4327,11 @@
     </message>
     <message>
         <source>Powered off</source>
-        <translation type="unfinished" />
+        <translation>Slukket</translation>
     </message>
     <message>
         <source>Profile: %1 · %2 connected</source>
-        <translation type="unfinished" />
+        <translation>Profil: %1 · %2 forbundet</translation>
     </message>
     <message>
         <source>Ready</source>
@@ -4339,15 +4339,15 @@
     </message>
     <message>
         <source>Recording %1</source>
-        <translatorcomment>Draft from Figma example "Recording format" - review</translatorcomment><translation type="unfinished">Optage%1</translation>
+        <translation>Optager %1</translation>
     </message>
     <message>
         <source>Release works in flight, or on the ground with the motors stopped.</source>
-        <translation type="unfinished" />
+        <translation>Udløsning virker under flyvning eller på jorden med motorerne stoppet.</translation>
     </message>
     <message>
         <source>Released</source>
-        <translation type="unfinished" />
+        <translation>Udløst</translation>
     </message>
     <message>
         <source>Searchlight</source>
@@ -4359,15 +4359,15 @@
     </message>
     <message>
         <source>Starting…</source>
-        <translation type="unfinished" />
+        <translation>Starter…</translation>
     </message>
     <message>
         <source>Stopping…</source>
-        <translation type="unfinished" />
+        <translation>Stopper…</translation>
     </message>
     <message>
         <source>Tether station</source>
-        <translation type="unfinished" />
+        <translation>Tether-station</translation>
     </message>
     <message>
         <source>Tether</source>
@@ -4375,11 +4375,11 @@
     </message>
     <message>
         <source>The LiDAR is not ready yet</source>
-        <translation type="unfinished" />
+        <translation>LiDAR er endnu ikke klar</translation>
     </message>
     <message>
         <source>The speaker does not report back: the status only shows that the command was sent.</source>
-        <translation type="unfinished" />
+        <translation>Højttaleren melder ikke tilbage: status viser kun, at kommandoen er sendt.</translation>
     </message>
     <message>
         <source>Turn the power on before take-off.</source>
@@ -4387,7 +4387,7 @@
     </message>
     <message>
         <source>Waiting for the station…</source>
-        <translation type="unfinished" />
+        <translation>Venter på stationen…</translation>
     </message>
     <message>
         <source>Winch</source>
@@ -4399,11 +4399,11 @@
     </message>
     <message>
         <source>applied %1 %</source>
-        <translatorcomment>Draft from Figma example "applied 30 %" - review</translatorcomment><translation type="unfinished">%1 % anvendt</translation>
+        <translation>anvendt %1 %</translation>
     </message>
     <message>
         <source>Hold %1 s to release</source>
-        <translatorcomment>Draft from Figma example "Hold 2 s to release" - review</translatorcomment><translation type="unfinished">Hold %1 s for at udløse</translation>
+        <translation>Hold %1 s for at udløse</translation>
     </message>
     <message>
         <source>No response</source>
@@ -4411,51 +4411,51 @@
     </message>
     <message>
         <source>Status delayed</source>
-        <translation type="unfinished" />
+        <translation>Status forsinket</translation>
     </message>
     <message>
         <source>Start refused by the LiDAR: %1 (%2)</source>
-        <translation type="unfinished" />
+        <translation>Start afvist af LiDAR: %1 (%2)</translation>
     </message>
     <message>
         <source>Start refused by the LiDAR: %1</source>
-        <translation type="unfinished" />
+        <translation>Start afvist af LiDAR: %1</translation>
     </message>
     <message>
         <source>The LiDAR does not report data logging since Start. Check the USB stick.</source>
-        <translation type="unfinished" />
+        <translation>LiDAR melder ingen datalogning siden Start. Kontrollér USB-stikket.</translation>
     </message>
     <message>
         <source>Start (retry)</source>
-        <translation type="unfinished" />
+        <translation>Start (prøv igen)</translation>
     </message>
     <message>
         <source>Hold 2 s to stop · %1 of %2 lines left</source>
-        <translatorcomment>Draft from Figma example "Hold 2 s to stop · 4 of 9 lines left" - review</translatorcomment><translation type="unfinished">Hold 2 s: stop · %1/%2 tilbage</translation>
+        <translation>Hold 2 s for at stoppe · %1 af %2 linjer tilbage</translation>
     </message>
     <message>
         <source>Last status %1. Stop is still sent; the card returns when the LiDAR answers.</source>
-        <translatorcomment>Draft from Figma example "Last status 09:58. Stop is still sent; the card returns when the LiDAR answers." - review</translatorcomment><translation type="unfinished">Sidste status %1. Stop sendes stadig; kortet vender tilbage, når LiDAR svarer.</translation>
+        <translation>Sidste status %1. Stop sendes stadig; panelet vender tilbage, når LiDAR svarer.</translation>
     </message>
     <message>
         <source>Started %1 · %2 recorded</source>
-        <translation type="unfinished" />
+        <translation>Startet %1 · %2 optaget</translation>
     </message>
     <message>
         <source>line %1 of %2</source>
-        <translation type="unfinished" />
+        <translation>linje %1 af %2</translation>
     </message>
     <message>
         <source>Torque is locked until the station link is connected.</source>
-        <translation type="unfinished" />
+        <translation>Momentet er låst, indtil stationsforbindelsen er oprettet.</translation>
     </message>
     <message>
         <source>Turn on automatic torque to change the torque.</source>
-        <translation type="unfinished" />
+        <translation>Slå automatisk moment til for at ændre momentet.</translation>
     </message>
     <message>
         <source>The station does not report the torque. ‹ sets 0, › sets 1 of 10.</source>
-        <translation type="unfinished" />
+        <translation>Stationen melder ikke momentet. ‹ sætter 0, › sætter 1 af 10.</translation>
     </message>
 </context>
 <context>
@@ -4466,15 +4466,15 @@
     </message>
     <message>
         <source>No SD card</source>
-        <translation type="unfinished" />
+        <translation>Intet SD-kort</translation>
     </message>
     <message>
         <source>SD card not formatted</source>
-        <translation type="unfinished" />
+        <translation>SD-kort ikke formateret</translation>
     </message>
     <message>
         <source>SD card full</source>
-        <translation type="unfinished" />
+        <translation>SD-kort fuldt</translation>
     </message>
     <message>
         <source>Align</source>
@@ -4485,7 +4485,7 @@
     <name>SimpleCameraSheet</name>
     <message>
         <source>%1 free</source>
-        <translatorcomment>Draft from Figma example "41 GB free" - review</translatorcomment><translation type="unfinished">%1 ledig</translation>
+        <translation>%1 ledig</translation>
     </message>
     <message>
         <source>Auto photos</source>
@@ -4541,11 +4541,11 @@
     </message>
     <message>
         <source>The drone reports no camera with settings. Camera &amp; gimbal payloads are set up in Settings › Payloads.</source>
-        <translation type="unfinished" />
+        <translation>Dronen melder intet kamera med indstillinger. Kamera &amp; gimbal-nyttelast opsættes under Indstillinger › Nyttelast.</translation>
     </message>
     <message>
         <source>Thermal palette</source>
-        <translation type="unfinished" />
+        <translation>Termisk palet</translation>
     </message>
     <message>
         <source>Video</source>
@@ -4560,7 +4560,7 @@
     <name>SimpleTetherCard</name>
     <message>
         <source>Alarm</source>
-        <translation type="unfinished" />
+        <translation>Alarm</translation>
     </message>
     <message>
         <source>Backup battery</source>
@@ -4572,11 +4572,11 @@
     </message>
     <message>
         <source>Caution</source>
-        <translation type="unfinished" />
+        <translation>Forsigtig</translation>
     </message>
     <message>
         <source>Check</source>
-        <translation type="unfinished" />
+        <translation>Kontrollér</translation>
     </message>
     <message>
         <source>Ground power</source>
@@ -4588,7 +4588,7 @@
     </message>
     <message>
         <source>No data</source>
-        <translation type="unfinished" />
+        <translation>Ingen data</translation>
     </message>
     <message>
         <source>Normal</source>
@@ -4612,7 +4612,7 @@
     </message>
     <message>
         <source>Station lost</source>
-        <translation type="unfinished" />
+        <translation>Station tabt</translation>
     </message>
     <message>
         <source>Tension</source>
@@ -4624,14 +4624,14 @@
     </message>
     <message>
         <source>alarm %1 m</source>
-        <translation type="unfinished" />
+        <translation>alarm %1 m</translation>
     </message>
 </context>
 <context>
     <name>SimpleWaypointEditor</name>
     <message>
         <source>&lt;1 min</source>
-        <translation type="unfinished" />
+        <translation>&lt;1 min</translation>
     </message>
     <message>
         <source>Add point</source>
@@ -4647,7 +4647,7 @@
     </message>
     <message>
         <source>Direction</source>
-        <translation type="unfinished" />
+        <translation>Retning</translation>
     </message>
     <message>
         <source>Drone faces</source>
@@ -4659,7 +4659,7 @@
     </message>
     <message>
         <source>Height is above the take-off point · max %1 m.</source>
-        <translation type="unfinished" />
+        <translation>Højden er over startpunktet · maks. %1 m.</translation>
     </message>
     <message>
         <source>Height profile</source>
@@ -4679,7 +4679,7 @@
     </message>
     <message>
         <source>No point yet</source>
-        <translation type="unfinished" />
+        <translation>Intet punkt endnu</translation>
     </message>
     <message>
         <source>Nothing</source>
@@ -4691,7 +4691,7 @@
     </message>
     <message>
         <source>Point %1: too close to the ground</source>
-        <translation type="unfinished" />
+        <translation>Punkt %1: for tæt på jorden</translation>
     </message>
     <message>
         <source>Speed</source>
@@ -4707,7 +4707,7 @@
     </message>
     <message>
         <source>Tap the map to add points. Drag a point to move it.</source>
-        <translation type="unfinished" />
+        <translation>Tryk på kortet for at tilføje punkter. Træk et punkt for at flytte det.</translation>
     </message>
     <message>
         <source>Undo</source>
@@ -4719,50 +4719,50 @@
     </message>
     <message>
         <source>Point %1 (%2 of %3)</source>
-        <translation type="unfinished" />
+        <translation>Punkt %1 (%2 af %3)</translation>
     </message>
     <message>
         <source>about %1 min</source>
-        <translation type="unfinished" />
+        <translation>ca. %1 min</translation>
     </message>
     <message>
         <source>batteries: %1</source>
-        <translation type="unfinished" />
+        <translation>batterier: %1</translation>
     </message>
     <message>
         <source>battery not estimated</source>
-        <translation type="unfinished" />
+        <translation>batteri ikke estimeret</translation>
     </message>
     <message>
         <source>route %1 km · %2 · %3</source>
-        <translation type="unfinished" />
+        <translation>rute %1 km · %2 · %3</translation>
     </message>
 </context>
 <context>
     <name>SimpleSavedMissions</name>
     <message>
         <source>%1 items</source>
-        <translation type="unfinished" />
+        <translation>%1 elementer</translation>
     </message>
     <message>
         <source>%1 missions on this tablet</source>
-        <translation type="unfinished" />
+        <translation>%1 missioner på denne tablet</translation>
     </message>
     <message>
         <source>%1 photos</source>
-        <translatorcomment>Draft from Figma example "Auto photos" - review</translatorcomment><translation type="unfinished">%1matiske fotos</translation>
+        <translation>%1 fotos</translation>
     </message>
     <message>
         <source>%1 points</source>
-        <translation type="unfinished" />
+        <translation>%1 punkter</translation>
     </message>
     <message>
         <source>A mission already sent to the drone stays on the drone.</source>
-        <translation type="unfinished" />
+        <translation>En mission, der allerede er sendt til dronen, bliver på dronen.</translation>
     </message>
     <message>
         <source>A mission with this name already exists.</source>
-        <translation type="unfinished" />
+        <translation>Der findes allerede en mission med dette navn.</translation>
     </message>
     <message>
         <source>Area mapping</source>
@@ -4774,7 +4774,7 @@
     </message>
     <message>
         <source>Delete “%1”?</source>
-        <translation type="unfinished" />
+        <translation>Slet „%1“?</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -4782,7 +4782,7 @@
     </message>
     <message>
         <source>Export a copy</source>
-        <translation type="unfinished" />
+        <translation>Eksportér en kopi</translation>
     </message>
     <message>
         <source>Export</source>
@@ -4794,7 +4794,7 @@
     </message>
     <message>
         <source>Import a mission</source>
-        <translation type="unfinished" />
+        <translation>Importér en mission</translation>
     </message>
     <message>
         <source>Import file</source>
@@ -4802,7 +4802,7 @@
     </message>
     <message>
         <source>Loading…</source>
-        <translation type="unfinished" />
+        <translation>Indlæser…</translation>
     </message>
     <message>
         <source>Mission</source>
@@ -4818,7 +4818,7 @@
     </message>
     <message>
         <source>No saved missions yet. Save a mission from the plan screen, or import a .plan or .kml file.</source>
-        <translation type="unfinished" />
+        <translation>Ingen gemte missioner endnu. Gem en mission fra planskærmen, eller importér en .plan- eller .kml-fil.</translation>
     </message>
     <message>
         <source>Open</source>
@@ -4826,7 +4826,7 @@
     </message>
     <message>
         <source>Rename mission</source>
-        <translation type="unfinished" />
+        <translation>Omdøb mission</translation>
     </message>
     <message>
         <source>Rename</source>
@@ -4842,7 +4842,7 @@
     </message>
     <message>
         <source>Slide to delete</source>
-        <translation type="unfinished" />
+        <translation>Skub for at slette</translation>
     </message>
     <message>
         <source>Structure scan</source>
@@ -4850,11 +4850,11 @@
     </message>
     <message>
         <source>Tap to see the details</source>
-        <translation type="unfinished" />
+        <translation>Tryk for at se detaljerne</translation>
     </message>
     <message>
         <source>The mission file is removed from this tablet. This cannot be undone.</source>
-        <translation type="unfinished" />
+        <translation>Missionsfilen fjernes fra denne tablet. Dette kan ikke fortrydes.</translation>
     </message>
     <message>
         <source>Waypoint flight</source>
@@ -4862,7 +4862,7 @@
     </message>
     <message>
         <source>%1 min</source>
-        <translatorcomment>Draft from Figma example "11 min" - review</translatorcomment><translation type="unfinished">%1 min</translation>
+        <translation>%1 min</translation>
     </message>
     <message>
         <source>Import: .plan (QGC) · .kml with an area (Google Earth)</source>
@@ -4870,11 +4870,11 @@
     </message>
     <message>
         <source>No mission name contains “%1”.</source>
-        <translation type="unfinished" />
+        <translation>Intet missionsnavn indeholder „%1“.</translation>
     </message>
     <message>
         <source>This file could not be read.</source>
-        <translation type="unfinished" />
+        <translation>Denne fil kunne ikke læses.</translation>
     </message>
     <message>
         <source>LiDAR survey</source>
@@ -4882,18 +4882,18 @@
     </message>
     <message>
         <source>%1 items — too many to preview here. Open shows the whole mission.</source>
-        <translation type="unfinished" />
+        <translation>%1 elementer — for mange til at vise her. Åbn viser hele missionen.</translation>
     </message>
 </context>
 <context>
     <name>SimpleScanSettings</name>
     <message>
         <source>&lt;1 min</source>
-        <translation type="unfinished" />
+        <translation>&lt;1 min</translation>
     </message>
     <message>
         <source>%1 min</source>
-        <translatorcomment>Draft from Figma example "11 min" - review</translatorcomment><translation type="unfinished">%1 min</translation>
+        <translation>%1 min</translation>
     </message>
     <message>
         <source>Flight height</source>
@@ -4901,11 +4901,11 @@
     </message>
     <message>
         <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translatorcomment>Draft from Figma example "Photo detail ≈ 2.2 cm per pixel · limited to 120 m" - review</translatorcomment><translation type="unfinished">Fotodetalje ≈ %1 pr. pixel  ·  begrænset til %2 m</translation>
+        <translation>Fotodetalje ≈ %1 pr. pixel · begrænset til %2 m</translation>
     </message>
     <message>
         <source>Limited to %1 m (maximum altitude)</source>
-        <translation type="unfinished" />
+        <translation>Begrænset til %1 m (maks. højde)</translation>
     </message>
     <message>
         <source>Corridor width</source>
@@ -4913,7 +4913,7 @@
     </message>
     <message>
         <source>Strip mapped on both sides of the line (%1 m each side)</source>
-        <translatorcomment>Draft from Figma example "Strip mapped on both sides of the line (20 m each side)" - review</translatorcomment><translation type="unfinished">Strimmel kortlagt på begge sider af linjen (%1 m på hver side)</translation>
+        <translation>Strimmel kortlagt på begge sider af linjen (%1 m på hver side)</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -4929,11 +4929,11 @@
     </message>
     <message>
         <source>Structure outline</source>
-        <translation type="unfinished" />
+        <translation>Bygværkets omrids</translation>
     </message>
     <message>
         <source>Rectangle</source>
-        <translation type="unfinished" />
+        <translation>Rektangel</translation>
     </message>
     <message>
         <source>Circle</source>
@@ -4941,7 +4941,7 @@
     </message>
     <message>
         <source>Draw</source>
-        <translation type="unfinished" />
+        <translation>Tegn</translation>
     </message>
     <message>
         <source>Distance from structure</source>
@@ -4949,7 +4949,7 @@
     </message>
     <message>
         <source>Closer than 10 m: the drone may touch the structure in wind.</source>
-        <translation type="unfinished" />
+        <translation>Tættere end 10 m: dronen kan røre bygværket i vind.</translation>
     </message>
     <message>
         <source>Bottom height</source>
@@ -4977,7 +4977,7 @@
     </message>
     <message>
         <source>Slightly down · −15°</source>
-        <translation type="unfinished" />
+        <translation>Lidt nedad · −15°</translation>
     </message>
     <message>
         <source>FLIGHT TIME</source>
@@ -5005,7 +5005,7 @@
     </message>
     <message>
         <source>Line spacing %1 m · limited to %2 m</source>
-        <translatorcomment>Draft from Figma example "Line spacing 18 m · limited to 120 m" - review</translatorcomment><translation type="unfinished">Linjeafstand %1 m · begrænset til %2 m</translation>
+        <translation>Linjeafstand %1 m · begrænset til %2 m</translation>
     </message>
     <message>
         <source>Speed</source>
@@ -5017,11 +5017,11 @@
     </message>
     <message>
         <source>50 % · Standard</source>
-        <translation type="unfinished" />
+        <translation>50 % · Standard</translation>
     </message>
     <message>
         <source>70 % · Dense</source>
-        <translation type="unfinished" />
+        <translation>70 % · Tæt</translation>
     </message>
     <message>
         <source>Init path before and after</source>
@@ -5029,15 +5029,15 @@
     </message>
     <message>
         <source>Figure 8 to settle the INS (required for good data)</source>
-        <translation type="unfinished" />
+        <translation>Ottetal for at stabilisere INS (kræves for gode data)</translation>
     </message>
     <message>
         <source>Without the init path the LiDAR data may be poor.</source>
-        <translation type="unfinished" />
+        <translation>Uden init-ruten kan LiDAR-dataene blive dårlige.</translation>
     </message>
     <message>
         <source>Needs %1 batteries — plan a battery change.</source>
-        <translation type="unfinished" />
+        <translation>Kræver %1 batterier — planlæg et batteriskift.</translation>
     </message>
     <message>
         <source>AREA</source>
@@ -5045,7 +5045,7 @@
     </message>
     <message>
         <source>SPACING</source>
-        <translation type="unfinished" />
+        <translation>LINJEAFSTAND</translation>
     </message>
 </context>
 <context>
@@ -5056,51 +5056,51 @@
     </message>
     <message>
         <source>Key mismatch</source>
-        <translation type="unfinished" />
+        <translation>Nøglen passer ikke</translation>
     </message>
     <message>
         <source>Key set</source>
-        <translation type="unfinished" />
+        <translation>Nøgle angivet</translation>
     </message>
     <message>
         <source>No key</source>
-        <translation type="unfinished" />
+        <translation>Ingen nøgle</translation>
     </message>
     <message>
         <source>Not protected</source>
-        <translation type="unfinished" />
+        <translation>Ikke beskyttet</translation>
     </message>
     <message>
         <source>Connect the drone first.</source>
-        <translation type="unfinished" />
+        <translation>Forbind dronen først.</translation>
     </message>
     <message>
         <source>Land and turn the motors off first.</source>
-        <translation type="unfinished" />
+        <translation>Land, og sluk motorerne først.</translation>
     </message>
     <message>
         <source>Connect the drone with a USB cable to set the key. Over the radio the key would travel unprotected.</source>
-        <translation type="unfinished" />
+        <translation>Forbind dronen med et USB-kabel for at angive nøglen. Via radioen ville nøglen blive sendt ubeskyttet.</translation>
     </message>
     <message>
         <source>The drone accepted the key. This link is now protected.</source>
-        <translation type="unfinished" />
+        <translation>Dronen accepterede nøglen. Denne forbindelse er nu beskyttet.</translation>
     </message>
     <message>
         <source>The drone did not accept the key. Check the firmware supports MAVLink signing and try again over USB.</source>
-        <translation type="unfinished" />
+        <translation>Dronen accepterede ikke nøglen. Kontrollér, at firmwaren understøtter MAVLink-signering, og prøv igen via USB.</translation>
     </message>
     <message>
         <source>The drone did not accept the new key, so the app went back to the old key.</source>
-        <translation type="unfinished" />
+        <translation>Dronen accepterede ikke den nye nøgle, så appen gik tilbage til den gamle nøgle.</translation>
     </message>
     <message>
         <source>The key was removed from the drone and from this app.</source>
-        <translation type="unfinished" />
+        <translation>Nøglen blev fjernet fra dronen og fra denne app.</translation>
     </message>
     <message>
         <source>The key was deleted from this app. Paired drones must be paired again.</source>
-        <translation type="unfinished" />
+        <translation>Nøglen blev slettet fra denne app. Parrede droner skal parres igen.</translation>
     </message>
     <message>
         <source>Connection</source>
@@ -5120,11 +5120,11 @@
     </message>
     <message>
         <source>Signed with a key shared by this app and the drone · key %1, set %2</source>
-        <translatorcomment>Draft from Figma example "Signed with a key shared by this app and the drone · key 4F2A…9C1D, set 2026-11-16" - review</translatorcomment><translation type="unfinished">Signeret med en nøgle delt af denne app og dronen · nøgle %1, sat %2</translation>
+        <translation>Signeret med en nøgle delt af denne app og dronen · nøgle %1, sat %2</translation>
     </message>
     <message>
         <source>No key yet: anyone on the radio network could send commands to the drone.</source>
-        <translation type="unfinished" />
+        <translation>Ingen nøgle endnu: alle på radionetværket kan sende kommandoer til dronen.</translation>
     </message>
     <message>
         <source>Change key</source>
@@ -5132,27 +5132,27 @@
     </message>
     <message>
         <source>Set key</source>
-        <translation type="unfinished" />
+        <translation>Angiv nøgle</translation>
     </message>
     <message>
         <source>This drone uses another key and ignores this app's commands. Change or remove its key with the tablet that paired it, or reset the drone's key over USB.</source>
-        <translation type="unfinished" />
+        <translation>Denne drone bruger en anden nøgle og ignorerer denne apps kommandoer. Skift eller fjern dens nøgle med den tablet, der parrede den, eller nulstil dronens nøgle via USB.</translation>
     </message>
     <message>
         <source>Waiting for the drone to answer with the new key…</source>
-        <translation type="unfinished" />
+        <translation>Venter på, at dronen svarer med den nye nøgle…</translation>
     </message>
     <message>
         <source>A new key is sent to this drone and used from now on. Other drones paired with the old key must be paired again.</source>
-        <translation type="unfinished" />
+        <translation>En ny nøgle sendes til denne drone og bruges fra nu af. Andre droner parret med den gamle nøgle skal parres igen.</translation>
     </message>
     <message>
         <source>A new key is made on this tablet and sent to the drone. From then on the drone only obeys this app (and others with the same key).</source>
-        <translation type="unfinished" />
+        <translation>En ny nøgle oprettes på denne tablet og sendes til dronen. Derefter adlyder dronen kun denne app (og andre med samme nøgle).</translation>
     </message>
     <message>
         <source>Send a new key</source>
-        <translation type="unfinished" />
+        <translation>Send en ny nøgle</translation>
     </message>
     <message>
         <source>Send the key</source>
@@ -5160,7 +5160,7 @@
     </message>
     <message>
         <source>Remove key</source>
-        <translation type="unfinished" />
+        <translation>Fjern nøgle</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -5184,7 +5184,7 @@
     </message>
     <message>
         <source>User name and password are sent without encryption (NTRIP 1)</source>
-        <translation type="unfinished" />
+        <translation>Brugernavn og adgangskode sendes ukrypteret (NTRIP 1)</translation>
     </message>
     <message>
         <source>Flight zone service · Altitude Angel</source>
@@ -5200,19 +5200,19 @@
     </message>
     <message>
         <source>The radio showed a different certificate, so the app does not log in. Check the radio before flying.</source>
-        <translation type="unfinished" />
+        <translation>Radioen viste et andet certifikat, så appen logger ikke ind. Kontrollér radioen før flyvning.</translation>
     </message>
     <message>
         <source>Radio login · the factory password is still in use</source>
-        <translation type="unfinished" />
+        <translation>Radiologin · fabriksadgangskoden bruges stadig</translation>
     </message>
     <message>
         <source>Radio login · own password set</source>
-        <translation type="unfinished" />
+        <translation>Radiologin · egen adgangskode angivet</translation>
     </message>
     <message>
         <source>Certificate changed</source>
-        <translation type="unfinished" />
+        <translation>Certifikat ændret</translation>
     </message>
     <message>
         <source>Change needed</source>
@@ -5228,15 +5228,15 @@
     </message>
     <message>
         <source>The radio uses the new password. It is kept in this tablet's secure store.</source>
-        <translation type="unfinished" />
+        <translation>Radioen bruger den nye adgangskode. Den opbevares i tablettens sikre lager.</translation>
     </message>
     <message>
         <source>The radio did not take the new password. The old password still works.</source>
-        <translation type="unfinished" />
+        <translation>Radioen accepterede ikke den nye adgangskode. Den gamle adgangskode virker stadig.</translation>
     </message>
     <message>
         <source>Sending the new password to the radio…</source>
-        <translation type="unfinished" />
+        <translation>Sender den nye adgangskode til radioen…</translation>
     </message>
     <message>
         <source>New password</source>
@@ -5248,11 +5248,11 @@
     </message>
     <message>
         <source>At least 8 characters.</source>
-        <translation type="unfinished" />
+        <translation>Mindst 8 tegn.</translation>
     </message>
     <message>
         <source>The two passwords are not the same.</source>
-        <translation type="unfinished" />
+        <translation>De to adgangskoder er ikke ens.</translation>
     </message>
     <message>
         <source>At least 8 characters. Write it down: the radio's web page uses it too.</source>
@@ -5287,27 +5287,27 @@
     <name>SimpleSecurityPrivacy</name>
     <message>
         <source>radio password</source>
-        <translation type="unfinished" />
+        <translation>radioadgangskode</translation>
     </message>
     <message>
         <source>map tokens</source>
-        <translation type="unfinished" />
+        <translation>korttokens</translation>
     </message>
     <message>
         <source>link key</source>
-        <translation type="unfinished" />
+        <translation>forbindelsesnøgle</translation>
     </message>
     <message>
         <source>Nothing stored</source>
-        <translation type="unfinished" />
+        <translation>Intet gemt</translation>
     </message>
     <message>
         <source>stored in the app's private storage</source>
-        <translation type="unfinished" />
+        <translation>gemt i appens private lager</translation>
     </message>
     <message>
         <source>stored encrypted</source>
-        <translation type="unfinished" />
+        <translation>gemt krypteret</translation>
     </message>
     <message>
         <source>Flight logs</source>
@@ -5315,7 +5315,7 @@
     </message>
     <message>
         <source>%1 files · %2</source>
-        <translatorcomment>Draft from Figma example "14 files · 410 MB" - review</translatorcomment><translation type="unfinished">%1 filer · %2</translation>
+        <translation>%1 filer · %2</translation>
     </message>
     <message>
         <source>Videos and photos</source>
@@ -5327,7 +5327,7 @@
     </message>
     <message>
         <source>%1 missions · %2</source>
-        <translatorcomment>Draft from Figma example "24 missions · 3 MB" - review</translatorcomment><translation type="unfinished">%1 missioner · %2</translation>
+        <translation>%1 missioner · %2</translation>
     </message>
     <message>
         <source>Map cache</source>
@@ -5335,7 +5335,7 @@
     </message>
     <message>
         <source>%1 areas · %2</source>
-        <translation type="unfinished" />
+        <translation>%1 områder · %2</translation>
     </message>
     <message>
         <source>Accounts and keys</source>
@@ -5343,11 +5343,11 @@
     </message>
     <message>
         <source>No security events yet</source>
-        <translation type="unfinished" />
+        <translation>Ingen sikkerhedshændelser endnu</translation>
     </message>
     <message>
         <source>Last: %1</source>
-        <translation type="unfinished" />
+        <translation>Senest: %1</translation>
     </message>
     <message>
         <source>About &amp; support</source>
@@ -5371,11 +5371,11 @@
     </message>
     <message>
         <source>Deleted. Restart the app to finish: the app settings are cleared at the next start.</source>
-        <translation type="unfinished" />
+        <translation>Slettet. Genstart appen for at afslutte: app-indstillingerne ryddes ved næste start.</translation>
     </message>
     <message>
         <source>The selected data was deleted from this tablet.</source>
-        <translation type="unfinished" />
+        <translation>De valgte data blev slettet fra denne tablet.</translation>
     </message>
     <message>
         <source>THIS APP</source>
@@ -5383,11 +5383,11 @@
     </message>
     <message>
         <source>Signed by %1</source>
-        <translatorcomment>Draft from Figma example "Signed by ARGOSDYNE" - review</translatorcomment><translation type="unfinished">Signeret af %1</translation>
+        <translation>Signeret af %1</translation>
     </message>
     <message>
         <source>App signature</source>
-        <translation type="unfinished" />
+        <translation>App-signatur</translation>
     </message>
     <message>
         <source>Installer and app checked by Windows / Android</source>
@@ -5395,19 +5395,19 @@
     </message>
     <message>
         <source>Android checks the app signature when it is installed</source>
-        <translation type="unfinished" />
+        <translation>Android kontrollerer app-signaturen ved installation</translation>
     </message>
     <message>
         <source>This build has no code signature (test build). Install only builds from ARGOSDYNE.</source>
-        <translation type="unfinished" />
+        <translation>Denne build har ingen kodesignatur (testbuild). Installér kun builds fra ARGOSDYNE.</translation>
     </message>
     <message>
         <source>The signature of this app is not valid. Reinstall it from ARGOSDYNE.</source>
-        <translation type="unfinished" />
+        <translation>Signaturen på denne app er ikke gyldig. Geninstallér den fra ARGOSDYNE.</translation>
     </message>
     <message>
         <source>Checking…</source>
-        <translation type="unfinished" />
+        <translation>Kontrollerer…</translation>
     </message>
     <message>
         <source>Verified</source>
@@ -5415,15 +5415,15 @@
     </message>
     <message>
         <source>Android</source>
-        <translation type="unfinished" />
+        <translation>Android</translation>
     </message>
     <message>
         <source>Not signed</source>
-        <translation type="unfinished" />
+        <translation>Ikke signeret</translation>
     </message>
     <message>
         <source>Not valid</source>
-        <translation type="unfinished" />
+        <translation>Ikke gyldig</translation>
     </message>
     <message>
         <source>Security updates</source>
@@ -5467,7 +5467,7 @@
     </message>
     <message>
         <source>Security events on this tablet, newest first: keys and passwords, refused keys, radio certificate, deleted data. Secrets are never written here.</source>
-        <translation type="unfinished" />
+        <translation>Sikkerhedshændelser på denne tablet, nyeste først: nøgler og adgangskoder, afviste nøgler, radiocertifikat, slettede data. Hemmeligheder skrives aldrig her.</translation>
     </message>
     <message>
         <source>Delete my data</source>
@@ -5495,7 +5495,7 @@
     </message>
     <message>
         <source>Delete selected (%1)</source>
-        <translatorcomment>Draft from Figma example "Delete selected (3)" - review</translatorcomment><translation type="unfinished">Slet valgte (%1)</translation>
+        <translation>Slet valgte (%1)</translation>
     </message>
 </context>
 <context>
@@ -5538,7 +5538,7 @@
     </message>
     <message>
         <source>Download selected (%1)</source>
-        <translatorcomment>Draft from Figma example "Download selected (2)" - review</translatorcomment><translation type="unfinished">Hent valgte (%1)</translation>
+        <translation>Hent valgte (%1)</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -5550,11 +5550,11 @@
     </message>
     <message>
         <source>Erase all %1 logs on the drone? Logs not downloaded are lost.</source>
-        <translation type="unfinished" />
+        <translation>Slet alle %1 logs på dronen? Logs, der ikke er hentet, går tabt.</translation>
     </message>
     <message>
         <source>Erase all</source>
-        <translation type="unfinished" />
+        <translation>Slet alle</translation>
     </message>
     <message>
         <source>Log</source>
@@ -5574,15 +5574,15 @@
     </message>
     <message>
         <source>Connect the drone to see its logs.</source>
-        <translation type="unfinished" />
+        <translation>Forbind dronen for at se dens logs.</translation>
     </message>
     <message>
         <source>Reading the list of logs…</source>
-        <translation type="unfinished" />
+        <translation>Læser listen over logs…</translation>
     </message>
     <message>
         <source>No logs on the drone.</source>
-        <translation type="unfinished" />
+        <translation>Ingen logs på dronen.</translation>
     </message>
     <message>
         <source>Downloaded</source>
@@ -5590,11 +5590,11 @@
     </message>
     <message>
         <source>Downloading %1 %</source>
-        <translatorcomment>Draft from Figma example "Downloading 45 %" - review</translatorcomment><translation type="unfinished">Henter %1 %</translation>
+        <translation>Henter %1 %</translation>
     </message>
     <message>
         <source>Saved to %1. To send a log to ARGOSDYNE support, use Help &amp; support.</source>
-        <translation type="unfinished" />
+        <translation>Gemt i %1. Brug Hjælp &amp; support for at sende en log til ARGOSDYNE-support.</translation>
     </message>
     <message>
         <source>Hover for 30 seconds, then read the values. Check after changing propellers, motors or the payload.</source>
@@ -5602,7 +5602,7 @@
     </message>
     <message>
         <source>Connect the drone</source>
-        <translation type="unfinished" />
+        <translation>Forbind dronen</translation>
     </message>
     <message>
         <source>Vibration is OK</source>
@@ -5610,15 +5610,15 @@
     </message>
     <message>
         <source>Check the vibration</source>
-        <translation type="unfinished" />
+        <translation>Kontrollér vibrationen</translation>
     </message>
     <message>
         <source>Vibration too high</source>
-        <translation type="unfinished" />
+        <translation>Vibration for høj</translation>
     </message>
     <message>
         <source>Values come from the flight controller.</source>
-        <translation type="unfinished" />
+        <translation>Værdierne kommer fra flight controlleren.</translation>
     </message>
     <message>
         <source>All axes below 30 m/s² · no clipping</source>
@@ -5626,15 +5626,15 @@
     </message>
     <message>
         <source>An axis is above 60 m/s²: do not fly; check propellers, motors and mounts.</source>
-        <translation type="unfinished" />
+        <translation>En akse er over 60 m/s²: flyv ikke; kontrollér propeller, motorer og ophæng.</translation>
     </message>
     <message>
         <source>The accelerometer clipped: check for loose parts.</source>
-        <translation type="unfinished" />
+        <translation>Accelerometeret ramte sin grænse: kontrollér for løse dele.</translation>
     </message>
     <message>
         <source>An axis is above 30 m/s²: check propellers and mounts.</source>
-        <translation type="unfinished" />
+        <translation>En akse er over 30 m/s²: kontrollér propeller og ophæng.</translation>
     </message>
     <message>
         <source>X axis</source>
@@ -5666,7 +5666,7 @@
     </message>
     <message>
         <source>Accel %1: %2</source>
-        <translatorcomment>Draft from Figma example "Accel 1: 0" - review</translatorcomment><translation type="unfinished">Accel %1: %2</translation>
+        <translation>Accel %1: %2</translation>
     </message>
     <message>
         <source>For developers and service. Read only: nothing here changes the drone.</source>
@@ -5674,19 +5674,19 @@
     </message>
     <message>
         <source>Connect the drone to see its messages.</source>
-        <translation type="unfinished" />
+        <translation>Forbind dronen for at se dens beskeder.</translation>
     </message>
     <message>
         <source>%1 · system %2, component %3</source>
-        <translation type="unfinished" />
+        <translation>%1 · system %2, komponent %3</translation>
     </message>
     <message>
         <source>Saved: %1</source>
-        <translation type="unfinished" />
+        <translation>Gemt: %1</translation>
     </message>
     <message>
         <source>Messages of this app since it started (newest at the bottom). Secrets are never written to it.</source>
-        <translation type="unfinished" />
+        <translation>Beskeder fra denne app, siden den startede (nyeste nederst). Hemmeligheder skrives aldrig i den.</translation>
     </message>
     <message>
         <source>Save to file</source>
@@ -5694,7 +5694,7 @@
     </message>
     <message>
         <source>No messages yet. The app records only the log categories that are turned on (all are off by default).</source>
-        <translation type="unfinished" />
+        <translation>Ingen beskeder endnu. Appen registrerer kun de logkategorier, der er slået til (alle er fra som standard).</translation>
     </message>
     <message>
         <source>Chart</source>
@@ -5702,7 +5702,7 @@
     </message>
     <message>
         <source>Chart (%1)</source>
-        <translatorcomment>Draft from Figma example "Chart (2)" - review</translatorcomment><translation type="unfinished">Diagram (%1)</translation>
+        <translation>Diagram (%1)</translation>
     </message>
     <message>
         <source>Log categories</source>
@@ -5710,7 +5710,7 @@
     </message>
     <message>
         <source>Choose log categories</source>
-        <translation type="unfinished" />
+        <translation>Vælg logkategorier</translation>
     </message>
 </context>
 <context>
@@ -5725,19 +5725,19 @@
     </message>
     <message>
         <source>Connect the drone to see its parameters.</source>
-        <translation type="unfinished" />
+        <translation>Forbind dronen for at se dens parametre.</translation>
     </message>
     <message>
         <source>Reading the parameters from the drone…</source>
-        <translation type="unfinished" />
+        <translation>Læser parametrene fra dronen…</translation>
     </message>
     <message>
         <source>Attitude estimate</source>
-        <translation type="unfinished" />
+        <translation>Attitudeestimat</translation>
     </message>
     <message>
         <source>Arming checks</source>
-        <translation type="unfinished" />
+        <translation>Armeringskontroller</translation>
     </message>
     <message>
         <source>Attitude control</source>
@@ -5749,7 +5749,7 @@
     </message>
     <message>
         <source>Board</source>
-        <translation type="unfinished" />
+        <translation>Kort</translation>
     </message>
     <message>
         <source>Compass</source>
@@ -5757,7 +5757,7 @@
     </message>
     <message>
         <source>Position estimate (EKF3)</source>
-        <translation type="unfinished" />
+        <translation>Positionsestimat (EKF3)</translation>
     </message>
     <message>
         <source>Geofence</source>
@@ -5781,7 +5781,7 @@
     </message>
     <message>
         <source>Landing</source>
-        <translation type="unfinished" />
+        <translation>Landing</translation>
     </message>
     <message>
         <source>Logging</source>
@@ -5789,7 +5789,7 @@
     </message>
     <message>
         <source>Gimbal mount</source>
-        <translation type="unfinished" />
+        <translation>Gimbalophæng</translation>
     </message>
     <message>
         <source>Motors</source>
@@ -5797,15 +5797,15 @@
     </message>
     <message>
         <source>Pilot input</source>
-        <translation type="unfinished" />
+        <translation>Pilotinput</translation>
     </message>
     <message>
         <source>Position control</source>
-        <translation type="unfinished" />
+        <translation>Positionsstyring</translation>
     </message>
     <message>
         <source>Radio channels</source>
-        <translation type="unfinished" />
+        <translation>Radiokanaler</translation>
     </message>
     <message>
         <source>Return home</source>
@@ -5813,15 +5813,15 @@
     </message>
     <message>
         <source>Serial ports</source>
-        <translation type="unfinished" />
+        <translation>Serielle porte</translation>
     </message>
     <message>
         <source>Servo outputs</source>
-        <translation type="unfinished" />
+        <translation>Servoudgange</translation>
     </message>
     <message>
         <source>Terrain</source>
-        <translation type="unfinished" />
+        <translation>Terræn</translation>
     </message>
     <message>
         <source>Waypoints</source>
@@ -5829,11 +5829,11 @@
     </message>
     <message>
         <source>%1 saved. Restart the drone to use the new value.</source>
-        <translation type="unfinished" />
+        <translation>%1 gemt. Genstart dronen for at bruge den nye værdi.</translation>
     </message>
     <message>
         <source>%1 saved on the drone.</source>
-        <translation type="unfinished" />
+        <translation>%1 gemt på dronen.</translation>
     </message>
     <message>
         <source>All parameters</source>
@@ -5849,7 +5849,7 @@
     </message>
     <message>
         <source>Saved: %1</source>
-        <translation type="unfinished" />
+        <translation>Gemt: %1</translation>
     </message>
     <message>
         <source>More</source>
@@ -5857,7 +5857,7 @@
     </message>
     <message>
         <source>Read again from the drone</source>
-        <translation type="unfinished" />
+        <translation>Læs igen fra dronen</translation>
     </message>
     <message>
         <source>Restart the drone</source>
@@ -5865,7 +5865,7 @@
     </message>
     <message>
         <source>Restart sent to the drone.</source>
-        <translation type="unfinished" />
+        <translation>Genstart sendt til dronen.</translation>
     </message>
     <message>
         <source>Reset all to defaults…</source>
@@ -5873,11 +5873,11 @@
     </message>
     <message>
         <source>Reset every parameter to its default? Calibrations and setup are lost; the drone needs a restart.</source>
-        <translation type="unfinished" />
+        <translation>Nulstil alle parametre til standard? Kalibreringer og opsætning går tabt; dronen skal genstartes.</translation>
     </message>
     <message>
         <source>Motors are running: a wrong value can make the drone unsafe now. Changes are sent at once.</source>
-        <translation type="unfinished" />
+        <translation>Motorerne kører: en forkert værdi kan gøre dronen usikker nu. Ændringer sendes straks.</translation>
     </message>
     <message>
         <source>A wrong value can make the drone unsafe. Changes are sent to the drone at once.</source>
@@ -5885,11 +5885,11 @@
     </message>
     <message>
         <source>Reset all</source>
-        <translation type="unfinished" />
+        <translation>Nulstil alle</translation>
     </message>
     <message>
         <source>All parameters reset. Restart the drone.</source>
-        <translation type="unfinished" />
+        <translation>Alle parametre nulstillet. Genstart dronen.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -5909,23 +5909,23 @@
     </message>
     <message>
         <source>No parameters found.</source>
-        <translation type="unfinished" />
+        <translation>Ingen parametre fundet.</translation>
     </message>
     <message>
         <source>Choose a parameter to see and change it.</source>
-        <translation type="unfinished" />
+        <translation>Vælg en parameter for at se og ændre den.</translation>
     </message>
     <message>
         <source>Range %1 – %2 %3</source>
-        <translation type="unfinished" />
+        <translation>Område %1 – %2 %3</translation>
     </message>
     <message>
         <source>step %1</source>
-        <translation type="unfinished" />
+        <translation>trin %1</translation>
     </message>
     <message>
         <source>needs a drone restart</source>
-        <translation type="unfinished" />
+        <translation>kræver genstart af dronen</translation>
     </message>
     <message>
         <source>Save</source>
@@ -5933,7 +5933,7 @@
     </message>
     <message>
         <source>Load from file…</source>
-        <translation type="unfinished" />
+        <translation>Indlæs fra fil…</translation>
     </message>
     <message>
         <source>Differs from reference</source>
@@ -5941,11 +5941,11 @@
     </message>
     <message>
         <source>Every compared value matches the %1 reference.</source>
-        <translation type="unfinished" />
+        <translation>Alle sammenlignede værdier stemmer med %1-referencen.</translation>
     </message>
     <message>
         <source>reference %1 (%2)</source>
-        <translation type="unfinished" />
+        <translation>reference %1 (%2)</translation>
     </message>
     <message>
         <source>Reset to reference</source>
@@ -6008,11 +6008,11 @@
     </message>
     <message>
         <source>Connect the drone to set it up.</source>
-        <translation type="unfinished" />
+        <translation>Forbind dronen for at opsætte den.</translation>
     </message>
     <message>
         <source>Reading the parameters from the drone…</source>
-        <translation type="unfinished" />
+        <translation>Læser parametrene fra dronen…</translation>
     </message>
     <message>
         <source>Check each part before the first flight. Orange items need setup. Setup is locked while the drone is flying.</source>
@@ -6020,7 +6020,7 @@
     </message>
     <message>
         <source>Compass, accelerometer and level done</source>
-        <translation type="unfinished" />
+        <translation>Kompas, accelerometer og nivellering færdige</translation>
     </message>
     <message>
         <source>Compass and accelerometer done · level not done</source>
@@ -6028,23 +6028,23 @@
     </message>
     <message>
         <source>Compass or accelerometer needs calibration</source>
-        <translation type="unfinished" />
+        <translation>Kompas eller accelerometer skal kalibreres</translation>
     </message>
     <message>
         <source>Sticks calibrated</source>
-        <translation type="unfinished" />
+        <translation>Pinde kalibreret</translation>
     </message>
     <message>
         <source>Calibrate the sticks</source>
-        <translation type="unfinished" />
+        <translation>Kalibrér pindene</translation>
     </message>
     <message>
         <source>6 modes on channel %1 · %2 first</source>
-        <translation type="unfinished" />
+        <translation>6 tilstande på kanal %1 · %2 først</translation>
     </message>
     <message>
         <source>now</source>
-        <translation type="unfinished" />
+        <translation>nu</translation>
     </message>
     <message>
         <source>Test each motor after a repair</source>
@@ -6052,19 +6052,19 @@
     </message>
     <message>
         <source>Low battery: %1 · Link lost: %2</source>
-        <translation type="unfinished" />
+        <translation>Lavt batteri: %1 · Forbindelse tabt: %2</translation>
     </message>
     <message>
         <source>Factory tuning · changes allowed in flight</source>
-        <translation type="unfinished" />
+        <translation>Fabrikstuning · ændringer tilladt under flyvning</translation>
     </message>
     <message>
         <source>No gimbal set</source>
-        <translation type="unfinished" />
+        <translation>Ingen gimbal angivet</translation>
     </message>
     <message>
         <source>update from a PC with USB</source>
-        <translation type="unfinished" />
+        <translation>opdatér fra en pc med USB</translation>
     </message>
     <message>
         <source>Done</source>
@@ -6088,21 +6088,21 @@
     </message>
     <message>
         <source>Not calibrated</source>
-        <translation type="unfinished" />
+        <translation>Ikke kalibreret</translation>
     </message>
     <message>
         <source>Done %1</source>
-        <translatorcomment>Draft from Figma example "Done 2026-11-10" - review</translatorcomment><translation type="unfinished">Færdig %1</translation>
+        <translation>Færdig %1</translation>
     </message>
     <message>
         <source>Done · date unknown</source>
-        <translation type="unfinished" />
+        <translation>Færdig · dato ukendt</translation>
     </message>
     <message numerus="yes">
         <source>%n compass(es)</source>
-        <translation type="unfinished">
-            <numerusform />
-            <numerusform />
+        <translation>
+            <numerusform>%n kompas</numerusform>
+            <numerusform>%n kompasser</numerusform>
         </translation>
     </message>
     <message>
@@ -6143,7 +6143,7 @@
     </message>
     <message>
         <source>Board: %1 · Compass 1: %2</source>
-        <translation type="unfinished" />
+        <translation>Kort: %1 · Kompas 1: %2</translation>
     </message>
     <message>
         <source>Change</source>
@@ -6155,67 +6155,67 @@
     </message>
     <message>
         <source>Hold the drone away from metal and turn it slowly around every axis until the bar is full.</source>
-        <translation type="unfinished" />
+        <translation>Hold dronen væk fra metal, og drej den langsomt om alle akser, til bjælken er fuld.</translation>
     </message>
     <message>
         <source>Hold the drone still in the position shown, then press Next. Six positions in total.</source>
-        <translation type="unfinished" />
+        <translation>Hold dronen stille i den viste position, og tryk så på Næste. Seks positioner i alt.</translation>
     </message>
     <message>
         <source>Place the drone on a level surface and do not touch it.</source>
-        <translation type="unfinished" />
+        <translation>Placér dronen på en plan flade, og rør den ikke.</translation>
     </message>
     <message>
         <source>Keep the drone still.</source>
-        <translation type="unfinished" />
+        <translation>Hold dronen stille.</translation>
     </message>
     <message>
         <source>Level</source>
-        <translation type="unfinished" />
+        <translation>Vandret</translation>
     </message>
     <message>
         <source>Left side</source>
-        <translation type="unfinished" />
+        <translation>Venstre side</translation>
     </message>
     <message>
         <source>Right side</source>
-        <translation type="unfinished" />
+        <translation>Højre side</translation>
     </message>
     <message>
         <source>Nose down</source>
-        <translation type="unfinished" />
+        <translation>Næse ned</translation>
     </message>
     <message>
         <source>Nose up</source>
-        <translation type="unfinished" />
+        <translation>Næse op</translation>
     </message>
     <message>
         <source>Upside down</source>
-        <translation type="unfinished" />
+        <translation>På hovedet</translation>
     </message>
     <message>
         <source>Calibration done. Restart the drone to use it.</source>
-        <translation type="unfinished" />
+        <translation>Kalibrering færdig. Genstart dronen for at bruge den.</translation>
     </message>
     <message>
         <source>Done.</source>
-        <translation type="unfinished" />
+        <translation>Færdig.</translation>
     </message>
     <message>
         <source>Calibration cancelled. Nothing was changed.</source>
-        <translation type="unfinished" />
+        <translation>Kalibrering annulleret. Intet blev ændret.</translation>
     </message>
     <message>
         <source>Calibration failed. Try again away from metal and wind.</source>
-        <translation type="unfinished" />
+        <translation>Kalibrering mislykkedes. Prøv igen væk fra metal og vind.</translation>
     </message>
     <message>
         <source>Calibration failed. Hold each position still until the next one is asked, then try again.</source>
-        <translation type="unfinished" />
+        <translation>Kalibrering mislykkedes. Hold hver position stille, indtil den næste bliver bedt om, og prøv så igen.</translation>
     </message>
     <message>
         <source>Calibration failed. Keep the drone still and try again.</source>
-        <translation type="unfinished" />
+        <translation>Kalibrering mislykkedes. Hold dronen stille, og prøv igen.</translation>
     </message>
     <message>
         <source>Next</source>
@@ -6239,7 +6239,7 @@
     </message>
     <message>
         <source>Step 1 of 3 · Prepare the drone. The motors will spin.</source>
-        <translation type="unfinished" />
+        <translation>Trin 1 af 3 · Forbered dronen. Motorerne vil køre.</translation>
     </message>
     <message>
         <source>Step 2 of 3 · Raise the throttle slowly to 75 %, hold 5 seconds, then lower it to zero.</source>
@@ -6247,23 +6247,23 @@
     </message>
     <message>
         <source>Step 3 of 3 · Result. The correction is saved on the drone.</source>
-        <translation type="unfinished" />
+        <translation>Trin 3 af 3 · Resultat. Korrektionen er gemt på dronen.</translation>
     </message>
     <message>
         <source>Propellers on, flipped and moved one place round the frame: the drone pushes into the ground</source>
-        <translation type="unfinished" />
+        <translation>Propeller på, vendt om og flyttet én plads rundt på rammen: dronen presser mod jorden</translation>
     </message>
     <message>
         <source>Drone tied down so it cannot move</source>
-        <translation type="unfinished" />
+        <translation>Dronen bundet fast, så den ikke kan bevæge sig</translation>
     </message>
     <message>
         <source>Controller on, throttle at zero</source>
-        <translation type="unfinished" />
+        <translation>Fjernbetjening tændt, gas på nul</translation>
     </message>
     <message>
         <source>No current sensor: the result follows the throttle only and is less exact.</source>
-        <translation type="unfinished" />
+        <translation>Ingen strømsensor: resultatet følger kun gassen og er mindre præcist.</translation>
     </message>
     <message>
         <source>Throttle</source>
@@ -6283,7 +6283,7 @@
     </message>
     <message>
         <source>The drone sent no measurement. Raise the throttle higher next time and keep it there for 5 seconds.</source>
-        <translation type="unfinished" />
+        <translation>Dronen sendte ingen måling. Øg gassen mere næste gang, og hold den der i 5 sekunder.</translation>
     </message>
     <message>
         <source>Propellers are on and flipped: the drone pushes into the ground. Keep it tied down and stand back.</source>
@@ -6307,11 +6307,11 @@
     </message>
     <message>
         <source>Compass 1</source>
-        <translation type="unfinished" />
+        <translation>Kompas 1</translation>
     </message>
     <message>
         <source>Compass 2</source>
-        <translation type="unfinished" />
+        <translation>Kompas 2</translation>
     </message>
     <message>
         <source>Compass 3</source>
@@ -6319,11 +6319,11 @@
     </message>
     <message>
         <source>internal</source>
-        <translation type="unfinished" />
+        <translation>intern</translation>
     </message>
     <message>
         <source>external</source>
-        <translation type="unfinished" />
+        <translation>ekstern</translation>
     </message>
     <message>
         <source>Used</source>
@@ -6331,11 +6331,11 @@
     </message>
     <message>
         <source>Internal compasses follow the flight controller.</source>
-        <translation type="unfinished" />
+        <translation>Interne kompasser følger flight controlleren.</translation>
     </message>
     <message>
         <source>After a change, restart the drone and calibrate the compass and the accelerometer again (Sensors).</source>
-        <translation type="unfinished" />
+        <translation>Efter en ændring skal du genstarte dronen og kalibrere kompasset og accelerometeret igen (Sensorer).</translation>
     </message>
     <message>
         <source>Mission</source>
@@ -6346,11 +6346,11 @@
     <name>SimpleSetupModes</name>
     <message>
         <source>Manual (self-level)</source>
-        <translation type="unfinished" />
+        <translation>Manuel (selvnivellering)</translation>
     </message>
     <message>
         <source>Acro (no self-level)</source>
-        <translation type="unfinished" />
+        <translation>Acro (ingen selvnivellering)</translation>
     </message>
     <message>
         <source>Altitude hold</source>
@@ -6362,7 +6362,7 @@
     </message>
     <message>
         <source>Guided by the app</source>
-        <translation type="unfinished" />
+        <translation>Styret af appen</translation>
     </message>
     <message>
         <source>Position hold</source>
@@ -6382,11 +6382,11 @@
     </message>
     <message>
         <source>Drift</source>
-        <translation type="unfinished" />
+        <translation>Drift</translation>
     </message>
     <message>
         <source>Sport</source>
-        <translation type="unfinished" />
+        <translation>Sport</translation>
     </message>
     <message>
         <source>AutoTune</source>
@@ -6394,7 +6394,7 @@
     </message>
     <message>
         <source>Position hold (pilot)</source>
-        <translation type="unfinished" />
+        <translation>Hold position (pilot)</translation>
     </message>
     <message>
         <source>Brake</source>
@@ -6402,7 +6402,7 @@
     </message>
     <message>
         <source>Return the way it came</source>
-        <translation type="unfinished" />
+        <translation>Vend tilbage ad samme vej</translation>
     </message>
     <message>
         <source>Follow</source>
@@ -6410,7 +6410,7 @@
     </message>
     <message>
         <source>Return after mission</source>
-        <translation type="unfinished" />
+        <translation>Retur efter mission</translation>
     </message>
     <message>
         <source>Flight modes</source>
@@ -6418,19 +6418,19 @@
     </message>
     <message>
         <source>The six positions of the mode switch (channel %1). The current position is highlighted.</source>
-        <translatorcomment>Draft from Figma example "The six positions of the mode switch (channel 5). The current position is highlighted." - review</translatorcomment><translation type="unfinished">Tilstandskontaktens seks positioner (kanal %1). Den aktuelle position er fremhævet.</translation>
+        <translation>Tilstandskontaktens seks positioner (kanal %1). Den aktuelle position er fremhævet.</translation>
     </message>
     <message>
         <source>Position %1</source>
-        <translatorcomment>Draft from Figma example "Position 1" - review</translatorcomment><translation type="unfinished">Position %1</translation>
+        <translation>Position %1</translation>
     </message>
     <message>
         <source>PWM %1 +</source>
-        <translatorcomment>Draft from Figma example "PWM 1750 +" - review</translatorcomment><translation type="unfinished">PWM %1 +</translation>
+        <translation>PWM %1 +</translation>
     </message>
     <message>
         <source>PWM %1 – %2</source>
-        <translatorcomment>Draft from Figma example "PWM 1231 – 1360" - review</translatorcomment><translation type="unfinished">PWM %1 – %2</translation>
+        <translation>PWM %1 – %2</translation>
     </message>
     <message>
         <source>Now</source>
@@ -6438,7 +6438,7 @@
     </message>
     <message>
         <source>ArduPilot: %1</source>
-        <translatorcomment>Draft from Figma example "ArduPilot: AltHold" - review</translatorcomment><translation type="unfinished">ArduPilot: %1</translation>
+        <translation>ArduPilot: %1</translation>
     </message>
     <message>
         <source>Close</source>
@@ -6450,11 +6450,11 @@
     </message>
     <message>
         <source>The switch is on position %1 now: the drone changes to the new mode at once.</source>
-        <translation type="unfinished" />
+        <translation>Kontakten står på position %1 nu: dronen skifter straks til den nye tilstand.</translation>
     </message>
     <message>
         <source>Change now</source>
-        <translation type="unfinished" />
+        <translation>Skift nu</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -6469,7 +6469,7 @@
     </message>
     <message>
         <source>%1 or %2 left</source>
-        <translatorcomment>Draft from Figma example "42.0 V or 2200 mAh left" - review</translatorcomment><translation type="unfinished">%1 eller %2 tilbage</translation>
+        <translation>%1 eller %2 tilbage</translation>
     </message>
     <message>
         <source>Critical battery</source>
@@ -6481,7 +6481,7 @@
     </message>
     <message>
         <source>Throttle below %1</source>
-        <translatorcomment>Draft from Figma example "Throttle below 975 µs" - review</translatorcomment><translation type="unfinished">Gas under %1</translation>
+        <translation>Gas under %1</translation>
     </message>
     <message>
         <source>Ground station link lost</source>
@@ -6489,11 +6489,11 @@
     </message>
     <message>
         <source>After %1 without the app</source>
-        <translatorcomment>Draft from Figma example "After 5 s without the app" - review</translatorcomment><translation type="unfinished">Efter %1 uden appen</translation>
+        <translation>Efter %1 uden appen</translation>
     </message>
     <message>
         <source>When the app link is lost</source>
-        <translation type="unfinished" />
+        <translation>Når app-forbindelsen tabes</translation>
     </message>
     <message>
         <source>Navigation error (EKF)</source>
@@ -6513,7 +6513,7 @@
     </message>
     <message>
         <source>Circle %1 · ceiling %2</source>
-        <translatorcomment>Draft from Figma example "Circle 300 m · ceiling 120 m" - review</translatorcomment><translation type="unfinished">Cirkel %1 · loft %2</translation>
+        <translation>Cirkel %1 · loft %2</translation>
     </message>
     <message>
         <source>Pre-arm checks</source>
@@ -6545,11 +6545,11 @@
     </message>
     <message>
         <source>Some off</source>
-        <translation type="unfinished" />
+        <translation>Nogle fra</translation>
     </message>
     <message>
         <source>No protection</source>
-        <translation type="unfinished" />
+        <translation>Ingen beskyttelse</translation>
     </message>
     <message>
         <source>Close</source>
@@ -6565,7 +6565,7 @@
     </message>
     <message>
         <source>Company setting</source>
-        <translation type="unfinished" />
+        <translation>Firmaindstilling</translation>
     </message>
 </context>
 <context>
@@ -6600,7 +6600,7 @@
     </message>
     <message>
         <source>Drone reads %1 V. Measure the battery and enter the real value.</source>
-        <translatorcomment>Draft from Figma example "Drone reads 50.1 V. Measure the battery and enter the real value." - review</translatorcomment><translation type="unfinished">Dronen måler %1 V. Mål batteriet og indtast den reelle værdi.</translation>
+        <translation>Dronen måler %1 V. Mål batteriet, og indtast den reelle værdi.</translation>
     </message>
     <message>
         <source>Calibrate</source>
@@ -6608,7 +6608,7 @@
     </message>
     <message>
         <source>Voltage multiplier set to %1.</source>
-        <translation type="unfinished" />
+        <translation>Spændingsmultiplikator sat til %1.</translation>
     </message>
     <message>
         <source>Current sensor</source>
@@ -6624,7 +6624,7 @@
     </message>
     <message>
         <source>Propellers off. Only after replacing ESCs.</source>
-        <translation type="unfinished" />
+        <translation>Propeller af. Kun efter udskiftning af ESC'er.</translation>
     </message>
     <message>
         <source>Start</source>
@@ -6651,19 +6651,19 @@
     </message>
     <message>
         <source>ch %1</source>
-        <translation type="unfinished" />
+        <translation>kanal %1</translation>
     </message>
     <message>
         <source>Mode switch · ch %1</source>
-        <translatorcomment>Draft from Figma example "Mode switch · ch 5" - review</translatorcomment><translation type="unfinished">Tilstandskontakt · kanal %1</translation>
+        <translation>Tilstandskontakt · kanal %1</translation>
     </message>
     <message>
         <source>Ch %1 · %2</source>
-        <translatorcomment>Draft from Figma example "Ch 7 · AutoTune" - review</translatorcomment><translation type="unfinished">Kanal %1 · %2</translation>
+        <translation>Kanal %1 · %2</translation>
     </message>
     <message>
         <source>Ch %1</source>
-        <translatorcomment>Draft from Figma example "Ch 6" - review</translatorcomment><translation type="unfinished">Kanal %1</translation>
+        <translation>Kanal %1</translation>
     </message>
     <message>
         <source>Radio</source>
@@ -6671,11 +6671,11 @@
     </message>
     <message>
         <source>Move each stick and switch to check it. The company controller is calibrated at the factory: calibrate only after a repair or with a new controller.</source>
-        <translation type="unfinished" />
+        <translation>Bevæg hver pind og kontakt for at kontrollere dem. Firmaets fjernbetjening er kalibreret fra fabrikken: kalibrér kun efter en reparation eller med en ny fjernbetjening.</translation>
     </message>
     <message>
         <source>No controller signal yet. Turn on the controller.</source>
-        <translation type="unfinished" />
+        <translation>Endnu intet signal fra fjernbetjeningen. Tænd fjernbetjeningen.</translation>
     </message>
     <message>
         <source>Calibrate sticks</source>
@@ -6714,7 +6714,7 @@
     </message>
     <message>
         <source>Channel %1</source>
-        <translatorcomment>Draft from Figma example "Channel 7" - review</translatorcomment><translation type="unfinished">Kanal %1</translation>
+        <translation>Kanal %1</translation>
     </message>
     <message>
         <source>Gimbal</source>
@@ -6730,7 +6730,7 @@
     </message>
     <message>
         <source>How the drone talks to the gimbal. Changing it needs a drone restart.</source>
-        <translation type="unfinished" />
+        <translation>Hvordan dronen kommunikerer med gimbalen. Ændring kræver genstart af dronen.</translation>
     </message>
     <message>
         <source>Tilt control</source>
@@ -6770,15 +6770,15 @@
     </message>
     <message>
         <source>No gimbal is set. Choose the gimbal type above, then restart the drone.</source>
-        <translation type="unfinished" />
+        <translation>Ingen gimbal angivet. Vælg gimbaltypen ovenfor, og genstart så dronen.</translation>
     </message>
     <message>
         <source>Output %1</source>
-        <translatorcomment>Draft from Figma example "Output 10" - review</translatorcomment><translation type="unfinished">Udgang %1</translation>
+        <translation>Udgang %1</translation>
     </message>
     <message>
         <source>Restart the drone to use the new gimbal type or outputs.</source>
-        <translation type="unfinished" />
+        <translation>Genstart dronen for at bruge den nye gimbaltype eller de nye udgange.</translation>
     </message>
     <message>
         <source>Roll range</source>
@@ -6814,11 +6814,11 @@
     </message>
     <message>
         <source>Not connected to a drone output</source>
-        <translation type="unfinished" />
+        <translation>Ikke tilsluttet en droneudgang</translation>
     </message>
     <message>
         <source>Reverse</source>
-        <translation type="unfinished" />
+        <translation>Vend</translation>
     </message>
     <message>
         <source>At start-up</source>
@@ -6921,11 +6921,11 @@
     </message>
     <message>
         <source>Channel %1</source>
-        <translatorcomment>Draft from Figma example "Channel 7" - review</translatorcomment><translation type="unfinished">Kanal %1</translation>
+        <translation>Kanal %1</translation>
     </message>
     <message>
         <source>No switch set (Radio › channel options)</source>
-        <translation type="unfinished" />
+        <translation>Ingen kontakt angivet (Radio › kanalindstillinger)</translation>
     </message>
 </context>
 <context>
@@ -6964,7 +6964,7 @@
     </message>
     <message>
         <source>Y6</source>
-        <translation type="unfinished" />
+        <translation>Y6</translation>
     </message>
     <message>
         <source>6 motors, coaxial</source>
@@ -6972,7 +6972,7 @@
     </message>
     <message>
         <source>X8</source>
-        <translation type="unfinished" />
+        <translation>X8</translation>
     </message>
     <message>
         <source>8 motors, coaxial</source>
@@ -6996,7 +6996,7 @@
     </message>
     <message>
         <source>Change the frame to %1 and restart the drone now? A wrong frame makes the drone flip at take-off.</source>
-        <translation type="unfinished" />
+        <translation>Skift rammen til %1, og genstart dronen nu? En forkert ramme får dronen til at vælte ved start.</translation>
     </message>
     <message>
         <source>After choosing another frame the drone restarts and the motors must be tested (Motors).</source>
@@ -7008,11 +7008,11 @@
     </message>
     <message>
         <source>Change and restart</source>
-        <translation type="unfinished" />
+        <translation>Skift og genstart</translation>
     </message>
     <message>
         <source>Frame saved. The drone restarts; then test each motor in Motors.</source>
-        <translation type="unfinished" />
+        <translation>Ramme gemt. Dronen genstarter; test derefter hver motor under Motorer.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -7039,7 +7039,7 @@
     </message>
     <message>
         <source>Motor %1 spinning · %2 s</source>
-        <translation type="unfinished" />
+        <translation>Motor %1 kører · %2 s</translation>
     </message>
     <message>
         <source>Propellers removed</source>
@@ -7059,7 +7059,7 @@
     </message>
     <message>
         <source>Motor %1</source>
-        <translatorcomment>Draft from Figma example "Motor A" - review</translatorcomment><translation type="unfinished">Motor %1</translation>
+        <translation>Motor %1</translation>
     </message>
     <message>
         <source>Test all in order</source>
@@ -7067,7 +7067,7 @@
     </message>
     <message>
         <source>If the order or a direction is wrong, check the frame (Frame) or the motor wiring.</source>
-        <translation type="unfinished" />
+        <translation>Hvis rækkefølgen eller en retning er forkert, så kontrollér rammen (Ramme) eller motorledningerne.</translation>
     </message>
 </context>
 <context>
@@ -7114,19 +7114,19 @@
     </message>
     <message>
         <source>UDP port</source>
-        <translation type="unfinished" />
+        <translation>UDP-port</translation>
     </message>
     <message>
         <source>Port the video arrives on</source>
-        <translation type="unfinished" />
+        <translation>Port, videoen modtages på</translation>
     </message>
     <message>
         <source>TCP address</source>
-        <translation type="unfinished" />
+        <translation>TCP-adresse</translation>
     </message>
     <message>
         <source>Address of the video server</source>
-        <translation type="unfinished" />
+        <translation>Videoserverens adresse</translation>
     </message>
     <message>
         <source>Low latency</source>
@@ -7154,7 +7154,7 @@
     </message>
     <message>
         <source>No limit</source>
-        <translation type="unfinished" />
+        <translation>Ingen grænse</translation>
     </message>
     <message>
         <source>Second video (FPV)</source>
@@ -7166,11 +7166,11 @@
     </message>
     <message>
         <source>FPV address</source>
-        <translation type="unfinished" />
+        <translation>FPV-adresse</translation>
     </message>
     <message>
         <source>Stream address of the FPV camera</source>
-        <translation type="unfinished" />
+        <translation>FPV-kameraets streamadresse</translation>
     </message>
     <message>
         <source>Fly screen</source>
@@ -7194,11 +7194,11 @@
     </message>
     <message>
         <source>Throttle stick returns to the middle</source>
-        <translation type="unfinished" />
+        <translation>Gaspinden vender tilbage til midten</translation>
     </message>
     <message>
         <source>On-screen throttle centres itself</source>
-        <translation type="unfinished" />
+        <translation>Skærmgassen centrerer sig selv</translation>
     </message>
     <message>
         <source>Go here: maximum distance</source>
@@ -7290,15 +7290,15 @@
     </message>
     <message>
         <source>Not set</source>
-        <translation type="unfinished" />
+        <translation>Ikke angivet</translation>
     </message>
     <message>
         <source>Save to SD card</source>
-        <translation type="unfinished" />
+        <translation>Gem på SD-kort</translation>
     </message>
     <message>
         <source>Use the SD card for logs and media</source>
-        <translation type="unfinished" />
+        <translation>Brug SD-kortet til logs og medier</translation>
     </message>
     <message>
         <source>Reset all settings</source>
@@ -7306,7 +7306,7 @@
     </message>
     <message>
         <source>All settings are cleared at the next start. Restart the app.</source>
-        <translation type="unfinished" />
+        <translation>Alle indstillinger ryddes ved næste start. Genstart appen.</translation>
     </message>
     <message>
         <source>Back to the first-start screen at the next start</source>
@@ -7318,7 +7318,7 @@
     </message>
     <message>
         <source>Reset at next start</source>
-        <translation type="unfinished" />
+        <translation>Nulstil ved næste start</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -7330,31 +7330,31 @@
     </message>
     <message>
         <source>UDP %1 (drone link)</source>
-        <translation type="unfinished" />
+        <translation>UDP %1 (droneforbindelse)</translation>
     </message>
     <message>
         <source>USB auto-connect</source>
-        <translation type="unfinished" />
+        <translation>USB-auto-forbindelse</translation>
     </message>
     <message>
         <source>MAVLink forwarding</source>
-        <translation type="unfinished" />
+        <translation>MAVLink-videresendelse</translation>
     </message>
     <message>
         <source>NMEA UDP %1</source>
-        <translation type="unfinished" />
+        <translation>NMEA UDP %1</translation>
     </message>
     <message>
         <source>ADSB server</source>
-        <translation type="unfinished" />
+        <translation>ADSB-server</translation>
     </message>
     <message>
         <source>RTK base</source>
-        <translation type="unfinished" />
+        <translation>RTK-base</translation>
     </message>
     <message>
         <source>Zero-Conf</source>
-        <translation type="unfinished" />
+        <translation>Zero-Conf</translation>
     </message>
     <message>
         <source>Devices</source>
@@ -7366,15 +7366,15 @@
     </message>
     <message>
         <source>Open now: %1. Everything else is off.</source>
-        <translation type="unfinished" />
+        <translation>Åben nu: %1. Alt andet er slået fra.</translation>
     </message>
     <message>
         <source>Nothing is open.</source>
-        <translation type="unfinished" />
+        <translation>Intet er åbent.</translation>
     </message>
     <message>
         <source>Drone link · UDP %1</source>
-        <translatorcomment>Draft from Figma example "Drone link · UDP 14550" - review</translatorcomment><translation type="unfinished">Droneforbindelse · UDP %1</translation>
+        <translation>Droneforbindelse · UDP %1</translation>
     </message>
     <message>
         <source>Needed for the Enpulse radio and SITL. Connects to drones on this network.</source>
@@ -7386,7 +7386,7 @@
     </message>
     <message>
         <source>Sends all drone data to %1</source>
-        <translation type="unfinished" />
+        <translation>Sender alle dronedata til %1</translation>
     </message>
     <message>
         <source>Sends all drone data to a second address. Off by default.</source>
@@ -7394,11 +7394,11 @@
     </message>
     <message>
         <source>Forward to</source>
-        <translation type="unfinished" />
+        <translation>Videresend til</translation>
     </message>
     <message>
         <source>host:port, e.g. localhost:14445</source>
-        <translation type="unfinished" />
+        <translation>vært:port, f.eks. localhost:14445</translation>
     </message>
     <message>
         <source>NMEA GPS input · UDP</source>
@@ -7410,11 +7410,11 @@
     </message>
     <message>
         <source>NMEA UDP port</source>
-        <translation type="unfinished" />
+        <translation>NMEA UDP-port</translation>
     </message>
     <message>
         <source>Port the GPS sends to</source>
-        <translation type="unfinished" />
+        <translation>Port, GPS'en sender til</translation>
     </message>
     <message>
         <source>ADSB traffic server · TCP</source>
@@ -7426,7 +7426,7 @@
     </message>
     <message>
         <source>Address and port</source>
-        <translation type="unfinished" />
+        <translation>Adresse og port</translation>
     </message>
     <message>
         <source>RTK base station · USB</source>
@@ -7438,19 +7438,19 @@
     </message>
     <message>
         <source>Survey-in accuracy</source>
-        <translation type="unfinished" />
+        <translation>Survey-in-nøjagtighed</translation>
     </message>
     <message>
         <source>The base starts sending when it is this accurate</source>
-        <translation type="unfinished" />
+        <translation>Basen begynder at sende, når den er så nøjagtig</translation>
     </message>
     <message>
         <source>Survey-in time</source>
-        <translation type="unfinished" />
+        <translation>Survey-in-tid</translation>
     </message>
     <message>
         <source>Shortest time the base measures</source>
-        <translation type="unfinished" />
+        <translation>Korteste tid, basen måler</translation>
     </message>
     <message>
         <source>Serial auto-connect · USB</source>
@@ -7478,7 +7478,7 @@
     </message>
     <message>
         <source>Product</source>
-        <translation type="unfinished" />
+        <translation>Produkt</translation>
     </message>
     <message>
         <source>Change</source>
@@ -7490,30 +7490,30 @@
     </message>
     <message>
         <source>Actions file</source>
-        <translation type="unfinished" />
+        <translation>Handlingsfil</translation>
     </message>
     <message>
         <source>Put a .json file in %1</source>
-        <translation type="unfinished" />
+        <translation>Læg en .json-fil i %1</translation>
     </message>
     <message numerus="yes">
         <source>%n action(s) loaded</source>
-        <translation type="unfinished">
-            <numerusform />
-            <numerusform />
+        <translation>
+            <numerusform>%n handling indlæst</numerusform>
+            <numerusform>%n handlinger indlæst</numerusform>
         </translation>
     </message>
     <message>
         <source>No actions in this file (check the file format)</source>
-        <translation type="unfinished" />
+        <translation>Ingen handlinger i denne fil (kontrollér filformatet)</translation>
     </message>
     <message>
         <source>No file</source>
-        <translation type="unfinished" />
+        <translation>Ingen fil</translation>
     </message>
     <message>
         <source>Reload</source>
-        <translation type="unfinished" />
+        <translation>Genindlæs</translation>
     </message>
     <message>
         <source>USB gamepad</source>
@@ -7521,11 +7521,11 @@
     </message>
     <message>
         <source>%1 · fly with a gamepad instead of the on-screen sticks</source>
-        <translation type="unfinished" />
+        <translation>%1 · flyv med en gamepad i stedet for skærmpindene</translation>
     </message>
     <message>
         <source>Fly with a gamepad instead of the on-screen sticks. None found.</source>
-        <translation type="unfinished" />
+        <translation>Flyv med en gamepad i stedet for skærmpindene. Ingen fundet.</translation>
     </message>
     <message>
         <source>The map, on-screen sticks, Go here and extra buttons.</source>
@@ -7548,7 +7548,7 @@
     </message>
     <message>
         <source>Hold to arm</source>
-        <translation type="unfinished" />
+        <translation>Hold for at armere</translation>
     </message>
     <message>
         <source>Emergency stop</source>
@@ -7560,7 +7560,7 @@
     </message>
     <message>
         <source>Hold 3 s to stop the motors</source>
-        <translation type="unfinished" />
+        <translation>Hold 3 s for at stoppe motorerne</translation>
     </message>
     <message>
         <source>Change speed</source>
@@ -7568,11 +7568,11 @@
     </message>
     <message>
         <source>Horizontal speed for this flight</source>
-        <translation type="unfinished" />
+        <translation>Vandret hastighed for denne flyvning</translation>
     </message>
     <message>
         <source>In flight, not during a mission</source>
-        <translation type="unfinished" />
+        <translation>Under flyvning, ikke under en mission</translation>
     </message>
     <message>
         <source>Apply</source>
@@ -7588,11 +7588,11 @@
     </message>
     <message>
         <source>Set home here…</source>
-        <translation type="unfinished" />
+        <translation>Sæt hjem her…</translation>
     </message>
     <message>
         <source>Set home</source>
-        <translation type="unfinished" />
+        <translation>Sæt hjem</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -7612,7 +7612,7 @@
     </message>
     <message>
         <source>Show</source>
-        <translation type="unfinished" />
+        <translation>Vis</translation>
     </message>
     <message>
         <source>Custom actions</source>
@@ -7620,14 +7620,14 @@
     </message>
     <message numerus="yes">
         <source>From the actions file · %n button(s)</source>
-        <translation type="unfinished">
-            <numerusform />
-            <numerusform />
+        <translation>
+            <numerusform>Fra handlingsfilen · %n knap</numerusform>
+            <numerusform>Fra handlingsfilen · %n knapper</numerusform>
         </translation>
     </message>
     <message>
         <source>Send “%1” to the drone now?</source>
-        <translation type="unfinished" />
+        <translation>Send „%1“ til dronen nu?</translation>
     </message>
     <message>
         <source>Send</source>
@@ -7710,11 +7710,11 @@
     </message>
     <message>
         <source>Tap map to add</source>
-        <translation type="unfinished" />
+        <translation>Tryk på kortet for at tilføje</translation>
     </message>
     <message>
         <source>Adding points</source>
-        <translation type="unfinished" />
+        <translation>Tilføjer punkter</translation>
     </message>
     <message>
         <source>Add point</source>
@@ -7722,7 +7722,7 @@
     </message>
     <message>
         <source>Mission (%1)</source>
-        <translatorcomment>Draft from Figma example "Mission (9)" - review</translatorcomment><translation type="unfinished">Mission (%1)</translation>
+        <translation>Mission (%1)</translation>
     </message>
     <message>
         <source>Fence</source>
@@ -7734,7 +7734,7 @@
     </message>
     <message>
         <source>Item %1 · %2</source>
-        <translatorcomment>Draft from Figma example "Item 6 · Waypoint 4" - review</translatorcomment><translation type="unfinished">Element %1 · %2</translation>
+        <translation>Element %1 · %2</translation>
     </message>
     <message>
         <source>Command</source>
@@ -7746,19 +7746,19 @@
     </message>
     <message>
         <source>above home</source>
-        <translation type="unfinished" />
+        <translation>over hjem</translation>
     </message>
     <message>
         <source>A pattern made with the mission wizards. Change its area or settings there; here it can be deleted.</source>
-        <translation type="unfinished" />
+        <translation>Et mønster lavet med missionsguiderne. Skift dets område eller indstillinger dér; her kan det slettes.</translation>
     </message>
     <message>
         <source>Inclusion: the drone stays inside. Exclusion: the drone stays out. Drag the corners on the map. My zones (Map &amp; flight zones) are added when the mission is sent.</source>
-        <translation type="unfinished" />
+        <translation>Inklusion: dronen bliver inde. Eksklusion: dronen bliver ude. Træk hjørnerne på kortet. Mine zoner (Kort &amp; flyzoner) tilføjes, når missionen sendes.</translation>
     </message>
     <message>
         <source>Polygon</source>
-        <translation type="unfinished" />
+        <translation>Polygon</translation>
     </message>
     <message>
         <source>Circle</source>
@@ -7766,35 +7766,35 @@
     </message>
     <message>
         <source>Polygon %1 · %2 corners</source>
-        <translation type="unfinished" />
+        <translation>Polygon %1 · %2 hjørner</translation>
     </message>
     <message>
         <source>Inclusion</source>
-        <translation type="unfinished" />
+        <translation>Inklusion</translation>
     </message>
     <message>
         <source>Exclusion</source>
-        <translation type="unfinished" />
+        <translation>Eksklusion</translation>
     </message>
     <message>
         <source>Circle %1 · %2 m</source>
-        <translation type="unfinished" />
+        <translation>Cirkel %1 · %2 m</translation>
     </message>
     <message>
         <source>No fence in this mission.</source>
-        <translation type="unfinished" />
+        <translation>Ingen geofence i denne mission.</translation>
     </message>
     <message>
         <source>Safe places to return to instead of home. Tap the map to add one; drag it on the map to move it.</source>
-        <translation type="unfinished" />
+        <translation>Sikre steder at vende tilbage til i stedet for hjem. Tryk på kortet for at tilføje et; træk det på kortet for at flytte det.</translation>
     </message>
     <message>
         <source>Point %1 · %2, %3</source>
-        <translation type="unfinished" />
+        <translation>Punkt %1 · %2, %3</translation>
     </message>
     <message>
         <source>No rally points.</source>
-        <translation type="unfinished" />
+        <translation>Ingen samlepunkter.</translation>
     </message>
     <message>
         <source>Check &amp; send</source>
@@ -7809,11 +7809,11 @@
     </message>
     <message>
         <source>Ch %1</source>
-        <translatorcomment>Draft from Figma example "Ch 6" - review</translatorcomment><translation type="unfinished">Kanal %1</translation>
+        <translation>Kanal %1</translation>
     </message>
     <message>
         <source>Step 1 of 3 · Put both sticks in the centre and the throttle all the way down. Leave the switches where they are.</source>
-        <translation type="unfinished" />
+        <translation>Trin 1 af 3 · Sæt begge pinde i midten og gassen helt ned. Lad kontakterne være, hvor de er.</translation>
     </message>
     <message>
         <source>Step 2 of 3 · Move both sticks to every corner and all switches to every position. The bars grow while you move.</source>
@@ -7821,22 +7821,22 @@
     </message>
     <message>
         <source>Step 3 of 3 · Check the values. Channels you did not move keep their old values.</source>
-        <translation type="unfinished" />
+        <translation>Trin 3 af 3 · Kontrollér værdierne. Kanaler, du ikke har bevæget, beholder deres gamle værdier.</translation>
     </message>
     <message numerus="yes">
         <source>Saved %n channel(s).</source>
-        <translation type="unfinished">
-            <numerusform />
-            <numerusform />
+        <translation>
+            <numerusform>%n kanal gemt.</numerusform>
+            <numerusform>%n kanaler gemt.</numerusform>
         </translation>
     </message>
     <message>
         <source>Nothing moved: no values changed.</source>
-        <translation type="unfinished" />
+        <translation>Intet bevæget: ingen værdier ændret.</translation>
     </message>
     <message>
         <source>not moved</source>
-        <translation type="unfinished" />
+        <translation>ikke bevæget</translation>
     </message>
     <message>
         <source>Throttle has not reached the top yet. Push it all the way up once.</source>
@@ -7844,15 +7844,15 @@
     </message>
     <message>
         <source>Small range on: %1. Move it to both ends.</source>
-        <translation type="unfinished" />
+        <translation>Lille udslag på: %1. Bevæg den til begge yderpunkter.</translation>
     </message>
     <message>
         <source>Minimum · centre · maximum. The throttle centre is its minimum.</source>
-        <translation type="unfinished" />
+        <translation>Minimum · midte · maksimum. Gassens midte er dens minimum.</translation>
     </message>
     <message>
         <source>The drone is armed. Stop the motors first.</source>
-        <translation type="unfinished" />
+        <translation>Dronen er armeret. Stop motorerne først.</translation>
     </message>
     <message>
         <source>The motors stay off. The drone must not be armed.</source>
@@ -7891,7 +7891,7 @@
     </message>
     <message>
         <source>Tap to confirm. All propellers must be off.</source>
-        <translation type="unfinished" />
+        <translation>Tryk for at bekræfte. Alle propeller skal være af.</translation>
     </message>
     <message>
         <source>Unplug the battery and USB</source>
@@ -7919,15 +7919,15 @@
     </message>
     <message>
         <source>ESC calibration done.</source>
-        <translation type="unfinished" />
+        <translation>ESC-kalibrering færdig.</translation>
     </message>
     <message>
         <source>The drone did not calibrate the ESCs. The setting is back to off. Try again and keep the battery in until the long beep.</source>
-        <translation type="unfinished" />
+        <translation>Dronen kalibrerede ikke ESC'erne. Indstillingen er sat tilbage til fra. Prøv igen, og lad batteriet sidde i, til det lange bip.</translation>
     </message>
     <message>
         <source>This drone has no ESC calibration setting.</source>
-        <translation type="unfinished" />
+        <translation>Denne drone har ingen indstilling for ESC-kalibrering.</translation>
     </message>
     <message>
         <source>Keep hands away from the motors while the battery is plugged in.</source>
@@ -7951,7 +7951,7 @@
     </message>
     <message>
         <source>I heard the long beep</source>
-        <translation type="unfinished" />
+        <translation>Jeg hørte det lange bip</translation>
     </message>
     <message>
         <source>Done</source>
@@ -8022,7 +8022,7 @@
     </message>
     <message>
         <source>Rangefinder</source>
-        <translation type="unfinished" />
+        <translation>Afstandsmåler</translation>
     </message>
     <message>
         <source>Camera</source>
@@ -8030,31 +8030,31 @@
     </message>
     <message>
         <source>Auxiliary authorisation</source>
-        <translation type="unfinished" />
+        <translation>Hjælpegodkendelse</translation>
     </message>
     <message>
         <source>Visual odometry</source>
-        <translation type="unfinished" />
+        <translation>Visuel odometri</translation>
     </message>
     <message>
         <source>FFT</source>
-        <translation type="unfinished" />
+        <translation>FFT</translation>
     </message>
     <message>
         <source>No checks: the drone starts even with a fault.</source>
-        <translation type="unfinished" />
+        <translation>Ingen kontroller: dronen starter selv med en fejl.</translation>
     </message>
     <message>
         <source>The drone is armed. Stop the motors first.</source>
-        <translation type="unfinished" />
+        <translation>Dronen er armeret. Stop motorerne først.</translation>
     </message>
     <message>
         <source>Turn off every check? The drone will start even with a broken sensor or no GPS.</source>
-        <translation type="unfinished" />
+        <translation>Slå alle kontroller fra? Dronen starter selv med en defekt sensor eller uden GPS.</translation>
     </message>
     <message>
         <source>Keep this check on</source>
-        <translation type="unfinished" />
+        <translation>Hold denne kontrol slået til</translation>
     </message>
     <message>
         <source>Turn all off</source>
@@ -8070,21 +8070,21 @@
     </message>
     <message>
         <source>All checks on</source>
-        <translation type="unfinished" />
+        <translation>Alle kontroller til</translation>
     </message>
     <message>
         <source>%1 reference</source>
-        <translation type="unfinished" />
+        <translation>%1-reference</translation>
     </message>
     <message>
         <source>Off in the company setting</source>
-        <translation type="unfinished" />
+        <translation>Fra i firmaindstillingen</translation>
     </message>
     <message numerus="yes">
         <source>%n check(s) off that the company setting has on: %1. Turn them back on before normal flights.</source>
-        <translation type="unfinished">
-            <numerusform />
-            <numerusform />
+        <translation>
+            <numerusform>%n kontrol er slået fra, som firmaindstillingen har slået til: %1. Slå den til igen før normale flyvninger.</numerusform>
+            <numerusform>%n kontroller er slået fra, som firmaindstillingen har slået til: %1. Slå dem til igen før normale flyvninger.</numerusform>
         </translation>
     </message>
 </context>
@@ -8096,7 +8096,7 @@
     </message>
     <message>
         <source>Save parameters to a file</source>
-        <translation type="unfinished" />
+        <translation>Gem parametre i en fil</translation>
     </message>
     <message>
         <source>Pick a file saved with “Save to file”. Only the values that differ are sent.</source>
@@ -8104,33 +8104,33 @@
     </message>
     <message>
         <source>All values of the drone are saved in the parameters folder of this tablet.</source>
-        <translation type="unfinished" />
+        <translation>Alle dronens værdier gemmes i parametermappen på denne tablet.</translation>
     </message>
     <message>
         <source>This file cannot be read.</source>
-        <translation type="unfinished" />
+        <translation>Denne fil kan ikke læses.</translation>
     </message>
     <message numerus="yes">
         <source>%n value(s) sent to the drone.</source>
-        <translation type="unfinished">
-            <numerusform />
-            <numerusform />
+        <translation>
+            <numerusform>%n værdi sendt til dronen.</numerusform>
+            <numerusform>%n værdier sendt til dronen.</numerusform>
         </translation>
     </message>
     <message>
         <source>No parameter files yet. Use “Save to file” first.</source>
-        <translation type="unfinished" />
+        <translation>Ingen parameterfiler endnu. Brug „Gem til fil“ først.</translation>
     </message>
     <message numerus="yes">
         <source>%n value(s) differ</source>
-        <translation type="unfinished">
-            <numerusform />
-            <numerusform />
+        <translation>
+            <numerusform>%n værdi afviger</numerusform>
+            <numerusform>%n værdier afviger</numerusform>
         </translation>
     </message>
     <message>
         <source>Same as the drone</source>
-        <translation type="unfinished" />
+        <translation>Samme som dronen</translation>
     </message>
     <message>
         <source>Now → In file</source>
@@ -8138,11 +8138,11 @@
     </message>
     <message>
         <source>not on drone</source>
-        <translation type="unfinished" />
+        <translation>ikke på dronen</translation>
     </message>
     <message>
         <source>This file is from another drone. Tick only the values you are sure about.</source>
-        <translation type="unfinished" />
+        <translation>Denne fil er fra en anden drone. Sæt kun flueben ved de værdier, du er sikker på.</translation>
     </message>
     <message>
         <source>The drone uses the new values at once. Check the flight with care after loading.</source>
@@ -8150,15 +8150,15 @@
     </message>
     <message>
         <source>The drone is armed. Stop the motors first.</source>
-        <translation type="unfinished" />
+        <translation>Dronen er armeret. Stop motorerne først.</translation>
     </message>
     <message>
         <source>File name</source>
-        <translation type="unfinished" />
+        <translation>Filnavn</translation>
     </message>
     <message>
         <source>Folder: %1</source>
-        <translation type="unfinished" />
+        <translation>Mappe: %1</translation>
     </message>
     <message>
         <source>Close</source>
@@ -8174,9 +8174,9 @@
     </message>
     <message numerus="yes">
         <source>Send %n value(s)</source>
-        <translation type="unfinished">
-            <numerusform />
-            <numerusform />
+        <translation>
+            <numerusform>Send %n værdi</numerusform>
+            <numerusform>Send %n værdier</numerusform>
         </translation>
     </message>
 </context>
@@ -8216,7 +8216,7 @@
     </message>
     <message>
         <source>RTK / GPS</source>
-        <translation type="unfinished" />
+        <translation>RTK / GPS</translation>
     </message>
     <message>
         <source>Search categories</source>
@@ -8224,11 +8224,11 @@
     </message>
     <message>
         <source>Show common groups</source>
-        <translation type="unfinished" />
+        <translation>Vis almindelige grupper</translation>
     </message>
     <message>
         <source>Show all %1 categories</source>
-        <translatorcomment>Draft from Figma example "Show all 84 categories" - review</translatorcomment><translation type="unfinished">Vis alle %1 kategorier</translation>
+        <translation>Vis alle %1 kategorier</translation>
     </message>
     <message>
         <source>Turn all off</source>
@@ -8251,7 +8251,7 @@
     </message>
     <message>
         <source>%1 · from the drone, %2 values per second</source>
-        <translatorcomment>Draft from Figma example "ATTITUDE · from the drone, 10 values per second" - review</translatorcomment><translation type="unfinished">%1 · fra dronen, %2 værdier pr. sekund</translation>
+        <translation>%1 · fra dronen, %2 værdier pr. sekund</translation>
     </message>
     <message>
         <source>Tick “Chart” on a field to add it (max 2)</source>
@@ -8259,7 +8259,7 @@
     </message>
     <message>
         <source>No field chosen</source>
-        <translation type="unfinished" />
+        <translation>Intet felt valgt</translation>
     </message>
     <message>
         <source>Scale: auto</source>
@@ -8286,15 +8286,15 @@
     </message>
     <message>
         <source>Logs, missions, parameters and photos are saved in folders inside this one. Files already saved stay where they are.</source>
-        <translation type="unfinished" />
+        <translation>Logs, missioner, parametre og fotos gemmes i mapper i denne mappe. Filer, der allerede er gemt, bliver, hvor de er.</translation>
     </message>
     <message>
         <source>Free: %1 GB</source>
-        <translatorcomment>Draft from Figma example "Free: 412 GB" - review</translatorcomment><translation type="unfinished">Ledig: %1 GB</translation>
+        <translation>Ledig: %1 GB</translation>
     </message>
     <message>
         <source>Free: %1 MB</source>
-        <translation type="unfinished" />
+        <translation>Ledig: %1 MB</translation>
     </message>
     <message>
         <source>This PC</source>
@@ -8306,7 +8306,7 @@
     </message>
     <message>
         <source>Used now</source>
-        <translation type="unfinished" />
+        <translation>Bruges nu</translation>
     </message>
     <message>
         <source>+ New folder</source>
@@ -8314,15 +8314,15 @@
     </message>
     <message>
         <source>Folder name</source>
-        <translation type="unfinished" />
+        <translation>Mappenavn</translation>
     </message>
     <message>
         <source>Create</source>
-        <translation type="unfinished" />
+        <translation>Opret</translation>
     </message>
     <message>
         <source>This folder cannot be made here.</source>
-        <translation type="unfinished" />
+        <translation>Denne mappe kan ikke oprettes her.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -8330,26 +8330,26 @@
     </message>
     <message>
         <source>The app cannot write in this folder. Pick another one.</source>
-        <translation type="unfinished" />
+        <translation>Appen kan ikke skrive i denne mappe. Vælg en anden.</translation>
     </message>
     <message>
         <source>Use</source>
-        <translation type="unfinished" />
+        <translation>Brug</translation>
     </message>
     <message>
         <source>Use “%1”</source>
-        <translatorcomment>Draft from Figma example "Use "ALES_QGC"" - review</translatorcomment><translation type="unfinished">Brug "%1"</translation>
+        <translation>Brug „%1“</translation>
     </message>
 </context>
 <context>
     <name>SimpleSetupFirmware</name>
     <message>
         <source>Choose a firmware file</source>
-        <translation type="unfinished" />
+        <translation>Vælg en firmwarefil</translation>
     </message>
     <message>
         <source>Firmware files (*.apj)</source>
-        <translation type="unfinished" />
+        <translation>Firmwarefiler (*.apj)</translation>
     </message>
     <message>
         <source>Firmware</source>
@@ -8361,15 +8361,15 @@
     </message>
     <message>
         <source>Firmware is updated from a PC with a USB cable.</source>
-        <translation type="unfinished" />
+        <translation>Firmware opdateres fra en pc med et USB-kabel.</translation>
     </message>
     <message>
         <source>Installed · %1 %2.%3.%4</source>
-        <translation type="unfinished" />
+        <translation>Installeret · %1 %2.%3.%4</translation>
     </message>
     <message>
         <source>Installed · drone not connected</source>
-        <translation type="unfinished" />
+        <translation>Installeret · drone ikke forbundet</translation>
     </message>
     <message>
         <source>Signature check on the drone (secure boot): not set up yet</source>
@@ -8381,11 +8381,11 @@
     </message>
     <message>
         <source>Update file · %1</source>
-        <translatorcomment>Draft from Figma example "Update file · Z01.08.00EASA" - review</translatorcomment><translation type="unfinished">Opdateringsfil · %1</translation>
+        <translation>Opdateringsfil · %1</translation>
     </message>
     <message>
         <source>No update file chosen</source>
-        <translation type="unfinished" />
+        <translation>Ingen opdateringsfil valgt</translation>
     </message>
     <message>
         <source>Signature and version are not checked yet: install only files from ARGOSDYNE support.</source>
@@ -8393,7 +8393,7 @@
     </message>
     <message>
         <source>Get the file from ARGOSDYNE support, then choose it here.</source>
-        <translation type="unfinished" />
+        <translation>Hent filen fra ARGOSDYNE-support, og vælg den så her.</translation>
     </message>
     <message>
         <source>Signature not checked</source>
@@ -8421,19 +8421,19 @@
     </message>
     <message>
         <source>Unplug the USB cable, wait 2 seconds and plug it in again.</source>
-        <translation type="unfinished" />
+        <translation>Tag USB-kablet ud, vent 2 sekunder, og sæt det i igen.</translation>
     </message>
     <message>
         <source>Installing. Do not unplug the drone.</source>
-        <translation type="unfinished" />
+        <translation>Installerer. Tag ikke dronen ud.</translation>
     </message>
     <message>
         <source>Firmware installed. The drone restarts.</source>
-        <translation type="unfinished" />
+        <translation>Firmware installeret. Dronen genstarter.</translation>
     </message>
     <message>
         <source>Install failed. Plug the drone straight into a USB port of the PC (no hub) and try again.</source>
-        <translation type="unfinished" />
+        <translation>Installation mislykkedes. Sæt dronen direkte i en USB-port på pc'en (ingen hub), og prøv igen.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -8441,7 +8441,7 @@
     </message>
     <message>
         <source>Do not unplug the drone while installing. If the power is lost, plug it in again and install once more.</source>
-        <translation type="unfinished" />
+        <translation>Tag ikke dronen ud under installationen. Hvis strømmen forsvinder, så sæt den i igen, og installér en gang til.</translation>
     </message>
 </context>
 <context>
@@ -8460,7 +8460,7 @@
     </message>
     <message>
         <source>%1 · stopped after waypoint %2</source>
-        <translation type="unfinished" />
+        <translation>%1 · stoppet efter waypoint %2</translation>
     </message>
     <message>
         <source>FLIGHT TIME</source>
@@ -8480,19 +8480,19 @@
     </message>
     <message>
         <source>Flight log saved.</source>
-        <translation type="unfinished" />
+        <translation>Flyvelog gemt.</translation>
     </message>
     <message>
         <source>Ready: the next flight starts at waypoint %1.</source>
-        <translation type="unfinished" />
+        <translation>Klar: næste flyvning starter ved waypoint %1.</translation>
     </message>
     <message>
         <source>The mission stays on the drone: Start mission flies it again.</source>
-        <translation type="unfinished" />
+        <translation>Missionen bliver på dronen: Start mission flyver den igen.</translation>
     </message>
     <message>
         <source>Next flight can continue from waypoint %1 (photos already taken are kept).</source>
-        <translation type="unfinished" />
+        <translation>Næste flyvning kan fortsætte fra waypoint %1 (fotos, der allerede er taget, bevares).</translation>
     </message>
     <message>
         <source>Remove mission from drone</source>
@@ -8504,7 +8504,7 @@
     </message>
     <message>
         <source>Mission removed from the drone</source>
-        <translation type="unfinished" />
+        <translation>Mission fjernet fra dronen</translation>
     </message>
     <message>
         <source>Keep as is</source>
@@ -8516,7 +8516,7 @@
     </message>
     <message>
         <source>Continue from waypoint %1</source>
-        <translatorcomment>Draft from Figma example "Continue from waypoint 7" - review</translatorcomment><translation type="unfinished">Fortsæt fra waypoint %1</translation>
+        <translation>Fortsæt fra waypoint %1</translation>
     </message>
 </context>
 <context>
@@ -8531,19 +8531,19 @@
     </message>
     <message>
         <source>Serial</source>
-        <translation type="unfinished" />
+        <translation>Seriel</translation>
     </message>
     <message>
         <source>listen %1</source>
-        <translation type="unfinished" />
+        <translation>lyt %1</translation>
     </message>
     <message>
         <source>send to %1</source>
-        <translation type="unfinished" />
+        <translation>send til %1</translation>
     </message>
     <message>
         <source>connects when the app starts</source>
-        <translation type="unfinished" />
+        <translation>forbinder, når appen starter</translation>
     </message>
     <message>
         <source>Manual connections</source>
@@ -8579,7 +8579,7 @@
     </message>
     <message>
         <source>Edit connection</source>
-        <translation type="unfinished" />
+        <translation>Redigér forbindelse</translation>
     </message>
     <message>
         <source>Saved on this tablet. The drone link still connects by itself — add a connection only for other links.</source>
@@ -8595,7 +8595,7 @@
     </message>
     <message>
         <source>e.g. Telemetry radio</source>
-        <translation type="unfinished" />
+        <translation>f.eks. telemetriradio</translation>
     </message>
     <message>
         <source>Type</source>
@@ -8607,7 +8607,7 @@
     </message>
     <message>
         <source>No serial port found</source>
-        <translation type="unfinished" />
+        <translation>Ingen seriel port fundet</translation>
     </message>
     <message>
         <source>Speed (baud)</source>
@@ -8615,27 +8615,27 @@
     </message>
     <message>
         <source>Listening port</source>
-        <translation type="unfinished" />
+        <translation>Lytteport</translation>
     </message>
     <message>
         <source>Send to (optional)</source>
-        <translation type="unfinished" />
+        <translation>Send til (valgfrit)</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished" />
+        <translation>Fjern</translation>
     </message>
     <message>
         <source>host:port, e.g. 192.168.1.20:14550</source>
-        <translation type="unfinished" />
+        <translation>vært:port, f.eks. 192.168.1.20:14550</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished" />
+        <translation>Tilføj</translation>
     </message>
     <message>
         <source>Server address</source>
-        <translation type="unfinished" />
+        <translation>Serveradresse</translation>
     </message>
     <message>
         <source>Connect when the app starts</source>
@@ -8643,7 +8643,7 @@
     </message>
     <message>
         <source>Delete “%1”? A running connection is closed first.</source>
-        <translation type="unfinished" />
+        <translation>Slet „%1“? En aktiv forbindelse lukkes først.</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -8651,7 +8651,7 @@
     </message>
     <message>
         <source>Delete…</source>
-        <translation type="unfinished" />
+        <translation>Slet…</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -8682,11 +8682,11 @@
     </message>
     <message>
         <source>No gamepad found. Plug one in by USB or pair it by Bluetooth.</source>
-        <translation type="unfinished" />
+        <translation>Ingen gamepad fundet. Tilslut en via USB, eller par den via Bluetooth.</translation>
     </message>
     <message>
         <source>Buttons only</source>
-        <translation type="unfinished" />
+        <translation>Kun knapper</translation>
     </message>
     <message>
         <source>Calibrated</source>
@@ -8694,7 +8694,7 @@
     </message>
     <message>
         <source>Not calibrated</source>
-        <translation type="unfinished" />
+        <translation>Ikke kalibreret</translation>
     </message>
     <message>
         <source>Gamepad</source>
@@ -8706,11 +8706,11 @@
     </message>
     <message>
         <source>· connect a drone first</source>
-        <translation type="unfinished" />
+        <translation>· forbind en drone først</translation>
     </message>
     <message>
         <source>· calibrate first</source>
-        <translation type="unfinished" />
+        <translation>· kalibrér først</translation>
     </message>
     <message>
         <source>· turns the on-screen sticks off</source>
@@ -8722,7 +8722,7 @@
     </message>
     <message>
         <source>Axis %1</source>
-        <translatorcomment>Draft from Figma example "Axis 1" - review</translatorcomment><translation type="unfinished">Akse %1</translation>
+        <translation>Akse %1</translation>
     </message>
     <message>
         <source>Calibrate sticks…</source>
@@ -8750,43 +8750,43 @@
     </message>
     <message>
         <source>Calibrate gamepad sticks</source>
-        <translation type="unfinished" />
+        <translation>Kalibrér gamepad-pinde</translation>
     </message>
     <message>
         <source>Choose the stick layout, press Start and move the sticks as shown. Keep the gamepad still between steps.</source>
-        <translation type="unfinished" />
+        <translation>Vælg pindlayout, tryk på Start, og bevæg pindene som vist. Hold gamepadden stille mellem trinene.</translation>
     </message>
     <message>
         <source>Stick layout</source>
-        <translation type="unfinished" />
+        <translation>Pindlayout</translation>
     </message>
     <message>
         <source>Mode 1</source>
-        <translation type="unfinished" />
+        <translation>Tilstand 1</translation>
     </message>
     <message>
         <source>Mode 2</source>
-        <translation type="unfinished" />
+        <translation>Tilstand 2</translation>
     </message>
     <message>
         <source>Mode 3</source>
-        <translation type="unfinished" />
+        <translation>Tilstand 3</translation>
     </message>
     <message>
         <source>Mode 4</source>
-        <translation type="unfinished" />
+        <translation>Tilstand 4</translation>
     </message>
     <message>
         <source>Left stick</source>
-        <translation type="unfinished" />
+        <translation>Venstre pind</translation>
     </message>
     <message>
         <source>Right stick</source>
-        <translation type="unfinished" />
+        <translation>Højre pind</translation>
     </message>
     <message>
         <source>Press Start.</source>
-        <translation type="unfinished" />
+        <translation>Tryk på Start.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -8798,7 +8798,7 @@
     </message>
     <message>
         <source>Skip</source>
-        <translation type="unfinished" />
+        <translation>Spring over</translation>
     </message>
     <message>
         <source>Next</source>
@@ -8821,7 +8821,7 @@
     </message>
     <message>
         <source>Locked while the drone is armed.</source>
-        <translation type="unfinished" />
+        <translation>Låst, mens dronen er armeret.</translation>
     </message>
     <message>
         <source>Clear the mission when the drone restarts</source>
@@ -8849,7 +8849,7 @@
     </message>
     <message>
         <source>Sending…</source>
-        <translation type="unfinished" />
+        <translation>Sender…</translation>
     </message>
     <message>
         <source>Apply</source>
@@ -8857,31 +8857,31 @@
     </message>
     <message>
         <source>Applied.</source>
-        <translation type="unfinished" />
+        <translation>Anvendt.</translation>
     </message>
     <message>
         <source>Clearing on restart changes after the next restart.</source>
-        <translation type="unfinished" />
+        <translation>Rydning ved genstart træder i kraft efter næste genstart.</translation>
     </message>
     <message>
         <source>Continue after landing changes at the next landing.</source>
-        <translation type="unfinished" />
+        <translation>Fortsæt efter landing træder i kraft ved næste landing.</translation>
     </message>
     <message>
         <source>Could not apply the setting. The previous value is back.</source>
-        <translation type="unfinished" />
+        <translation>Indstillingen kunne ikke anvendes. Den tidligere værdi er gendannet.</translation>
     </message>
     <message>
         <source>Could not read MIS_OPTIONS from the drone.</source>
-        <translation type="unfinished" />
+        <translation>Kunne ikke læse MIS_OPTIONS fra dronen.</translation>
     </message>
     <message>
         <source>Current value: MIS_OPTIONS = %1</source>
-        <translation type="unfinished" />
+        <translation>Aktuel værdi: MIS_OPTIONS = %1</translation>
     </message>
     <message>
         <source>Reading MIS_OPTIONS…</source>
-        <translation type="unfinished" />
+        <translation>Læser MIS_OPTIONS…</translation>
     </message>
 </context>
 <context>
@@ -8892,19 +8892,19 @@
     </message>
     <message>
         <source>What the camera reports — the list differs by camera.</source>
-        <translation type="unfinished" />
+        <translation>Hvad kameraet rapporterer — listen afhænger af kameraet.</translation>
     </message>
     <message>
         <source>Camera %1</source>
-        <translatorcomment>Draft from Figma example "Camera &amp; gimbal" - review</translatorcomment><translation type="unfinished">Kamera %1</translation>
+        <translation>Kamera %1</translation>
     </message>
     <message>
         <source>firmware %1</source>
-        <translation type="unfinished" />
+        <translation>firmware %1</translation>
     </message>
     <message>
         <source>The drone reports no camera with settings.</source>
-        <translation type="unfinished" />
+        <translation>Dronen melder intet kamera med indstillinger.</translation>
     </message>
     <message>
         <source>Camera</source>
@@ -8928,11 +8928,11 @@
     </message>
     <message>
         <source>Blend</source>
-        <translation type="unfinished" />
+        <translation>Bland</translation>
     </message>
     <message>
         <source>Full</source>
-        <translation type="unfinished" />
+        <translation>Fuld</translation>
     </message>
     <message>
         <source>Picture in picture</source>
@@ -8940,7 +8940,7 @@
     </message>
     <message>
         <source>How much of the thermal picture shows</source>
-        <translation type="unfinished" />
+        <translation>Hvor meget af det termiske billede der vises</translation>
     </message>
     <message>
         <source>Video fit</source>
@@ -8948,7 +8948,7 @@
     </message>
     <message>
         <source>How the video fills the screen</source>
-        <translation type="unfinished" />
+        <translation>Hvordan videoen fylder skærmen</translation>
     </message>
     <message>
         <source>SD CARD</source>
@@ -8956,23 +8956,23 @@
     </message>
     <message>
         <source>No SD card</source>
-        <translation type="unfinished" />
+        <translation>Intet SD-kort</translation>
     </message>
     <message>
         <source>SD card not formatted</source>
-        <translation type="unfinished" />
+        <translation>SD-kort ikke formateret</translation>
     </message>
     <message>
         <source>%1 free of %2</source>
-        <translatorcomment>Draft from Figma example "41 GB free of 64 GB" - review</translatorcomment><translation type="unfinished">%1 ledig af %2</translation>
+        <translation>%1 ledig af %2</translation>
     </message>
     <message>
         <source>%1 free</source>
-        <translatorcomment>Draft from Figma example "41 GB free" - review</translatorcomment><translation type="unfinished">%1 ledig</translation>
+        <translation>%1 ledig</translation>
     </message>
     <message>
         <source>Stop recording and photos first</source>
-        <translation type="unfinished" />
+        <translation>Stop optagelse og fotos først</translation>
     </message>
     <message>
         <source>Format SD card…</source>
@@ -8988,11 +8988,11 @@
     </message>
     <message>
         <source>Erase all photos and videos on the camera's SD card? This cannot be undone.</source>
-        <translation type="unfinished" />
+        <translation>Slet alle fotos og videoer på kameraets SD-kort? Dette kan ikke fortrydes.</translation>
     </message>
     <message>
         <source>Set every camera setting back to its factory value?</source>
-        <translation type="unfinished" />
+        <translation>Sæt alle kameraindstillinger tilbage til fabriksværdierne?</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -9008,11 +9008,11 @@
     </message>
     <message>
         <source>Formatting the SD card…</source>
-        <translation type="unfinished" />
+        <translation>Formaterer SD-kortet…</translation>
     </message>
     <message>
         <source>Camera settings reset.</source>
-        <translation type="unfinished" />
+        <translation>Kameraindstillinger nulstillet.</translation>
     </message>
     <message>
         <source>Done</source>
@@ -9023,15 +9023,15 @@
     <name>SimpleRoot</name>
     <message>
         <source>The drone restarted — check the mission on the fly screen</source>
-        <translation type="unfinished" />
+        <translation>Dronen er genstartet — kontrollér missionen på flyveskærmen</translation>
     </message>
     <message>
         <source>%1 saved. Restart the drone to use the new value.</source>
-        <translation type="unfinished" />
+        <translation>%1 gemt. Genstart dronen for at bruge den nye værdi.</translation>
     </message>
     <message>
         <source>“%1” changes after the app restarts.</source>
-        <translation type="unfinished" />
+        <translation>„%1“ ændres, når appen genstarter.</translation>
     </message>
 </context>
 </TS>

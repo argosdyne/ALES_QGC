@@ -32,11 +32,11 @@
     </message>
     <message>
         <source>Last received values</source>
-        <translation type="unfinished" />
+        <translation>Giá trị nhận gần nhất</translation>
     </message>
     <message>
         <source>Alarm</source>
-        <translation type="unfinished" />
+        <translation>Báo động</translation>
     </message>
     <message>
         <source>CABLE OUT</source>
@@ -87,7 +87,7 @@
     </message>
     <message>
         <source>30 % / 20 %</source>
-        <translation type="unfinished" />
+        <translation>30 % / 20 %</translation>
     </message>
     <message>
         <source>Quality</source>
@@ -115,7 +115,7 @@
     </message>
     <message>
         <source>not reported</source>
-        <translation type="unfinished" />
+        <translation>không báo</translation>
     </message>
     <message>
         <source>Distance to drone</source>
@@ -135,7 +135,7 @@
     </message>
     <message>
         <source>Not enabled</source>
-        <translation type="unfinished" />
+        <translation>Chưa bật</translation>
     </message>
     <message>
         <source>Broadcasting</source>
@@ -143,7 +143,7 @@
     </message>
     <message>
         <source>Check</source>
-        <translation type="unfinished" />
+        <translation>Cần kiểm tra</translation>
     </message>
     <message>
         <source>Message</source>
@@ -159,7 +159,7 @@
     </message>
     <message>
         <source>Missing or invalid</source>
-        <translation type="unfinished" />
+        <translation>Thiếu hoặc không hợp lệ</translation>
     </message>
     <message>
         <source>Signed (MAVLink)</source>
@@ -167,11 +167,11 @@
     </message>
     <message>
         <source>Key mismatch</source>
-        <translation type="unfinished" />
+        <translation>Khóa không khớp</translation>
     </message>
     <message>
         <source>Not protected</source>
-        <translation type="unfinished" />
+        <translation>Không được bảo vệ</translation>
     </message>
     <message>
         <source>Link protection</source>
@@ -186,15 +186,15 @@
     </message>
     <message>
         <source>1  Turn on the controller and the radio</source>
-        <translation type="unfinished" />
+        <translation>1  Bật bộ điều khiển và radio</translation>
     </message>
     <message>
         <source>2  Turn on the drone and wait for the lights</source>
-        <translation type="unfinished" />
+        <translation>2  Bật drone và chờ đèn sáng</translation>
     </message>
     <message>
         <source>3  The app connects automatically</source>
-        <translation type="unfinished" />
+        <translation>3  Ứng dụng tự động kết nối</translation>
     </message>
     <message>
         <source>Connection help</source>
@@ -209,15 +209,15 @@
     <name>SimpleFlyOverlay</name>
     <message>
         <source>The drone keeps its mission after a restart. Check it before starting.</source>
-        <translation type="unfinished" />
+        <translation>Drone giữ nhiệm vụ sau khi khởi động lại. Kiểm tra trước khi bắt đầu.</translation>
     </message>
     <message>
         <source>The drone clears its mission at a restart. Send the mission again before flying.</source>
-        <translation type="unfinished" />
+        <translation>Drone xóa nhiệm vụ khi khởi động lại. Gửi lại nhiệm vụ trước khi bay.</translation>
     </message>
     <message>
         <source>Check the mission on the drone again.</source>
-        <translation type="unfinished" />
+        <translation>Kiểm tra lại nhiệm vụ trên drone.</translation>
     </message>
     <message>
         <source>Take off</source>
@@ -253,7 +253,7 @@
     </message>
     <message>
         <source>Landing</source>
-        <translation type="unfinished" />
+        <translation>Đang hạ cánh</translation>
     </message>
     <message>
         <source>Battery low — returning home</source>
@@ -265,11 +265,11 @@
     </message>
     <message>
         <source>Pause stops the drone in place.</source>
-        <translation type="unfinished" />
+        <translation>Tạm dừng sẽ dừng drone tại chỗ.</translation>
     </message>
     <message>
         <source>Pause stops the drone in place. Land lands here.</source>
-        <translation type="unfinished" />
+        <translation>Tạm dừng sẽ dừng drone tại chỗ. Hạ cánh sẽ hạ cánh tại đây.</translation>
     </message>
     <message>
         <source>Paused — holding position</source>
@@ -281,7 +281,7 @@
     </message>
     <message>
         <source>Use Return home or Land, or change the flight mode.</source>
-        <translation type="unfinished" />
+        <translation>Dùng Quay về hoặc Hạ cánh, hoặc đổi chế độ bay.</translation>
     </message>
     <message>
         <source>Resume mission</source>
@@ -289,7 +289,7 @@
     </message>
     <message>
         <source>Land here</source>
-        <translation type="unfinished" />
+        <translation>Hạ cánh tại đây</translation>
     </message>
     <message>
         <source>The drone climbs to the return-home altitude, flies back to the home point and lands.</source>
@@ -297,15 +297,15 @@
     </message>
     <message>
         <source>The drone descends and lands straight below its current position.</source>
-        <translation type="unfinished" />
+        <translation>Drone hạ xuống và hạ cánh thẳng bên dưới vị trí hiện tại.</translation>
     </message>
     <message>
         <source>The drone takes off and flies the mission on the map. It returns home when the mission ends.</source>
-        <translation type="unfinished" />
+        <translation>Drone cất cánh và bay nhiệm vụ trên bản đồ. Drone quay về khi nhiệm vụ kết thúc.</translation>
     </message>
     <message>
         <source>You can stop it any time with Pause.</source>
-        <translation type="unfinished" />
+        <translation>Bạn có thể dừng bất cứ lúc nào bằng Tạm dừng.</translation>
     </message>
     <message>
         <source>You can stop it any time with Pause. Return-home altitude: Settings › Safety</source>
@@ -317,19 +317,19 @@
     </message>
     <message>
         <source>Slide to land</source>
-        <translation type="unfinished" />
+        <translation>Trượt để hạ cánh</translation>
     </message>
     <message>
         <source>Slide to start</source>
-        <translation type="unfinished" />
+        <translation>Trượt để bắt đầu</translation>
     </message>
     <message>
         <source>REC %1</source>
-        <translation type="unfinished" />
+        <translation>REC %1</translation>
     </message>
     <message>
         <source>%1 left</source>
-        <translation type="unfinished" />
+        <translation>Còn %1</translation>
     </message>
     <message>
         <source>Zoom</source>
@@ -337,11 +337,11 @@
     </message>
     <message>
         <source>Pitch %1° · Yaw %2°</source>
-        <translatorcomment>Draft from Figma example "Pitch −30° · Yaw 0°" - review</translatorcomment><translation type="unfinished">Pitch %1°  ·  Yaw %2°</translation>
+        <translation>Pitch %1° · Yaw %2°</translation>
     </message>
     <message>
         <source>No video — flight is not affected</source>
-        <translation type="unfinished" />
+        <translation>Không có video — không ảnh hưởng tới chuyến bay</translation>
     </message>
     <message>
         <source>Waiting for video…</source>
@@ -349,7 +349,7 @@
     </message>
     <message>
         <source>The drone keeps flying normally. Check the camera and the video link, or use the map.</source>
-        <translation type="unfinished" />
+        <translation>Drone vẫn bay bình thường. Kiểm tra camera và liên kết video, hoặc dùng bản đồ.</translation>
     </message>
     <message>
         <source>The camera is starting. This usually takes about 10 seconds.</source>
@@ -357,15 +357,15 @@
     </message>
     <message>
         <source>Camera %1 connected</source>
-        <translatorcomment>Draft from Figma example "Camera RHYTHM 3 connected" - review</translatorcomment><translation type="unfinished">Đã kết nối camera %1</translation>
+        <translation>Đã kết nối camera %1</translation>
     </message>
     <message>
         <source>Camera not reported by the drone</source>
-        <translation type="unfinished" />
+        <translation>Drone không báo camera</translation>
     </message>
     <message>
         <source>Video link connected · waiting for the first picture</source>
-        <translation type="unfinished" />
+        <translation>Đã kết nối liên kết video · đang chờ hình đầu tiên</translation>
     </message>
     <message>
         <source>Video link: searching</source>
@@ -381,51 +381,51 @@
     </message>
     <message>
         <source>1. Camera: powered on and its cable plugged in.  2. Video link: the radio is connected (Settings › Connection).  3. Video address: Settings › Payloads › Camera &amp; gimbal. Error details are in the messages (bell).</source>
-        <translation type="unfinished" />
+        <translation>1. Camera: đã bật nguồn và cắm cáp.  2. Liên kết video: radio đã kết nối (Cài đặt › Kết nối).  3. Địa chỉ video: Cài đặt › Payload › Camera &amp; gimbal. Chi tiết lỗi có trong thông báo (chuông).</translation>
     </message>
     <message>
         <source>Battery very low (%1 %) — return home now</source>
-        <translation type="unfinished" />
+        <translation>Pin rất yếu (%1 %) — quay về ngay</translation>
     </message>
     <message>
         <source>Battery low (%1 %) — plan to return home</source>
-        <translation type="unfinished" />
+        <translation>Pin yếu (%1 %) — chuẩn bị quay về</translation>
     </message>
     <message>
         <source>About %1 of flight left.</source>
-        <translation type="unfinished" />
+        <translation>Còn khoảng %1 thời gian bay.</translation>
     </message>
     <message>
         <source>Bring the drone back while there is enough battery.</source>
-        <translation type="unfinished" />
+        <translation>Đưa drone về khi vẫn còn đủ pin.</translation>
     </message>
     <message>
         <source>Prohibited zone</source>
-        <translation type="unfinished" />
+        <translation>Vùng cấm</translation>
     </message>
     <message>
         <source>Authorisation zone</source>
-        <translation type="unfinished" />
+        <translation>Vùng cần cấp phép</translation>
     </message>
     <message>
         <source>My zone</source>
-        <translation type="unfinished" />
+        <translation>Vùng của tôi</translation>
     </message>
     <message>
         <source>Flight zone</source>
-        <translation type="unfinished" />
+        <translation>Vùng bay</translation>
     </message>
     <message>
         <source>Inside: %1</source>
-        <translation type="unfinished" />
+        <translation>Bên trong: %1</translation>
     </message>
     <message>
         <source>%1 %2 ahead</source>
-        <translation type="unfinished" />
+        <translation>%1 cách %2 phía trước</translation>
     </message>
     <message>
         <source>Leave the zone: return home or fly back out.</source>
-        <translation type="unfinished" />
+        <translation>Rời khỏi vùng: quay về hoặc bay ngược ra.</translation>
     </message>
     <message>
         <source>Turn back or stop.</source>
@@ -433,27 +433,27 @@
     </message>
     <message>
         <source>No-entry zone</source>
-        <translation type="unfinished" />
+        <translation>Vùng không được vào</translation>
     </message>
     <message>
         <source>Drone: %1</source>
-        <translation type="unfinished" />
+        <translation>Drone: %1</translation>
     </message>
     <message>
         <source>Land lands here.</source>
-        <translation type="unfinished" />
+        <translation>Hạ cánh sẽ hạ cánh tại đây.</translation>
     </message>
     <message>
         <source>Tap the map to choose a new point</source>
-        <translation type="unfinished" />
+        <translation>Chạm bản đồ để chọn điểm mới</translation>
     </message>
     <message>
         <source>Arrived — holding position</source>
-        <translation type="unfinished" />
+        <translation>Đã tới — đang giữ vị trí</translation>
     </message>
     <message>
         <source>Obstacle %1 ahead — drone stopped</source>
-        <translatorcomment>Draft from Figma example "Obstacle 6 m ahead — drone stopped" - review</translatorcomment><translation type="unfinished">Vật cản cách %1 — drone đã dừng</translation>
+        <translation>Vật cản cách %1 phía trước — drone đã dừng</translation>
     </message>
     <message>
         <source>Choose what to do. The drone keeps holding until you choose.</source>
@@ -469,19 +469,19 @@
     </message>
     <message>
         <source>Obstacle %1 ahead — going around it</source>
-        <translation type="unfinished" />
+        <translation>Vật cản cách %1 phía trước — đang bay vòng qua</translation>
     </message>
     <message>
         <source>The drone finds its own way to the point. Stop on the card holds it in place.</source>
-        <translation type="unfinished" />
+        <translation>Drone tự tìm đường tới điểm. Dừng trên thẻ sẽ giữ drone tại chỗ.</translation>
     </message>
     <message>
         <source>Go here stopped. Continue or Cancel on the card below.</source>
-        <translation type="unfinished" />
+        <translation>Bay tới đây đã dừng. Chọn Tiếp tục hoặc Hủy trên thẻ bên dưới.</translation>
     </message>
     <message>
         <source>The drone did not take Go here. Try again.</source>
-        <translation type="unfinished" />
+        <translation>Drone không nhận lệnh Bay tới đây. Hãy thử lại.</translation>
     </message>
     <message>
         <source>Set as home point</source>
@@ -497,7 +497,7 @@
     </message>
     <message>
         <source>Home point sent to the drone</source>
-        <translation type="unfinished" />
+        <translation>Đã gửi Home Point tới drone</translation>
     </message>
     <message>
         <source>LiDAR can't start recording</source>
@@ -505,15 +505,15 @@
     </message>
     <message>
         <source>Check the generator and the ground unit. Land if power does not return.</source>
-        <translation type="unfinished" />
+        <translation>Kiểm tra máy phát điện và thiết bị mặt đất. Hạ cánh nếu nguồn không trở lại.</translation>
     </message>
     <message>
         <source>Continue</source>
-        <translation type="unfinished" />
+        <translation>Tiếp tục</translation>
     </message>
     <message>
         <source>Keep the area below clear.</source>
-        <translation type="unfinished" />
+        <translation>Giữ khu vực bên dưới trống.</translation>
     </message>
     <message>
         <source>Land now</source>
@@ -521,7 +521,7 @@
     </message>
     <message>
         <source>Landing is recommended. Keep the area below clear.</source>
-        <translation type="unfinished" />
+        <translation>Nên hạ cánh. Giữ khu vực bên dưới trống.</translation>
     </message>
     <message>
         <source>OK</source>
@@ -533,23 +533,23 @@
     </message>
     <message>
         <source>Return to the tether station</source>
-        <translation type="unfinished" />
+        <translation>Quay về trạm tether</translation>
     </message>
     <message>
         <source>Slide to return</source>
-        <translation type="unfinished" />
+        <translation>Trượt để quay về</translation>
     </message>
     <message>
         <source>Slide to turn power off</source>
-        <translation type="unfinished" />
+        <translation>Trượt để tắt nguồn</translation>
     </message>
     <message>
         <source>Tether power is lost. The drone flies back to the station on its onboard battery and lands.</source>
-        <translation type="unfinished" />
+        <translation>Mất nguồn tether. Drone bay về trạm bằng pin trên máy và hạ cánh.</translation>
     </message>
     <message>
         <source>Tether power is lost. The drone lands at its current position on its onboard battery.</source>
-        <translation type="unfinished" />
+        <translation>Mất nguồn tether. Drone hạ cánh tại vị trí hiện tại bằng pin trên máy.</translation>
     </message>
     <message>
         <source>Tether power lost — the drone is on its onboard battery</source>
@@ -561,7 +561,7 @@
     </message>
     <message>
         <source>The drone may fall if its battery is too low.</source>
-        <translation type="unfinished" />
+        <translation>Drone có thể rơi nếu pin quá yếu.</translation>
     </message>
     <message>
         <source>To station</source>
@@ -569,35 +569,35 @@
     </message>
     <message>
         <source>Turn tether power off?</source>
-        <translation type="unfinished" />
+        <translation>Tắt nguồn tether?</translation>
     </message>
     <message>
         <source>Backup battery low (%1 %)</source>
-        <translation type="unfinished" />
+        <translation>Pin dự phòng yếu (%1 %)</translation>
     </message>
     <message>
         <source>Backup battery very low (%1 %) — land now</source>
-        <translation type="unfinished" />
+        <translation>Pin dự phòng rất yếu (%1 %) — hạ cánh ngay</translation>
     </message>
     <message>
         <source>Cable %1 m</source>
-        <translatorcomment>Draft from Figma example "Cable 52 m" - review</translatorcomment><translation type="unfinished">Cáp %1 m</translation>
+        <translation>Cáp %1 m</translation>
     </message>
     <message>
         <source>Cable near its limit (%1 of %2 m)</source>
-        <translation type="unfinished" />
+        <translation>Cáp gần giới hạn (%1 / %2 m)</translation>
     </message>
     <message>
         <source>Check the cable and the station. Land if the alarm stays.</source>
-        <translation type="unfinished" />
+        <translation>Kiểm tra cáp và trạm. Hạ cánh nếu báo động vẫn còn.</translation>
     </message>
     <message>
         <source>Check the ground power. The backup battery keeps the drone up only for a short time.</source>
-        <translation type="unfinished" />
+        <translation>Kiểm tra nguồn mặt đất. Pin dự phòng chỉ giữ drone trên không trong thời gian ngắn.</translation>
     </message>
     <message>
         <source>Height + is off. Lower the drone or come closer to the station.</source>
-        <translation type="unfinished" />
+        <translation>Độ cao + bị tắt. Hạ thấp drone hoặc đến gần trạm hơn.</translation>
     </message>
     <message>
         <source>Height</source>
@@ -605,7 +605,7 @@
     </message>
     <message>
         <source>Tether alarm — %1</source>
-        <translation type="unfinished" />
+        <translation>Báo động tether — %1</translation>
     </message>
     <message>
         <source>More</source>
@@ -637,47 +637,47 @@
     </message>
     <message>
         <source>Is drone %1 the one on this tether? Check it, then confirm. Confirming sends nothing to the drone.</source>
-        <translation type="unfinished" />
+        <translation>Drone %1 có phải là drone trên cáp tether này? Kiểm tra rồi xác nhận. Xác nhận không gửi gì tới drone.</translation>
     </message>
     <message>
         <source>The drone on the tether is not connected. Land it with its own controls.</source>
-        <translation type="unfinished" />
+        <translation>Drone trên cáp tether chưa kết nối. Hãy hạ cánh bằng bộ điều khiển của drone.</translation>
     </message>
     <message>
         <source>Yes, this drone</source>
-        <translation type="unfinished" />
+        <translation>Đúng, drone này</translation>
     </message>
     <message>
         <source>LiDAR not responding — no status for %1 s</source>
-        <translatorcomment>Draft from Figma example "LiDAR not responding — no status for 5 s" - review</translatorcomment><translation type="unfinished">LiDAR không phản hồi — không có trạng thái trong %1 s</translation>
+        <translation>LiDAR không phản hồi — không có trạng thái trong %1 s</translation>
     </message>
     <message>
         <source>Acquisition state unknown. Check the LiDAR power and cable.</source>
-        <translation type="unfinished" />
+        <translation>Không rõ trạng thái thu dữ liệu. Kiểm tra nguồn và cáp LiDAR.</translation>
     </message>
     <message>
         <source>Acquisition state unknown (last known: %1). Check the LiDAR power and cable.</source>
-        <translation type="unfinished" />
+        <translation>Không rõ trạng thái thu dữ liệu (lần cuối: %1). Kiểm tra nguồn và cáp LiDAR.</translation>
     </message>
     <message>
         <source>recording</source>
-        <translation type="unfinished" />
+        <translation>đang ghi</translation>
     </message>
     <message>
         <source>not recording</source>
-        <translation type="unfinished" />
+        <translation>không ghi</translation>
     </message>
     <message>
         <source>LiDAR — check now (%1 more)</source>
-        <translation type="unfinished" />
+        <translation>LiDAR — kiểm tra ngay (thêm %1)</translation>
     </message>
     <message>
         <source>LiDAR — check now</source>
-        <translation type="unfinished" />
+        <translation>LiDAR — kiểm tra ngay</translation>
     </message>
     <message>
         <source>(%1 older not shown)</source>
-        <translation type="unfinished" />
+        <translation>(%1 mục cũ hơn không hiển thị)</translation>
     </message>
     <message>
         <source>Hold to stop LiDAR</source>
@@ -685,30 +685,30 @@
     </message>
     <message>
         <source>LiDAR warning</source>
-        <translation type="unfinished" />
+        <translation>Cảnh báo LiDAR</translation>
     </message>
     <message>
         <source>The drone restarted — check the mission</source>
-        <translation type="unfinished" />
+        <translation>Drone đã khởi động lại — kiểm tra nhiệm vụ</translation>
     </message>
     <message>
         <source>Mission on the drone</source>
-        <translation type="unfinished" />
+        <translation>Nhiệm vụ trên drone</translation>
     </message>
     <message>
         <source>Mission settings</source>
-        <translation type="unfinished" />
+        <translation>Cài đặt nhiệm vụ</translation>
     </message>
     <message>
         <source>Dismiss all</source>
-        <translation type="unfinished" />
+        <translation>Đóng tất cả</translation>
     </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
     <message>
         <source>No drone</source>
-        <translation type="unfinished" />
+        <translation>Không có drone</translation>
     </message>
     <message>
         <source>Connected</source>
@@ -716,7 +716,7 @@
     </message>
     <message>
         <source>Connection lost</source>
-        <translation type="unfinished" />
+        <translation>Mất kết nối</translation>
     </message>
     <message>
         <source>Not connected</source>
@@ -780,11 +780,11 @@
     </message>
     <message>
         <source>Inspection / Surveillance</source>
-        <translation type="unfinished" />
+        <translation>Kiểm tra / Giám sát</translation>
     </message>
     <message>
         <source>Mapping</source>
-        <translation type="unfinished" />
+        <translation>Lập bản đồ</translation>
     </message>
     <message>
         <source>Tether</source>
@@ -844,7 +844,7 @@
     </message>
     <message>
         <source>%1 · change</source>
-        <translation type="unfinished" />
+        <translation>%1 · đổi</translation>
     </message>
     <message>
         <source>Return to Simple</source>
@@ -863,7 +863,7 @@
     </message>
     <message>
         <source>No messages</source>
-        <translation type="unfinished" />
+        <translation>Không có thông báo</translation>
     </message>
 </context>
 <context>
@@ -878,7 +878,7 @@
     </message>
     <message>
         <source>Holds position and height when you let go of the sticks</source>
-        <translation type="unfinished" />
+        <translation>Giữ vị trí và độ cao khi bạn buông cần</translation>
     </message>
     <message>
         <source>Altitude hold</source>
@@ -886,11 +886,11 @@
     </message>
     <message>
         <source>Holds height only — the drone drifts with the wind</source>
-        <translation type="unfinished" />
+        <translation>Chỉ giữ độ cao — drone trôi theo gió</translation>
     </message>
     <message>
         <source>Other flight modes are available in Advanced mode.</source>
-        <translation type="unfinished" />
+        <translation>Các chế độ bay khác có trong chế độ nâng cao.</translation>
     </message>
     <message>
         <source>Flight mode · all modes</source>
@@ -906,11 +906,11 @@
     </message>
     <message>
         <source>Position hold (pilot)</source>
-        <translation type="unfinished" />
+        <translation>Giữ vị trí (phi công)</translation>
     </message>
     <message>
         <source>Like position hold, with direct stick feel</source>
-        <translation type="unfinished" />
+        <translation>Như Giữ vị trí, nhưng cần phản hồi trực tiếp</translation>
     </message>
     <message>
         <source>Brake</source>
@@ -950,19 +950,19 @@
     </message>
     <message>
         <source>Sport</source>
-        <translation type="unfinished" />
+        <translation>Thể thao</translation>
     </message>
     <message>
         <source>Rate control with height hold</source>
-        <translation type="unfinished" />
+        <translation>Điều khiển tốc độ góc, có giữ độ cao</translation>
     </message>
     <message>
         <source>Drift</source>
-        <translation type="unfinished" />
+        <translation>Trôi</translation>
     </message>
     <message>
         <source>Car-like turns, no position hold</source>
-        <translation type="unfinished" />
+        <translation>Rẽ như ô tô, không giữ vị trí</translation>
     </message>
     <message>
         <source>AUTOMATIC</source>
@@ -1002,11 +1002,11 @@
     </message>
     <message>
         <source>ZigZag</source>
-        <translation type="unfinished" />
+        <translation>ZigZag</translation>
     </message>
     <message>
         <source>Flies back and forth between two points</source>
-        <translation type="unfinished" />
+        <translation>Bay qua lại giữa hai điểm</translation>
     </message>
     <message>
         <source>RETURN AND LAND</source>
@@ -1030,11 +1030,11 @@
     </message>
     <message>
         <source>Return after mission</source>
-        <translation type="unfinished" />
+        <translation>Quay về sau nhiệm vụ</translation>
     </message>
     <message>
         <source>Goes to the mission's landing</source>
-        <translation type="unfinished" />
+        <translation>Tới điểm hạ cánh của nhiệm vụ</translation>
     </message>
     <message>
         <source>Land</source>
@@ -1046,11 +1046,11 @@
     </message>
     <message>
         <source>OTHER</source>
-        <translation type="unfinished" />
+        <translation>KHÁC</translation>
     </message>
     <message>
         <source>No GPS hold. Tap again to change.</source>
-        <translation type="unfinished" />
+        <translation>Không giữ bằng GPS. Chạm lần nữa để đổi.</translation>
     </message>
 </context>
 <context>
@@ -1065,7 +1065,7 @@
     </message>
     <message>
         <source>%1 m (limit %2 m)</source>
-        <translation type="unfinished" />
+        <translation>%1 m (giới hạn %2 m)</translation>
     </message>
     <message>
         <source>Distance</source>
@@ -1073,7 +1073,7 @@
     </message>
     <message>
         <source>Farthest point %1 m (limit %2 m)</source>
-        <translation type="unfinished" />
+        <translation>Điểm xa nhất %1 m (giới hạn %2 m)</translation>
     </message>
     <message>
         <source>Battery</source>
@@ -1081,7 +1081,7 @@
     </message>
     <message>
         <source>Needs %1 batteries — the drone returns to swap</source>
-        <translatorcomment>Draft from Figma example "Needs 2 batteries — the drone returns to swap" - review</translatorcomment><translation type="unfinished">Cần %1 pin — drone quay về để thay pin</translation>
+        <translation>Cần %1 pin — drone quay về để thay pin</translation>
     </message>
     <message>
         <source>Fits one battery</source>
@@ -1089,7 +1089,7 @@
     </message>
     <message>
         <source>Not estimated for this drone</source>
-        <translation type="unfinished" />
+        <translation>Không ước tính được cho drone này</translation>
     </message>
     <message>
         <source>Flight zones</source>
@@ -1097,7 +1097,7 @@
     </message>
     <message>
         <source>Check the zones on the map yourself</source>
-        <translation type="unfinished" />
+        <translation>Tự kiểm tra các vùng trên bản đồ</translation>
     </message>
     <message>
         <source>Drone</source>
@@ -1109,23 +1109,23 @@
     </message>
     <message>
         <source>Not connected — the mission stays on this tablet</source>
-        <translation type="unfinished" />
+        <translation>Chưa kết nối — nhiệm vụ vẫn ở trên máy tính bảng này</translation>
     </message>
     <message>
         <source>Sending to drone… %1 %</source>
-        <translatorcomment>Draft from Figma example "Sending to drone… 64 %" - review</translatorcomment><translation type="unfinished">Đang gửi tới drone… %1 %</translation>
+        <translation>Đang gửi tới drone… %1 %</translation>
     </message>
     <message>
         <source>Fix the red items before sending.</source>
-        <translation type="unfinished" />
+        <translation>Sửa các mục màu đỏ trước khi gửi.</translation>
     </message>
     <message>
         <source>Send to drone</source>
-        <translation type="unfinished" />
+        <translation>Gửi tới drone</translation>
     </message>
     <message>
         <source>Sent — go to Fly</source>
-        <translation type="unfinished" />
+        <translation>Đã gửi — chuyển sang Bay</translation>
     </message>
     <message>
         <source>No restricted zone on the route</source>
@@ -1133,35 +1133,35 @@
     </message>
     <message>
         <source>No zone data — check the zones yourself</source>
-        <translation type="unfinished" />
+        <translation>Không có dữ liệu vùng — hãy tự kiểm tra các vùng</translation>
     </message>
     <message>
         <source>The route enters a no-fly zone (%1). Move the area.</source>
-        <translation type="unfinished" />
+        <translation>Tuyến bay đi vào vùng cấm bay (%1). Hãy di chuyển khu vực.</translation>
     </message>
     <message>
         <source>Information zone on the route (%1)</source>
-        <translation type="unfinished" />
+        <translation>Có vùng thông tin trên tuyến bay (%1)</translation>
     </message>
     <message>
         <source>The route touches %1. Check that you may fly there.</source>
-        <translation type="unfinished" />
+        <translation>Tuyến bay chạm vào %1. Kiểm tra xem bạn có được phép bay ở đó không.</translation>
     </message>
     <message>
         <source>The drone did not accept the mission. Check the message, change the mission and send again.</source>
-        <translation type="unfinished" />
+        <translation>Drone không nhận nhiệm vụ. Kiểm tra thông báo, sửa nhiệm vụ và gửi lại.</translation>
     </message>
     <message>
         <source>Over the limit: %1 m (limit %2 m). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
-        <translation type="unfinished" />
+        <translation>Vượt giới hạn: %1 m (giới hạn %2 m). Thu nhỏ khu vực hoặc tăng Khoảng cách tối đa trong Cài đặt › An toàn.</translation>
     </message>
     <message>
         <source>Not enforced (geofence off): %1 m, limit %2 m</source>
-        <translation type="unfinished" />
+        <translation>Không áp dụng (geofence tắt): %1 m, giới hạn %2 m</translation>
     </message>
     <message>
         <source>Not enforced (no distance limit in the drone's fence): %1 m, limit %2 m</source>
-        <translation type="unfinished" />
+        <translation>Không áp dụng (geofence của drone không giới hạn khoảng cách): %1 m, giới hạn %2 m</translation>
     </message>
 </context>
 <context>
@@ -1240,7 +1240,7 @@
     </message>
     <message>
         <source>Next version</source>
-        <translation type="unfinished" />
+        <translation>Phiên bản sau</translation>
     </message>
     <message>
         <source>Flight height</source>
@@ -1248,11 +1248,11 @@
     </message>
     <message>
         <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translatorcomment>Draft from Figma example "Photo detail ≈ 2.2 cm per pixel · limited to 120 m" - review</translatorcomment><translation type="unfinished">Chi tiết ảnh ≈ %1 mỗi pixel  ·  giới hạn %2 m</translation>
+        <translation>Chi tiết ảnh ≈ %1 mỗi pixel · giới hạn %2 m</translation>
     </message>
     <message>
         <source>Limited to %1 m (maximum altitude)</source>
-        <translation type="unfinished" />
+        <translation>Giới hạn %1 m (độ cao tối đa)</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -1296,7 +1296,7 @@
     </message>
     <message>
         <source>A mission with this name exists and will be replaced.</source>
-        <translation type="unfinished" />
+        <translation>Đã có nhiệm vụ trùng tên, nhiệm vụ đó sẽ bị thay thế.</translation>
     </message>
     <message>
         <source>Name</source>
@@ -1304,11 +1304,11 @@
     </message>
     <message>
         <source>New mission · not saved</source>
-        <translation type="unfinished" />
+        <translation>Nhiệm vụ mới · chưa lưu</translation>
     </message>
     <message>
         <source>No area found in this file. Lines (corridors) come with corridor mapping.</source>
-        <translation type="unfinished" />
+        <translation>Không tìm thấy khu vực trong tệp này. Đường (hành lang) sẽ có cùng tính năng lập bản đồ hành lang.</translation>
     </message>
     <message>
         <source>Replace</source>
@@ -1316,7 +1316,7 @@
     </message>
     <message>
         <source>Save mission</source>
-        <translation type="unfinished" />
+        <translation>Lưu nhiệm vụ</translation>
     </message>
     <message>
         <source>Save</source>
@@ -1324,7 +1324,7 @@
     </message>
     <message>
         <source>Saved mission</source>
-        <translation type="unfinished" />
+        <translation>Nhiệm vụ đã lưu</translation>
     </message>
     <message>
         <source>Saved missions</source>
@@ -1332,31 +1332,31 @@
     </message>
     <message>
         <source>Saved on this tablet · Plan › Open saved mission</source>
-        <translation type="unfinished" />
+        <translation>Đã lưu trên máy tính bảng này · Kế hoạch › Mở nhiệm vụ đã lưu</translation>
     </message>
     <message>
         <source>e.g. Field A survey</source>
-        <translation type="unfinished" />
+        <translation>VD: Khảo sát cánh đồng A</translation>
     </message>
     <message>
         <source>Only .plan and .kml files can be imported. Save a KMZ as KML in Google Earth first.</source>
-        <translation type="unfinished" />
+        <translation>Chỉ nhập được tệp .plan và .kml. Hãy lưu KMZ thành KML trong Google Earth trước.</translation>
     </message>
     <message>
         <source>Replace the plan being edited?</source>
-        <translation type="unfinished" />
+        <translation>Thay thế kế hoạch đang sửa?</translation>
     </message>
     <message>
         <source>Slide to replace</source>
-        <translation type="unfinished" />
+        <translation>Trượt để thay thế</translation>
     </message>
     <message>
         <source>The current plan is not saved on this tablet. It is replaced by the mission you open.</source>
-        <translation type="unfinished" />
+        <translation>Kế hoạch hiện tại chưa được lưu trên máy tính bảng này. Nó sẽ bị thay bằng nhiệm vụ bạn mở.</translation>
     </message>
     <message>
         <source>To keep it, close this and use Save first.</source>
-        <translation type="unfinished" />
+        <translation>Để giữ lại, hãy đóng cửa sổ này và dùng Lưu trước.</translation>
     </message>
     <message>
         <source>Draw line</source>
@@ -1372,11 +1372,11 @@
     </message>
     <message>
         <source>Tap around the structure to outline it</source>
-        <translation type="unfinished" />
+        <translation>Chạm quanh công trình để vẽ đường bao</translation>
     </message>
     <message>
         <source>Drag the corners to fit the structure, or pick a shape</source>
-        <translation type="unfinished" />
+        <translation>Kéo các góc để khớp công trình, hoặc chọn một hình</translation>
     </message>
     <message>
         <source>Turn on YellowScan in Settings › Payloads</source>
@@ -1392,7 +1392,7 @@
     </message>
     <message>
         <source>Every item, fence and rally points (Advanced)</source>
-        <translation type="unfinished" />
+        <translation>Mọi mục, geofence và điểm tập kết (Nâng cao)</translation>
     </message>
 </context>
 <context>
@@ -1403,7 +1403,7 @@
     </message>
     <message>
         <source>Drone connected</source>
-        <translation type="unfinished" />
+        <translation>Đã kết nối drone</translation>
     </message>
     <message>
         <source>Radio link is working</source>
@@ -1411,11 +1411,11 @@
     </message>
     <message>
         <source>Turn on the drone and the controller</source>
-        <translation type="unfinished" />
+        <translation>Bật drone và bộ điều khiển</translation>
     </message>
     <message>
         <source>Weak</source>
-        <translation type="unfinished" />
+        <translation>Yếu</translation>
     </message>
     <message>
         <source>GPS</source>
@@ -1423,11 +1423,11 @@
     </message>
     <message>
         <source>%1 satellites · %2</source>
-        <translation type="unfinished" />
+        <translation>%1 vệ tinh · %2</translation>
     </message>
     <message>
         <source>Waiting for GPS — move away from buildings and metal</source>
-        <translation type="unfinished" />
+        <translation>Đang chờ GPS — tránh xa tòa nhà và kim loại</translation>
     </message>
     <message>
         <source>Battery</source>
@@ -1435,11 +1435,11 @@
     </message>
     <message>
         <source>Battery level not reported</source>
-        <translation type="unfinished" />
+        <translation>Không có thông tin mức pin</translation>
     </message>
     <message>
         <source>%1 % — at least 30 % needed to take off</source>
-        <translation type="unfinished" />
+        <translation>%1 % — cần ít nhất 30 % để cất cánh</translation>
     </message>
     <message>
         <source>Sensors (compass, IMU)</source>
@@ -1447,11 +1447,11 @@
     </message>
     <message>
         <source>All sensors healthy</source>
-        <translation type="unfinished" />
+        <translation>Mọi cảm biến bình thường</translation>
     </message>
     <message>
         <source>A sensor needs attention</source>
-        <translation type="unfinished" />
+        <translation>Có cảm biến cần kiểm tra</translation>
     </message>
     <message>
         <source>Home point</source>
@@ -1463,7 +1463,7 @@
     </message>
     <message>
         <source>Set automatically once GPS is good</source>
-        <translation type="unfinished" />
+        <translation>Tự động đặt khi GPS tốt</translation>
     </message>
     <message>
         <source>Remote ID</source>
@@ -1471,7 +1471,7 @@
     </message>
     <message>
         <source>Not enabled on this tablet</source>
-        <translation type="unfinished" />
+        <translation>Chưa bật trên máy tính bảng này</translation>
     </message>
     <message>
         <source>Broadcasting</source>
@@ -1491,11 +1491,11 @@
     </message>
     <message>
         <source>No Remote ID module found on the drone. If it is not required here, turn it off in Settings › Remote ID.</source>
-        <translation type="unfinished" />
+        <translation>Không tìm thấy mô-đun Remote ID trên drone. Nếu ở đây không bắt buộc, hãy tắt trong Cài đặt › Remote ID.</translation>
     </message>
     <message>
         <source>The Remote ID module is not ready</source>
-        <translation type="unfinished" />
+        <translation>Mô-đun Remote ID chưa sẵn sàng</translation>
     </message>
     <message>
         <source>Flight zones</source>
@@ -1507,35 +1507,35 @@
     </message>
     <message>
         <source>The drone is in a no-fly zone (%1). Move to another place to take off.</source>
-        <translation type="unfinished" />
+        <translation>Drone đang ở trong vùng cấm bay (%1). Hãy di chuyển tới nơi khác để cất cánh.</translation>
     </message>
     <message>
         <source>The drone is in a zone that needs care (%1). Check that you may fly here.</source>
-        <translation type="unfinished" />
+        <translation>Drone đang ở trong vùng cần chú ý (%1). Kiểm tra xem bạn có được phép bay ở đây không.</translation>
     </message>
     <message>
         <source>%1 — turn the tether power on in the Payloads panel</source>
-        <translation type="unfinished" />
+        <translation>%1 — bật nguồn tether trong bảng Payload</translation>
     </message>
     <message>
         <source>Ground unit on · %1 W</source>
-        <translation type="unfinished" />
+        <translation>Thiết bị mặt đất bật · %1 W</translation>
     </message>
     <message>
         <source>Tether power</source>
-        <translation type="unfinished" />
+        <translation>Nguồn tether</translation>
     </message>
     <message>
         <source>GPS has no good position yet. Wait in the open, away from buildings.</source>
-        <translation type="unfinished" />
+        <translation>GPS chưa có vị trí tốt. Hãy chờ ở nơi thoáng, xa tòa nhà.</translation>
     </message>
     <message>
         <source>GPS position is not accurate enough yet. Wait a little.</source>
-        <translation type="unfinished" />
+        <translation>Vị trí GPS chưa đủ chính xác. Chờ một chút.</translation>
     </message>
     <message>
         <source>The drone is still working out its position. Wait for GPS.</source>
-        <translation type="unfinished" />
+        <translation>Drone vẫn đang xác định vị trí. Hãy chờ GPS.</translation>
     </message>
     <message>
         <source>The compass needs calibrating (Vehicle setup › Sensors).</source>
@@ -1543,35 +1543,35 @@
     </message>
     <message>
         <source>The compass reading is off. Move away from metal or calibrate it.</source>
-        <translation type="unfinished" />
+        <translation>Số đo la bàn bị lệch. Tránh xa kim loại hoặc hiệu chỉnh la bàn.</translation>
     </message>
     <message>
         <source>The accelerometer needs calibrating (Vehicle setup › Sensors).</source>
-        <translation type="unfinished" />
+        <translation>Gia tốc kế cần hiệu chỉnh (Thiết lập drone › Cảm biến).</translation>
     </message>
     <message>
         <source>Motion sensor (IMU) problem. Keep the drone still or restart it.</source>
-        <translation type="unfinished" />
+        <translation>Lỗi cảm biến chuyển động (IMU). Giữ drone đứng yên hoặc khởi động lại.</translation>
     </message>
     <message>
         <source>Barometer problem. Restart the drone.</source>
-        <translation type="unfinished" />
+        <translation>Lỗi khí áp kế. Khởi động lại drone.</translation>
     </message>
     <message>
         <source>The controller is not ready. Check the controller and its calibration.</source>
-        <translation type="unfinished" />
+        <translation>Bộ điều khiển chưa sẵn sàng. Kiểm tra bộ điều khiển và việc hiệu chỉnh.</translation>
     </message>
     <message>
         <source>The drone's battery check failed.</source>
-        <translation type="unfinished" />
+        <translation>Kiểm tra pin của drone thất bại.</translation>
     </message>
     <message>
         <source>Geofence problem. Check Settings › Safety.</source>
-        <translation type="unfinished" />
+        <translation>Lỗi geofence. Kiểm tra Cài đặt › An toàn.</translation>
     </message>
     <message>
         <source>Flight log problem (SD card in the drone).</source>
-        <translation type="unfinished" />
+        <translation>Lỗi nhật ký bay (thẻ SD trong drone).</translation>
     </message>
 </context>
 <context>
@@ -1634,11 +1634,11 @@
     </message>
     <message>
         <source>Restart alesQGC to show the new units everywhere</source>
-        <translation type="unfinished" />
+        <translation>Khởi động lại alesQGC để hiện đơn vị mới ở mọi nơi</translation>
     </message>
     <message>
         <source>Height, distance, speed, area and temperature</source>
-        <translation type="unfinished" />
+        <translation>Độ cao, khoảng cách, tốc độ, diện tích và nhiệt độ</translation>
     </message>
     <message>
         <source>Metric</source>
@@ -1690,19 +1690,19 @@
     </message>
     <message>
         <source>Connect the drone to change this</source>
-        <translation type="unfinished" />
+        <translation>Kết nối drone để thay đổi mục này</translation>
     </message>
     <message>
         <source>Change on the ground (motors off)</source>
-        <translation type="unfinished" />
+        <translation>Thay đổi khi ở mặt đất (động cơ tắt)</translation>
     </message>
     <message>
         <source>Warning only · keeps flying</source>
-        <translation type="unfinished" />
+        <translation>Chỉ cảnh báo · tiếp tục bay</translation>
     </message>
     <message>
         <source>Land where it is</source>
-        <translation type="unfinished" />
+        <translation>Hạ cánh tại chỗ</translation>
     </message>
     <message>
         <source>Return home</source>
@@ -1710,71 +1710,71 @@
     </message>
     <message>
         <source>Return home by the flown path</source>
-        <translation type="unfinished" />
+        <translation>Quay về theo đường đã bay</translation>
     </message>
     <message>
         <source>Return by the flown path, or land</source>
-        <translation type="unfinished" />
+        <translation>Quay về theo đường đã bay, hoặc hạ cánh</translation>
     </message>
     <message>
         <source>Stop motors (drone falls)</source>
-        <translation type="unfinished" />
+        <translation>Tắt động cơ (drone rơi)</translation>
     </message>
     <message>
         <source>Go to the mission landing point, or return home</source>
-        <translation type="unfinished" />
+        <translation>Tới điểm hạ cánh của nhiệm vụ, hoặc quay về</translation>
     </message>
     <message>
         <source>Stop, then land</source>
-        <translation type="unfinished" />
+        <translation>Dừng, rồi hạ cánh</translation>
     </message>
     <message>
         <source>Return home, land if very low</source>
-        <translation type="unfinished" />
+        <translation>Quay về, hạ cánh nếu pin rất yếu</translation>
     </message>
     <message>
         <source>Nothing · keeps flying</source>
-        <translation type="unfinished" />
+        <translation>Không làm gì · tiếp tục bay</translation>
     </message>
     <message>
         <source>Finish the mission, otherwise return home</source>
-        <translation type="unfinished" />
+        <translation>Hoàn thành nhiệm vụ, nếu không thì quay về</translation>
     </message>
     <message>
         <source>Hover in place</source>
-        <translation type="unfinished" />
+        <translation>Giữ vị trí tại chỗ</translation>
     </message>
     <message>
         <source>Lock motors</source>
-        <translation type="unfinished" />
+        <translation>Khóa động cơ</translation>
     </message>
     <message>
         <source>Acts when %1 % is left</source>
-        <translation type="unfinished" />
+        <translation>Thực hiện khi còn %1 %</translation>
     </message>
     <message>
         <source>Acts below %1 V</source>
-        <translation type="unfinished" />
+        <translation>Thực hiện khi dưới %1 V</translation>
     </message>
     <message>
         <source>No low-battery level set on the drone</source>
-        <translation type="unfinished" />
+        <translation>Drone chưa đặt mức pin yếu</translation>
     </message>
     <message>
         <source>Warning at %1 %, action at %2 %</source>
-        <translation type="unfinished" />
+        <translation>Cảnh báo ở %1 %, thực hiện ở %2 %</translation>
     </message>
     <message>
         <source>Level set on the drone</source>
-        <translation type="unfinished" />
+        <translation>Mức đặt trên drone</translation>
     </message>
     <message>
         <source>After %1 s without signal</source>
-        <translation type="unfinished" />
+        <translation>Sau %1 s không có tín hiệu</translation>
     </message>
     <message>
         <source>When the controller signal is lost</source>
-        <translation type="unfinished" />
+        <translation>Khi mất tín hiệu bộ điều khiển</translation>
     </message>
     <message>
         <source>What the drone does when something goes wrong. Defaults follow local rules.</source>
@@ -1794,7 +1794,7 @@
     </message>
     <message>
         <source>Above take-off point · EU and most countries: 120 m</source>
-        <translation type="unfinished" />
+        <translation>So với điểm cất cánh · EU và hầu hết các nước: 120 m</translation>
     </message>
     <message>
         <source>Maximum distance</source>
@@ -1814,7 +1814,7 @@
     </message>
     <message>
         <source>Versions and help from ARGOSDYNE.</source>
-        <translation type="unfinished" />
+        <translation>Phiên bản và hỗ trợ từ ARGOSDYNE.</translation>
     </message>
     <message>
         <source>alesQGC app</source>
@@ -1842,7 +1842,7 @@
     </message>
     <message>
         <source>alesQGC uses this open-source software. Tap an item to show the full license.</source>
-        <translation type="unfinished" />
+        <translation>alesQGC dùng phần mềm mã nguồn mở này. Chạm một mục để xem toàn bộ giấy phép.</translation>
     </message>
     <message>
         <source>2.4 GHz</source>
@@ -1854,27 +1854,27 @@
     </message>
     <message>
         <source>Band unknown</source>
-        <translation type="unfinished" />
+        <translation>Không rõ băng tần</translation>
     </message>
     <message>
         <source>Changing both radios to 2.4 GHz. The link drops and comes back in about a minute.</source>
-        <translation type="unfinished" />
+        <translation>Đang chuyển cả hai radio sang 2.4 GHz. Liên kết sẽ mất và trở lại sau khoảng một phút.</translation>
     </message>
     <message>
         <source>Changing both radios to 5.8 GHz. The link drops and comes back in about a minute.</source>
-        <translation type="unfinished" />
+        <translation>Đang chuyển cả hai radio sang 5.8 GHz. Liên kết sẽ mất và trở lại sau khoảng một phút.</translation>
     </message>
     <message>
         <source>Fill in server, mountpoint, user and password, then turn this on.</source>
-        <translation type="unfinished" />
+        <translation>Điền máy chủ, mountpoint, người dùng và mật khẩu, rồi bật mục này.</translation>
     </message>
     <message>
         <source>Could not log in. Check server, port, mountpoint, user and password. Trying again every 5 s.</source>
-        <translation type="unfinished" />
+        <translation>Không đăng nhập được. Kiểm tra máy chủ, cổng, mountpoint, người dùng và mật khẩu. Đang thử lại mỗi 5 s.</translation>
     </message>
     <message>
         <source>Retrying…</source>
-        <translation type="unfinished" />
+        <translation>Đang thử lại…</translation>
     </message>
     <message>
         <source>Radio link and RTK correction. Payload settings are under Payloads.</source>
@@ -1882,11 +1882,11 @@
     </message>
     <message>
         <source>Radio link · M2</source>
-        <translation type="unfinished" />
+        <translation>Liên kết radio · M2</translation>
     </message>
     <message>
         <source>Radio link · DoodleLabs</source>
-        <translation type="unfinished" />
+        <translation>Liên kết radio · DoodleLabs</translation>
     </message>
     <message>
         <source>Radio link · Enpulse</source>
@@ -1894,11 +1894,11 @@
     </message>
     <message>
         <source>Pairing…</source>
-        <translation type="unfinished" />
+        <translation>Đang ghép đôi…</translation>
     </message>
     <message>
         <source>No radio</source>
-        <translation type="unfinished" />
+        <translation>Không có radio</translation>
     </message>
     <message>
         <source>Connected</source>
@@ -1906,27 +1906,27 @@
     </message>
     <message>
         <source>Not paired</source>
-        <translation type="unfinished" />
+        <translation>Chưa ghép đôi</translation>
     </message>
     <message>
         <source>No radio found. Check that the controller is on and its radio is connected.</source>
-        <translation type="unfinished" />
+        <translation>Không tìm thấy radio. Kiểm tra bộ điều khiển đã bật và radio đã kết nối.</translation>
     </message>
     <message>
         <source>Pairing… Keep the drone close and turned on.</source>
-        <translation type="unfinished" />
+        <translation>Đang ghép đôi… Giữ drone ở gần và bật nguồn.</translation>
     </message>
     <message>
         <source>signal %1 dB</source>
-        <translation type="unfinished" />
+        <translation>tín hiệu %1 dB</translation>
     </message>
     <message>
         <source>drone radio paired</source>
-        <translation type="unfinished" />
+        <translation>đã ghép đôi radio drone</translation>
     </message>
     <message>
         <source>drone radio not paired</source>
-        <translation type="unfinished" />
+        <translation>chưa ghép đôi radio drone</translation>
     </message>
     <message>
         <source>Band</source>
@@ -1942,19 +1942,19 @@
     </message>
     <message>
         <source>Change both radios to 2.4 GHz? The drone and controller restart their radios. The link is lost for about a minute.</source>
-        <translation type="unfinished" />
+        <translation>Chuyển cả hai radio sang 2.4 GHz? Drone và bộ điều khiển sẽ khởi động lại radio. Liên kết sẽ mất khoảng một phút.</translation>
     </message>
     <message>
         <source>Change both radios to 5.8 GHz? The drone and controller restart their radios. The link is lost for about a minute.</source>
-        <translation type="unfinished" />
+        <translation>Chuyển cả hai radio sang 5.8 GHz? Drone và bộ điều khiển sẽ khởi động lại radio. Liên kết sẽ mất khoảng một phút.</translation>
     </message>
     <message>
         <source>Pair a new radio? The current pairing ends. Put the drone's radio in pairing mode within 1 minute.</source>
-        <translation type="unfinished" />
+        <translation>Ghép đôi radio mới? Ghép đôi hiện tại sẽ kết thúc. Đưa radio của drone vào chế độ ghép đôi trong vòng 1 phút.</translation>
     </message>
     <message>
         <source>Restart the controller radio? The link is lost for about a minute.</source>
-        <translation type="unfinished" />
+        <translation>Khởi động lại radio của bộ điều khiển? Liên kết sẽ mất khoảng một phút.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -1962,23 +1962,23 @@
     </message>
     <message>
         <source>Pair</source>
-        <translation type="unfinished" />
+        <translation>Ghép đôi</translation>
     </message>
     <message>
         <source>Restart</source>
-        <translation type="unfinished" />
+        <translation>Khởi động lại</translation>
     </message>
     <message>
         <source>Change band</source>
-        <translation type="unfinished" />
+        <translation>Đổi băng tần</translation>
     </message>
     <message>
         <source>Restarting the controller radio. The link comes back in about a minute.</source>
-        <translation type="unfinished" />
+        <translation>Đang khởi động lại radio của bộ điều khiển. Liên kết trở lại sau khoảng một phút.</translation>
     </message>
     <message>
         <source>Change radio settings on the ground (motors off)</source>
-        <translation type="unfinished" />
+        <translation>Đổi cài đặt radio khi ở mặt đất (động cơ tắt)</translation>
     </message>
     <message>
         <source>RTK correction · NTRIP</source>
@@ -1990,15 +1990,15 @@
     </message>
     <message>
         <source>RTK float</source>
-        <translation type="unfinished" />
+        <translation>RTK float</translation>
     </message>
     <message>
         <source>Logging in…</source>
-        <translation type="unfinished" />
+        <translation>Đang đăng nhập…</translation>
     </message>
     <message>
         <source>Correction on · no RTK yet</source>
-        <translation type="unfinished" />
+        <translation>Hiệu chỉnh bật · chưa có RTK</translation>
     </message>
     <message>
         <source>Off</source>
@@ -2030,35 +2030,35 @@
     </message>
     <message>
         <source>Turn on RTK correction to enter the NTRIP server.</source>
-        <translation type="unfinished" />
+        <translation>Bật hiệu chỉnh RTK để nhập máy chủ NTRIP.</translation>
     </message>
     <message>
         <source>Camera and payload network settings moved to Settings › Payloads (detected payloads connect automatically)</source>
-        <translation type="unfinished" />
+        <translation>Cài đặt mạng của camera và payload đã chuyển sang Cài đặt › Payload (payload được phát hiện sẽ tự kết nối)</translation>
     </message>
     <message>
         <source>Required in the EU</source>
-        <translation type="unfinished" />
+        <translation>Bắt buộc ở EU</translation>
     </message>
     <message>
         <source>Enter the full number: 16 characters, a dash and the 3 secret characters (for example FIN87astrdge12k8-xyz). Only the first 16 are saved.</source>
-        <translation type="unfinished" />
+        <translation>Nhập đủ số: 16 ký tự, dấu gạch ngang và 3 ký tự bí mật (ví dụ FIN87astrdge12k8-xyz). Chỉ 16 ký tự đầu được lưu.</translation>
     </message>
     <message>
         <source>The number starts with the 3-letter country code in capitals, for example FIN</source>
-        <translation type="unfinished" />
+        <translation>Số bắt đầu bằng mã quốc gia 3 chữ cái viết hoa, ví dụ FIN</translation>
     </message>
     <message>
         <source>The saved number did not pass the check. Enter it again.</source>
-        <translation type="unfinished" />
+        <translation>Số đã lưu không qua được kiểm tra. Hãy nhập lại.</translation>
     </message>
     <message>
         <source>The check character does not match. Check the number for typos.</source>
-        <translation type="unfinished" />
+        <translation>Ký tự kiểm tra không khớp. Kiểm tra số xem có gõ sai không.</translation>
     </message>
     <message>
         <source>Saved. This app now sends Remote ID data to the drone.</source>
-        <translation type="unfinished" />
+        <translation>Đã lưu. Ứng dụng này hiện gửi dữ liệu Remote ID tới drone.</translation>
     </message>
     <message>
         <source>Required in the EU and many other countries. The drone broadcasts this while flying.</source>
@@ -2070,23 +2070,23 @@
     </message>
     <message>
         <source>Connect the drone to check the module</source>
-        <translation type="unfinished" />
+        <translation>Kết nối drone để kiểm tra mô-đun</translation>
     </message>
     <message>
         <source>No module found on the drone</source>
-        <translation type="unfinished" />
+        <translation>Không tìm thấy mô-đun trên drone</translation>
     </message>
     <message>
         <source>Detected · ID %1</source>
-        <translation type="unfinished" />
+        <translation>Đã phát hiện · ID %1</translation>
     </message>
     <message>
         <source>Detected</source>
-        <translation type="unfinished" />
+        <translation>Đã phát hiện</translation>
     </message>
     <message>
         <source>this app is not sending data yet, save below</source>
-        <translation type="unfinished" />
+        <translation>ứng dụng này chưa gửi dữ liệu, hãy lưu bên dưới</translation>
     </message>
     <message>
         <source>Not detected</source>
@@ -2094,7 +2094,7 @@
     </message>
     <message>
         <source>Not ready</source>
-        <translation type="unfinished" />
+        <translation>Chưa sẵn sàng</translation>
     </message>
     <message>
         <source>Broadcasting</source>
@@ -2110,11 +2110,11 @@
     </message>
     <message>
         <source>Optional in the US. Sent with the Remote ID data when filled in.</source>
-        <translation type="unfinished" />
+        <translation>Tùy chọn ở US. Được gửi cùng dữ liệu Remote ID khi đã điền.</translation>
     </message>
     <message>
         <source>Saved and checked · secret characters are not stored</source>
-        <translation type="unfinished" />
+        <translation>Đã lưu và kiểm tra · không lưu ký tự bí mật</translation>
     </message>
     <message>
         <source>Region rules</source>
@@ -2138,7 +2138,7 @@
     </message>
     <message>
         <source>The US rules use the tablet's live position</source>
-        <translation type="unfinished" />
+        <translation>Quy tắc US dùng vị trí trực tiếp của máy tính bảng</translation>
     </message>
     <message>
         <source>Where your position is taken from</source>
@@ -2162,7 +2162,7 @@
     </message>
     <message>
         <source>Altitude (m)</source>
-        <translation type="unfinished" />
+        <translation>Độ cao (m)</translation>
     </message>
     <message>
         <source>Emergency status</source>
@@ -2170,11 +2170,11 @@
     </message>
     <message>
         <source>Connect the drone to use this</source>
-        <translation type="unfinished" />
+        <translation>Kết nối drone để dùng mục này</translation>
     </message>
     <message>
         <source>Others see 'emergency' now. Turn off when the emergency is over.</source>
-        <translation type="unfinished" />
+        <translation>Người khác đang thấy 'khẩn cấp'. Tắt khi hết tình trạng khẩn cấp.</translation>
     </message>
     <message>
         <source>Turn on in an emergency. Others see 'emergency' until you turn it off.</source>
@@ -2182,7 +2182,7 @@
     </message>
     <message>
         <source>Save Remote ID settings first</source>
-        <translation type="unfinished" />
+        <translation>Hãy lưu cài đặt Remote ID trước</translation>
     </message>
     <message>
         <source>Save</source>
@@ -2190,11 +2190,11 @@
     </message>
     <message>
         <source>Enter a valid fixed point to save</source>
-        <translation type="unfinished" />
+        <translation>Nhập điểm cố định hợp lệ để lưu</translation>
     </message>
     <message>
         <source>Fix the operator number to save</source>
-        <translation type="unfinished" />
+        <translation>Sửa số người vận hành để lưu</translation>
     </message>
     <message>
         <source>Turn off Remote ID</source>
@@ -2202,7 +2202,7 @@
     </message>
     <message>
         <source>Remote ID is off. This app no longer sends Remote ID data.</source>
-        <translation type="unfinished" />
+        <translation>Remote ID đã tắt. Ứng dụng này không còn gửi dữ liệu Remote ID.</translation>
     </message>
     <message>
         <source>Map style, maps saved for offline use and flight zone data.</source>
@@ -2214,7 +2214,7 @@
     </message>
     <message>
         <source>Current: %1 %2</source>
-        <translation type="unfinished" />
+        <translation>Hiện tại: %1 %2</translation>
     </message>
     <message>
         <source>Satellite</source>
@@ -2238,31 +2238,31 @@
     </message>
     <message>
         <source>No maps saved for offline use yet. Download an area before flying where there is no internet.</source>
-        <translation type="unfinished" />
+        <translation>Chưa có bản đồ lưu để dùng ngoại tuyến. Hãy tải một khu vực trước khi bay ở nơi không có internet.</translation>
     </message>
     <message>
         <source>Delete this map? This cannot be undone.</source>
-        <translation type="unfinished" />
+        <translation>Xóa bản đồ này? Không thể hoàn tác.</translation>
     </message>
     <message>
         <source>Deleting…</source>
-        <translation type="unfinished" />
+        <translation>Đang xóa…</translation>
     </message>
     <message>
         <source>%1 · saved %2</source>
-        <translatorcomment>Draft from Figma example "1.2 GB · saved 2026-10-28" - review</translatorcomment><translation type="unfinished">%1 · đã lưu %2</translation>
+        <translation>%1 · đã lưu %2</translation>
     </message>
     <message>
         <source>Downloading… %1 %</source>
-        <translatorcomment>Draft from Figma example "Downloading… 64 %" - review</translatorcomment><translation type="unfinished">Đang tải… %1 %</translation>
+        <translation>Đang tải… %1 %</translation>
     </message>
     <message>
         <source>Stopped at %1 % · %2 tiles could not be downloaded</source>
-        <translation type="unfinished" />
+        <translation>Dừng ở %1 % · không tải được %2 ô bản đồ</translation>
     </message>
     <message>
         <source>Paused at %1 %</source>
-        <translation type="unfinished" />
+        <translation>Tạm dừng ở %1 %</translation>
     </message>
     <message>
         <source>Resume</source>
@@ -2282,11 +2282,11 @@
     </message>
     <message>
         <source>Choose a flight zone file</source>
-        <translation type="unfinished" />
+        <translation>Chọn tệp vùng bay</translation>
     </message>
     <message>
         <source>Zone files (*.geojson *.json)</source>
-        <translation type="unfinished" />
+        <translation>Tệp vùng (*.geojson *.json)</translation>
     </message>
     <message>
         <source>FLIGHT ZONE DATA</source>
@@ -2294,39 +2294,39 @@
     </message>
     <message>
         <source>Zone source</source>
-        <translation type="unfinished" />
+        <translation>Nguồn dữ liệu vùng</translation>
     </message>
     <message>
         <source>Zones for the visible map area, downloaded while you move the map</source>
-        <translation type="unfinished" />
+        <translation>Các vùng trong khu vực bản đồ đang xem, được tải khi bạn di chuyển bản đồ</translation>
     </message>
     <message>
         <source>A GeoJSON file (ED-318 or Altitude Angel format) saved in the app</source>
-        <translation type="unfinished" />
+        <translation>Tệp GeoJSON (định dạng ED-318 hoặc Altitude Angel) lưu trong ứng dụng</translation>
     </message>
     <message>
         <source>Locked while the motors are running</source>
-        <translation type="unfinished" />
+        <translation>Bị khóa khi động cơ đang quay</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished" />
+        <translation>Tệp</translation>
     </message>
     <message>
         <source>Online</source>
-        <translation type="unfinished" />
+        <translation>Trực tuyến</translation>
     </message>
     <message>
         <source>Updated %1 · %2 zones · %3</source>
-        <translation type="unfinished" />
+        <translation>Cập nhật %1 · %2 vùng · %3</translation>
     </message>
     <message>
         <source>shown on map</source>
-        <translation type="unfinished" />
+        <translation>hiện trên bản đồ</translation>
     </message>
     <message>
         <source>hidden on map (Layers)</source>
-        <translation type="unfinished" />
+        <translation>ẩn trên bản đồ (Lớp)</translation>
     </message>
     <message>
         <source>Replace</source>
@@ -2334,11 +2334,11 @@
     </message>
     <message>
         <source>No flight zone file</source>
-        <translation type="unfinished" />
+        <translation>Không có tệp vùng bay</translation>
     </message>
     <message>
         <source>Import the zone file of the country where you fly. Zones are shown on the map and the app warns near them.</source>
-        <translation type="unfinished" />
+        <translation>Nhập tệp vùng của quốc gia nơi bạn bay. Các vùng được hiện trên bản đồ và ứng dụng cảnh báo khi đến gần.</translation>
     </message>
     <message>
         <source>Choose file</source>
@@ -2350,27 +2350,27 @@
     </message>
     <message>
         <source>%1: %2 Nothing was changed.</source>
-        <translation type="unfinished" />
+        <translation>%1: %2 Không có gì bị thay đổi.</translation>
     </message>
     <message>
         <source>Altitude Angel</source>
-        <translation type="unfinished" />
+        <translation>Altitude Angel</translation>
     </message>
     <message>
         <source>API key</source>
-        <translation type="unfinished" />
+        <translation>Khóa API</translation>
     </message>
     <message>
         <source>Reload</source>
-        <translation type="unfinished" />
+        <translation>Tải lại</translation>
     </message>
     <message>
         <source>Zones you draw: do not enter or warn only</source>
-        <translation type="unfinished" />
+        <translation>Vùng bạn vẽ: không được vào hoặc chỉ cảnh báo</translation>
     </message>
     <message>
         <source>%1 zones you drew · %2 do not enter, %3 warn only</source>
-        <translation type="unfinished" />
+        <translation>%1 vùng bạn đã vẽ · %2 không được vào, %3 chỉ cảnh báo</translation>
     </message>
     <message>
         <source>Edit on map</source>
@@ -2382,39 +2382,39 @@
     </message>
     <message>
         <source>Drone link protected — open Link security</source>
-        <translation type="unfinished" />
+        <translation>Liên kết drone được bảo vệ — mở Bảo mật liên kết</translation>
     </message>
     <message>
         <source>Key mismatch: this app and the drone use different keys — open Link security</source>
-        <translation type="unfinished" />
+        <translation>Khóa không khớp: ứng dụng và drone dùng khóa khác nhau — mở Bảo mật liên kết</translation>
     </message>
     <message>
         <source>A key is set · this drone link is not protected yet — open Link security</source>
-        <translation type="unfinished" />
+        <translation>Đã đặt khóa · liên kết drone này chưa được bảo vệ — mở Bảo mật liên kết</translation>
     </message>
     <message>
         <source>Drone link not protected (no key) — open Link security</source>
-        <translation type="unfinished" />
+        <translation>Liên kết drone không được bảo vệ (không có khóa) — mở Bảo mật liên kết</translation>
     </message>
     <message>
         <source>Radio factory password still in use — open Link security</source>
-        <translation type="unfinished" />
+        <translation>Radio vẫn dùng mật khẩu gốc — mở Bảo mật liên kết</translation>
     </message>
     <message>
         <source>%1 zones in the visible map area · needs internet · your API key</source>
-        <translation type="unfinished" />
+        <translation>%1 vùng trong khu vực bản đồ đang xem · cần internet · khóa API của bạn</translation>
     </message>
     <message>
         <source>%1 zones in the visible map area · needs internet · company key</source>
-        <translation type="unfinished" />
+        <translation>%1 vùng trong khu vực bản đồ đang xem · cần internet · khóa của công ty</translation>
     </message>
     <message>
         <source>Enter an Altitude Angel API key to load the zones</source>
-        <translation type="unfinished" />
+        <translation>Nhập khóa API Altitude Angel để tải các vùng</translation>
     </message>
     <message>
         <source>Company key</source>
-        <translation type="unfinished" />
+        <translation>Khóa của công ty</translation>
     </message>
     <message>
         <source>Security, privacy &amp; legal</source>
@@ -2422,7 +2422,7 @@
     </message>
     <message>
         <source>Data on this tablet, delete my data, security log, open-source licenses</source>
-        <translation type="unfinished" />
+        <translation>Dữ liệu trên máy tính bảng này, xóa dữ liệu của tôi, nhật ký bảo mật, giấy phép mã nguồn mở</translation>
     </message>
     <message>
         <source>Security &amp; privacy</source>
@@ -2450,15 +2450,15 @@
     </message>
     <message>
         <source> · change in Vehicle setup › Safety</source>
-        <translation type="unfinished" />
+        <translation> · đổi trong Thiết lập drone › An toàn</translation>
     </message>
     <message>
         <source> · change in Advanced mode › Vehicle setup › Safety</source>
-        <translation type="unfinished" />
+        <translation> · đổi trong Chế độ nâng cao › Thiết lập drone › An toàn</translation>
     </message>
     <message>
         <source>This app does not change the settings of the M2 radio.</source>
-        <translation type="unfinished" />
+        <translation>Ứng dụng này không thay đổi cài đặt của radio M2.</translation>
     </message>
     <message>
         <source>RTK correction · Serial port</source>
@@ -2466,11 +2466,11 @@
     </message>
     <message>
         <source>Receiving · no RTK yet</source>
-        <translation type="unfinished" />
+        <translation>Đang nhận · chưa có RTK</translation>
     </message>
     <message>
         <source>No data from the port</source>
-        <translation type="unfinished" />
+        <translation>Không có dữ liệu từ cổng</translation>
     </message>
     <message>
         <source>Source</source>
@@ -2486,11 +2486,11 @@
     </message>
     <message>
         <source>Correction comes from a GNSS receiver on a serial port. Turn on Advanced mode to change this.</source>
-        <translation type="unfinished" />
+        <translation>Dữ liệu hiệu chỉnh đến từ bộ thu GNSS trên cổng serial. Bật chế độ nâng cao để thay đổi.</translation>
     </message>
     <message>
         <source>No serial port found</source>
-        <translation type="unfinished" />
+        <translation>Không tìm thấy cổng serial</translation>
     </message>
     <message>
         <source>Speed (baud)</source>
@@ -2498,11 +2498,11 @@
     </message>
     <message>
         <source>Turn this on to choose the port. Correction data from the GNSS receiver is sent to the drone.</source>
-        <translation type="unfinished" />
+        <translation>Bật mục này để chọn cổng. Dữ liệu hiệu chỉnh từ bộ thu GNSS được gửi tới drone.</translation>
     </message>
     <message>
         <source>Correction data comes from a GNSS receiver on this port and is sent to the drone.</source>
-        <translation type="unfinished" />
+        <translation>Dữ liệu hiệu chỉnh đến từ bộ thu GNSS trên cổng này và được gửi tới drone.</translation>
     </message>
 </context>
 <context>
@@ -2513,7 +2513,7 @@
     </message>
     <message>
         <source>The drone arms its motors, climbs to %1 m and holds position. Maximum %2 m.</source>
-        <translatorcomment>Draft from Figma example "The drone arms its motors, climbs to 10 m and holds position. Maximum 120 m." - review</translatorcomment><translation type="unfinished">Drone khởi động động cơ, lên %1 m và giữ vị trí. Tối đa %2 m.</translation>
+        <translation>Drone khởi động động cơ, lên %1 m và giữ vị trí. Tối đa %2 m.</translation>
     </message>
     <message>
         <source>Slide to take off</source>
@@ -2532,7 +2532,7 @@
     </message>
     <message>
         <source>Landing</source>
-        <translation type="unfinished" />
+        <translation>Đang hạ cánh</translation>
     </message>
     <message>
         <source>Returning home</source>
@@ -2588,7 +2588,7 @@
     </message>
     <message>
         <source>Check</source>
-        <translation type="unfinished" />
+        <translation>Cần kiểm tra</translation>
     </message>
     <message>
         <source>Remote ID</source>
@@ -2608,30 +2608,30 @@
     </message>
     <message>
         <source>%1 items to fix</source>
-        <translation type="unfinished" />
+        <translation>%1 mục cần sửa</translation>
     </message>
 </context>
 <context>
     <name>SimpleVehicleState</name>
     <message>
         <source>Compass problem</source>
-        <translation type="unfinished" />
+        <translation>Lỗi la bàn</translation>
     </message>
     <message>
         <source>Warning — see the messages (bell)</source>
-        <translation type="unfinished" />
+        <translation>Cảnh báo — xem thông báo (chuông)</translation>
     </message>
     <message>
         <source>No fix</source>
-        <translation type="unfinished" />
+        <translation>Không có fix</translation>
     </message>
     <message>
         <source>RTK</source>
-        <translation type="unfinished" />
+        <translation>RTK</translation>
     </message>
     <message>
         <source>Weak</source>
-        <translation type="unfinished" />
+        <translation>Yếu</translation>
     </message>
     <message>
         <source>Good</source>
@@ -2655,15 +2655,15 @@
     </message>
     <message>
         <source>Fair</source>
-        <translation type="unfinished" />
+        <translation>Khá</translation>
     </message>
     <message>
         <source>No power</source>
-        <translation type="unfinished" />
+        <translation>Không có nguồn</translation>
     </message>
     <message>
         <source>No station</source>
-        <translation type="unfinished" />
+        <translation>Không có trạm</translation>
     </message>
     <message>
         <source>Power OK</source>
@@ -2671,19 +2671,19 @@
     </message>
     <message>
         <source>Power off</source>
-        <translation type="unfinished" />
+        <translation>Nguồn tắt</translation>
     </message>
     <message>
         <source>Station lost</source>
-        <translation type="unfinished" />
+        <translation>Mất trạm</translation>
     </message>
     <message>
         <source>Crash detected</source>
-        <translation type="unfinished" />
+        <translation>Phát hiện va chạm</translation>
     </message>
     <message>
         <source>GPS or position lost</source>
-        <translation type="unfinished" />
+        <translation>Mất GPS hoặc vị trí</translation>
     </message>
     <message>
         <source>Battery low</source>
@@ -2695,19 +2695,19 @@
     </message>
     <message>
         <source>App link lost</source>
-        <translation type="unfinished" />
+        <translation>Mất liên kết ứng dụng</translation>
     </message>
     <message>
         <source>Geofence reached</source>
-        <translation type="unfinished" />
+        <translation>Đã chạm geofence</translation>
     </message>
     <message>
         <source>Terrain data problem</source>
-        <translation type="unfinished" />
+        <translation>Lỗi dữ liệu địa hình</translation>
     </message>
     <message>
         <source>Strong vibration</source>
-        <translation type="unfinished" />
+        <translation>Rung mạnh</translation>
     </message>
     <message>
         <source>Strong wind</source>
@@ -2750,7 +2750,7 @@
     </message>
     <message>
         <source>A drone is connected: restart alesQGC after Start to show the new units everywhere.</source>
-        <translation type="unfinished" />
+        <translation>Đã kết nối drone: khởi động lại alesQGC sau khi Bắt đầu để hiện đơn vị mới ở mọi nơi.</translation>
     </message>
     <message>
         <source>Drone type for planning without a drone: ArduPilot multicopter. A connected drone always uses its own settings.</source>
@@ -2765,11 +2765,11 @@
     <name>SimpleMapDownload</name>
     <message>
         <source>Enter a name</source>
-        <translation type="unfinished" />
+        <translation>Nhập tên</translation>
     </message>
     <message>
         <source>A saved map already has this name</source>
-        <translation type="unfinished" />
+        <translation>Đã có bản đồ lưu với tên này</translation>
     </message>
     <message>
         <source>Map &amp; flight zones</source>
@@ -2781,7 +2781,7 @@
     </message>
     <message>
         <source>Move and zoom the map so the area fits the frame</source>
-        <translation type="unfinished" />
+        <translation>Di chuyển và thu phóng bản đồ để khu vực nằm trong khung</translation>
     </message>
     <message>
         <source>Name</source>
@@ -2789,11 +2789,11 @@
     </message>
     <message>
         <source>area</source>
-        <translation type="unfinished" />
+        <translation>khu vực</translation>
     </message>
     <message>
         <source>Detail</source>
-        <translation type="unfinished" />
+        <translation>Chi tiết</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -2805,70 +2805,70 @@
     </message>
     <message>
         <source>Buildings and small paths. Needs much more space.</source>
-        <translation type="unfinished" />
+        <translation>Tòa nhà và đường nhỏ. Cần nhiều dung lượng hơn nhiều.</translation>
     </message>
     <message>
         <source>Roads, fields and large buildings.</source>
-        <translation type="unfinished" />
+        <translation>Đường, cánh đồng và tòa nhà lớn.</translation>
     </message>
     <message>
         <source>SIZE</source>
-        <translation type="unfinished" />
+        <translation>DUNG LƯỢNG</translation>
     </message>
     <message>
         <source>MAP TILES</source>
-        <translation type="unfinished" />
+        <translation>Ô BẢN ĐỒ</translation>
     </message>
     <message>
         <source>Area too large. Zoom in or choose Standard detail.</source>
-        <translation type="unfinished" />
+        <translation>Khu vực quá lớn. Hãy phóng to hoặc chọn chi tiết Chuẩn.</translation>
     </message>
     <message>
         <source>Free space on this device: %1</source>
-        <translation type="unfinished" />
+        <translation>Dung lượng trống trên thiết bị này: %1</translation>
     </message>
     <message>
         <source>Download</source>
-        <translation type="unfinished" />
+        <translation>Tải về</translation>
     </message>
 </context>
 <context>
     <name>SimplePayloadSettings</name>
     <message>
         <source>% of the station's maximum power</source>
-        <translation type="unfinished" />
+        <translation>% công suất tối đa của trạm</translation>
     </message>
     <message>
         <source>IP address of the camera on the drone's network</source>
-        <translation type="unfinished" />
+        <translation>Địa chỉ IP của camera trong mạng của drone</translation>
     </message>
     <message>
         <source>%1 flights in total</source>
-        <translation type="unfinished" />
+        <translation>Tổng %1 chuyến bay</translation>
     </message>
     <message>
         <source>%1 m</source>
-        <translatorcomment>Draft from Figma example "0.0 / 100 m" - review</translatorcomment><translation type="unfinished">%1 m</translation>
+        <translation>%1 m</translation>
     </message>
     <message>
         <source>%1 of %2 h</source>
-        <translatorcomment>Draft from Figma example "38 of 50 h" - review</translatorcomment><translation type="unfinished">%1 / %2 h</translation>
+        <translation>%1 / %2 h</translation>
     </message>
     <message>
         <source>%1 s</source>
-        <translatorcomment>Draft from Figma example "1 s" - review</translatorcomment><translation type="unfinished">%1 s</translation>
+        <translation>%1 s</translation>
     </message>
     <message>
         <source>ALARMS (SAVED IN STATION)</source>
-        <translation type="unfinished" />
+        <translation>BÁO ĐỘNG (LƯU TRONG TRẠM)</translation>
     </message>
     <message>
         <source>Allowed 0–100 %</source>
-        <translation type="unfinished" />
+        <translation>Cho phép 0–100 %</translation>
     </message>
     <message>
         <source>Allowed 0–200 m</source>
-        <translation type="unfinished" />
+        <translation>Cho phép 0–200 m</translation>
     </message>
     <message>
         <source>Anti-entrapment</source>
@@ -2876,7 +2876,7 @@
     </message>
     <message>
         <source>Asks the LiDAR for its status once</source>
-        <translation type="unfinished" />
+        <translation>Yêu cầu LiDAR báo trạng thái một lần</translation>
     </message>
     <message>
         <source>Auto land</source>
@@ -2884,7 +2884,7 @@
     </message>
     <message>
         <source>CAMERA</source>
-        <translation type="unfinished" />
+        <translation>CAMERA</translation>
     </message>
     <message>
         <source>Cable end alert</source>
@@ -2900,7 +2900,7 @@
     </message>
     <message>
         <source>Camera type on this drone</source>
-        <translation type="unfinished" />
+        <translation>Loại camera trên drone này</translation>
     </message>
     <message>
         <source>Camera</source>
@@ -2912,15 +2912,15 @@
     </message>
     <message>
         <source>Cannot connect — check the address and the network</source>
-        <translation type="unfinished" />
+        <translation>Không kết nối được — kiểm tra địa chỉ và mạng</translation>
     </message>
     <message>
         <source>Cannot connect</source>
-        <translation type="unfinished" />
+        <translation>Không kết nối được</translation>
     </message>
     <message>
         <source>Change on the ground (motors off)</source>
-        <translation type="unfinished" />
+        <translation>Thay đổi khi ở mặt đất (động cơ tắt)</translation>
     </message>
     <message>
         <source>Computer temperature</source>
@@ -2928,15 +2928,15 @@
     </message>
     <message>
         <source>Connect the drone to change this</source>
-        <translation type="unfinished" />
+        <translation>Kết nối drone để thay đổi mục này</translation>
     </message>
     <message>
         <source>Connect the drone to set the tilt limits.</source>
-        <translation type="unfinished" />
+        <translation>Kết nối drone để đặt giới hạn nghiêng.</translation>
     </message>
     <message>
         <source>Connect the station to change its settings</source>
-        <translation type="unfinished" />
+        <translation>Kết nối trạm để thay đổi cài đặt của trạm</translation>
     </message>
     <message>
         <source>Connect</source>
@@ -2948,7 +2948,7 @@
     </message>
     <message>
         <source>Connected · power on</source>
-        <translation type="unfinished" />
+        <translation>Đã kết nối · nguồn bật</translation>
     </message>
     <message>
         <source>Connected</source>
@@ -2956,15 +2956,15 @@
     </message>
     <message>
         <source>Connecting…</source>
-        <translation type="unfinished" />
+        <translation>Đang kết nối…</translation>
     </message>
     <message>
         <source>DEVICE</source>
-        <translation type="unfinished" />
+        <translation>THIẾT BỊ</translation>
     </message>
     <message>
         <source>Devices the drone carries. Tap one to set it up.</source>
-        <translation type="unfinished" />
+        <translation>Các thiết bị drone mang theo. Chạm vào một thiết bị để thiết lập.</translation>
     </message>
     <message>
         <source>Disconnect</source>
@@ -2972,11 +2972,11 @@
     </message>
     <message>
         <source>Drone not connected</source>
-        <translation type="unfinished" />
+        <translation>Chưa kết nối drone</translation>
     </message>
     <message>
         <source>EMBEDDED CAMERA (SAVED IN LIDAR)</source>
-        <translation type="unfinished" />
+        <translation>CAMERA TÍCH HỢP (LƯU TRONG LIDAR)</translation>
     </message>
     <message>
         <source>Fast</source>
@@ -2984,11 +2984,11 @@
     </message>
     <message>
         <source>Filled in automatically when the camera connects.</source>
-        <translation type="unfinished" />
+        <translation>Tự động điền khi camera kết nối.</translation>
     </message>
     <message>
         <source>For tethered flights</source>
-        <translation type="unfinished" />
+        <translation>Cho chuyến bay có tether</translation>
     </message>
     <message>
         <source>From where recording starts</source>
@@ -2996,7 +2996,7 @@
     </message>
     <message>
         <source>GIMBAL</source>
-        <translation type="unfinished" />
+        <translation>GIMBAL</translation>
     </message>
     <message>
         <source>Gimbal speed</source>
@@ -3004,7 +3004,7 @@
     </message>
     <message>
         <source>Gremsy Lynx</source>
-        <translation type="unfinished" />
+        <translation>Gremsy Lynx</translation>
     </message>
     <message>
         <source>Highest tilt</source>
@@ -3012,7 +3012,7 @@
     </message>
     <message>
         <source>How fast the gimbal turns with the on-screen controls</source>
-        <translation type="unfinished" />
+        <translation>Tốc độ xoay gimbal bằng điều khiển trên màn hình</translation>
     </message>
     <message>
         <source>If ground power is lost</source>
@@ -3024,23 +3024,23 @@
     </message>
     <message>
         <source>Level = 0°</source>
-        <translation type="unfinished" />
+        <translation>Ngang = 0°</translation>
     </message>
     <message>
         <source>Link lost</source>
-        <translation type="unfinished" />
+        <translation>Mất liên kết</translation>
     </message>
     <message>
         <source>Locked while flying (station power above 200 W)</source>
-        <translation type="unfinished" />
+        <translation>Bị khóa khi đang bay (công suất trạm trên 200 W)</translation>
     </message>
     <message>
         <source>Locked while the motors are on</source>
-        <translation type="unfinished" />
+        <translation>Bị khóa khi động cơ đang bật</translation>
     </message>
     <message>
         <source>Locked: the station reports no power</source>
-        <translation type="unfinished" />
+        <translation>Bị khóa: trạm báo không có nguồn</translation>
     </message>
     <message>
         <source>Lowest tilt</source>
@@ -3048,7 +3048,7 @@
     </message>
     <message>
         <source>MAINTENANCE</source>
-        <translation type="unfinished" />
+        <translation>BẢO TRÌ</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -3056,7 +3056,7 @@
     </message>
     <message>
         <source>Metres before the cable runs out</source>
-        <translation type="unfinished" />
+        <translation>Số mét trước khi hết cáp</translation>
     </message>
     <message>
         <source>Model</source>
@@ -3068,11 +3068,11 @@
     </message>
     <message>
         <source>NextVision</source>
-        <translation type="unfinished" />
+        <translation>NextVision</translation>
     </message>
     <message>
         <source>No reply</source>
-        <translation type="unfinished" />
+        <translation>Không phản hồi</translation>
     </message>
     <message>
         <source>Normal</source>
@@ -3080,7 +3080,7 @@
     </message>
     <message>
         <source>Not available</source>
-        <translation type="unfinished" />
+        <translation>Không khả dụng</translation>
     </message>
     <message>
         <source>Not connected</source>
@@ -3088,15 +3088,15 @@
     </message>
     <message>
         <source>Not read</source>
-        <translation type="unfinished" />
+        <translation>Chưa đọc</translation>
     </message>
     <message>
         <source>Not ready</source>
-        <translation type="unfinished" />
+        <translation>Chưa sẵn sàng</translation>
     </message>
     <message>
         <source>Not used</source>
-        <translation type="unfinished" />
+        <translation>Không dùng</translation>
     </message>
     <message>
         <source>OK</source>
@@ -3128,11 +3128,11 @@
     </message>
     <message>
         <source>Power off sent. Turn it on again with the button on the drone.</source>
-        <translation type="unfinished" />
+        <translation>Đã gửi lệnh tắt nguồn. Bật lại bằng nút trên drone.</translation>
     </message>
     <message>
         <source>Power off</source>
-        <translation type="unfinished" />
+        <translation>Tắt nguồn</translation>
     </message>
     <message>
         <source>Power off…</source>
@@ -3140,15 +3140,15 @@
     </message>
     <message>
         <source>Powered off</source>
-        <translation type="unfinished" />
+        <translation>Đã tắt nguồn</translation>
     </message>
     <message>
         <source>Problem</source>
-        <translation type="unfinished" />
+        <translation>Có lỗi</translation>
     </message>
     <message>
         <source>Read from the LiDAR. Changing these needs Set Parameter support in the companion board (not yet available).</source>
-        <translation type="unfinished" />
+        <translation>Đọc từ LiDAR. Muốn thay đổi cần bo mạch companion hỗ trợ Set Parameter (chưa có).</translation>
     </message>
     <message>
         <source>Read from the station</source>
@@ -3160,11 +3160,11 @@
     </message>
     <message>
         <source>Recommend landing</source>
-        <translation type="unfinished" />
+        <translation>Khuyến nghị hạ cánh</translation>
     </message>
     <message>
         <source>Recording</source>
-        <translation type="unfinished" />
+        <translation>Đang ghi</translation>
     </message>
     <message>
         <source>Restart needs the button on the drone</source>
@@ -3176,7 +3176,7 @@
     </message>
     <message>
         <source>Shows the LiDAR panel and checks in flight</source>
-        <translation type="unfinished" />
+        <translation>Hiện bảng LiDAR và các kiểm tra khi bay</translation>
     </message>
     <message>
         <source>Since last service</source>
@@ -3204,7 +3204,7 @@
     </message>
     <message>
         <source>Take a photo every</source>
-        <translation type="unfinished" />
+        <translation>Chụp ảnh mỗi</translation>
     </message>
     <message>
         <source>Take photos</source>
@@ -3212,7 +3212,7 @@
     </message>
     <message>
         <source>Talking to the station…</source>
-        <translation type="unfinished" />
+        <translation>Đang liên lạc với trạm…</translation>
     </message>
     <message>
         <source>Test connection</source>
@@ -3224,7 +3224,7 @@
     </message>
     <message>
         <source>Testing…</source>
-        <translation type="unfinished" />
+        <translation>Đang kiểm tra…</translation>
     </message>
     <message>
         <source>Tether station (SAFE-T)</source>
@@ -3232,15 +3232,15 @@
     </message>
     <message>
         <source>Tether support is not available</source>
-        <translation type="unfinished" />
+        <translation>Không có hỗ trợ tether</translation>
     </message>
     <message>
         <source>The LiDAR reports only OK or a warning</source>
-        <translation type="unfinished" />
+        <translation>LiDAR chỉ báo OK hoặc cảnh báo</translation>
     </message>
     <message>
         <source>This drone has no gimbal tilt limit parameters.</source>
-        <translation type="unfinished" />
+        <translation>Drone này không có tham số giới hạn nghiêng gimbal.</translation>
     </message>
     <message>
         <source>USB stick</source>
@@ -3248,7 +3248,7 @@
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished" />
+        <translation>Không rõ</translation>
     </message>
     <message>
         <source>Use YellowScan LiDAR</source>
@@ -3260,7 +3260,7 @@
     </message>
     <message>
         <source>Video stream (RTSP)</source>
-        <translation type="unfinished" />
+        <translation>Luồng video (RTSP)</translation>
     </message>
     <message>
         <source>Warn only</source>
@@ -3272,11 +3272,11 @@
     </message>
     <message>
         <source>Allow strobe *</source>
-        <translation type="unfinished" />
+        <translation>Cho phép nhấp nháy *</translation>
     </message>
     <message>
         <source>Also shows the life jacket drop on the flight screen</source>
-        <translation type="unfinished" />
+        <translation>Hiện thêm nút thả áo phao trên màn hình bay</translation>
     </message>
     <message>
         <source>Auto stop at</source>
@@ -3284,7 +3284,7 @@
     </message>
     <message>
         <source>BirdCom searchlight and life jacket</source>
-        <translation type="unfinished" />
+        <translation>Đèn rọi và áo phao BirdCom</translation>
     </message>
     <message>
         <source>Cleaning device</source>
@@ -3292,11 +3292,11 @@
     </message>
     <message>
         <source>Clips stored on the speaker</source>
-        <translation type="unfinished" />
+        <translation>Các đoạn âm thanh lưu trên loa</translation>
     </message>
     <message>
         <source>Distance to wall *</source>
-        <translation type="unfinished" />
+        <translation>Khoảng cách tới tường *</translation>
     </message>
     <message>
         <source>English</source>
@@ -3304,7 +3304,7 @@
     </message>
     <message>
         <source>Fitted</source>
-        <translation type="unfinished" />
+        <translation>Đã lắp</translation>
     </message>
     <message>
         <source>For typed messages</source>
@@ -3320,7 +3320,7 @@
     </message>
     <message>
         <source>Hook for drops</source>
-        <translation type="unfinished" />
+        <translation>Móc để thả</translation>
     </message>
     <message>
         <source>Hook opens · on the ground, motors off</source>
@@ -3328,11 +3328,11 @@
     </message>
     <message>
         <source>How long Release must be held on the flight screen</source>
-        <translation type="unfinished" />
+        <translation>Thời gian phải giữ Thả trên màn hình bay</translation>
     </message>
     <message>
         <source>Korean</source>
-        <translation type="unfinished" />
+        <translation>Tiếng Hàn</translation>
     </message>
     <message>
         <source>Low</source>
@@ -3340,15 +3340,15 @@
     </message>
     <message>
         <source>Lowering speed *</source>
-        <translation type="unfinished" />
+        <translation>Tốc độ hạ *</translation>
     </message>
     <message>
         <source>Max brightness *</source>
-        <translation type="unfinished" />
+        <translation>Độ sáng tối đa *</translation>
     </message>
     <message>
         <source>Max volume *</source>
-        <translation type="unfinished" />
+        <translation>Âm lượng tối đa *</translation>
     </message>
     <message>
         <source>Megaphone</source>
@@ -3360,11 +3360,11 @@
     </message>
     <message>
         <source>No cleaning device is connected. The card becomes active when the app supports the device.</source>
-        <translation type="unfinished" />
+        <translation>Chưa kết nối thiết bị vệ sinh. Thẻ sẽ hoạt động khi ứng dụng hỗ trợ thiết bị.</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished" />
+        <translation>Không</translation>
     </message>
     <message>
         <source>Not detected</source>
@@ -3372,15 +3372,15 @@
     </message>
     <message>
         <source>Not fitted</source>
-        <translation type="unfinished" />
+        <translation>Chưa lắp</translation>
     </message>
     <message>
         <source>Not supported by this app yet</source>
-        <translation type="unfinished" />
+        <translation>Ứng dụng này chưa hỗ trợ</translation>
     </message>
     <message>
         <source>Release sent to the drone</source>
-        <translation type="unfinished" />
+        <translation>Đã gửi lệnh thả tới drone</translation>
     </message>
     <message>
         <source>Safety limit, fixed</source>
@@ -3392,19 +3392,19 @@
     </message>
     <message>
         <source>Set on the drone (parameter GRIP_ENABLE) · Advanced › Parameters</source>
-        <translation type="unfinished" />
+        <translation>Đặt trên drone (tham số GRIP_ENABLE) · Nâng cao › Tham số</translation>
     </message>
     <message>
         <source>Shows the megaphone card on the flight screen</source>
-        <translation type="unfinished" />
+        <translation>Hiện thẻ loa phóng thanh trên màn hình bay</translation>
     </message>
     <message>
         <source>Speech language *</source>
-        <translation type="unfinished" />
+        <translation>Ngôn ngữ giọng nói *</translation>
     </message>
     <message>
         <source>Spray pressure *</source>
-        <translation type="unfinished" />
+        <translation>Áp suất phun *</translation>
     </message>
     <message>
         <source>Stop sound on landing</source>
@@ -3420,15 +3420,15 @@
     </message>
     <message>
         <source>Use BirdCom searchlight</source>
-        <translation type="unfinished" />
+        <translation>Dùng đèn rọi BirdCom</translation>
     </message>
     <message>
         <source>Use megaphone</source>
-        <translation type="unfinished" />
+        <translation>Dùng loa phóng thanh</translation>
     </message>
     <message>
         <source>Values marked * are kept in the app and used once the device accepts them.</source>
-        <translation type="unfinished" />
+        <translation>Giá trị có dấu * được lưu trong ứng dụng và được dùng khi thiết bị chấp nhận.</translation>
     </message>
     <message>
         <source>Winch</source>
@@ -3436,7 +3436,7 @@
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished" />
+        <translation>Có</translation>
     </message>
     <message>
         <source>On · stop</source>
@@ -3444,7 +3444,7 @@
     </message>
     <message>
         <source>On · avoid</source>
-        <translation type="unfinished" />
+        <translation>Bật · tránh</translation>
     </message>
     <message>
         <source>Vision LiDAR</source>
@@ -3452,7 +3452,7 @@
     </message>
     <message>
         <source>BirdCom obstacle detection</source>
-        <translation type="unfinished" />
+        <translation>Phát hiện vật cản BirdCom</translation>
     </message>
     <message>
         <source>BirdCom obstacle sensor. The drone stops when something is closer than the detection distance.</source>
@@ -3492,23 +3492,23 @@
     </message>
     <message>
         <source>No reply from the Vision LiDAR. Check that it is fitted and powered.</source>
-        <translation type="unfinished" />
+        <translation>Vision LiDAR không phản hồi. Kiểm tra đã lắp và cấp nguồn chưa.</translation>
     </message>
     <message>
         <source>Connect the drone to change these settings.</source>
-        <translation type="unfinished" />
+        <translation>Kết nối drone để thay đổi các cài đặt này.</translation>
     </message>
     <message>
         <source>These settings need station frame version Extended V1</source>
-        <translation type="unfinished" />
+        <translation>Các cài đặt này cần phiên bản khung trạm Extended V1</translation>
     </message>
     <message>
         <source>Gimbal type, servo outputs and angle ranges: Vehicle setup › Gimbal ›</source>
-        <translation type="unfinished" />
+        <translation>Loại gimbal, đầu ra servo và dải góc: Thiết lập drone › Gimbal ›</translation>
     </message>
     <message>
         <source>From the LiDAR panel on the flight screen</source>
-        <translation type="unfinished" />
+        <translation>Từ bảng LiDAR trên màn hình bay</translation>
     </message>
     <message>
         <source>Auto</source>
@@ -3552,11 +3552,11 @@
     </message>
     <message>
         <source>Extended V1</source>
-        <translation type="unfinished" />
+        <translation>Extended V1</translation>
     </message>
     <message>
         <source>Extended V0</source>
-        <translation type="unfinished" />
+        <translation>Extended V0</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -3564,43 +3564,43 @@
     </message>
     <message>
         <source>Changed in Advanced mode</source>
-        <translation type="unfinished" />
+        <translation>Thay đổi trong chế độ nâng cao</translation>
     </message>
     <message>
         <source>What the app does when the station loses ground power</source>
-        <translation type="unfinished" />
+        <translation>Ứng dụng làm gì khi trạm mất nguồn mặt đất</translation>
     </message>
     <message>
         <source>Auto land sends Land without asking when the cable has no power. Use it only for the drone tethered to this station.</source>
-        <translation type="unfinished" />
+        <translation>Tự động hạ cánh gửi lệnh Hạ cánh mà không hỏi khi cáp mất nguồn. Chỉ dùng cho drone nối tether với trạm này.</translation>
     </message>
     <message>
         <source>Use auto land</source>
-        <translation type="unfinished" />
+        <translation>Dùng tự động hạ cánh</translation>
     </message>
     <message>
         <source>S/N %1</source>
-        <translation type="unfinished" />
+        <translation>S/N %1</translation>
     </message>
     <message>
         <source>Turn on the tether station first</source>
-        <translation type="unfinished" />
+        <translation>Hãy bật trạm tether trước</translation>
     </message>
     <message>
         <source>No reply · trying again (%1)</source>
-        <translation type="unfinished" />
+        <translation>Không phản hồi · đang thử lại (%1)</translation>
     </message>
     <message>
         <source>No reply from the station</source>
-        <translation type="unfinished" />
+        <translation>Trạm không phản hồi</translation>
     </message>
     <message>
         <source>The tablet must be on the station's network</source>
-        <translation type="unfinished" />
+        <translation>Máy tính bảng phải ở trong mạng của trạm</translation>
     </message>
     <message>
         <source>Starts at the first scan item (the Init Path figure 8 in a LiDAR plan) and stops after the last one. Start / Stop on the flight screen still works.</source>
-        <translation type="unfinished" />
+        <translation>Bắt đầu ở mục quét đầu tiên (hình số 8 của đường init trong kế hoạch LiDAR) và dừng sau mục cuối cùng. Bắt đầu / Dừng trên màn hình bay vẫn dùng được.</translation>
     </message>
 </context>
 <context>
@@ -3639,15 +3639,15 @@
     </message>
     <message>
         <source>Offline map: 1 area downloaded</source>
-        <translation type="unfinished" />
+        <translation>Bản đồ ngoại tuyến: đã tải 1 khu vực</translation>
     </message>
     <message>
         <source>Offline maps: %1 areas downloaded</source>
-        <translation type="unfinished" />
+        <translation>Bản đồ ngoại tuyến: đã tải %1 khu vực</translation>
     </message>
     <message>
         <source>No offline maps (Settings › Map &amp; flight zones)</source>
-        <translation type="unfinished" />
+        <translation>Không có bản đồ ngoại tuyến (Cài đặt › Bản đồ &amp; vùng bay)</translation>
     </message>
     <message>
         <source>Flight zones</source>
@@ -3655,11 +3655,11 @@
     </message>
     <message>
         <source>%1 zones loaded</source>
-        <translation type="unfinished" />
+        <translation>Đã tải %1 vùng</translation>
     </message>
     <message>
         <source>No zone data (Settings › Map &amp; flight zones)</source>
-        <translation type="unfinished" />
+        <translation>Không có dữ liệu vùng (Cài đặt › Bản đồ &amp; vùng bay)</translation>
     </message>
     <message>
         <source>Prohibited</source>
@@ -3675,7 +3675,7 @@
     </message>
     <message>
         <source>My zone</source>
-        <translation type="unfinished" />
+        <translation>Vùng của tôi</translation>
     </message>
     <message>
         <source>My zones</source>
@@ -3683,15 +3683,15 @@
     </message>
     <message>
         <source>Ground</source>
-        <translation type="unfinished" />
+        <translation>Mặt đất</translation>
     </message>
     <message>
         <source>%1 and up</source>
-        <translation type="unfinished" />
+        <translation>%1 trở lên</translation>
     </message>
     <message>
         <source>Altitude Angel (online)</source>
-        <translation type="unfinished" />
+        <translation>Altitude Angel (trực tuyến)</translation>
     </message>
     <message>
         <source>Zone details</source>
@@ -3707,7 +3707,7 @@
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished" />
+        <translation>Chi tiết</translation>
     </message>
     <message>
         <source>Source</source>
@@ -3715,46 +3715,46 @@
     </message>
     <message>
         <source>%1 zones overlap here — the most restrictive one is shown first.</source>
-        <translation type="unfinished" />
+        <translation>%1 vùng chồng lên nhau ở đây — vùng hạn chế nhất được hiện trước.</translation>
     </message>
     <message>
         <source>Zoom in to see the zones</source>
-        <translation type="unfinished" />
+        <translation>Phóng to để xem các vùng</translation>
     </message>
 </context>
 <context>
     <name>FlightZoneManager</name>
     <message>
         <source>The file cannot be opened.</source>
-        <translation type="unfinished" />
+        <translation>Không mở được tệp.</translation>
     </message>
     <message>
         <source>This is not a GeoJSON file (%1).</source>
-        <translation type="unfinished" />
+        <translation>Đây không phải tệp GeoJSON (%1).</translation>
     </message>
     <message>
         <source>The file has no zone areas (GeoJSON Polygon or MultiPolygon features).</source>
-        <translation type="unfinished" />
+        <translation>Tệp không có vùng nào (đối tượng GeoJSON Polygon hoặc MultiPolygon).</translation>
     </message>
     <message>
         <source>The file cannot be copied to the app folder.</source>
-        <translation type="unfinished" />
+        <translation>Không sao chép được tệp vào thư mục ứng dụng.</translation>
     </message>
     <message>
         <source>Inside a prohibited zone</source>
-        <translation type="unfinished" />
+        <translation>Đang ở trong vùng cấm</translation>
     </message>
     <message>
         <source>Inside a flight zone</source>
-        <translation type="unfinished" />
+        <translation>Đang ở trong vùng bay</translation>
     </message>
     <message>
         <source>Prohibited zone ahead</source>
-        <translation type="unfinished" />
+        <translation>Phía trước có vùng cấm</translation>
     </message>
     <message>
         <source>Flight zone ahead</source>
-        <translation type="unfinished" />
+        <translation>Phía trước có vùng bay</translation>
     </message>
     <message>
         <source>Do not enter</source>
@@ -3766,34 +3766,34 @@
     </message>
     <message>
         <source>The zone server sent data that cannot be read.</source>
-        <translation type="unfinished" />
+        <translation>Máy chủ vùng gửi dữ liệu không đọc được.</translation>
     </message>
     <message>
         <source>The zone server refused the API key.</source>
-        <translation type="unfinished" />
+        <translation>Máy chủ vùng từ chối khóa API.</translation>
     </message>
     <message>
         <source>Zones cannot be downloaded: %1</source>
-        <translation type="unfinished" />
+        <translation>Không tải được các vùng: %1</translation>
     </message>
     <message>
         <source>The zone file cannot be opened: %1</source>
-        <translation type="unfinished" />
+        <translation>Không mở được tệp vùng: %1</translation>
     </message>
     <message>
         <source>The zone file is not valid GeoJSON: %1</source>
-        <translation type="unfinished" />
+        <translation>Tệp vùng không phải GeoJSON hợp lệ: %1</translation>
     </message>
     <message>
         <source>heights above sea level</source>
-        <translation type="unfinished" />
+        <translation>độ cao so với mực nước biển</translation>
     </message>
 </context>
 <context>
     <name>SimpleMyZones</name>
     <message>
         <source>My zone %1</source>
-        <translation type="unfinished" />
+        <translation>Vùng của tôi %1</translation>
     </message>
     <message>
         <source>Settings</source>
@@ -3805,7 +3805,7 @@
     </message>
     <message>
         <source>Edit flight zone</source>
-        <translation type="unfinished" />
+        <translation>Sửa vùng bay</translation>
     </message>
     <message>
         <source>My flight zones</source>
@@ -3829,15 +3829,15 @@
     </message>
     <message>
         <source>Locked while the motors are running.</source>
-        <translation type="unfinished" />
+        <translation>Bị khóa khi động cơ đang quay.</translation>
     </message>
     <message>
         <source>Tap the map to add corners, drag a corner to move it. Official zones cannot be edited.</source>
-        <translation type="unfinished" />
+        <translation>Chạm bản đồ để thêm góc, kéo một góc để di chuyển. Không thể sửa vùng chính thức.</translation>
     </message>
     <message>
         <source>%1 zones you drew</source>
-        <translation type="unfinished" />
+        <translation>%1 vùng bạn đã vẽ</translation>
     </message>
     <message>
         <source>Draw a zone the drone must not enter (for example a building or a crowd area) or a zone to be warned about.</source>
@@ -3889,11 +3889,11 @@
     </message>
     <message>
         <source>'Do not enter' blocks take-off and plan sending inside the zone, and goes to the drone's fence when it is uploaded — the drone stops at the edge.</source>
-        <translation type="unfinished" />
+        <translation>'Không được vào' chặn cất cánh và gửi kế hoạch bên trong vùng, và được đưa vào geofence của drone khi tải lên — drone dừng ở mép vùng.</translation>
     </message>
     <message>
         <source>'Warn only' shows an orange warning and speaks when the drone comes closer than the warning distance.</source>
-        <translation type="unfinished" />
+        <translation>'Chỉ cảnh báo' hiện cảnh báo màu cam và đọc thông báo khi drone đến gần hơn khoảng cách cảnh báo.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -3905,27 +3905,27 @@
     </message>
     <message>
         <source>Add at least 3 corners.</source>
-        <translation type="unfinished" />
+        <translation>Thêm ít nhất 3 góc.</translation>
     </message>
     <message>
         <source>only reports the breach</source>
-        <translation type="unfinished" />
+        <translation>chỉ báo vượt ranh giới</translation>
     </message>
     <message>
         <source>lands</source>
-        <translation type="unfinished" />
+        <translation>hạ cánh</translation>
     </message>
     <message>
         <source>brakes, or lands</source>
-        <translation type="unfinished" />
+        <translation>phanh, hoặc hạ cánh</translation>
     </message>
     <message>
         <source>returns on its own path, or lands</source>
-        <translation type="unfinished" />
+        <translation>quay về theo đường đã bay, hoặc hạ cánh</translation>
     </message>
     <message>
         <source>returns home, or lands</source>
-        <translation type="unfinished" />
+        <translation>quay về, hoặc hạ cánh</translation>
     </message>
     <message>
         <source>DRONE FENCE</source>
@@ -3933,55 +3933,55 @@
     </message>
     <message>
         <source>Connect the drone to upload the 'do not enter' zones to its fence.</source>
-        <translation type="unfinished" />
+        <translation>Kết nối drone để tải các vùng 'không được vào' lên geofence của drone.</translation>
     </message>
     <message>
         <source>The fence can be uploaded only on the ground with the motors off.</source>
-        <translation type="unfinished" />
+        <translation>Chỉ có thể tải geofence lên khi ở mặt đất và động cơ tắt.</translation>
     </message>
     <message>
         <source>This drone has no fence parameters.</source>
-        <translation type="unfinished" />
+        <translation>Drone này không có tham số geofence.</translation>
     </message>
     <message>
         <source>Polygon fence on. At a zone edge the drone %1.</source>
-        <translation type="unfinished" />
+        <translation>Geofence đa giác bật. Ở mép vùng, drone sẽ %1.</translation>
     </message>
     <message>
         <source>The drone's polygon fence is off.</source>
-        <translation type="unfinished" />
+        <translation>Geofence đa giác của drone đang tắt.</translation>
     </message>
     <message>
         <source>Uploaded to the drone.</source>
-        <translation type="unfinished" />
+        <translation>Đã tải lên drone.</translation>
     </message>
     <message>
         <source>Uploading…</source>
-        <translation type="unfinished" />
+        <translation>Đang tải lên…</translation>
     </message>
     <message>
         <source>Upload</source>
-        <translation type="unfinished" />
+        <translation>Tải lên</translation>
     </message>
     <message>
         <source>Upload to drone (%1 zones)</source>
-        <translatorcomment>Draft from Figma example "Upload to drone (1 zones)" - review</translatorcomment><translation type="unfinished">Tải lên drone (%1 vùng)</translation>
+        <translation>Tải lên drone (%1 vùng)</translation>
     </message>
     <message>
         <source>Upload %1 'do not enter' zones to the drone? The drone's fence is off: only the polygon fence is turned on (FENCE_ENABLE = 1, FENCE_TYPE = polygon).</source>
-        <translation type="unfinished" />
+        <translation>Tải %1 vùng 'không được vào' lên drone? Geofence của drone đang tắt: chỉ bật geofence đa giác (FENCE_ENABLE = 1, FENCE_TYPE = đa giác).</translation>
     </message>
     <message>
         <source>Upload %1 'do not enter' zones to the drone? They replace the exclusion areas on the drone; the circle, altitude and inclusion fences stay as they are.</source>
-        <translation type="unfinished" />
+        <translation>Tải %1 vùng 'không được vào' lên drone? Chúng thay thế các vùng loại trừ trên drone; geofence tròn, độ cao và vùng bao giữ nguyên.</translation>
     </message>
     <message>
         <source>The drone is still sending its mission or fence. Try again in a moment.</source>
-        <translation type="unfinished" />
+        <translation>Drone vẫn đang gửi nhiệm vụ hoặc geofence. Hãy thử lại sau giây lát.</translation>
     </message>
     <message>
         <source>The drone did not confirm the fence. Check the connection and try again.</source>
-        <translation type="unfinished" />
+        <translation>Drone không xác nhận geofence. Kiểm tra kết nối và thử lại.</translation>
     </message>
 </context>
 <context>
@@ -3992,19 +3992,19 @@
     </message>
     <message>
         <source>now %1</source>
-        <translatorcomment>Draft from Figma example "now 50 m" - review</translatorcomment><translation type="unfinished">hiện %1</translation>
+        <translation>hiện tại %1</translation>
     </message>
     <message>
         <source>Height above the home point · allowed %1 – %2 %3 · the drone then holds position</source>
-        <translation type="unfinished" />
+        <translation>Độ cao so với Home Point · cho phép %1 – %2 %3 · sau đó drone giữ vị trí</translation>
     </message>
     <message>
         <source>Already at %1 %2</source>
-        <translation type="unfinished" />
+        <translation>Đã ở %1 %2</translation>
     </message>
     <message>
         <source>Slide to change to %1 %2</source>
-        <translatorcomment>Draft from Figma example "Slide to change to 65 m" - review</translatorcomment><translation type="unfinished">Trượt để đổi sang %1 %2</translation>
+        <translation>Trượt để đổi sang %1 %2</translation>
     </message>
 </context>
 <context>
@@ -4023,11 +4023,11 @@
     </message>
     <message>
         <source>Latitude must be between -90 and 90.</source>
-        <translation type="unfinished" />
+        <translation>Vĩ độ phải trong khoảng -90 đến 90.</translation>
     </message>
     <message>
         <source>Longitude must be between -180 and 180.</source>
-        <translation type="unfinished" />
+        <translation>Kinh độ phải trong khoảng -180 đến 180.</translation>
     </message>
     <message>
         <source>Decimal degrees, for example 37.5665 and 126.9780.</source>
@@ -4042,7 +4042,7 @@
     <name>SimpleGoHereCard</name>
     <message>
         <source>Stopped</source>
-        <translation type="unfinished" />
+        <translation>Đã dừng</translation>
     </message>
     <message>
         <source>Going to point</source>
@@ -4050,19 +4050,19 @@
     </message>
     <message>
         <source>%1 left</source>
-        <translation type="unfinished" />
+        <translation>Còn %1</translation>
     </message>
     <message>
         <source>obstacle detection on</source>
-        <translation type="unfinished" />
+        <translation>phát hiện vật cản bật</translation>
     </message>
     <message>
         <source>no obstacle detection</source>
-        <translation type="unfinished" />
+        <translation>không phát hiện vật cản</translation>
     </message>
     <message>
         <source>Continue</source>
-        <translation type="unfinished" />
+        <translation>Tiếp tục</translation>
     </message>
     <message>
         <source>Change target</source>
@@ -4081,11 +4081,11 @@
     <name>SimpleGoHereSheet</name>
     <message>
         <source>%1 s</source>
-        <translatorcomment>Draft from Figma example "1 s" - review</translatorcomment><translation type="unfinished">%1 s</translation>
+        <translation>%1 s</translation>
     </message>
     <message>
         <source>%1 min %2 s</source>
-        <translation type="unfinished" />
+        <translation>%1 min %2 s</translation>
     </message>
     <message>
         <source>Go here</source>
@@ -4093,74 +4093,74 @@
     </message>
     <message>
         <source>Height above home</source>
-        <translation type="unfinished" />
+        <translation>Độ cao so với Home Point</translation>
     </message>
     <message>
         <source>Now %1 · allowed %2 – %3</source>
-        <translation type="unfinished" />
+        <translation>Hiện tại %1 · cho phép %2 – %3</translation>
     </message>
     <message>
         <source>The drone flies straight to the pin (%1, about %2) and holds position there.</source>
-        <translation type="unfinished" />
+        <translation>Drone bay thẳng tới ghim (%1, khoảng %2) và giữ vị trí ở đó.</translation>
     </message>
     <message>
         <source>Obstacle detection on — the drone stops in front of obstacles.</source>
-        <translation type="unfinished" />
+        <translation>Phát hiện vật cản bật — drone dừng trước vật cản.</translation>
     </message>
     <message>
         <source>This drone cannot detect obstacles. Check that the way is clear.</source>
-        <translation type="unfinished" />
+        <translation>Drone này không phát hiện được vật cản. Kiểm tra đường bay thông thoáng.</translation>
     </message>
     <message>
         <source>Slide to go</source>
-        <translation type="unfinished" />
+        <translation>Trượt để bay</translation>
     </message>
     <message>
         <source>Height is above the home point, not above the ground. Check for hills and buildings on the way.</source>
-        <translation type="unfinished" />
+        <translation>Độ cao tính từ Home Point, không phải từ mặt đất. Kiểm tra đồi và tòa nhà trên đường bay.</translation>
     </message>
 </context>
 <context>
     <name>SimpleMapTapMenu</name>
     <message>
         <source>No drone connected</source>
-        <translation type="unfinished" />
+        <translation>Chưa kết nối drone</translation>
     </message>
     <message>
         <source>Not available while the signal is lost</source>
-        <translation type="unfinished" />
+        <translation>Không khả dụng khi mất tín hiệu</translation>
     </message>
     <message>
         <source>Available after take-off</source>
-        <translation type="unfinished" />
+        <translation>Khả dụng sau khi cất cánh</translation>
     </message>
     <message>
         <source>Not available now</source>
-        <translation type="unfinished" />
+        <translation>Hiện không khả dụng</translation>
     </message>
     <message>
         <source>Drone position unknown</source>
-        <translation type="unfinished" />
+        <translation>Không rõ vị trí drone</translation>
     </message>
     <message>
         <source>Inside %1 — the drone may not fly there</source>
-        <translation type="unfinished" />
+        <translation>Bên trong %1 — drone không được bay tới đó</translation>
     </message>
     <message>
         <source>a prohibited zone</source>
-        <translation type="unfinished" />
+        <translation>vùng cấm</translation>
     </message>
     <message>
         <source>The way crosses %1 — choose another point</source>
-        <translation type="unfinished" />
+        <translation>Đường bay cắt qua %1 — hãy chọn điểm khác</translation>
     </message>
     <message>
         <source>Too far — Go here reaches up to %1</source>
-        <translation type="unfinished" />
+        <translation>Quá xa — Bay tới đây tối đa %1</translation>
     </message>
     <message>
         <source>%1 away · %2°</source>
-        <translatorcomment>Draft from Figma example "360 m away · 52°" - review</translatorcomment><translation type="unfinished">cách %1 · %2°</translation>
+        <translation>cách %1 · %2°</translation>
     </message>
     <message>
         <source>Prohibited</source>
@@ -4172,7 +4172,7 @@
     </message>
     <message>
         <source>My zone</source>
-        <translation type="unfinished" />
+        <translation>Vùng của tôi</translation>
     </message>
     <message>
         <source>Information</source>
@@ -4180,7 +4180,7 @@
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished" />
+        <translation>Chi tiết</translation>
     </message>
     <message>
         <source>Go here</source>
@@ -4188,7 +4188,7 @@
     </message>
     <message>
         <source>Fly to this point at %1</source>
-        <translatorcomment>Draft from Figma example "Fly to this point at 42 m" - review</translatorcomment><translation type="unfinished">Bay tới điểm này ở %1</translation>
+        <translation>Bay tới điểm này ở %1</translation>
     </message>
     <message>
         <source>Set as home point</source>
@@ -4208,18 +4208,18 @@
     </message>
     <message>
         <source>Outside the geofence or in an excluded area — choose another point</source>
-        <translation type="unfinished" />
+        <translation>Ngoài geofence hoặc trong vùng loại trừ — hãy chọn điểm khác</translation>
     </message>
 </context>
 <context>
     <name>SimplePayloadPanel</name>
     <message>
         <source>%1 W · cable %2 m · spool %3 °C</source>
-        <translation type="unfinished" />
+        <translation>%1 W · cáp %2 m · cuộn cáp %3 °C</translation>
     </message>
     <message>
         <source>%1 of 11</source>
-        <translation type="unfinished" />
+        <translation>%1 / 11</translation>
     </message>
     <message>
         <source>Automatic torque</source>
@@ -4231,27 +4231,27 @@
     </message>
     <message>
         <source>Clip %1</source>
-        <translation type="unfinished" />
+        <translation>Đoạn %1</translation>
     </message>
     <message>
         <source>Drone not connected</source>
-        <translation type="unfinished" />
+        <translation>Chưa kết nối drone</translation>
     </message>
     <message>
         <source>Hold 2 s to drop the life jacket</source>
-        <translation type="unfinished" />
+        <translation>Giữ 2 s để thả áo phao</translation>
     </message>
     <message>
         <source>Hold 2 s to stop</source>
-        <translation type="unfinished" />
+        <translation>Giữ 2 s để dừng</translation>
     </message>
     <message>
         <source>Hook</source>
-        <translation type="unfinished" />
+        <translation>Móc</translation>
     </message>
     <message>
         <source>Hooked</source>
-        <translation type="unfinished" />
+        <translation>Đã móc</translation>
     </message>
     <message>
         <source>INS not locked — fly the init path first</source>
@@ -4259,23 +4259,23 @@
     </message>
     <message>
         <source>Inspection / Surveillance</source>
-        <translation type="unfinished" />
+        <translation>Kiểm tra / Giám sát</translation>
     </message>
     <message>
         <source>Life jacket</source>
-        <translation type="unfinished" />
+        <translation>Áo phao</translation>
     </message>
     <message>
         <source>Light</source>
-        <translation type="unfinished" />
+        <translation>Đèn</translation>
     </message>
     <message>
         <source>Link lost</source>
-        <translation type="unfinished" />
+        <translation>Mất liên kết</translation>
     </message>
     <message>
         <source>Mapping</source>
-        <translation type="unfinished" />
+        <translation>Lập bản đồ</translation>
     </message>
     <message>
         <source>Megaphone</source>
@@ -4283,15 +4283,15 @@
     </message>
     <message>
         <source>No payload connected. Payloads are set up in Settings › Payloads.</source>
-        <translation type="unfinished" />
+        <translation>Chưa kết nối payload. Thiết lập payload trong Cài đặt › Payload.</translation>
     </message>
     <message>
         <source>No power</source>
-        <translation type="unfinished" />
+        <translation>Không có nguồn</translation>
     </message>
     <message>
         <source>No reply</source>
-        <translation type="unfinished" />
+        <translation>Không phản hồi</translation>
     </message>
     <message>
         <source>Not connected</source>
@@ -4299,7 +4299,7 @@
     </message>
     <message>
         <source>Not ready</source>
-        <translation type="unfinished" />
+        <translation>Chưa sẵn sàng</translation>
     </message>
     <message>
         <source>Off</source>
@@ -4319,7 +4319,7 @@
     </message>
     <message>
         <source>Power off</source>
-        <translation type="unfinished" />
+        <translation>Tắt nguồn</translation>
     </message>
     <message>
         <source>Power on</source>
@@ -4327,11 +4327,11 @@
     </message>
     <message>
         <source>Powered off</source>
-        <translation type="unfinished" />
+        <translation>Đã tắt nguồn</translation>
     </message>
     <message>
         <source>Profile: %1 · %2 connected</source>
-        <translation type="unfinished" />
+        <translation>Hồ sơ: %1 · %2 đã kết nối</translation>
     </message>
     <message>
         <source>Ready</source>
@@ -4339,15 +4339,15 @@
     </message>
     <message>
         <source>Recording %1</source>
-        <translation type="unfinished" />
+        <translation>Đang ghi %1</translation>
     </message>
     <message>
         <source>Release works in flight, or on the ground with the motors stopped.</source>
-        <translation type="unfinished" />
+        <translation>Thả hoạt động khi đang bay, hoặc ở mặt đất khi động cơ đã dừng.</translation>
     </message>
     <message>
         <source>Released</source>
-        <translation type="unfinished" />
+        <translation>Đã thả</translation>
     </message>
     <message>
         <source>Searchlight</source>
@@ -4359,15 +4359,15 @@
     </message>
     <message>
         <source>Starting…</source>
-        <translation type="unfinished" />
+        <translation>Đang bắt đầu…</translation>
     </message>
     <message>
         <source>Stopping…</source>
-        <translation type="unfinished" />
+        <translation>Đang dừng…</translation>
     </message>
     <message>
         <source>Tether station</source>
-        <translation type="unfinished" />
+        <translation>Trạm tether</translation>
     </message>
     <message>
         <source>Tether</source>
@@ -4375,11 +4375,11 @@
     </message>
     <message>
         <source>The LiDAR is not ready yet</source>
-        <translation type="unfinished" />
+        <translation>LiDAR chưa sẵn sàng</translation>
     </message>
     <message>
         <source>The speaker does not report back: the status only shows that the command was sent.</source>
-        <translation type="unfinished" />
+        <translation>Loa không báo lại: trạng thái chỉ cho biết lệnh đã được gửi.</translation>
     </message>
     <message>
         <source>Turn the power on before take-off.</source>
@@ -4387,7 +4387,7 @@
     </message>
     <message>
         <source>Waiting for the station…</source>
-        <translation type="unfinished" />
+        <translation>Đang chờ trạm…</translation>
     </message>
     <message>
         <source>Winch</source>
@@ -4399,11 +4399,11 @@
     </message>
     <message>
         <source>applied %1 %</source>
-        <translatorcomment>Draft from Figma example "applied 30 %" - review</translatorcomment><translation type="unfinished">đã áp dụng %1 %</translation>
+        <translation>đã áp dụng %1 %</translation>
     </message>
     <message>
         <source>Hold %1 s to release</source>
-        <translatorcomment>Draft from Figma example "Hold 2 s to release" - review</translatorcomment><translation type="unfinished">Giữ %1 s để thả</translation>
+        <translation>Giữ %1 s để thả</translation>
     </message>
     <message>
         <source>No response</source>
@@ -4411,51 +4411,51 @@
     </message>
     <message>
         <source>Status delayed</source>
-        <translation type="unfinished" />
+        <translation>Trạng thái bị trễ</translation>
     </message>
     <message>
         <source>Start refused by the LiDAR: %1 (%2)</source>
-        <translation type="unfinished" />
+        <translation>LiDAR từ chối bắt đầu: %1 (%2)</translation>
     </message>
     <message>
         <source>Start refused by the LiDAR: %1</source>
-        <translation type="unfinished" />
+        <translation>LiDAR từ chối bắt đầu: %1</translation>
     </message>
     <message>
         <source>The LiDAR does not report data logging since Start. Check the USB stick.</source>
-        <translation type="unfinished" />
+        <translation>LiDAR không báo ghi dữ liệu kể từ khi Bắt đầu. Kiểm tra USB.</translation>
     </message>
     <message>
         <source>Start (retry)</source>
-        <translation type="unfinished" />
+        <translation>Bắt đầu (thử lại)</translation>
     </message>
     <message>
         <source>Hold 2 s to stop · %1 of %2 lines left</source>
-        <translatorcomment>Draft from Figma example "Hold 2 s to stop · 4 of 9 lines left" - review</translatorcomment><translation type="unfinished">Giữ 2 s để dừng · còn %1/%2</translation>
+        <translation>Giữ 2 s để dừng · còn %1/%2 đường</translation>
     </message>
     <message>
         <source>Last status %1. Stop is still sent; the card returns when the LiDAR answers.</source>
-        <translatorcomment>Draft from Figma example "Last status 09:58. Stop is still sent; the card returns when the LiDAR answers." - review</translatorcomment><translation type="unfinished">Trạng thái cuối %1. Lệnh dừng vẫn được gửi; thẻ sẽ trở lại khi LiDAR phản hồi.</translation>
+        <translation>Trạng thái cuối %1. Lệnh dừng vẫn được gửi; thẻ sẽ trở lại khi LiDAR phản hồi.</translation>
     </message>
     <message>
         <source>Started %1 · %2 recorded</source>
-        <translation type="unfinished" />
+        <translation>Bắt đầu %1 · đã ghi %2</translation>
     </message>
     <message>
         <source>line %1 of %2</source>
-        <translation type="unfinished" />
+        <translation>đường %1/%2</translation>
     </message>
     <message>
         <source>Torque is locked until the station link is connected.</source>
-        <translation type="unfinished" />
+        <translation>Mô-men bị khóa cho đến khi liên kết trạm được kết nối.</translation>
     </message>
     <message>
         <source>Turn on automatic torque to change the torque.</source>
-        <translation type="unfinished" />
+        <translation>Bật mô-men tự động để thay đổi mô-men.</translation>
     </message>
     <message>
         <source>The station does not report the torque. ‹ sets 0, › sets 1 of 10.</source>
-        <translation type="unfinished" />
+        <translation>Trạm không báo mô-men. ‹ đặt 0, › đặt 1 trên 10.</translation>
     </message>
 </context>
 <context>
@@ -4466,15 +4466,15 @@
     </message>
     <message>
         <source>No SD card</source>
-        <translation type="unfinished" />
+        <translation>Không có thẻ SD</translation>
     </message>
     <message>
         <source>SD card not formatted</source>
-        <translation type="unfinished" />
+        <translation>Thẻ SD chưa định dạng</translation>
     </message>
     <message>
         <source>SD card full</source>
-        <translation type="unfinished" />
+        <translation>Thẻ SD đầy</translation>
     </message>
     <message>
         <source>Align</source>
@@ -4485,7 +4485,7 @@
     <name>SimpleCameraSheet</name>
     <message>
         <source>%1 free</source>
-        <translatorcomment>Draft from Figma example "41 GB free" - review</translatorcomment><translation type="unfinished">Còn trống %1</translation>
+        <translation>Còn trống %1</translation>
     </message>
     <message>
         <source>Auto photos</source>
@@ -4541,11 +4541,11 @@
     </message>
     <message>
         <source>The drone reports no camera with settings. Camera &amp; gimbal payloads are set up in Settings › Payloads.</source>
-        <translation type="unfinished" />
+        <translation>Drone không báo camera nào có cài đặt. Payload camera &amp; gimbal được thiết lập trong Cài đặt › Payload.</translation>
     </message>
     <message>
         <source>Thermal palette</source>
-        <translation type="unfinished" />
+        <translation>Bảng màu nhiệt</translation>
     </message>
     <message>
         <source>Video</source>
@@ -4560,7 +4560,7 @@
     <name>SimpleTetherCard</name>
     <message>
         <source>Alarm</source>
-        <translation type="unfinished" />
+        <translation>Báo động</translation>
     </message>
     <message>
         <source>Backup battery</source>
@@ -4572,11 +4572,11 @@
     </message>
     <message>
         <source>Caution</source>
-        <translation type="unfinished" />
+        <translation>Chú ý</translation>
     </message>
     <message>
         <source>Check</source>
-        <translation type="unfinished" />
+        <translation>Cần kiểm tra</translation>
     </message>
     <message>
         <source>Ground power</source>
@@ -4588,7 +4588,7 @@
     </message>
     <message>
         <source>No data</source>
-        <translation type="unfinished" />
+        <translation>Không có dữ liệu</translation>
     </message>
     <message>
         <source>Normal</source>
@@ -4612,7 +4612,7 @@
     </message>
     <message>
         <source>Station lost</source>
-        <translation type="unfinished" />
+        <translation>Mất trạm</translation>
     </message>
     <message>
         <source>Tension</source>
@@ -4624,14 +4624,14 @@
     </message>
     <message>
         <source>alarm %1 m</source>
-        <translation type="unfinished" />
+        <translation>báo động %1 m</translation>
     </message>
 </context>
 <context>
     <name>SimpleWaypointEditor</name>
     <message>
         <source>&lt;1 min</source>
-        <translation type="unfinished" />
+        <translation>&lt;1 min</translation>
     </message>
     <message>
         <source>Add point</source>
@@ -4647,7 +4647,7 @@
     </message>
     <message>
         <source>Direction</source>
-        <translation type="unfinished" />
+        <translation>Hướng</translation>
     </message>
     <message>
         <source>Drone faces</source>
@@ -4659,7 +4659,7 @@
     </message>
     <message>
         <source>Height is above the take-off point · max %1 m.</source>
-        <translation type="unfinished" />
+        <translation>Độ cao so với điểm cất cánh · tối đa %1 m.</translation>
     </message>
     <message>
         <source>Height profile</source>
@@ -4679,7 +4679,7 @@
     </message>
     <message>
         <source>No point yet</source>
-        <translation type="unfinished" />
+        <translation>Chưa có điểm</translation>
     </message>
     <message>
         <source>Nothing</source>
@@ -4691,7 +4691,7 @@
     </message>
     <message>
         <source>Point %1: too close to the ground</source>
-        <translation type="unfinished" />
+        <translation>Điểm %1: quá gần mặt đất</translation>
     </message>
     <message>
         <source>Speed</source>
@@ -4707,7 +4707,7 @@
     </message>
     <message>
         <source>Tap the map to add points. Drag a point to move it.</source>
-        <translation type="unfinished" />
+        <translation>Chạm bản đồ để thêm điểm. Kéo điểm để di chuyển.</translation>
     </message>
     <message>
         <source>Undo</source>
@@ -4719,50 +4719,50 @@
     </message>
     <message>
         <source>Point %1 (%2 of %3)</source>
-        <translation type="unfinished" />
+        <translation>Điểm %1 (%2/%3)</translation>
     </message>
     <message>
         <source>about %1 min</source>
-        <translation type="unfinished" />
+        <translation>khoảng %1 min</translation>
     </message>
     <message>
         <source>batteries: %1</source>
-        <translation type="unfinished" />
+        <translation>pin: %1</translation>
     </message>
     <message>
         <source>battery not estimated</source>
-        <translation type="unfinished" />
+        <translation>chưa ước tính pin</translation>
     </message>
     <message>
         <source>route %1 km · %2 · %3</source>
-        <translation type="unfinished" />
+        <translation>tuyến %1 km · %2 · %3</translation>
     </message>
 </context>
 <context>
     <name>SimpleSavedMissions</name>
     <message>
         <source>%1 items</source>
-        <translation type="unfinished" />
+        <translation>%1 mục</translation>
     </message>
     <message>
         <source>%1 missions on this tablet</source>
-        <translation type="unfinished" />
+        <translation>%1 nhiệm vụ trên máy tính bảng này</translation>
     </message>
     <message>
         <source>%1 photos</source>
-        <translation type="unfinished" />
+        <translation>%1 ảnh</translation>
     </message>
     <message>
         <source>%1 points</source>
-        <translation type="unfinished" />
+        <translation>%1 điểm</translation>
     </message>
     <message>
         <source>A mission already sent to the drone stays on the drone.</source>
-        <translation type="unfinished" />
+        <translation>Nhiệm vụ đã gửi tới drone vẫn ở trên drone.</translation>
     </message>
     <message>
         <source>A mission with this name already exists.</source>
-        <translation type="unfinished" />
+        <translation>Đã có nhiệm vụ với tên này.</translation>
     </message>
     <message>
         <source>Area mapping</source>
@@ -4774,7 +4774,7 @@
     </message>
     <message>
         <source>Delete “%1”?</source>
-        <translation type="unfinished" />
+        <translation>Xóa “%1”?</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -4782,7 +4782,7 @@
     </message>
     <message>
         <source>Export a copy</source>
-        <translation type="unfinished" />
+        <translation>Xuất bản sao</translation>
     </message>
     <message>
         <source>Export</source>
@@ -4794,7 +4794,7 @@
     </message>
     <message>
         <source>Import a mission</source>
-        <translation type="unfinished" />
+        <translation>Nhập nhiệm vụ</translation>
     </message>
     <message>
         <source>Import file</source>
@@ -4802,7 +4802,7 @@
     </message>
     <message>
         <source>Loading…</source>
-        <translation type="unfinished" />
+        <translation>Đang tải…</translation>
     </message>
     <message>
         <source>Mission</source>
@@ -4818,7 +4818,7 @@
     </message>
     <message>
         <source>No saved missions yet. Save a mission from the plan screen, or import a .plan or .kml file.</source>
-        <translation type="unfinished" />
+        <translation>Chưa có nhiệm vụ đã lưu. Lưu nhiệm vụ từ màn hình kế hoạch, hoặc nhập tệp .plan hay .kml.</translation>
     </message>
     <message>
         <source>Open</source>
@@ -4826,7 +4826,7 @@
     </message>
     <message>
         <source>Rename mission</source>
-        <translation type="unfinished" />
+        <translation>Đổi tên nhiệm vụ</translation>
     </message>
     <message>
         <source>Rename</source>
@@ -4842,7 +4842,7 @@
     </message>
     <message>
         <source>Slide to delete</source>
-        <translation type="unfinished" />
+        <translation>Trượt để xóa</translation>
     </message>
     <message>
         <source>Structure scan</source>
@@ -4850,11 +4850,11 @@
     </message>
     <message>
         <source>Tap to see the details</source>
-        <translation type="unfinished" />
+        <translation>Chạm để xem chi tiết</translation>
     </message>
     <message>
         <source>The mission file is removed from this tablet. This cannot be undone.</source>
-        <translation type="unfinished" />
+        <translation>Tệp nhiệm vụ bị xóa khỏi máy tính bảng này. Không thể hoàn tác.</translation>
     </message>
     <message>
         <source>Waypoint flight</source>
@@ -4862,7 +4862,7 @@
     </message>
     <message>
         <source>%1 min</source>
-        <translatorcomment>Draft from Figma example "11 min" - review</translatorcomment><translation type="unfinished">%1 min</translation>
+        <translation>%1 min</translation>
     </message>
     <message>
         <source>Import: .plan (QGC) · .kml with an area (Google Earth)</source>
@@ -4870,11 +4870,11 @@
     </message>
     <message>
         <source>No mission name contains “%1”.</source>
-        <translation type="unfinished" />
+        <translation>Không có nhiệm vụ nào có tên chứa “%1”.</translation>
     </message>
     <message>
         <source>This file could not be read.</source>
-        <translation type="unfinished" />
+        <translation>Không đọc được tệp này.</translation>
     </message>
     <message>
         <source>LiDAR survey</source>
@@ -4882,18 +4882,18 @@
     </message>
     <message>
         <source>%1 items — too many to preview here. Open shows the whole mission.</source>
-        <translation type="unfinished" />
+        <translation>%1 mục — quá nhiều để xem trước ở đây. Mở để xem toàn bộ nhiệm vụ.</translation>
     </message>
 </context>
 <context>
     <name>SimpleScanSettings</name>
     <message>
         <source>&lt;1 min</source>
-        <translation type="unfinished" />
+        <translation>&lt;1 min</translation>
     </message>
     <message>
         <source>%1 min</source>
-        <translatorcomment>Draft from Figma example "11 min" - review</translatorcomment><translation type="unfinished">%1 min</translation>
+        <translation>%1 min</translation>
     </message>
     <message>
         <source>Flight height</source>
@@ -4901,11 +4901,11 @@
     </message>
     <message>
         <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translatorcomment>Draft from Figma example "Photo detail ≈ 2.2 cm per pixel · limited to 120 m" - review</translatorcomment><translation type="unfinished">Chi tiết ảnh ≈ %1 mỗi pixel  ·  giới hạn %2 m</translation>
+        <translation>Chi tiết ảnh ≈ %1 mỗi pixel · giới hạn %2 m</translation>
     </message>
     <message>
         <source>Limited to %1 m (maximum altitude)</source>
-        <translation type="unfinished" />
+        <translation>Giới hạn %1 m (độ cao tối đa)</translation>
     </message>
     <message>
         <source>Corridor width</source>
@@ -4913,7 +4913,7 @@
     </message>
     <message>
         <source>Strip mapped on both sides of the line (%1 m each side)</source>
-        <translatorcomment>Draft from Figma example "Strip mapped on both sides of the line (20 m each side)" - review</translatorcomment><translation type="unfinished">Dải được lập bản đồ ở hai bên đường (mỗi bên %1 m)</translation>
+        <translation>Dải được lập bản đồ ở hai bên đường (mỗi bên %1 m)</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -4929,11 +4929,11 @@
     </message>
     <message>
         <source>Structure outline</source>
-        <translation type="unfinished" />
+        <translation>Đường bao công trình</translation>
     </message>
     <message>
         <source>Rectangle</source>
-        <translation type="unfinished" />
+        <translation>Hình chữ nhật</translation>
     </message>
     <message>
         <source>Circle</source>
@@ -4941,7 +4941,7 @@
     </message>
     <message>
         <source>Draw</source>
-        <translation type="unfinished" />
+        <translation>Vẽ</translation>
     </message>
     <message>
         <source>Distance from structure</source>
@@ -4949,7 +4949,7 @@
     </message>
     <message>
         <source>Closer than 10 m: the drone may touch the structure in wind.</source>
-        <translation type="unfinished" />
+        <translation>Gần hơn 10 m: drone có thể chạm công trình khi có gió.</translation>
     </message>
     <message>
         <source>Bottom height</source>
@@ -4977,7 +4977,7 @@
     </message>
     <message>
         <source>Slightly down · −15°</source>
-        <translation type="unfinished" />
+        <translation>Hơi chúc xuống · −15°</translation>
     </message>
     <message>
         <source>FLIGHT TIME</source>
@@ -5005,7 +5005,7 @@
     </message>
     <message>
         <source>Line spacing %1 m · limited to %2 m</source>
-        <translatorcomment>Draft from Figma example "Line spacing 18 m · limited to 120 m" - review</translatorcomment><translation type="unfinished">Khoảng cách đường bay %1 m · giới hạn %2 m</translation>
+        <translation>Khoảng cách đường bay %1 m · giới hạn %2 m</translation>
     </message>
     <message>
         <source>Speed</source>
@@ -5017,11 +5017,11 @@
     </message>
     <message>
         <source>50 % · Standard</source>
-        <translation type="unfinished" />
+        <translation>50 % · Chuẩn</translation>
     </message>
     <message>
         <source>70 % · Dense</source>
-        <translation type="unfinished" />
+        <translation>70 % · Dày</translation>
     </message>
     <message>
         <source>Init path before and after</source>
@@ -5029,15 +5029,15 @@
     </message>
     <message>
         <source>Figure 8 to settle the INS (required for good data)</source>
-        <translation type="unfinished" />
+        <translation>Bay hình số 8 để ổn định INS (cần cho dữ liệu tốt)</translation>
     </message>
     <message>
         <source>Without the init path the LiDAR data may be poor.</source>
-        <translation type="unfinished" />
+        <translation>Không có đường init, dữ liệu LiDAR có thể kém.</translation>
     </message>
     <message>
         <source>Needs %1 batteries — plan a battery change.</source>
-        <translation type="unfinished" />
+        <translation>Cần %1 pin — hãy lên kế hoạch thay pin.</translation>
     </message>
     <message>
         <source>AREA</source>
@@ -5045,7 +5045,7 @@
     </message>
     <message>
         <source>SPACING</source>
-        <translation type="unfinished" />
+        <translation>KHOẢNG CÁCH</translation>
     </message>
 </context>
 <context>
@@ -5056,51 +5056,51 @@
     </message>
     <message>
         <source>Key mismatch</source>
-        <translation type="unfinished" />
+        <translation>Khóa không khớp</translation>
     </message>
     <message>
         <source>Key set</source>
-        <translation type="unfinished" />
+        <translation>Đã đặt khóa</translation>
     </message>
     <message>
         <source>No key</source>
-        <translation type="unfinished" />
+        <translation>Không có khóa</translation>
     </message>
     <message>
         <source>Not protected</source>
-        <translation type="unfinished" />
+        <translation>Không được bảo vệ</translation>
     </message>
     <message>
         <source>Connect the drone first.</source>
-        <translation type="unfinished" />
+        <translation>Hãy kết nối drone trước.</translation>
     </message>
     <message>
         <source>Land and turn the motors off first.</source>
-        <translation type="unfinished" />
+        <translation>Hãy hạ cánh và tắt động cơ trước.</translation>
     </message>
     <message>
         <source>Connect the drone with a USB cable to set the key. Over the radio the key would travel unprotected.</source>
-        <translation type="unfinished" />
+        <translation>Kết nối drone bằng cáp USB để đặt khóa. Qua radio, khóa sẽ được truyền mà không được bảo vệ.</translation>
     </message>
     <message>
         <source>The drone accepted the key. This link is now protected.</source>
-        <translation type="unfinished" />
+        <translation>Drone đã nhận khóa. Liên kết này giờ đã được bảo vệ.</translation>
     </message>
     <message>
         <source>The drone did not accept the key. Check the firmware supports MAVLink signing and try again over USB.</source>
-        <translation type="unfinished" />
+        <translation>Drone không nhận khóa. Kiểm tra firmware có hỗ trợ ký MAVLink không và thử lại qua USB.</translation>
     </message>
     <message>
         <source>The drone did not accept the new key, so the app went back to the old key.</source>
-        <translation type="unfinished" />
+        <translation>Drone không nhận khóa mới, nên ứng dụng đã quay lại khóa cũ.</translation>
     </message>
     <message>
         <source>The key was removed from the drone and from this app.</source>
-        <translation type="unfinished" />
+        <translation>Khóa đã bị xóa khỏi drone và khỏi ứng dụng này.</translation>
     </message>
     <message>
         <source>The key was deleted from this app. Paired drones must be paired again.</source>
-        <translation type="unfinished" />
+        <translation>Khóa đã bị xóa khỏi ứng dụng này. Các drone đã ghép đôi phải ghép đôi lại.</translation>
     </message>
     <message>
         <source>Connection</source>
@@ -5120,11 +5120,11 @@
     </message>
     <message>
         <source>Signed with a key shared by this app and the drone · key %1, set %2</source>
-        <translatorcomment>Draft from Figma example "Signed with a key shared by this app and the drone · key 4F2A…9C1D, set 2026-11-16" - review</translatorcomment><translation type="unfinished">Ký bằng khóa dùng chung giữa ứng dụng này và drone · khóa %1, đặt %2</translation>
+        <translation>Ký bằng khóa dùng chung giữa ứng dụng này và drone · khóa %1, đặt %2</translation>
     </message>
     <message>
         <source>No key yet: anyone on the radio network could send commands to the drone.</source>
-        <translation type="unfinished" />
+        <translation>Chưa có khóa: bất kỳ ai trong mạng radio đều có thể gửi lệnh tới drone.</translation>
     </message>
     <message>
         <source>Change key</source>
@@ -5132,27 +5132,27 @@
     </message>
     <message>
         <source>Set key</source>
-        <translation type="unfinished" />
+        <translation>Đặt khóa</translation>
     </message>
     <message>
         <source>This drone uses another key and ignores this app's commands. Change or remove its key with the tablet that paired it, or reset the drone's key over USB.</source>
-        <translation type="unfinished" />
+        <translation>Drone này dùng khóa khác và bỏ qua lệnh của ứng dụng này. Đổi hoặc xóa khóa bằng máy tính bảng đã ghép đôi nó, hoặc đặt lại khóa của drone qua USB.</translation>
     </message>
     <message>
         <source>Waiting for the drone to answer with the new key…</source>
-        <translation type="unfinished" />
+        <translation>Đang chờ drone trả lời bằng khóa mới…</translation>
     </message>
     <message>
         <source>A new key is sent to this drone and used from now on. Other drones paired with the old key must be paired again.</source>
-        <translation type="unfinished" />
+        <translation>Khóa mới được gửi tới drone này và được dùng từ bây giờ. Các drone khác đã ghép đôi bằng khóa cũ phải ghép đôi lại.</translation>
     </message>
     <message>
         <source>A new key is made on this tablet and sent to the drone. From then on the drone only obeys this app (and others with the same key).</source>
-        <translation type="unfinished" />
+        <translation>Khóa mới được tạo trên máy tính bảng này và gửi tới drone. Từ đó drone chỉ tuân theo ứng dụng này (và các ứng dụng có cùng khóa).</translation>
     </message>
     <message>
         <source>Send a new key</source>
-        <translation type="unfinished" />
+        <translation>Gửi khóa mới</translation>
     </message>
     <message>
         <source>Send the key</source>
@@ -5160,7 +5160,7 @@
     </message>
     <message>
         <source>Remove key</source>
-        <translation type="unfinished" />
+        <translation>Xóa khóa</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -5184,7 +5184,7 @@
     </message>
     <message>
         <source>User name and password are sent without encryption (NTRIP 1)</source>
-        <translation type="unfinished" />
+        <translation>Tên người dùng và mật khẩu được gửi không mã hóa (NTRIP 1)</translation>
     </message>
     <message>
         <source>Flight zone service · Altitude Angel</source>
@@ -5200,19 +5200,19 @@
     </message>
     <message>
         <source>The radio showed a different certificate, so the app does not log in. Check the radio before flying.</source>
-        <translation type="unfinished" />
+        <translation>Radio đưa ra chứng chỉ khác, nên ứng dụng không đăng nhập. Kiểm tra radio trước khi bay.</translation>
     </message>
     <message>
         <source>Radio login · the factory password is still in use</source>
-        <translation type="unfinished" />
+        <translation>Đăng nhập radio · vẫn dùng mật khẩu gốc</translation>
     </message>
     <message>
         <source>Radio login · own password set</source>
-        <translation type="unfinished" />
+        <translation>Đăng nhập radio · đã đặt mật khẩu riêng</translation>
     </message>
     <message>
         <source>Certificate changed</source>
-        <translation type="unfinished" />
+        <translation>Chứng chỉ đã thay đổi</translation>
     </message>
     <message>
         <source>Change needed</source>
@@ -5228,15 +5228,15 @@
     </message>
     <message>
         <source>The radio uses the new password. It is kept in this tablet's secure store.</source>
-        <translation type="unfinished" />
+        <translation>Radio dùng mật khẩu mới. Mật khẩu được giữ trong kho bảo mật của máy tính bảng này.</translation>
     </message>
     <message>
         <source>The radio did not take the new password. The old password still works.</source>
-        <translation type="unfinished" />
+        <translation>Radio không nhận mật khẩu mới. Mật khẩu cũ vẫn dùng được.</translation>
     </message>
     <message>
         <source>Sending the new password to the radio…</source>
-        <translation type="unfinished" />
+        <translation>Đang gửi mật khẩu mới tới radio…</translation>
     </message>
     <message>
         <source>New password</source>
@@ -5248,11 +5248,11 @@
     </message>
     <message>
         <source>At least 8 characters.</source>
-        <translation type="unfinished" />
+        <translation>Ít nhất 8 ký tự.</translation>
     </message>
     <message>
         <source>The two passwords are not the same.</source>
-        <translation type="unfinished" />
+        <translation>Hai mật khẩu không giống nhau.</translation>
     </message>
     <message>
         <source>At least 8 characters. Write it down: the radio's web page uses it too.</source>
@@ -5287,27 +5287,27 @@
     <name>SimpleSecurityPrivacy</name>
     <message>
         <source>radio password</source>
-        <translation type="unfinished" />
+        <translation>mật khẩu radio</translation>
     </message>
     <message>
         <source>map tokens</source>
-        <translation type="unfinished" />
+        <translation>token bản đồ</translation>
     </message>
     <message>
         <source>link key</source>
-        <translation type="unfinished" />
+        <translation>khóa liên kết</translation>
     </message>
     <message>
         <source>Nothing stored</source>
-        <translation type="unfinished" />
+        <translation>Không có gì được lưu</translation>
     </message>
     <message>
         <source>stored in the app's private storage</source>
-        <translation type="unfinished" />
+        <translation>lưu trong bộ nhớ riêng của ứng dụng</translation>
     </message>
     <message>
         <source>stored encrypted</source>
-        <translation type="unfinished" />
+        <translation>lưu có mã hóa</translation>
     </message>
     <message>
         <source>Flight logs</source>
@@ -5315,7 +5315,7 @@
     </message>
     <message>
         <source>%1 files · %2</source>
-        <translatorcomment>Draft from Figma example "14 files · 410 MB" - review</translatorcomment><translation type="unfinished">%1 tệp · %2</translation>
+        <translation>%1 tệp · %2</translation>
     </message>
     <message>
         <source>Videos and photos</source>
@@ -5327,7 +5327,7 @@
     </message>
     <message>
         <source>%1 missions · %2</source>
-        <translatorcomment>Draft from Figma example "24 missions · 3 MB" - review</translatorcomment><translation type="unfinished">%1 nhiệm vụ · %2</translation>
+        <translation>%1 nhiệm vụ · %2</translation>
     </message>
     <message>
         <source>Map cache</source>
@@ -5335,7 +5335,7 @@
     </message>
     <message>
         <source>%1 areas · %2</source>
-        <translation type="unfinished" />
+        <translation>%1 khu vực · %2</translation>
     </message>
     <message>
         <source>Accounts and keys</source>
@@ -5343,11 +5343,11 @@
     </message>
     <message>
         <source>No security events yet</source>
-        <translation type="unfinished" />
+        <translation>Chưa có sự kiện bảo mật</translation>
     </message>
     <message>
         <source>Last: %1</source>
-        <translation type="unfinished" />
+        <translation>Gần nhất: %1</translation>
     </message>
     <message>
         <source>About &amp; support</source>
@@ -5371,11 +5371,11 @@
     </message>
     <message>
         <source>Deleted. Restart the app to finish: the app settings are cleared at the next start.</source>
-        <translation type="unfinished" />
+        <translation>Đã xóa. Khởi động lại ứng dụng để hoàn tất: cài đặt ứng dụng được xóa ở lần khởi động tiếp theo.</translation>
     </message>
     <message>
         <source>The selected data was deleted from this tablet.</source>
-        <translation type="unfinished" />
+        <translation>Dữ liệu đã chọn đã bị xóa khỏi máy tính bảng này.</translation>
     </message>
     <message>
         <source>THIS APP</source>
@@ -5383,11 +5383,11 @@
     </message>
     <message>
         <source>Signed by %1</source>
-        <translatorcomment>Draft from Figma example "Signed by ARGOSDYNE" - review</translatorcomment><translation type="unfinished">Ký bởi %1</translation>
+        <translation>Ký bởi %1</translation>
     </message>
     <message>
         <source>App signature</source>
-        <translation type="unfinished" />
+        <translation>Chữ ký ứng dụng</translation>
     </message>
     <message>
         <source>Installer and app checked by Windows / Android</source>
@@ -5395,19 +5395,19 @@
     </message>
     <message>
         <source>Android checks the app signature when it is installed</source>
-        <translation type="unfinished" />
+        <translation>Android kiểm tra chữ ký ứng dụng khi cài đặt</translation>
     </message>
     <message>
         <source>This build has no code signature (test build). Install only builds from ARGOSDYNE.</source>
-        <translation type="unfinished" />
+        <translation>Bản build này không có chữ ký mã (bản thử nghiệm). Chỉ cài bản build từ ARGOSDYNE.</translation>
     </message>
     <message>
         <source>The signature of this app is not valid. Reinstall it from ARGOSDYNE.</source>
-        <translation type="unfinished" />
+        <translation>Chữ ký của ứng dụng này không hợp lệ. Hãy cài lại từ ARGOSDYNE.</translation>
     </message>
     <message>
         <source>Checking…</source>
-        <translation type="unfinished" />
+        <translation>Đang kiểm tra…</translation>
     </message>
     <message>
         <source>Verified</source>
@@ -5415,15 +5415,15 @@
     </message>
     <message>
         <source>Android</source>
-        <translation type="unfinished" />
+        <translation>Android</translation>
     </message>
     <message>
         <source>Not signed</source>
-        <translation type="unfinished" />
+        <translation>Chưa ký</translation>
     </message>
     <message>
         <source>Not valid</source>
-        <translation type="unfinished" />
+        <translation>Không hợp lệ</translation>
     </message>
     <message>
         <source>Security updates</source>
@@ -5467,7 +5467,7 @@
     </message>
     <message>
         <source>Security events on this tablet, newest first: keys and passwords, refused keys, radio certificate, deleted data. Secrets are never written here.</source>
-        <translation type="unfinished" />
+        <translation>Sự kiện bảo mật trên máy tính bảng này, mới nhất trước: khóa và mật khẩu, khóa bị từ chối, chứng chỉ radio, dữ liệu đã xóa. Không bao giờ ghi bí mật vào đây.</translation>
     </message>
     <message>
         <source>Delete my data</source>
@@ -5495,7 +5495,7 @@
     </message>
     <message>
         <source>Delete selected (%1)</source>
-        <translatorcomment>Draft from Figma example "Delete selected (3)" - review</translatorcomment><translation type="unfinished">Xóa mục đã chọn (%1)</translation>
+        <translation>Xóa mục đã chọn (%1)</translation>
     </message>
 </context>
 <context>
@@ -5538,7 +5538,7 @@
     </message>
     <message>
         <source>Download selected (%1)</source>
-        <translatorcomment>Draft from Figma example "Download selected (2)" - review</translatorcomment><translation type="unfinished">Tải mục đã chọn (%1)</translation>
+        <translation>Tải mục đã chọn (%1)</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -5550,11 +5550,11 @@
     </message>
     <message>
         <source>Erase all %1 logs on the drone? Logs not downloaded are lost.</source>
-        <translation type="unfinished" />
+        <translation>Xóa tất cả %1 nhật ký trên drone? Nhật ký chưa tải về sẽ mất.</translation>
     </message>
     <message>
         <source>Erase all</source>
-        <translation type="unfinished" />
+        <translation>Xóa tất cả</translation>
     </message>
     <message>
         <source>Log</source>
@@ -5574,15 +5574,15 @@
     </message>
     <message>
         <source>Connect the drone to see its logs.</source>
-        <translation type="unfinished" />
+        <translation>Kết nối drone để xem nhật ký.</translation>
     </message>
     <message>
         <source>Reading the list of logs…</source>
-        <translation type="unfinished" />
+        <translation>Đang đọc danh sách nhật ký…</translation>
     </message>
     <message>
         <source>No logs on the drone.</source>
-        <translation type="unfinished" />
+        <translation>Không có nhật ký trên drone.</translation>
     </message>
     <message>
         <source>Downloaded</source>
@@ -5590,11 +5590,11 @@
     </message>
     <message>
         <source>Downloading %1 %</source>
-        <translatorcomment>Draft from Figma example "Downloading 45 %" - review</translatorcomment><translation type="unfinished">Đang tải %1 %</translation>
+        <translation>Đang tải %1 %</translation>
     </message>
     <message>
         <source>Saved to %1. To send a log to ARGOSDYNE support, use Help &amp; support.</source>
-        <translatorcomment>Draft from Figma example "Saved to Documents › alesQGC › Logs. To send a log to ARGOSDYNE support, use Help &amp; support." - review</translatorcomment><translation type="unfinished">Đã lưu vào %1. Để gửi nhật ký cho bộ phận hỗ trợ ARGOSDYNE, dùng Trợ giúp &amp; hỗ trợ.</translation>
+        <translation>Đã lưu vào %1. Để gửi nhật ký cho bộ phận hỗ trợ ARGOSDYNE, dùng Trợ giúp &amp; hỗ trợ.</translation>
     </message>
     <message>
         <source>Hover for 30 seconds, then read the values. Check after changing propellers, motors or the payload.</source>
@@ -5602,7 +5602,7 @@
     </message>
     <message>
         <source>Connect the drone</source>
-        <translation type="unfinished" />
+        <translation>Kết nối drone</translation>
     </message>
     <message>
         <source>Vibration is OK</source>
@@ -5610,15 +5610,15 @@
     </message>
     <message>
         <source>Check the vibration</source>
-        <translation type="unfinished" />
+        <translation>Kiểm tra mức rung</translation>
     </message>
     <message>
         <source>Vibration too high</source>
-        <translation type="unfinished" />
+        <translation>Rung quá cao</translation>
     </message>
     <message>
         <source>Values come from the flight controller.</source>
-        <translation type="unfinished" />
+        <translation>Giá trị lấy từ bộ điều khiển bay.</translation>
     </message>
     <message>
         <source>All axes below 30 m/s² · no clipping</source>
@@ -5626,15 +5626,15 @@
     </message>
     <message>
         <source>An axis is above 60 m/s²: do not fly; check propellers, motors and mounts.</source>
-        <translation type="unfinished" />
+        <translation>Có trục trên 60 m/s²: không bay; kiểm tra cánh quạt, động cơ và giá lắp.</translation>
     </message>
     <message>
         <source>The accelerometer clipped: check for loose parts.</source>
-        <translation type="unfinished" />
+        <translation>Gia tốc kế bị cắt đỉnh: kiểm tra các bộ phận bị lỏng.</translation>
     </message>
     <message>
         <source>An axis is above 30 m/s²: check propellers and mounts.</source>
-        <translation type="unfinished" />
+        <translation>Có trục trên 30 m/s²: kiểm tra cánh quạt và giá lắp.</translation>
     </message>
     <message>
         <source>X axis</source>
@@ -5666,7 +5666,7 @@
     </message>
     <message>
         <source>Accel %1: %2</source>
-        <translatorcomment>Draft from Figma example "Accel 1: 0" - review</translatorcomment><translation type="unfinished">Accel %1: %2</translation>
+        <translation>Accel %1: %2</translation>
     </message>
     <message>
         <source>For developers and service. Read only: nothing here changes the drone.</source>
@@ -5674,19 +5674,19 @@
     </message>
     <message>
         <source>Connect the drone to see its messages.</source>
-        <translation type="unfinished" />
+        <translation>Kết nối drone để xem thông báo.</translation>
     </message>
     <message>
         <source>%1 · system %2, component %3</source>
-        <translation type="unfinished" />
+        <translation>%1 · hệ thống %2, thành phần %3</translation>
     </message>
     <message>
         <source>Saved: %1</source>
-        <translation type="unfinished" />
+        <translation>Đã lưu: %1</translation>
     </message>
     <message>
         <source>Messages of this app since it started (newest at the bottom). Secrets are never written to it.</source>
-        <translation type="unfinished" />
+        <translation>Thông báo của ứng dụng này từ khi khởi động (mới nhất ở dưới cùng). Không bao giờ ghi bí mật vào đây.</translation>
     </message>
     <message>
         <source>Save to file</source>
@@ -5694,7 +5694,7 @@
     </message>
     <message>
         <source>No messages yet. The app records only the log categories that are turned on (all are off by default).</source>
-        <translation type="unfinished" />
+        <translation>Chưa có thông báo. Ứng dụng chỉ ghi các danh mục nhật ký đang bật (mặc định tắt tất cả).</translation>
     </message>
     <message>
         <source>Chart</source>
@@ -5702,7 +5702,7 @@
     </message>
     <message>
         <source>Chart (%1)</source>
-        <translatorcomment>Draft from Figma example "Chart (2)" - review</translatorcomment><translation type="unfinished">Biểu đồ (%1)</translation>
+        <translation>Biểu đồ (%1)</translation>
     </message>
     <message>
         <source>Log categories</source>
@@ -5710,7 +5710,7 @@
     </message>
     <message>
         <source>Choose log categories</source>
-        <translation type="unfinished" />
+        <translation>Chọn danh mục nhật ký</translation>
     </message>
 </context>
 <context>
@@ -5725,19 +5725,19 @@
     </message>
     <message>
         <source>Connect the drone to see its parameters.</source>
-        <translation type="unfinished" />
+        <translation>Kết nối drone để xem tham số.</translation>
     </message>
     <message>
         <source>Reading the parameters from the drone…</source>
-        <translation type="unfinished" />
+        <translation>Đang đọc tham số từ drone…</translation>
     </message>
     <message>
         <source>Attitude estimate</source>
-        <translation type="unfinished" />
+        <translation>Ước lượng tư thế</translation>
     </message>
     <message>
         <source>Arming checks</source>
-        <translation type="unfinished" />
+        <translation>Kiểm tra khởi động</translation>
     </message>
     <message>
         <source>Attitude control</source>
@@ -5749,7 +5749,7 @@
     </message>
     <message>
         <source>Board</source>
-        <translation type="unfinished" />
+        <translation>Bo mạch</translation>
     </message>
     <message>
         <source>Compass</source>
@@ -5757,7 +5757,7 @@
     </message>
     <message>
         <source>Position estimate (EKF3)</source>
-        <translation type="unfinished" />
+        <translation>Ước lượng vị trí (EKF3)</translation>
     </message>
     <message>
         <source>Geofence</source>
@@ -5781,7 +5781,7 @@
     </message>
     <message>
         <source>Landing</source>
-        <translation type="unfinished" />
+        <translation>Hạ cánh</translation>
     </message>
     <message>
         <source>Logging</source>
@@ -5789,7 +5789,7 @@
     </message>
     <message>
         <source>Gimbal mount</source>
-        <translation type="unfinished" />
+        <translation>Giá gimbal</translation>
     </message>
     <message>
         <source>Motors</source>
@@ -5797,15 +5797,15 @@
     </message>
     <message>
         <source>Pilot input</source>
-        <translation type="unfinished" />
+        <translation>Đầu vào của phi công</translation>
     </message>
     <message>
         <source>Position control</source>
-        <translation type="unfinished" />
+        <translation>Điều khiển vị trí</translation>
     </message>
     <message>
         <source>Radio channels</source>
-        <translation type="unfinished" />
+        <translation>Kênh radio</translation>
     </message>
     <message>
         <source>Return home</source>
@@ -5813,15 +5813,15 @@
     </message>
     <message>
         <source>Serial ports</source>
-        <translation type="unfinished" />
+        <translation>Cổng serial</translation>
     </message>
     <message>
         <source>Servo outputs</source>
-        <translation type="unfinished" />
+        <translation>Đầu ra servo</translation>
     </message>
     <message>
         <source>Terrain</source>
-        <translation type="unfinished" />
+        <translation>Địa hình</translation>
     </message>
     <message>
         <source>Waypoints</source>
@@ -5829,11 +5829,11 @@
     </message>
     <message>
         <source>%1 saved. Restart the drone to use the new value.</source>
-        <translation type="unfinished" />
+        <translation>Đã lưu %1. Khởi động lại drone để dùng giá trị mới.</translation>
     </message>
     <message>
         <source>%1 saved on the drone.</source>
-        <translation type="unfinished" />
+        <translation>Đã lưu %1 trên drone.</translation>
     </message>
     <message>
         <source>All parameters</source>
@@ -5849,7 +5849,7 @@
     </message>
     <message>
         <source>Saved: %1</source>
-        <translation type="unfinished" />
+        <translation>Đã lưu: %1</translation>
     </message>
     <message>
         <source>More</source>
@@ -5857,7 +5857,7 @@
     </message>
     <message>
         <source>Read again from the drone</source>
-        <translation type="unfinished" />
+        <translation>Đọc lại từ drone</translation>
     </message>
     <message>
         <source>Restart the drone</source>
@@ -5865,7 +5865,7 @@
     </message>
     <message>
         <source>Restart sent to the drone.</source>
-        <translation type="unfinished" />
+        <translation>Đã gửi lệnh khởi động lại tới drone.</translation>
     </message>
     <message>
         <source>Reset all to defaults…</source>
@@ -5873,11 +5873,11 @@
     </message>
     <message>
         <source>Reset every parameter to its default? Calibrations and setup are lost; the drone needs a restart.</source>
-        <translation type="unfinished" />
+        <translation>Đặt lại mọi tham số về mặc định? Các hiệu chỉnh và thiết lập sẽ mất; drone cần khởi động lại.</translation>
     </message>
     <message>
         <source>Motors are running: a wrong value can make the drone unsafe now. Changes are sent at once.</source>
-        <translation type="unfinished" />
+        <translation>Động cơ đang quay: giá trị sai có thể khiến drone mất an toàn ngay. Thay đổi được gửi ngay lập tức.</translation>
     </message>
     <message>
         <source>A wrong value can make the drone unsafe. Changes are sent to the drone at once.</source>
@@ -5885,11 +5885,11 @@
     </message>
     <message>
         <source>Reset all</source>
-        <translation type="unfinished" />
+        <translation>Đặt lại tất cả</translation>
     </message>
     <message>
         <source>All parameters reset. Restart the drone.</source>
-        <translation type="unfinished" />
+        <translation>Đã đặt lại mọi tham số. Hãy khởi động lại drone.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -5909,23 +5909,23 @@
     </message>
     <message>
         <source>No parameters found.</source>
-        <translation type="unfinished" />
+        <translation>Không tìm thấy tham số.</translation>
     </message>
     <message>
         <source>Choose a parameter to see and change it.</source>
-        <translation type="unfinished" />
+        <translation>Chọn một tham số để xem và thay đổi.</translation>
     </message>
     <message>
         <source>Range %1 – %2 %3</source>
-        <translation type="unfinished" />
+        <translation>Phạm vi %1 – %2 %3</translation>
     </message>
     <message>
         <source>step %1</source>
-        <translation type="unfinished" />
+        <translation>bước %1</translation>
     </message>
     <message>
         <source>needs a drone restart</source>
-        <translation type="unfinished" />
+        <translation>cần khởi động lại drone</translation>
     </message>
     <message>
         <source>Save</source>
@@ -5933,7 +5933,7 @@
     </message>
     <message>
         <source>Load from file…</source>
-        <translation type="unfinished" />
+        <translation>Tải từ tệp…</translation>
     </message>
     <message>
         <source>Differs from reference</source>
@@ -5941,11 +5941,11 @@
     </message>
     <message>
         <source>Every compared value matches the %1 reference.</source>
-        <translation type="unfinished" />
+        <translation>Mọi giá trị đã so sánh đều khớp với giá trị tham chiếu %1.</translation>
     </message>
     <message>
         <source>reference %1 (%2)</source>
-        <translation type="unfinished" />
+        <translation>tham chiếu %1 (%2)</translation>
     </message>
     <message>
         <source>Reset to reference</source>
@@ -6008,11 +6008,11 @@
     </message>
     <message>
         <source>Connect the drone to set it up.</source>
-        <translation type="unfinished" />
+        <translation>Kết nối drone để thiết lập.</translation>
     </message>
     <message>
         <source>Reading the parameters from the drone…</source>
-        <translation type="unfinished" />
+        <translation>Đang đọc tham số từ drone…</translation>
     </message>
     <message>
         <source>Check each part before the first flight. Orange items need setup. Setup is locked while the drone is flying.</source>
@@ -6020,7 +6020,7 @@
     </message>
     <message>
         <source>Compass, accelerometer and level done</source>
-        <translation type="unfinished" />
+        <translation>Đã xong la bàn, gia tốc kế và cân bằng</translation>
     </message>
     <message>
         <source>Compass and accelerometer done · level not done</source>
@@ -6028,23 +6028,23 @@
     </message>
     <message>
         <source>Compass or accelerometer needs calibration</source>
-        <translation type="unfinished" />
+        <translation>La bàn hoặc gia tốc kế cần hiệu chỉnh</translation>
     </message>
     <message>
         <source>Sticks calibrated</source>
-        <translation type="unfinished" />
+        <translation>Đã hiệu chỉnh cần điều khiển</translation>
     </message>
     <message>
         <source>Calibrate the sticks</source>
-        <translation type="unfinished" />
+        <translation>Hiệu chỉnh cần điều khiển</translation>
     </message>
     <message>
         <source>6 modes on channel %1 · %2 first</source>
-        <translation type="unfinished" />
+        <translation>6 chế độ trên kênh %1 · %2 đầu tiên</translation>
     </message>
     <message>
         <source>now</source>
-        <translation type="unfinished" />
+        <translation>hiện tại</translation>
     </message>
     <message>
         <source>Test each motor after a repair</source>
@@ -6052,19 +6052,19 @@
     </message>
     <message>
         <source>Low battery: %1 · Link lost: %2</source>
-        <translation type="unfinished" />
+        <translation>Pin yếu: %1 · Mất liên kết: %2</translation>
     </message>
     <message>
         <source>Factory tuning · changes allowed in flight</source>
-        <translation type="unfinished" />
+        <translation>Tinh chỉnh gốc · cho phép thay đổi khi bay</translation>
     </message>
     <message>
         <source>No gimbal set</source>
-        <translation type="unfinished" />
+        <translation>Chưa đặt gimbal</translation>
     </message>
     <message>
         <source>update from a PC with USB</source>
-        <translation type="unfinished" />
+        <translation>cập nhật từ PC qua USB</translation>
     </message>
     <message>
         <source>Done</source>
@@ -6088,20 +6088,20 @@
     </message>
     <message>
         <source>Not calibrated</source>
-        <translation type="unfinished" />
+        <translation>Chưa hiệu chỉnh</translation>
     </message>
     <message>
         <source>Done %1</source>
-        <translatorcomment>Draft from Figma example "Done 2026-11-10" - review</translatorcomment><translation type="unfinished">Xong %1</translation>
+        <translation>Xong %1</translation>
     </message>
     <message>
         <source>Done · date unknown</source>
-        <translation type="unfinished" />
+        <translation>Xong · không rõ ngày</translation>
     </message>
     <message numerus="yes">
         <source>%n compass(es)</source>
-        <translation type="unfinished">
-            <numerusform />
+        <translation>
+            <numerusform>%n la bàn</numerusform>
         </translation>
     </message>
     <message>
@@ -6142,7 +6142,7 @@
     </message>
     <message>
         <source>Board: %1 · Compass 1: %2</source>
-        <translation type="unfinished" />
+        <translation>Bo mạch: %1 · La bàn 1: %2</translation>
     </message>
     <message>
         <source>Change</source>
@@ -6154,67 +6154,67 @@
     </message>
     <message>
         <source>Hold the drone away from metal and turn it slowly around every axis until the bar is full.</source>
-        <translation type="unfinished" />
+        <translation>Cầm drone xa kim loại và xoay từ từ quanh mọi trục cho đến khi thanh đầy.</translation>
     </message>
     <message>
         <source>Hold the drone still in the position shown, then press Next. Six positions in total.</source>
-        <translation type="unfinished" />
+        <translation>Giữ drone yên ở tư thế được chỉ, rồi nhấn Tiếp. Tổng cộng sáu tư thế.</translation>
     </message>
     <message>
         <source>Place the drone on a level surface and do not touch it.</source>
-        <translation type="unfinished" />
+        <translation>Đặt drone trên mặt phẳng và không chạm vào.</translation>
     </message>
     <message>
         <source>Keep the drone still.</source>
-        <translation type="unfinished" />
+        <translation>Giữ drone đứng yên.</translation>
     </message>
     <message>
         <source>Level</source>
-        <translation type="unfinished" />
+        <translation>Nằm ngang</translation>
     </message>
     <message>
         <source>Left side</source>
-        <translation type="unfinished" />
+        <translation>Nghiêng trái</translation>
     </message>
     <message>
         <source>Right side</source>
-        <translation type="unfinished" />
+        <translation>Nghiêng phải</translation>
     </message>
     <message>
         <source>Nose down</source>
-        <translation type="unfinished" />
+        <translation>Chúc mũi xuống</translation>
     </message>
     <message>
         <source>Nose up</source>
-        <translation type="unfinished" />
+        <translation>Ngóc mũi lên</translation>
     </message>
     <message>
         <source>Upside down</source>
-        <translation type="unfinished" />
+        <translation>Lộn ngược</translation>
     </message>
     <message>
         <source>Calibration done. Restart the drone to use it.</source>
-        <translation type="unfinished" />
+        <translation>Hiệu chỉnh xong. Khởi động lại drone để áp dụng.</translation>
     </message>
     <message>
         <source>Done.</source>
-        <translation type="unfinished" />
+        <translation>Xong.</translation>
     </message>
     <message>
         <source>Calibration cancelled. Nothing was changed.</source>
-        <translation type="unfinished" />
+        <translation>Đã hủy hiệu chỉnh. Không có gì thay đổi.</translation>
     </message>
     <message>
         <source>Calibration failed. Try again away from metal and wind.</source>
-        <translation type="unfinished" />
+        <translation>Hiệu chỉnh thất bại. Thử lại ở nơi xa kim loại và gió.</translation>
     </message>
     <message>
         <source>Calibration failed. Hold each position still until the next one is asked, then try again.</source>
-        <translation type="unfinished" />
+        <translation>Hiệu chỉnh thất bại. Giữ yên từng tư thế cho đến khi được yêu cầu tư thế tiếp theo, rồi thử lại.</translation>
     </message>
     <message>
         <source>Calibration failed. Keep the drone still and try again.</source>
-        <translation type="unfinished" />
+        <translation>Hiệu chỉnh thất bại. Giữ drone đứng yên và thử lại.</translation>
     </message>
     <message>
         <source>Next</source>
@@ -6238,7 +6238,7 @@
     </message>
     <message>
         <source>Step 1 of 3 · Prepare the drone. The motors will spin.</source>
-        <translation type="unfinished" />
+        <translation>Bước 1/3 · Chuẩn bị drone. Động cơ sẽ quay.</translation>
     </message>
     <message>
         <source>Step 2 of 3 · Raise the throttle slowly to 75 %, hold 5 seconds, then lower it to zero.</source>
@@ -6246,23 +6246,23 @@
     </message>
     <message>
         <source>Step 3 of 3 · Result. The correction is saved on the drone.</source>
-        <translation type="unfinished" />
+        <translation>Bước 3/3 · Kết quả. Giá trị hiệu chỉnh đã lưu trên drone.</translation>
     </message>
     <message>
         <source>Propellers on, flipped and moved one place round the frame: the drone pushes into the ground</source>
-        <translation type="unfinished" />
+        <translation>Cánh quạt đã lắp, lật ngược và dời một vị trí quanh khung: drone ép xuống đất</translation>
     </message>
     <message>
         <source>Drone tied down so it cannot move</source>
-        <translation type="unfinished" />
+        <translation>Drone được buộc chặt để không thể di chuyển</translation>
     </message>
     <message>
         <source>Controller on, throttle at zero</source>
-        <translation type="unfinished" />
+        <translation>Bộ điều khiển bật, ga ở mức 0</translation>
     </message>
     <message>
         <source>No current sensor: the result follows the throttle only and is less exact.</source>
-        <translation type="unfinished" />
+        <translation>Không có cảm biến dòng điện: kết quả chỉ dựa vào ga và kém chính xác hơn.</translation>
     </message>
     <message>
         <source>Throttle</source>
@@ -6282,7 +6282,7 @@
     </message>
     <message>
         <source>The drone sent no measurement. Raise the throttle higher next time and keep it there for 5 seconds.</source>
-        <translation type="unfinished" />
+        <translation>Drone không gửi số đo. Lần sau hãy tăng ga cao hơn và giữ ở đó 5 giây.</translation>
     </message>
     <message>
         <source>Propellers are on and flipped: the drone pushes into the ground. Keep it tied down and stand back.</source>
@@ -6306,11 +6306,11 @@
     </message>
     <message>
         <source>Compass 1</source>
-        <translation type="unfinished" />
+        <translation>La bàn 1</translation>
     </message>
     <message>
         <source>Compass 2</source>
-        <translation type="unfinished" />
+        <translation>La bàn 2</translation>
     </message>
     <message>
         <source>Compass 3</source>
@@ -6318,11 +6318,11 @@
     </message>
     <message>
         <source>internal</source>
-        <translation type="unfinished" />
+        <translation>trong</translation>
     </message>
     <message>
         <source>external</source>
-        <translation type="unfinished" />
+        <translation>ngoài</translation>
     </message>
     <message>
         <source>Used</source>
@@ -6330,11 +6330,11 @@
     </message>
     <message>
         <source>Internal compasses follow the flight controller.</source>
-        <translation type="unfinished" />
+        <translation>La bàn trong theo hướng của bộ điều khiển bay.</translation>
     </message>
     <message>
         <source>After a change, restart the drone and calibrate the compass and the accelerometer again (Sensors).</source>
-        <translation type="unfinished" />
+        <translation>Sau khi thay đổi, khởi động lại drone và hiệu chỉnh lại la bàn và gia tốc kế (Cảm biến).</translation>
     </message>
     <message>
         <source>Mission</source>
@@ -6345,11 +6345,11 @@
     <name>SimpleSetupModes</name>
     <message>
         <source>Manual (self-level)</source>
-        <translation type="unfinished" />
+        <translation>Thủ công (tự cân bằng)</translation>
     </message>
     <message>
         <source>Acro (no self-level)</source>
-        <translation type="unfinished" />
+        <translation>Acro (không tự cân bằng)</translation>
     </message>
     <message>
         <source>Altitude hold</source>
@@ -6361,7 +6361,7 @@
     </message>
     <message>
         <source>Guided by the app</source>
-        <translation type="unfinished" />
+        <translation>Dẫn đường bởi ứng dụng</translation>
     </message>
     <message>
         <source>Position hold</source>
@@ -6381,11 +6381,11 @@
     </message>
     <message>
         <source>Drift</source>
-        <translation type="unfinished" />
+        <translation>Trôi</translation>
     </message>
     <message>
         <source>Sport</source>
-        <translation type="unfinished" />
+        <translation>Thể thao</translation>
     </message>
     <message>
         <source>AutoTune</source>
@@ -6393,7 +6393,7 @@
     </message>
     <message>
         <source>Position hold (pilot)</source>
-        <translation type="unfinished" />
+        <translation>Giữ vị trí (phi công)</translation>
     </message>
     <message>
         <source>Brake</source>
@@ -6401,7 +6401,7 @@
     </message>
     <message>
         <source>Return the way it came</source>
-        <translation type="unfinished" />
+        <translation>Quay về theo đường đã đi</translation>
     </message>
     <message>
         <source>Follow</source>
@@ -6409,7 +6409,7 @@
     </message>
     <message>
         <source>Return after mission</source>
-        <translation type="unfinished" />
+        <translation>Quay về sau nhiệm vụ</translation>
     </message>
     <message>
         <source>Flight modes</source>
@@ -6417,19 +6417,19 @@
     </message>
     <message>
         <source>The six positions of the mode switch (channel %1). The current position is highlighted.</source>
-        <translatorcomment>Draft from Figma example "The six positions of the mode switch (channel 5). The current position is highlighted." - review</translatorcomment><translation type="unfinished">Sáu vị trí của công tắc chế độ (kênh %1). Vị trí hiện tại được tô sáng.</translation>
+        <translation>Sáu vị trí của công tắc chế độ (kênh %1). Vị trí hiện tại được tô sáng.</translation>
     </message>
     <message>
         <source>Position %1</source>
-        <translatorcomment>Draft from Figma example "Position 1" - review</translatorcomment><translation type="unfinished">Vị trí %1</translation>
+        <translation>Vị trí %1</translation>
     </message>
     <message>
         <source>PWM %1 +</source>
-        <translatorcomment>Draft from Figma example "PWM 1750 +" - review</translatorcomment><translation type="unfinished">PWM %1 +</translation>
+        <translation>PWM %1 +</translation>
     </message>
     <message>
         <source>PWM %1 – %2</source>
-        <translatorcomment>Draft from Figma example "PWM 1231 – 1360" - review</translatorcomment><translation type="unfinished">PWM %1 – %2</translation>
+        <translation>PWM %1 – %2</translation>
     </message>
     <message>
         <source>Now</source>
@@ -6437,7 +6437,7 @@
     </message>
     <message>
         <source>ArduPilot: %1</source>
-        <translatorcomment>Draft from Figma example "ArduPilot: AltHold" - review</translatorcomment><translation type="unfinished">ArduPilot: %1</translation>
+        <translation>ArduPilot: %1</translation>
     </message>
     <message>
         <source>Close</source>
@@ -6449,11 +6449,11 @@
     </message>
     <message>
         <source>The switch is on position %1 now: the drone changes to the new mode at once.</source>
-        <translation type="unfinished" />
+        <translation>Công tắc đang ở vị trí %1: drone chuyển sang chế độ mới ngay lập tức.</translation>
     </message>
     <message>
         <source>Change now</source>
-        <translation type="unfinished" />
+        <translation>Đổi ngay</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -6468,7 +6468,7 @@
     </message>
     <message>
         <source>%1 or %2 left</source>
-        <translatorcomment>Draft from Figma example "42.0 V or 2200 mAh left" - review</translatorcomment><translation type="unfinished">Còn %1 hoặc %2</translation>
+        <translation>Còn %1 hoặc %2</translation>
     </message>
     <message>
         <source>Critical battery</source>
@@ -6480,7 +6480,7 @@
     </message>
     <message>
         <source>Throttle below %1</source>
-        <translatorcomment>Draft from Figma example "Throttle below 975 µs" - review</translatorcomment><translation type="unfinished">Ga dưới %1</translation>
+        <translation>Ga dưới %1</translation>
     </message>
     <message>
         <source>Ground station link lost</source>
@@ -6488,11 +6488,11 @@
     </message>
     <message>
         <source>After %1 without the app</source>
-        <translatorcomment>Draft from Figma example "After 5 s without the app" - review</translatorcomment><translation type="unfinished">Sau %1 mất ứng dụng</translation>
+        <translation>Sau %1 mất liên kết ứng dụng</translation>
     </message>
     <message>
         <source>When the app link is lost</source>
-        <translation type="unfinished" />
+        <translation>Khi mất liên kết ứng dụng</translation>
     </message>
     <message>
         <source>Navigation error (EKF)</source>
@@ -6512,7 +6512,7 @@
     </message>
     <message>
         <source>Circle %1 · ceiling %2</source>
-        <translatorcomment>Draft from Figma example "Circle 300 m · ceiling 120 m" - review</translatorcomment><translation type="unfinished">Vòng %1 · trần %2</translation>
+        <translation>Vòng %1 · trần %2</translation>
     </message>
     <message>
         <source>Pre-arm checks</source>
@@ -6544,11 +6544,11 @@
     </message>
     <message>
         <source>Some off</source>
-        <translation type="unfinished" />
+        <translation>Một số tắt</translation>
     </message>
     <message>
         <source>No protection</source>
-        <translation type="unfinished" />
+        <translation>Không bảo vệ</translation>
     </message>
     <message>
         <source>Close</source>
@@ -6564,7 +6564,7 @@
     </message>
     <message>
         <source>Company setting</source>
-        <translation type="unfinished" />
+        <translation>Cài đặt của công ty</translation>
     </message>
 </context>
 <context>
@@ -6599,7 +6599,7 @@
     </message>
     <message>
         <source>Drone reads %1 V. Measure the battery and enter the real value.</source>
-        <translatorcomment>Draft from Figma example "Drone reads 50.1 V. Measure the battery and enter the real value." - review</translatorcomment><translation type="unfinished">Drone đo được %1 V. Đo pin và nhập giá trị thực.</translation>
+        <translation>Drone đo được %1 V. Đo pin và nhập giá trị thực.</translation>
     </message>
     <message>
         <source>Calibrate</source>
@@ -6607,7 +6607,7 @@
     </message>
     <message>
         <source>Voltage multiplier set to %1.</source>
-        <translation type="unfinished" />
+        <translation>Hệ số nhân điện áp đã đặt thành %1.</translation>
     </message>
     <message>
         <source>Current sensor</source>
@@ -6623,7 +6623,7 @@
     </message>
     <message>
         <source>Propellers off. Only after replacing ESCs.</source>
-        <translation type="unfinished" />
+        <translation>Tháo cánh quạt. Chỉ thực hiện sau khi thay ESC.</translation>
     </message>
     <message>
         <source>Start</source>
@@ -6650,19 +6650,19 @@
     </message>
     <message>
         <source>ch %1</source>
-        <translation type="unfinished" />
+        <translation>kênh %1</translation>
     </message>
     <message>
         <source>Mode switch · ch %1</source>
-        <translatorcomment>Draft from Figma example "Mode switch · ch 5" - review</translatorcomment><translation type="unfinished">Công tắc chế độ · kênh %1</translation>
+        <translation>Công tắc chế độ · kênh %1</translation>
     </message>
     <message>
         <source>Ch %1 · %2</source>
-        <translatorcomment>Draft from Figma example "Ch 7 · AutoTune" - review</translatorcomment><translation type="unfinished">Kênh %1 · %2</translation>
+        <translation>Kênh %1 · %2</translation>
     </message>
     <message>
         <source>Ch %1</source>
-        <translatorcomment>Draft from Figma example "Ch 6" - review</translatorcomment><translation type="unfinished">Kênh %1</translation>
+        <translation>Kênh %1</translation>
     </message>
     <message>
         <source>Radio</source>
@@ -6670,11 +6670,11 @@
     </message>
     <message>
         <source>Move each stick and switch to check it. The company controller is calibrated at the factory: calibrate only after a repair or with a new controller.</source>
-        <translation type="unfinished" />
+        <translation>Di chuyển từng cần và công tắc để kiểm tra. Bộ điều khiển của công ty đã được hiệu chỉnh tại nhà máy: chỉ hiệu chỉnh sau sửa chữa hoặc với bộ điều khiển mới.</translation>
     </message>
     <message>
         <source>No controller signal yet. Turn on the controller.</source>
-        <translation type="unfinished" />
+        <translation>Chưa có tín hiệu bộ điều khiển. Hãy bật bộ điều khiển.</translation>
     </message>
     <message>
         <source>Calibrate sticks</source>
@@ -6713,7 +6713,7 @@
     </message>
     <message>
         <source>Channel %1</source>
-        <translatorcomment>Draft from Figma example "Channel 7" - review</translatorcomment><translation type="unfinished">Kênh %1</translation>
+        <translation>Kênh %1</translation>
     </message>
     <message>
         <source>Gimbal</source>
@@ -6729,7 +6729,7 @@
     </message>
     <message>
         <source>How the drone talks to the gimbal. Changing it needs a drone restart.</source>
-        <translation type="unfinished" />
+        <translation>Cách drone giao tiếp với gimbal. Thay đổi cần khởi động lại drone.</translation>
     </message>
     <message>
         <source>Tilt control</source>
@@ -6769,15 +6769,15 @@
     </message>
     <message>
         <source>No gimbal is set. Choose the gimbal type above, then restart the drone.</source>
-        <translation type="unfinished" />
+        <translation>Chưa đặt gimbal. Chọn loại gimbal ở trên, rồi khởi động lại drone.</translation>
     </message>
     <message>
         <source>Output %1</source>
-        <translatorcomment>Draft from Figma example "Output 10" - review</translatorcomment><translation type="unfinished">Đầu ra %1</translation>
+        <translation>Đầu ra %1</translation>
     </message>
     <message>
         <source>Restart the drone to use the new gimbal type or outputs.</source>
-        <translation type="unfinished" />
+        <translation>Khởi động lại drone để dùng loại gimbal hoặc đầu ra mới.</translation>
     </message>
     <message>
         <source>Roll range</source>
@@ -6813,11 +6813,11 @@
     </message>
     <message>
         <source>Not connected to a drone output</source>
-        <translation type="unfinished" />
+        <translation>Chưa nối với đầu ra của drone</translation>
     </message>
     <message>
         <source>Reverse</source>
-        <translation type="unfinished" />
+        <translation>Đảo chiều</translation>
     </message>
     <message>
         <source>At start-up</source>
@@ -6920,11 +6920,11 @@
     </message>
     <message>
         <source>Channel %1</source>
-        <translatorcomment>Draft from Figma example "Channel 7" - review</translatorcomment><translation type="unfinished">Kênh %1</translation>
+        <translation>Kênh %1</translation>
     </message>
     <message>
         <source>No switch set (Radio › channel options)</source>
-        <translation type="unfinished" />
+        <translation>Chưa đặt công tắc (Radio › tùy chọn kênh)</translation>
     </message>
 </context>
 <context>
@@ -6963,7 +6963,7 @@
     </message>
     <message>
         <source>Y6</source>
-        <translation type="unfinished" />
+        <translation>Y6</translation>
     </message>
     <message>
         <source>6 motors, coaxial</source>
@@ -6971,7 +6971,7 @@
     </message>
     <message>
         <source>X8</source>
-        <translation type="unfinished" />
+        <translation>X8</translation>
     </message>
     <message>
         <source>8 motors, coaxial</source>
@@ -6995,7 +6995,7 @@
     </message>
     <message>
         <source>Change the frame to %1 and restart the drone now? A wrong frame makes the drone flip at take-off.</source>
-        <translation type="unfinished" />
+        <translation>Đổi khung sang %1 và khởi động lại drone ngay? Khung sai sẽ làm drone lật khi cất cánh.</translation>
     </message>
     <message>
         <source>After choosing another frame the drone restarts and the motors must be tested (Motors).</source>
@@ -7007,11 +7007,11 @@
     </message>
     <message>
         <source>Change and restart</source>
-        <translation type="unfinished" />
+        <translation>Đổi và khởi động lại</translation>
     </message>
     <message>
         <source>Frame saved. The drone restarts; then test each motor in Motors.</source>
-        <translation type="unfinished" />
+        <translation>Đã lưu khung. Drone khởi động lại; sau đó kiểm tra từng động cơ trong Động cơ.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -7038,7 +7038,7 @@
     </message>
     <message>
         <source>Motor %1 spinning · %2 s</source>
-        <translation type="unfinished" />
+        <translation>Động cơ %1 đang quay · %2 s</translation>
     </message>
     <message>
         <source>Propellers removed</source>
@@ -7058,7 +7058,7 @@
     </message>
     <message>
         <source>Motor %1</source>
-        <translatorcomment>Draft from Figma example "Motor A" - review</translatorcomment><translation type="unfinished">Động cơ %1</translation>
+        <translation>Động cơ %1</translation>
     </message>
     <message>
         <source>Test all in order</source>
@@ -7066,7 +7066,7 @@
     </message>
     <message>
         <source>If the order or a direction is wrong, check the frame (Frame) or the motor wiring.</source>
-        <translation type="unfinished" />
+        <translation>Nếu thứ tự hoặc chiều quay sai, kiểm tra khung (Khung) hoặc dây nối động cơ.</translation>
     </message>
 </context>
 <context>
@@ -7113,19 +7113,19 @@
     </message>
     <message>
         <source>UDP port</source>
-        <translation type="unfinished" />
+        <translation>Cổng UDP</translation>
     </message>
     <message>
         <source>Port the video arrives on</source>
-        <translation type="unfinished" />
+        <translation>Cổng nhận video</translation>
     </message>
     <message>
         <source>TCP address</source>
-        <translation type="unfinished" />
+        <translation>Địa chỉ TCP</translation>
     </message>
     <message>
         <source>Address of the video server</source>
-        <translation type="unfinished" />
+        <translation>Địa chỉ máy chủ video</translation>
     </message>
     <message>
         <source>Low latency</source>
@@ -7153,7 +7153,7 @@
     </message>
     <message>
         <source>No limit</source>
-        <translation type="unfinished" />
+        <translation>Không giới hạn</translation>
     </message>
     <message>
         <source>Second video (FPV)</source>
@@ -7165,11 +7165,11 @@
     </message>
     <message>
         <source>FPV address</source>
-        <translation type="unfinished" />
+        <translation>Địa chỉ FPV</translation>
     </message>
     <message>
         <source>Stream address of the FPV camera</source>
-        <translation type="unfinished" />
+        <translation>Địa chỉ luồng của camera FPV</translation>
     </message>
     <message>
         <source>Fly screen</source>
@@ -7193,11 +7193,11 @@
     </message>
     <message>
         <source>Throttle stick returns to the middle</source>
-        <translation type="unfinished" />
+        <translation>Cần ga trở về giữa</translation>
     </message>
     <message>
         <source>On-screen throttle centres itself</source>
-        <translation type="unfinished" />
+        <translation>Cần ga trên màn hình tự về giữa</translation>
     </message>
     <message>
         <source>Go here: maximum distance</source>
@@ -7289,15 +7289,15 @@
     </message>
     <message>
         <source>Not set</source>
-        <translation type="unfinished" />
+        <translation>Chưa đặt</translation>
     </message>
     <message>
         <source>Save to SD card</source>
-        <translation type="unfinished" />
+        <translation>Lưu vào thẻ SD</translation>
     </message>
     <message>
         <source>Use the SD card for logs and media</source>
-        <translation type="unfinished" />
+        <translation>Dùng thẻ SD cho nhật ký và media</translation>
     </message>
     <message>
         <source>Reset all settings</source>
@@ -7305,7 +7305,7 @@
     </message>
     <message>
         <source>All settings are cleared at the next start. Restart the app.</source>
-        <translation type="unfinished" />
+        <translation>Mọi cài đặt sẽ bị xóa ở lần khởi động tiếp theo. Hãy khởi động lại ứng dụng.</translation>
     </message>
     <message>
         <source>Back to the first-start screen at the next start</source>
@@ -7317,7 +7317,7 @@
     </message>
     <message>
         <source>Reset at next start</source>
-        <translation type="unfinished" />
+        <translation>Đặt lại khi khởi động tiếp theo</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -7329,31 +7329,31 @@
     </message>
     <message>
         <source>UDP %1 (drone link)</source>
-        <translation type="unfinished" />
+        <translation>UDP %1 (liên kết drone)</translation>
     </message>
     <message>
         <source>USB auto-connect</source>
-        <translation type="unfinished" />
+        <translation>Tự kết nối USB</translation>
     </message>
     <message>
         <source>MAVLink forwarding</source>
-        <translation type="unfinished" />
+        <translation>Chuyển tiếp MAVLink</translation>
     </message>
     <message>
         <source>NMEA UDP %1</source>
-        <translation type="unfinished" />
+        <translation>NMEA UDP %1</translation>
     </message>
     <message>
         <source>ADSB server</source>
-        <translation type="unfinished" />
+        <translation>Máy chủ ADSB</translation>
     </message>
     <message>
         <source>RTK base</source>
-        <translation type="unfinished" />
+        <translation>Trạm gốc RTK</translation>
     </message>
     <message>
         <source>Zero-Conf</source>
-        <translation type="unfinished" />
+        <translation>Zero-Conf</translation>
     </message>
     <message>
         <source>Devices</source>
@@ -7365,15 +7365,15 @@
     </message>
     <message>
         <source>Open now: %1. Everything else is off.</source>
-        <translation type="unfinished" />
+        <translation>Đang mở: %1. Mọi thứ khác đều tắt.</translation>
     </message>
     <message>
         <source>Nothing is open.</source>
-        <translation type="unfinished" />
+        <translation>Không có gì đang mở.</translation>
     </message>
     <message>
         <source>Drone link · UDP %1</source>
-        <translatorcomment>Draft from Figma example "Drone link · UDP 14550" - review</translatorcomment><translation type="unfinished">Liên kết drone · UDP %1</translation>
+        <translation>Liên kết drone · UDP %1</translation>
     </message>
     <message>
         <source>Needed for the Enpulse radio and SITL. Connects to drones on this network.</source>
@@ -7385,7 +7385,7 @@
     </message>
     <message>
         <source>Sends all drone data to %1</source>
-        <translation type="unfinished" />
+        <translation>Gửi mọi dữ liệu drone tới %1</translation>
     </message>
     <message>
         <source>Sends all drone data to a second address. Off by default.</source>
@@ -7393,11 +7393,11 @@
     </message>
     <message>
         <source>Forward to</source>
-        <translation type="unfinished" />
+        <translation>Chuyển tiếp tới</translation>
     </message>
     <message>
         <source>host:port, e.g. localhost:14445</source>
-        <translation type="unfinished" />
+        <translation>host:port, ví dụ localhost:14445</translation>
     </message>
     <message>
         <source>NMEA GPS input · UDP</source>
@@ -7409,11 +7409,11 @@
     </message>
     <message>
         <source>NMEA UDP port</source>
-        <translation type="unfinished" />
+        <translation>Cổng NMEA UDP</translation>
     </message>
     <message>
         <source>Port the GPS sends to</source>
-        <translation type="unfinished" />
+        <translation>Cổng mà GPS gửi tới</translation>
     </message>
     <message>
         <source>ADSB traffic server · TCP</source>
@@ -7425,7 +7425,7 @@
     </message>
     <message>
         <source>Address and port</source>
-        <translation type="unfinished" />
+        <translation>Địa chỉ và cổng</translation>
     </message>
     <message>
         <source>RTK base station · USB</source>
@@ -7437,19 +7437,19 @@
     </message>
     <message>
         <source>Survey-in accuracy</source>
-        <translation type="unfinished" />
+        <translation>Độ chính xác survey-in</translation>
     </message>
     <message>
         <source>The base starts sending when it is this accurate</source>
-        <translation type="unfinished" />
+        <translation>Trạm gốc bắt đầu gửi khi đạt độ chính xác này</translation>
     </message>
     <message>
         <source>Survey-in time</source>
-        <translation type="unfinished" />
+        <translation>Thời gian survey-in</translation>
     </message>
     <message>
         <source>Shortest time the base measures</source>
-        <translation type="unfinished" />
+        <translation>Thời gian đo ngắn nhất của trạm gốc</translation>
     </message>
     <message>
         <source>Serial auto-connect · USB</source>
@@ -7477,7 +7477,7 @@
     </message>
     <message>
         <source>Product</source>
-        <translation type="unfinished" />
+        <translation>Sản phẩm</translation>
     </message>
     <message>
         <source>Change</source>
@@ -7489,29 +7489,29 @@
     </message>
     <message>
         <source>Actions file</source>
-        <translation type="unfinished" />
+        <translation>Tệp hành động</translation>
     </message>
     <message>
         <source>Put a .json file in %1</source>
-        <translation type="unfinished" />
+        <translation>Đặt tệp .json vào %1</translation>
     </message>
     <message numerus="yes">
         <source>%n action(s) loaded</source>
-        <translation type="unfinished">
-            <numerusform />
+        <translation>
+            <numerusform>Đã tải %n hành động</numerusform>
         </translation>
     </message>
     <message>
         <source>No actions in this file (check the file format)</source>
-        <translation type="unfinished" />
+        <translation>Không có hành động trong tệp này (kiểm tra định dạng tệp)</translation>
     </message>
     <message>
         <source>No file</source>
-        <translation type="unfinished" />
+        <translation>Không có tệp</translation>
     </message>
     <message>
         <source>Reload</source>
-        <translation type="unfinished" />
+        <translation>Tải lại</translation>
     </message>
     <message>
         <source>USB gamepad</source>
@@ -7519,11 +7519,11 @@
     </message>
     <message>
         <source>%1 · fly with a gamepad instead of the on-screen sticks</source>
-        <translation type="unfinished" />
+        <translation>%1 · bay bằng tay cầm thay cho cần ảo trên màn hình</translation>
     </message>
     <message>
         <source>Fly with a gamepad instead of the on-screen sticks. None found.</source>
-        <translation type="unfinished" />
+        <translation>Bay bằng tay cầm thay cho cần ảo trên màn hình. Không tìm thấy tay cầm.</translation>
     </message>
     <message>
         <source>The map, on-screen sticks, Go here and extra buttons.</source>
@@ -7546,7 +7546,7 @@
     </message>
     <message>
         <source>Hold to arm</source>
-        <translation type="unfinished" />
+        <translation>Giữ để khởi động động cơ</translation>
     </message>
     <message>
         <source>Emergency stop</source>
@@ -7558,7 +7558,7 @@
     </message>
     <message>
         <source>Hold 3 s to stop the motors</source>
-        <translation type="unfinished" />
+        <translation>Giữ 3 s để tắt động cơ</translation>
     </message>
     <message>
         <source>Change speed</source>
@@ -7566,11 +7566,11 @@
     </message>
     <message>
         <source>Horizontal speed for this flight</source>
-        <translation type="unfinished" />
+        <translation>Tốc độ ngang cho chuyến bay này</translation>
     </message>
     <message>
         <source>In flight, not during a mission</source>
-        <translation type="unfinished" />
+        <translation>Khi đang bay, không trong nhiệm vụ</translation>
     </message>
     <message>
         <source>Apply</source>
@@ -7586,11 +7586,11 @@
     </message>
     <message>
         <source>Set home here…</source>
-        <translation type="unfinished" />
+        <translation>Đặt Home Point tại đây…</translation>
     </message>
     <message>
         <source>Set home</source>
-        <translation type="unfinished" />
+        <translation>Đặt Home Point</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -7610,7 +7610,7 @@
     </message>
     <message>
         <source>Show</source>
-        <translation type="unfinished" />
+        <translation>Hiện</translation>
     </message>
     <message>
         <source>Custom actions</source>
@@ -7618,13 +7618,13 @@
     </message>
     <message numerus="yes">
         <source>From the actions file · %n button(s)</source>
-        <translation type="unfinished">
-            <numerusform />
+        <translation>
+            <numerusform>Từ tệp hành động · %n nút</numerusform>
         </translation>
     </message>
     <message>
         <source>Send “%1” to the drone now?</source>
-        <translation type="unfinished" />
+        <translation>Gửi “%1” tới drone ngay?</translation>
     </message>
     <message>
         <source>Send</source>
@@ -7707,11 +7707,11 @@
     </message>
     <message>
         <source>Tap map to add</source>
-        <translation type="unfinished" />
+        <translation>Chạm bản đồ để thêm</translation>
     </message>
     <message>
         <source>Adding points</source>
-        <translation type="unfinished" />
+        <translation>Đang thêm điểm</translation>
     </message>
     <message>
         <source>Add point</source>
@@ -7719,7 +7719,7 @@
     </message>
     <message>
         <source>Mission (%1)</source>
-        <translatorcomment>Draft from Figma example "Mission (9)" - review</translatorcomment><translation type="unfinished">Nhiệm vụ (%1)</translation>
+        <translation>Nhiệm vụ (%1)</translation>
     </message>
     <message>
         <source>Fence</source>
@@ -7731,7 +7731,7 @@
     </message>
     <message>
         <source>Item %1 · %2</source>
-        <translatorcomment>Draft from Figma example "Item 6 · Waypoint 4" - review</translatorcomment><translation type="unfinished">Mục %1 · %2</translation>
+        <translation>Mục %1 · %2</translation>
     </message>
     <message>
         <source>Command</source>
@@ -7743,19 +7743,19 @@
     </message>
     <message>
         <source>above home</source>
-        <translation type="unfinished" />
+        <translation>so với Home Point</translation>
     </message>
     <message>
         <source>A pattern made with the mission wizards. Change its area or settings there; here it can be deleted.</source>
-        <translation type="unfinished" />
+        <translation>Mẫu bay tạo bằng trình hướng dẫn nhiệm vụ. Đổi khu vực hoặc cài đặt ở đó; tại đây chỉ có thể xóa.</translation>
     </message>
     <message>
         <source>Inclusion: the drone stays inside. Exclusion: the drone stays out. Drag the corners on the map. My zones (Map &amp; flight zones) are added when the mission is sent.</source>
-        <translation type="unfinished" />
+        <translation>Vùng bao: drone ở bên trong. Vùng loại trừ: drone ở bên ngoài. Kéo các góc trên bản đồ. Vùng của tôi (Bản đồ &amp; vùng bay) được thêm khi gửi nhiệm vụ.</translation>
     </message>
     <message>
         <source>Polygon</source>
-        <translation type="unfinished" />
+        <translation>Đa giác</translation>
     </message>
     <message>
         <source>Circle</source>
@@ -7763,35 +7763,35 @@
     </message>
     <message>
         <source>Polygon %1 · %2 corners</source>
-        <translation type="unfinished" />
+        <translation>Đa giác %1 · %2 góc</translation>
     </message>
     <message>
         <source>Inclusion</source>
-        <translation type="unfinished" />
+        <translation>Vùng bao</translation>
     </message>
     <message>
         <source>Exclusion</source>
-        <translation type="unfinished" />
+        <translation>Vùng loại trừ</translation>
     </message>
     <message>
         <source>Circle %1 · %2 m</source>
-        <translation type="unfinished" />
+        <translation>Vòng tròn %1 · %2 m</translation>
     </message>
     <message>
         <source>No fence in this mission.</source>
-        <translation type="unfinished" />
+        <translation>Nhiệm vụ này không có geofence.</translation>
     </message>
     <message>
         <source>Safe places to return to instead of home. Tap the map to add one; drag it on the map to move it.</source>
-        <translation type="unfinished" />
+        <translation>Nơi an toàn để quay về thay cho Home Point. Chạm bản đồ để thêm; kéo trên bản đồ để di chuyển.</translation>
     </message>
     <message>
         <source>Point %1 · %2, %3</source>
-        <translation type="unfinished" />
+        <translation>Điểm %1 · %2, %3</translation>
     </message>
     <message>
         <source>No rally points.</source>
-        <translation type="unfinished" />
+        <translation>Không có điểm tập kết.</translation>
     </message>
     <message>
         <source>Check &amp; send</source>
@@ -7806,11 +7806,11 @@
     </message>
     <message>
         <source>Ch %1</source>
-        <translatorcomment>Draft from Figma example "Ch 6" - review</translatorcomment><translation type="unfinished">Kênh %1</translation>
+        <translation>Kênh %1</translation>
     </message>
     <message>
         <source>Step 1 of 3 · Put both sticks in the centre and the throttle all the way down. Leave the switches where they are.</source>
-        <translation type="unfinished" />
+        <translation>Bước 1/3 · Đặt cả hai cần ở giữa và ga xuống hết cỡ. Để nguyên các công tắc.</translation>
     </message>
     <message>
         <source>Step 2 of 3 · Move both sticks to every corner and all switches to every position. The bars grow while you move.</source>
@@ -7818,21 +7818,21 @@
     </message>
     <message>
         <source>Step 3 of 3 · Check the values. Channels you did not move keep their old values.</source>
-        <translation type="unfinished" />
+        <translation>Bước 3/3 · Kiểm tra giá trị. Các kênh bạn không di chuyển giữ giá trị cũ.</translation>
     </message>
     <message numerus="yes">
         <source>Saved %n channel(s).</source>
-        <translation type="unfinished">
-            <numerusform />
+        <translation>
+            <numerusform>Đã lưu %n kênh.</numerusform>
         </translation>
     </message>
     <message>
         <source>Nothing moved: no values changed.</source>
-        <translation type="unfinished" />
+        <translation>Không có gì được di chuyển: không giá trị nào thay đổi.</translation>
     </message>
     <message>
         <source>not moved</source>
-        <translation type="unfinished" />
+        <translation>chưa di chuyển</translation>
     </message>
     <message>
         <source>Throttle has not reached the top yet. Push it all the way up once.</source>
@@ -7840,15 +7840,15 @@
     </message>
     <message>
         <source>Small range on: %1. Move it to both ends.</source>
-        <translation type="unfinished" />
+        <translation>Dải quá hẹp ở: %1. Di chuyển tới cả hai đầu.</translation>
     </message>
     <message>
         <source>Minimum · centre · maximum. The throttle centre is its minimum.</source>
-        <translation type="unfinished" />
+        <translation>Thấp nhất · giữa · cao nhất. Giá trị giữa của ga là giá trị thấp nhất.</translation>
     </message>
     <message>
         <source>The drone is armed. Stop the motors first.</source>
-        <translation type="unfinished" />
+        <translation>Drone đang khởi động động cơ. Hãy tắt động cơ trước.</translation>
     </message>
     <message>
         <source>The motors stay off. The drone must not be armed.</source>
@@ -7887,7 +7887,7 @@
     </message>
     <message>
         <source>Tap to confirm. All propellers must be off.</source>
-        <translation type="unfinished" />
+        <translation>Chạm để xác nhận. Phải tháo tất cả cánh quạt.</translation>
     </message>
     <message>
         <source>Unplug the battery and USB</source>
@@ -7915,15 +7915,15 @@
     </message>
     <message>
         <source>ESC calibration done.</source>
-        <translation type="unfinished" />
+        <translation>Đã hiệu chỉnh ESC xong.</translation>
     </message>
     <message>
         <source>The drone did not calibrate the ESCs. The setting is back to off. Try again and keep the battery in until the long beep.</source>
-        <translation type="unfinished" />
+        <translation>Drone không hiệu chỉnh ESC. Cài đặt đã về tắt. Thử lại và giữ pin cắm cho đến tiếng bíp dài.</translation>
     </message>
     <message>
         <source>This drone has no ESC calibration setting.</source>
-        <translation type="unfinished" />
+        <translation>Drone này không có cài đặt hiệu chỉnh ESC.</translation>
     </message>
     <message>
         <source>Keep hands away from the motors while the battery is plugged in.</source>
@@ -7947,7 +7947,7 @@
     </message>
     <message>
         <source>I heard the long beep</source>
-        <translation type="unfinished" />
+        <translation>Tôi đã nghe tiếng bíp dài</translation>
     </message>
     <message>
         <source>Done</source>
@@ -8018,7 +8018,7 @@
     </message>
     <message>
         <source>Rangefinder</source>
-        <translation type="unfinished" />
+        <translation>Cảm biến khoảng cách</translation>
     </message>
     <message>
         <source>Camera</source>
@@ -8026,31 +8026,31 @@
     </message>
     <message>
         <source>Auxiliary authorisation</source>
-        <translation type="unfinished" />
+        <translation>Cấp phép phụ</translation>
     </message>
     <message>
         <source>Visual odometry</source>
-        <translation type="unfinished" />
+        <translation>Đo hành trình bằng hình ảnh</translation>
     </message>
     <message>
         <source>FFT</source>
-        <translation type="unfinished" />
+        <translation>FFT</translation>
     </message>
     <message>
         <source>No checks: the drone starts even with a fault.</source>
-        <translation type="unfinished" />
+        <translation>Không kiểm tra: drone khởi động ngay cả khi có lỗi.</translation>
     </message>
     <message>
         <source>The drone is armed. Stop the motors first.</source>
-        <translation type="unfinished" />
+        <translation>Drone đang khởi động động cơ. Hãy tắt động cơ trước.</translation>
     </message>
     <message>
         <source>Turn off every check? The drone will start even with a broken sensor or no GPS.</source>
-        <translation type="unfinished" />
+        <translation>Tắt mọi kiểm tra? Drone sẽ khởi động ngay cả khi cảm biến hỏng hoặc không có GPS.</translation>
     </message>
     <message>
         <source>Keep this check on</source>
-        <translation type="unfinished" />
+        <translation>Giữ bật kiểm tra này</translation>
     </message>
     <message>
         <source>Turn all off</source>
@@ -8066,20 +8066,20 @@
     </message>
     <message>
         <source>All checks on</source>
-        <translation type="unfinished" />
+        <translation>Bật tất cả kiểm tra</translation>
     </message>
     <message>
         <source>%1 reference</source>
-        <translation type="unfinished" />
+        <translation>Tham chiếu %1</translation>
     </message>
     <message>
         <source>Off in the company setting</source>
-        <translation type="unfinished" />
+        <translation>Cũng tắt trong cài đặt của công ty</translation>
     </message>
     <message numerus="yes">
         <source>%n check(s) off that the company setting has on: %1. Turn them back on before normal flights.</source>
-        <translation type="unfinished">
-            <numerusform />
+        <translation>
+            <numerusform>%n kiểm tra bị tắt trong khi cài đặt của công ty bật: %1. Hãy bật lại trước các chuyến bay thông thường.</numerusform>
         </translation>
     </message>
 </context>
@@ -8091,7 +8091,7 @@
     </message>
     <message>
         <source>Save parameters to a file</source>
-        <translation type="unfinished" />
+        <translation>Lưu tham số vào tệp</translation>
     </message>
     <message>
         <source>Pick a file saved with “Save to file”. Only the values that differ are sent.</source>
@@ -8099,31 +8099,31 @@
     </message>
     <message>
         <source>All values of the drone are saved in the parameters folder of this tablet.</source>
-        <translation type="unfinished" />
+        <translation>Mọi giá trị của drone được lưu trong thư mục tham số của máy tính bảng này.</translation>
     </message>
     <message>
         <source>This file cannot be read.</source>
-        <translation type="unfinished" />
+        <translation>Không đọc được tệp này.</translation>
     </message>
     <message numerus="yes">
         <source>%n value(s) sent to the drone.</source>
-        <translation type="unfinished">
-            <numerusform />
+        <translation>
+            <numerusform>Đã gửi %n giá trị tới drone.</numerusform>
         </translation>
     </message>
     <message>
         <source>No parameter files yet. Use “Save to file” first.</source>
-        <translation type="unfinished" />
+        <translation>Chưa có tệp tham số. Hãy dùng “Lưu vào tệp” trước.</translation>
     </message>
     <message numerus="yes">
         <source>%n value(s) differ</source>
-        <translation type="unfinished">
-            <numerusform />
+        <translation>
+            <numerusform>%n giá trị khác</numerusform>
         </translation>
     </message>
     <message>
         <source>Same as the drone</source>
-        <translation type="unfinished" />
+        <translation>Giống trên drone</translation>
     </message>
     <message>
         <source>Now → In file</source>
@@ -8131,11 +8131,11 @@
     </message>
     <message>
         <source>not on drone</source>
-        <translation type="unfinished" />
+        <translation>không có trên drone</translation>
     </message>
     <message>
         <source>This file is from another drone. Tick only the values you are sure about.</source>
-        <translation type="unfinished" />
+        <translation>Tệp này từ drone khác. Chỉ đánh dấu các giá trị bạn chắc chắn.</translation>
     </message>
     <message>
         <source>The drone uses the new values at once. Check the flight with care after loading.</source>
@@ -8143,15 +8143,15 @@
     </message>
     <message>
         <source>The drone is armed. Stop the motors first.</source>
-        <translation type="unfinished" />
+        <translation>Drone đang khởi động động cơ. Hãy tắt động cơ trước.</translation>
     </message>
     <message>
         <source>File name</source>
-        <translation type="unfinished" />
+        <translation>Tên tệp</translation>
     </message>
     <message>
         <source>Folder: %1</source>
-        <translation type="unfinished" />
+        <translation>Thư mục: %1</translation>
     </message>
     <message>
         <source>Close</source>
@@ -8167,8 +8167,8 @@
     </message>
     <message numerus="yes">
         <source>Send %n value(s)</source>
-        <translation type="unfinished">
-            <numerusform />
+        <translation>
+            <numerusform>Gửi %n giá trị</numerusform>
         </translation>
     </message>
 </context>
@@ -8208,7 +8208,7 @@
     </message>
     <message>
         <source>RTK / GPS</source>
-        <translation type="unfinished" />
+        <translation>RTK / GPS</translation>
     </message>
     <message>
         <source>Search categories</source>
@@ -8216,11 +8216,11 @@
     </message>
     <message>
         <source>Show common groups</source>
-        <translation type="unfinished" />
+        <translation>Hiện các nhóm thường dùng</translation>
     </message>
     <message>
         <source>Show all %1 categories</source>
-        <translatorcomment>Draft from Figma example "Show all 84 categories" - review</translatorcomment><translation type="unfinished">Hiện tất cả %1 danh mục</translation>
+        <translation>Hiện tất cả %1 danh mục</translation>
     </message>
     <message>
         <source>Turn all off</source>
@@ -8243,7 +8243,7 @@
     </message>
     <message>
         <source>%1 · from the drone, %2 values per second</source>
-        <translatorcomment>Draft from Figma example "ATTITUDE · from the drone, 10 values per second" - review</translatorcomment><translation type="unfinished">%1 · từ drone, %2 giá trị mỗi giây</translation>
+        <translation>%1 · từ drone, %2 giá trị mỗi giây</translation>
     </message>
     <message>
         <source>Tick “Chart” on a field to add it (max 2)</source>
@@ -8251,7 +8251,7 @@
     </message>
     <message>
         <source>No field chosen</source>
-        <translation type="unfinished" />
+        <translation>Chưa chọn trường</translation>
     </message>
     <message>
         <source>Scale: auto</source>
@@ -8278,15 +8278,15 @@
     </message>
     <message>
         <source>Logs, missions, parameters and photos are saved in folders inside this one. Files already saved stay where they are.</source>
-        <translation type="unfinished" />
+        <translation>Nhật ký, nhiệm vụ, tham số và ảnh được lưu trong các thư mục bên trong thư mục này. Tệp đã lưu vẫn ở nguyên chỗ cũ.</translation>
     </message>
     <message>
         <source>Free: %1 GB</source>
-        <translatorcomment>Draft from Figma example "Free: 412 GB" - review</translatorcomment><translation type="unfinished">Còn trống: %1 GB</translation>
+        <translation>Còn trống: %1 GB</translation>
     </message>
     <message>
         <source>Free: %1 MB</source>
-        <translation type="unfinished" />
+        <translation>Còn trống: %1 MB</translation>
     </message>
     <message>
         <source>This PC</source>
@@ -8298,7 +8298,7 @@
     </message>
     <message>
         <source>Used now</source>
-        <translation type="unfinished" />
+        <translation>Đang dùng</translation>
     </message>
     <message>
         <source>+ New folder</source>
@@ -8306,15 +8306,15 @@
     </message>
     <message>
         <source>Folder name</source>
-        <translation type="unfinished" />
+        <translation>Tên thư mục</translation>
     </message>
     <message>
         <source>Create</source>
-        <translation type="unfinished" />
+        <translation>Tạo</translation>
     </message>
     <message>
         <source>This folder cannot be made here.</source>
-        <translation type="unfinished" />
+        <translation>Không thể tạo thư mục này ở đây.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -8322,26 +8322,26 @@
     </message>
     <message>
         <source>The app cannot write in this folder. Pick another one.</source>
-        <translation type="unfinished" />
+        <translation>Ứng dụng không ghi được vào thư mục này. Hãy chọn thư mục khác.</translation>
     </message>
     <message>
         <source>Use</source>
-        <translation type="unfinished" />
+        <translation>Dùng</translation>
     </message>
     <message>
         <source>Use “%1”</source>
-        <translatorcomment>Draft from Figma example "Use "ALES_QGC"" - review</translatorcomment><translation type="unfinished">Dùng "%1"</translation>
+        <translation>Dùng “%1”</translation>
     </message>
 </context>
 <context>
     <name>SimpleSetupFirmware</name>
     <message>
         <source>Choose a firmware file</source>
-        <translation type="unfinished" />
+        <translation>Chọn tệp firmware</translation>
     </message>
     <message>
         <source>Firmware files (*.apj)</source>
-        <translation type="unfinished" />
+        <translation>Tệp firmware (*.apj)</translation>
     </message>
     <message>
         <source>Firmware</source>
@@ -8353,15 +8353,15 @@
     </message>
     <message>
         <source>Firmware is updated from a PC with a USB cable.</source>
-        <translation type="unfinished" />
+        <translation>Firmware được cập nhật từ PC bằng cáp USB.</translation>
     </message>
     <message>
         <source>Installed · %1 %2.%3.%4</source>
-        <translation type="unfinished" />
+        <translation>Đã cài · %1 %2.%3.%4</translation>
     </message>
     <message>
         <source>Installed · drone not connected</source>
-        <translation type="unfinished" />
+        <translation>Đã cài · chưa kết nối drone</translation>
     </message>
     <message>
         <source>Signature check on the drone (secure boot): not set up yet</source>
@@ -8373,11 +8373,11 @@
     </message>
     <message>
         <source>Update file · %1</source>
-        <translatorcomment>Draft from Figma example "Update file · Z01.08.00EASA" - review</translatorcomment><translation type="unfinished">Tệp cập nhật · %1</translation>
+        <translation>Tệp cập nhật · %1</translation>
     </message>
     <message>
         <source>No update file chosen</source>
-        <translation type="unfinished" />
+        <translation>Chưa chọn tệp cập nhật</translation>
     </message>
     <message>
         <source>Signature and version are not checked yet: install only files from ARGOSDYNE support.</source>
@@ -8385,7 +8385,7 @@
     </message>
     <message>
         <source>Get the file from ARGOSDYNE support, then choose it here.</source>
-        <translation type="unfinished" />
+        <translation>Lấy tệp từ bộ phận hỗ trợ ARGOSDYNE, rồi chọn ở đây.</translation>
     </message>
     <message>
         <source>Signature not checked</source>
@@ -8413,19 +8413,19 @@
     </message>
     <message>
         <source>Unplug the USB cable, wait 2 seconds and plug it in again.</source>
-        <translation type="unfinished" />
+        <translation>Rút cáp USB, chờ 2 giây và cắm lại.</translation>
     </message>
     <message>
         <source>Installing. Do not unplug the drone.</source>
-        <translation type="unfinished" />
+        <translation>Đang cài đặt. Không rút drone.</translation>
     </message>
     <message>
         <source>Firmware installed. The drone restarts.</source>
-        <translation type="unfinished" />
+        <translation>Đã cài firmware. Drone khởi động lại.</translation>
     </message>
     <message>
         <source>Install failed. Plug the drone straight into a USB port of the PC (no hub) and try again.</source>
-        <translation type="unfinished" />
+        <translation>Cài đặt thất bại. Cắm drone trực tiếp vào cổng USB của PC (không qua hub) và thử lại.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -8433,7 +8433,7 @@
     </message>
     <message>
         <source>Do not unplug the drone while installing. If the power is lost, plug it in again and install once more.</source>
-        <translation type="unfinished" />
+        <translation>Không rút drone khi đang cài đặt. Nếu mất nguồn, hãy cắm lại và cài thêm lần nữa.</translation>
     </message>
 </context>
 <context>
@@ -8452,7 +8452,7 @@
     </message>
     <message>
         <source>%1 · stopped after waypoint %2</source>
-        <translation type="unfinished" />
+        <translation>%1 · dừng sau waypoint %2</translation>
     </message>
     <message>
         <source>FLIGHT TIME</source>
@@ -8472,19 +8472,19 @@
     </message>
     <message>
         <source>Flight log saved.</source>
-        <translation type="unfinished" />
+        <translation>Đã lưu nhật ký bay.</translation>
     </message>
     <message>
         <source>Ready: the next flight starts at waypoint %1.</source>
-        <translation type="unfinished" />
+        <translation>Sẵn sàng: chuyến bay tiếp theo bắt đầu tại waypoint %1.</translation>
     </message>
     <message>
         <source>The mission stays on the drone: Start mission flies it again.</source>
-        <translation type="unfinished" />
+        <translation>Nhiệm vụ vẫn ở trên drone: Bắt đầu nhiệm vụ sẽ bay lại.</translation>
     </message>
     <message>
         <source>Next flight can continue from waypoint %1 (photos already taken are kept).</source>
-        <translation type="unfinished" />
+        <translation>Chuyến bay tiếp theo có thể tiếp tục từ waypoint %1 (ảnh đã chụp được giữ lại).</translation>
     </message>
     <message>
         <source>Remove mission from drone</source>
@@ -8496,7 +8496,7 @@
     </message>
     <message>
         <source>Mission removed from the drone</source>
-        <translation type="unfinished" />
+        <translation>Đã xóa nhiệm vụ khỏi drone</translation>
     </message>
     <message>
         <source>Keep as is</source>
@@ -8508,7 +8508,7 @@
     </message>
     <message>
         <source>Continue from waypoint %1</source>
-        <translatorcomment>Draft from Figma example "Continue from waypoint 7" - review</translatorcomment><translation type="unfinished">Tiếp tục từ waypoint %1</translation>
+        <translation>Tiếp tục từ waypoint %1</translation>
     </message>
 </context>
 <context>
@@ -8523,19 +8523,19 @@
     </message>
     <message>
         <source>Serial</source>
-        <translation type="unfinished" />
+        <translation>Serial</translation>
     </message>
     <message>
         <source>listen %1</source>
-        <translation type="unfinished" />
+        <translation>nghe %1</translation>
     </message>
     <message>
         <source>send to %1</source>
-        <translation type="unfinished" />
+        <translation>gửi tới %1</translation>
     </message>
     <message>
         <source>connects when the app starts</source>
-        <translation type="unfinished" />
+        <translation>kết nối khi ứng dụng khởi động</translation>
     </message>
     <message>
         <source>Manual connections</source>
@@ -8571,7 +8571,7 @@
     </message>
     <message>
         <source>Edit connection</source>
-        <translation type="unfinished" />
+        <translation>Sửa kết nối</translation>
     </message>
     <message>
         <source>Saved on this tablet. The drone link still connects by itself — add a connection only for other links.</source>
@@ -8587,7 +8587,7 @@
     </message>
     <message>
         <source>e.g. Telemetry radio</source>
-        <translation type="unfinished" />
+        <translation>VD: Radio telemetry</translation>
     </message>
     <message>
         <source>Type</source>
@@ -8599,7 +8599,7 @@
     </message>
     <message>
         <source>No serial port found</source>
-        <translation type="unfinished" />
+        <translation>Không tìm thấy cổng serial</translation>
     </message>
     <message>
         <source>Speed (baud)</source>
@@ -8607,27 +8607,27 @@
     </message>
     <message>
         <source>Listening port</source>
-        <translation type="unfinished" />
+        <translation>Cổng nghe</translation>
     </message>
     <message>
         <source>Send to (optional)</source>
-        <translation type="unfinished" />
+        <translation>Gửi tới (tùy chọn)</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished" />
+        <translation>Xóa</translation>
     </message>
     <message>
         <source>host:port, e.g. 192.168.1.20:14550</source>
-        <translation type="unfinished" />
+        <translation>host:port, ví dụ 192.168.1.20:14550</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished" />
+        <translation>Thêm</translation>
     </message>
     <message>
         <source>Server address</source>
-        <translation type="unfinished" />
+        <translation>Địa chỉ máy chủ</translation>
     </message>
     <message>
         <source>Connect when the app starts</source>
@@ -8635,7 +8635,7 @@
     </message>
     <message>
         <source>Delete “%1”? A running connection is closed first.</source>
-        <translation type="unfinished" />
+        <translation>Xóa “%1”? Kết nối đang chạy sẽ được đóng trước.</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -8643,7 +8643,7 @@
     </message>
     <message>
         <source>Delete…</source>
-        <translation type="unfinished" />
+        <translation>Xóa…</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -8674,11 +8674,11 @@
     </message>
     <message>
         <source>No gamepad found. Plug one in by USB or pair it by Bluetooth.</source>
-        <translation type="unfinished" />
+        <translation>Không tìm thấy tay cầm. Cắm qua USB hoặc ghép đôi qua Bluetooth.</translation>
     </message>
     <message>
         <source>Buttons only</source>
-        <translation type="unfinished" />
+        <translation>Chỉ nút</translation>
     </message>
     <message>
         <source>Calibrated</source>
@@ -8686,7 +8686,7 @@
     </message>
     <message>
         <source>Not calibrated</source>
-        <translation type="unfinished" />
+        <translation>Chưa hiệu chỉnh</translation>
     </message>
     <message>
         <source>Gamepad</source>
@@ -8698,11 +8698,11 @@
     </message>
     <message>
         <source>· connect a drone first</source>
-        <translation type="unfinished" />
+        <translation>· hãy kết nối drone trước</translation>
     </message>
     <message>
         <source>· calibrate first</source>
-        <translation type="unfinished" />
+        <translation>· hãy hiệu chỉnh trước</translation>
     </message>
     <message>
         <source>· turns the on-screen sticks off</source>
@@ -8714,7 +8714,7 @@
     </message>
     <message>
         <source>Axis %1</source>
-        <translatorcomment>Draft from Figma example "Axis 1" - review</translatorcomment><translation type="unfinished">Trục %1</translation>
+        <translation>Trục %1</translation>
     </message>
     <message>
         <source>Calibrate sticks…</source>
@@ -8742,43 +8742,43 @@
     </message>
     <message>
         <source>Calibrate gamepad sticks</source>
-        <translation type="unfinished" />
+        <translation>Hiệu chỉnh cần của tay cầm</translation>
     </message>
     <message>
         <source>Choose the stick layout, press Start and move the sticks as shown. Keep the gamepad still between steps.</source>
-        <translation type="unfinished" />
+        <translation>Chọn bố trí cần, nhấn Bắt đầu và di chuyển cần như hình. Giữ tay cầm yên giữa các bước.</translation>
     </message>
     <message>
         <source>Stick layout</source>
-        <translation type="unfinished" />
+        <translation>Bố trí cần</translation>
     </message>
     <message>
         <source>Mode 1</source>
-        <translation type="unfinished" />
+        <translation>Mode 1</translation>
     </message>
     <message>
         <source>Mode 2</source>
-        <translation type="unfinished" />
+        <translation>Mode 2</translation>
     </message>
     <message>
         <source>Mode 3</source>
-        <translation type="unfinished" />
+        <translation>Mode 3</translation>
     </message>
     <message>
         <source>Mode 4</source>
-        <translation type="unfinished" />
+        <translation>Mode 4</translation>
     </message>
     <message>
         <source>Left stick</source>
-        <translation type="unfinished" />
+        <translation>Cần trái</translation>
     </message>
     <message>
         <source>Right stick</source>
-        <translation type="unfinished" />
+        <translation>Cần phải</translation>
     </message>
     <message>
         <source>Press Start.</source>
-        <translation type="unfinished" />
+        <translation>Nhấn Bắt đầu.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -8790,7 +8790,7 @@
     </message>
     <message>
         <source>Skip</source>
-        <translation type="unfinished" />
+        <translation>Bỏ qua</translation>
     </message>
     <message>
         <source>Next</source>
@@ -8813,7 +8813,7 @@
     </message>
     <message>
         <source>Locked while the drone is armed.</source>
-        <translation type="unfinished" />
+        <translation>Bị khóa khi drone đã khởi động động cơ.</translation>
     </message>
     <message>
         <source>Clear the mission when the drone restarts</source>
@@ -8841,7 +8841,7 @@
     </message>
     <message>
         <source>Sending…</source>
-        <translation type="unfinished" />
+        <translation>Đang gửi…</translation>
     </message>
     <message>
         <source>Apply</source>
@@ -8849,31 +8849,31 @@
     </message>
     <message>
         <source>Applied.</source>
-        <translation type="unfinished" />
+        <translation>Đã áp dụng.</translation>
     </message>
     <message>
         <source>Clearing on restart changes after the next restart.</source>
-        <translation type="unfinished" />
+        <translation>Xóa khi khởi động lại có hiệu lực sau lần khởi động lại tiếp theo.</translation>
     </message>
     <message>
         <source>Continue after landing changes at the next landing.</source>
-        <translation type="unfinished" />
+        <translation>Tiếp tục sau khi hạ cánh có hiệu lực ở lần hạ cánh tiếp theo.</translation>
     </message>
     <message>
         <source>Could not apply the setting. The previous value is back.</source>
-        <translation type="unfinished" />
+        <translation>Không áp dụng được cài đặt. Giá trị trước đã được khôi phục.</translation>
     </message>
     <message>
         <source>Could not read MIS_OPTIONS from the drone.</source>
-        <translation type="unfinished" />
+        <translation>Không đọc được MIS_OPTIONS từ drone.</translation>
     </message>
     <message>
         <source>Current value: MIS_OPTIONS = %1</source>
-        <translation type="unfinished" />
+        <translation>Giá trị hiện tại: MIS_OPTIONS = %1</translation>
     </message>
     <message>
         <source>Reading MIS_OPTIONS…</source>
-        <translation type="unfinished" />
+        <translation>Đang đọc MIS_OPTIONS…</translation>
     </message>
 </context>
 <context>
@@ -8884,19 +8884,19 @@
     </message>
     <message>
         <source>What the camera reports — the list differs by camera.</source>
-        <translation type="unfinished" />
+        <translation>Những gì camera báo — danh sách khác nhau tùy camera.</translation>
     </message>
     <message>
         <source>Camera %1</source>
-        <translatorcomment>Draft from Figma example "Camera &amp; gimbal" - review</translatorcomment><translation type="unfinished">Camera %1</translation>
+        <translation>Camera %1</translation>
     </message>
     <message>
         <source>firmware %1</source>
-        <translation type="unfinished" />
+        <translation>firmware %1</translation>
     </message>
     <message>
         <source>The drone reports no camera with settings.</source>
-        <translation type="unfinished" />
+        <translation>Drone không báo camera nào có cài đặt.</translation>
     </message>
     <message>
         <source>Camera</source>
@@ -8920,11 +8920,11 @@
     </message>
     <message>
         <source>Blend</source>
-        <translation type="unfinished" />
+        <translation>Hòa trộn</translation>
     </message>
     <message>
         <source>Full</source>
-        <translation type="unfinished" />
+        <translation>Toàn bộ</translation>
     </message>
     <message>
         <source>Picture in picture</source>
@@ -8932,7 +8932,7 @@
     </message>
     <message>
         <source>How much of the thermal picture shows</source>
-        <translation type="unfinished" />
+        <translation>Mức hiển thị của ảnh nhiệt</translation>
     </message>
     <message>
         <source>Video fit</source>
@@ -8940,7 +8940,7 @@
     </message>
     <message>
         <source>How the video fills the screen</source>
-        <translation type="unfinished" />
+        <translation>Cách video lấp đầy màn hình</translation>
     </message>
     <message>
         <source>SD CARD</source>
@@ -8948,23 +8948,23 @@
     </message>
     <message>
         <source>No SD card</source>
-        <translation type="unfinished" />
+        <translation>Không có thẻ SD</translation>
     </message>
     <message>
         <source>SD card not formatted</source>
-        <translation type="unfinished" />
+        <translation>Thẻ SD chưa định dạng</translation>
     </message>
     <message>
         <source>%1 free of %2</source>
-        <translatorcomment>Draft from Figma example "41 GB free of 64 GB" - review</translatorcomment><translation type="unfinished">Còn trống %1 / %2</translation>
+        <translation>Còn trống %1 / %2</translation>
     </message>
     <message>
         <source>%1 free</source>
-        <translatorcomment>Draft from Figma example "41 GB free" - review</translatorcomment><translation type="unfinished">Còn trống %1</translation>
+        <translation>Còn trống %1</translation>
     </message>
     <message>
         <source>Stop recording and photos first</source>
-        <translation type="unfinished" />
+        <translation>Hãy dừng quay video và chụp ảnh trước</translation>
     </message>
     <message>
         <source>Format SD card…</source>
@@ -8980,11 +8980,11 @@
     </message>
     <message>
         <source>Erase all photos and videos on the camera's SD card? This cannot be undone.</source>
-        <translation type="unfinished" />
+        <translation>Xóa tất cả ảnh và video trên thẻ SD của camera? Không thể hoàn tác.</translation>
     </message>
     <message>
         <source>Set every camera setting back to its factory value?</source>
-        <translation type="unfinished" />
+        <translation>Đưa mọi cài đặt camera về giá trị gốc?</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -9000,11 +9000,11 @@
     </message>
     <message>
         <source>Formatting the SD card…</source>
-        <translation type="unfinished" />
+        <translation>Đang định dạng thẻ SD…</translation>
     </message>
     <message>
         <source>Camera settings reset.</source>
-        <translation type="unfinished" />
+        <translation>Đã đặt lại cài đặt camera.</translation>
     </message>
     <message>
         <source>Done</source>
@@ -9015,15 +9015,15 @@
     <name>SimpleRoot</name>
     <message>
         <source>The drone restarted — check the mission on the fly screen</source>
-        <translation type="unfinished" />
+        <translation>Drone đã khởi động lại — kiểm tra nhiệm vụ trên màn hình bay</translation>
     </message>
     <message>
         <source>%1 saved. Restart the drone to use the new value.</source>
-        <translation type="unfinished" />
+        <translation>Đã lưu %1. Khởi động lại drone để dùng giá trị mới.</translation>
     </message>
     <message>
         <source>“%1” changes after the app restarts.</source>
-        <translation type="unfinished" />
+        <translation>“%1” thay đổi sau khi khởi động lại ứng dụng.</translation>
     </message>
 </context>
 </TS>
