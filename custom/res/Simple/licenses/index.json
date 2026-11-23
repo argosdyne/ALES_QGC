@@ -159,5 +159,12 @@
   "license": "SIL Open Font License 1.1",
   "used": "Font (Korean, subset)",
   "file": "NotoSansKR.txt"
+ },
+ {
+  "name": "Noto Sans JP",
+  "version": "2.004",
+  "license": "SIL Open Font License 1.1",
+  "used": "Font (Japanese, subset)",
+  "file": "NotoSansJP.txt"
  }
 ]

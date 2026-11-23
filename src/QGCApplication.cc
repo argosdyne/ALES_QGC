@@ -417,26 +417,32 @@ void QGCApplication::setLanguage()
             qCWarning(LocalizationLog) << "Could not load /fonts/NanumGothic-Bold font";
         }
     }
-    //-- Simple UI fonts (Roboto; Noto Sans KR for Hangul, see custom/res/Simple/fonts)
+    //-- Simple UI fonts (Roboto; Noto Sans KR for Hangul, Noto Sans JP for Japanese, see custom/res/Simple/fonts)
     static bool simpleFontsLoaded = false;
     if (!simpleFontsLoaded) {
         simpleFontsLoaded = true;
         const char* simpleFonts[] = { "Roboto-Regular.ttf", "Roboto-Medium.ttf", "Roboto-Bold.ttf",
-                                      "NotoSansKR-Regular.otf", "NotoSansKR-Medium.otf", "NotoSansKR-Bold.otf" };
+                                      "NotoSansKR-Regular.otf", "NotoSansKR-Medium.otf", "NotoSansKR-Bold.otf",
+                                      "NotoSansJP-Regular.otf", "NotoSansJP-Medium.otf", "NotoSansJP-Bold.otf" };
         for (const char* font : simpleFonts) {
             if (QFontDatabase::addApplicationFont(QStringLiteral(":/simple/fonts/") + QLatin1String(font)) < 0) {
                 qCWarning(LocalizationLog) << "Could not load Simple UI font" << font;
             }
         }
     }
-    // Latin and digits stay Roboto; Hangul falls back to Noto Sans KR
-    if (_locale.language() == QLocale::Korean) {
-        QFont::insertSubstitutions(QStringLiteral("Roboto"),        { QStringLiteral("Noto Sans KR") });
-        QFont::insertSubstitutions(QStringLiteral("Roboto Medium"), { QStringLiteral("Noto Sans KR Medium"), QStringLiteral("Noto Sans KR") });
-    } else {
-        QFont::removeSubstitutions(QStringLiteral("Roboto"));
-        QFont::removeSubstitutions(QStringLiteral("Roboto Medium"));
+    // Latin and digits stay Roboto; Hangul and Japanese fall back to the bundled Noto Sans subsets.
+    // The language of the UI comes first (Han characters are drawn in its style); the other one only
+    // draws the language names in the language list (한국어, 日本語).
+    QString cjkFirst  = QStringLiteral("Noto Sans KR");
+    QString cjkSecond = QStringLiteral("Noto Sans JP");
+    if (_locale.language() == QLocale::Japanese) {
+        std::swap(cjkFirst, cjkSecond);
     }
+    QFont::removeSubstitutions(QStringLiteral("Roboto"));
+    QFont::removeSubstitutions(QStringLiteral("Roboto Medium"));
+    QFont::insertSubstitutions(QStringLiteral("Roboto"),        { cjkFirst, cjkSecond });
+    QFont::insertSubstitutions(QStringLiteral("Roboto Medium"), { cjkFirst + QStringLiteral(" Medium"), cjkFirst,
+                                                                  cjkSecond + QStringLiteral(" Medium"), cjkSecond });
 
     qCDebug(LocalizationLog) << "Loading localizations for" << _locale.name();
     _app->removeTranslator(&_qgcTranslatorSimple);

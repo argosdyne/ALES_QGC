@@ -278,6 +278,9 @@
         <file alias="fonts/NotoSansKR-Regular.otf">res/Simple/fonts/NotoSansKR-Regular.otf</file>
         <file alias="fonts/NotoSansKR-Medium.otf">res/Simple/fonts/NotoSansKR-Medium.otf</file>
         <file alias="fonts/NotoSansKR-Bold.otf">res/Simple/fonts/NotoSansKR-Bold.otf</file>
+        <file alias="fonts/NotoSansJP-Regular.otf">res/Simple/fonts/NotoSansJP-Regular.otf</file>
+        <file alias="fonts/NotoSansJP-Medium.otf">res/Simple/fonts/NotoSansJP-Medium.otf</file>
+        <file alias="fonts/NotoSansJP-Bold.otf">res/Simple/fonts/NotoSansJP-Bold.otf</file>
         <file alias="licenses/index.json">res/Simple/licenses/index.json</file>
         <file alias="licenses/QGroundControl.txt">res/Simple/licenses/QGroundControl.txt</file>
         <file alias="licenses/Qt-third-party.txt">res/Simple/licenses/Qt-third-party.txt</file>
@@ -302,6 +305,7 @@
         <file alias="licenses/PX4-GpsDrivers.txt">res/Simple/licenses/PX4-GpsDrivers.txt</file>
         <file alias="licenses/Roboto.txt">res/Simple/licenses/Roboto.txt</file>
         <file alias="licenses/NotoSansKR.txt">res/Simple/licenses/NotoSansKR.txt</file>
+        <file alias="licenses/NotoSansJP.txt">res/Simple/licenses/NotoSansJP.txt</file>
     </qresource>
     <!-- ArduPilot parameter documentation generated from the ARGOSDYNE ArduCopter firmware (custom/tools/params) -->
     <qresource prefix="/FirmwarePlugin/APM">
