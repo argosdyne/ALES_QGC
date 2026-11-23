@@ -29,22 +29,25 @@ Flickable {
         phase = "replug"
         log("Install started: " + fileName)
         if (_veh) _veh.vehicleLinkManager.autoDisconnect = true
-        ctlLoader.item.startBoardSearch()
+        // FirmwareUpgradeController exists only in desktop builds: it is named only in SimpleFirmwareController.qml,
+        // loaded here, so this file still compiles on Android (see that file)
+        ctlLoader.setSource("SimpleFirmwareController.qml", { progressBar: progress, statusLog: statusLog })
+        if (ctlLoader.item) ctlLoader.item.startBoardSearch()
     }
 
     Loader {
         id: ctlLoader
         active: fw.desktop && fw.phase !== ""
-        sourceComponent: FirmwareUpgradeController {
-            progressBar: progress
-            statusLog: statusLog
-            onShowFirmwareSelectDlg: { fw.phase = "flashing"; flashFirmwareUrl(fw.file) }
-            onFlashComplete: { fw.phase = "done"; fw.log("Installed: " + fw.fileName) }
-            onError: { fw.phase = "failed"; fw.log("Install failed: " + fw.fileName) }
-            onFlashCancelled: fw.phase = ""
-        }
     }
     readonly property var ctl: ctlLoader.item
+    Connections {
+        target: ctlLoader.item
+        ignoreUnknownSignals: true
+        function onShowFirmwareSelectDlg() { fw.phase = "flashing"; fw.ctl.flashFirmwareUrl(fw.file) }
+        function onFlashComplete()         { fw.phase = "done";   fw.log("Installed: " + fw.fileName) }
+        function onError()                 { fw.phase = "failed"; fw.log("Install failed: " + fw.fileName) }
+        function onFlashCancelled()        { fw.phase = "" }
+    }
 
     QGCFileDialog {
         id: fileDialog

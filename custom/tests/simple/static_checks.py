@@ -249,8 +249,46 @@ def check_fonts(ts):
                 if we and wk and wk > we * 1.35 and wk - we > 30:
                     warn('width', 'short label grows in Korean %s: %r %.0f px -> %r %.0f px' % (ctx, s, we, t, wk))
 
+# ---------------------------------------------------------------- desktop-only QML types
+# A QML type registered only in desktop builds (#ifndef __mobile__ in QGCApplication.cc) fails the whole file that
+# names it on Android, even inside an inactive Loader, and every file that uses that file: on 2026-11-23 the Simple
+# UI did not appear at all on the smart controller (SimpleSetupFirmware -> SimpleVehicleSetup -> SimpleRoot).
+# Such a type may be named only in a wrapper file that is loaded with Loader.source / setSource on desktop.
+DESKTOP_ONLY_WRAPPERS = {'SimpleFirmwareController.qml'}
+
+def desktop_only_types():
+    types, stack = set(), []
+    for line in open(os.path.join(ROOT, 'src', 'QGCApplication.cc'), encoding='utf-8', errors='replace'):
+        s = line.strip()
+        if s.startswith('#if'):
+            stack.append(bool(re.match(r'#if(ndef\s+__mobile__|\s+!\s*defined\s*\(\s*__mobile__\s*\))', s)))
+        elif s.startswith('#endif') and stack:
+            stack.pop()
+        elif s.startswith('#else') and stack:
+            stack[-1] = False
+        elif any(stack):
+            m = re.search(r'qmlRegister\w*<\w+>\s*\([^,]+,[^,]+,[^,]+,\s*"(\w+)"', s)
+            if m:
+                types.add(m.group(1))
+    return types
+
+def check_platform_types():
+    types = desktop_only_types()
+    if not types:
+        warn('platform', 'no desktop-only QML types found in QGCApplication.cc (parser out of date?)')
+        return
+    use = re.compile(r'(?<![\w.])(%s)\s*\{' % '|'.join(sorted(types)))
+    for f in sorted(glob.glob(os.path.join(SIMPLE, '*.qml'))):
+        if os.path.basename(f) in DESKTOP_ONLY_WRAPPERS:
+            continue
+        code = re.sub(r'//[^\n]*|/\*.*?\*/', '', open(f, encoding='utf-8').read(), flags=re.S)
+        for m in use.finditer(code):
+            fail('platform', '%s names desktop-only type %s: Android cannot compile the file (move it to a wrapper '
+                 'loaded with Loader.setSource, see SimpleFirmwareController.qml)' % (os.path.basename(f), m.group(1)))
+
 def main():
     ts = check_translations()
+    check_platform_types()
     aliases = check_resources()
     check_licenses(aliases)
     check_fonts(ts)
