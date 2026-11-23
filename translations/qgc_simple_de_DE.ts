@@ -4235,7 +4235,7 @@
     </message>
     <message>
         <source>Hold 2 s to drop the life jacket</source>
-        <translation>2 s halten, um die Rettungsweste abzuwerfen</translation>
+        <translation>2 s halten: Rettungsweste abwerfen</translation>
     </message>
     <message>
         <source>Hold 2 s to stop</source>
@@ -4427,7 +4427,7 @@
     </message>
     <message>
         <source>Hold 2 s to stop · %1 of %2 lines left</source>
-        <translation>2 s halten zum Stoppen · noch %1 von %2 Linien</translation>
+        <translation>2 s halten: Stopp · noch %1/%2</translation>
     </message>
     <message>
         <source>Last status %1. Stop is still sent; the card returns when the LiDAR answers.</source>

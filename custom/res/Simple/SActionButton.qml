@@ -27,7 +27,7 @@ Item {
     }
     Rectangle {     // QA F1: backing so the label stays readable on a bright map
         anchors.centerIn: label
-        width: label.implicitWidth + SimpleTheme.px(16); height: label.implicitHeight + SimpleTheme.px(4)
+        width: label.contentWidth + SimpleTheme.px(16); height: label.implicitHeight + SimpleTheme.px(4)
         radius: height / 2
         color: SimpleTheme.withAlpha(SimpleTheme.bgBase, 0.6)
     }
@@ -36,9 +36,12 @@ Item {
         anchors.top: circle.bottom
         anchors.topMargin: SimpleTheme.px(8)
         anchors.horizontalCenter: parent.horizontalCenter
+        width: control.width
+        horizontalAlignment: Text.AlignHCenter
         text: control.text
         size: 22
         medium: true
+        fitMin: 0.8
         style: Text.Raised
         styleColor: SimpleTheme.withAlpha("black", 0.7)
     }

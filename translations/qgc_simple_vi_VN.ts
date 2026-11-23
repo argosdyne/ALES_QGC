@@ -4427,7 +4427,7 @@
     </message>
     <message>
         <source>Hold 2 s to stop · %1 of %2 lines left</source>
-        <translation>Giữ 2 s để dừng · còn %1/%2 đường</translation>
+        <translation>Giữ 2 s để dừng · còn %1/%2</translation>
     </message>
     <message>
         <source>Last status %1. Stop is still sent; the card returns when the LiDAR answers.</source>

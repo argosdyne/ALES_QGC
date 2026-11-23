@@ -4427,7 +4427,7 @@
     </message>
     <message>
         <source>Hold 2 s to stop · %1 of %2 lines left</source>
-        <translation>2 秒長押しで停止 · 残り %1 / %2 ライン</translation>
+        <translation>2 秒長押しで停止 · 残り %1/%2</translation>
     </message>
     <message>
         <source>Last status %1. Stop is still sent; the card returns when the LiDAR answers.</source>

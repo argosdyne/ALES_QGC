@@ -4427,7 +4427,7 @@
     </message>
     <message>
         <source>Hold 2 s to stop · %1 of %2 lines left</source>
-        <translation>Hold 2 s for at stoppe · %1 af %2 linjer tilbage</translation>
+        <translation>Hold 2 s: stop · %1/%2 tilbage</translation>
     </message>
     <message>
         <source>Last status %1. Stop is still sent; the card returns when the LiDAR answers.</source>
