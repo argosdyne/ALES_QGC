@@ -43,8 +43,11 @@ Item {
     // Same bit as YSManager::kGenInfoDataLogging (General info byte, bit 3)
     readonly property int _genInfoDataLoggingBit:   1 << 3
     readonly property int _dataLoggingTimeoutMs:    3000
-    // Text written by YSManager::_mavlinkReceived for a YellowScan COMMAND_ACK
-    readonly property var _ackRegExp:               /^COMMAND_ACK cmd=(\d+) result=(\d+)/
+    // Text written by YSManager::_mavlinkReceived for a YellowScan COMMAND_ACK.
+    // The RegExp is created inside a function, not kept in a `property var` (defensive, see LiDARAlerts.qml).
+    function _parseAck(text) {
+        return /^COMMAND_ACK cmd=(\d+) result=(\d+)/.exec(text)
+    }
     property string _rejectPreChecks:   ""      // preChecks when the reject arrived
 
     function start() {
@@ -144,7 +147,8 @@ Item {
     // Plan view visual items when Plan view holds the uploaded plan (not edited, same last sequence number as the
     // vehicle mission), else null. Shared with LiDARMissionAuto.surveyWaypointRange.
     function uploadedPlanItems() {
-        var planView = globals.planMasterControllerPlanView
+        // Not planMasterControllerPlanView: GeoZoneMakeView also writes that global with its own controller
+        var planView = globals.planMasterControllerMissionPlanView
         var flyView = globals.planMasterControllerFlyView
         if (!planView || !flyView || planView.dirty) {
             return null
@@ -205,7 +209,7 @@ Item {
     Connections {
         target: _ys
         onMessageChanged: {
-            var m = _ackRegExp.exec(_ys.lastReceivedMessage)
+            var m = _parseAck(_ys.lastReceivedMessage)
             if (!m || Number(m[1]) !== _mavCmdAcquisition) {
                 return
             }

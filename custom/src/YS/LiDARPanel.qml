@@ -46,7 +46,8 @@ Rectangle {
     property bool _noResponse:      !!_alerts && _alerts.noResponse
     property bool _poweredOff:      !!_alerts && _alerts.poweredOff
     property bool _delayed:         !!_alerts && _alerts.delayed
-    property int  _criticalCount:   _alerts ? _alerts.criticalCount : 0
+    // Only while the LiDAR status is current: no "Stop recommended" from an old reply after link loss / power off
+    property int  _criticalCount:   _alerts && _statusValid ? _alerts.criticalCount : 0
     // YS-08 ①: elapsed time from the Start ACK (LiDARTrackRecorder)
     property var  _track:           mainWindow.lidarTrack
     property bool _trackRunning:    !!_track && _track.running
