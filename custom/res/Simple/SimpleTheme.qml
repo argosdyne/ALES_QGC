@@ -39,8 +39,8 @@ QtObject {
     readonly property color textDanger:     "#ff7a80"
 
     // Fonts: Roboto, bundled in fonts/ and registered in QGCApplication::setLanguage().
-    // Korean / Japanese: Hangul and kana / kanji fall back to Noto Sans KR / JP (QFont substitution, the UI language
-    // first); Latin and digits stay Roboto.
+    // Hangul falls back to Noto Sans KR, kana / kanji to Noto Sans JP (QFont substitution, set once for every
+    // language); Latin and digits stay Roboto.
     // Some platforms register Roboto Medium as its own family "Roboto Medium".
     readonly property string fontFamily:        "Roboto"
     readonly property string fontFamilyMedium:  Qt.fontFamilies().indexOf("Roboto Medium") >= 0 ? "Roboto Medium" : "Roboto"

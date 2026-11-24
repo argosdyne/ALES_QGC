@@ -96,9 +96,10 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
   text gains a rarer kanji — `static_checks.py` reports missing glyphs). Licence files are next to the fonts.
   Roboto covers every character of Vietnamese, German, Danish and Portuguese.
 - All Simple UI text uses `SText` → `SimpleTheme.fontFamily` ("Roboto"). Latin letters and digits stay Roboto;
-  Hangul and Japanese fall back to Noto Sans KR / JP (`QFont::insertSubstitutions` in `QGCApplication::setLanguage()`,
-  the UI language first: JP before KR in Japanese, KR before JP otherwise, so 한국어 and 日本語 in the language list
-  are always drawn by the bundled fonts). Roboto Medium may register as its own family "Roboto Medium" (Windows);
+  Hangul falls back to Noto Sans KR and kana / kanji to Noto Sans JP (`QFont::insertSubstitutions` in
+  `QGCApplication::setLanguage()`, order KR → JP, set once for every language: changing the list at runtime made
+  Android draw earlier text with glyphs of the other font, kanji shown as Hangul). 한국어 and 日本語 in the language
+  list are always drawn by the bundled fonts (日本語 by the KR subset). Roboto Medium may register as its own family "Roboto Medium" (Windows);
   `SimpleTheme.fontFamilyMedium` handles that.
 - Long translations: `SText.fitMin` (< 1) lets a label with a fixed width shrink to fit, down to that share of its
   size (0.8 in action buttons and segmented controls), then elide. Wrapped text is not shrunk.

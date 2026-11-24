@@ -179,9 +179,8 @@ def check_licenses(aliases):
             fail('licenses', 'no entry for %s' % must)
 
 # ---------------------------------------------------------------- fonts and label widths (every language)
-# Fallback order as in QGCApplication::setLanguage(): Roboto, then the UI language's Noto Sans (JP for Japanese,
-# else KR), then the other one.
-CJK_ORDER = {'ja_JP': ('JP', 'KR')}
+# Fallback order as in QGCApplication::setLanguage(): Roboto, Noto Sans KR, Noto Sans JP (the same for every language)
+CJK_ORDER = {}
 
 def check_fonts(all_ts):
     try:

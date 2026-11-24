@@ -246,7 +246,8 @@ Reply to the user in Korean unless they write in English.
   translated to match them. Tools: `custom/tools/i18n/sync_ts.py` (after any text change), `fill_from_figma.py`,
   `subset_noto_jp.py`. The Simple language list (`SLanguageCombo.qml`) shows only languages with a Simple
   translation; Français is not listed (user 2026-11-23: no French translation, removed from the Figma S57 line too).
-  Noto Sans JP (subset) is bundled; CJK fallback order = UI language first. Labels with a fixed width may shrink to
+  Noto Sans JP (subset) is bundled; CJK fallback Roboto → KR → JP, set once (never change substitutions at runtime:
+  on Android old text then drew kanji with Hangul glyphs, found 2026-11-24 on the device). Labels with a fixed width may shrink to
   80 % (`SText.fitMin`); Figma short forms are used where it shortened a text (hold-to-stop "… · %1/%2").
   Number / date formats stay the same for every language (later decision).
   Licence notices: Settings › About › Legal & licenses and `<install dir>\licenses` (Windows installer),

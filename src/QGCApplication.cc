@@ -429,20 +429,14 @@ void QGCApplication::setLanguage()
                 qCWarning(LocalizationLog) << "Could not load Simple UI font" << font;
             }
         }
+        // Latin and digits stay Roboto; Hangul falls back to Noto Sans KR, kana and kanji to Noto Sans JP
+        // (the KR subset has no kana and no Han characters except 日本語). Set once, the same for every
+        // language: changing the fallback list at runtime made Qt draw text laid out before the change with
+        // glyphs of the other font (kanji shown as Hangul on Android after switching languages, 2026-11-24).
+        QFont::insertSubstitutions(QStringLiteral("Roboto"),        { QStringLiteral("Noto Sans KR"), QStringLiteral("Noto Sans JP") });
+        QFont::insertSubstitutions(QStringLiteral("Roboto Medium"), { QStringLiteral("Noto Sans KR Medium"), QStringLiteral("Noto Sans KR"),
+                                                                      QStringLiteral("Noto Sans JP Medium"), QStringLiteral("Noto Sans JP") });
     }
-    // Latin and digits stay Roboto; Hangul and Japanese fall back to the bundled Noto Sans subsets.
-    // The language of the UI comes first (Han characters are drawn in its style); the other one only
-    // draws the language names in the language list (한국어, 日本語).
-    QString cjkFirst  = QStringLiteral("Noto Sans KR");
-    QString cjkSecond = QStringLiteral("Noto Sans JP");
-    if (_locale.language() == QLocale::Japanese) {
-        std::swap(cjkFirst, cjkSecond);
-    }
-    QFont::removeSubstitutions(QStringLiteral("Roboto"));
-    QFont::removeSubstitutions(QStringLiteral("Roboto Medium"));
-    QFont::insertSubstitutions(QStringLiteral("Roboto"),        { cjkFirst, cjkSecond });
-    QFont::insertSubstitutions(QStringLiteral("Roboto Medium"), { cjkFirst + QStringLiteral(" Medium"), cjkFirst,
-                                                                  cjkSecond + QStringLiteral(" Medium"), cjkSecond });
 
     qCDebug(LocalizationLog) << "Loading localizations for" << _locale.name();
     _app->removeTranslator(&_qgcTranslatorSimple);
