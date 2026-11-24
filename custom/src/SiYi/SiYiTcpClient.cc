@@ -15,8 +15,16 @@ SiYiTcpClient::SiYiTcpClient(const QString ip, quint16 port, QObject *parent)
     , port_(port)
 {
     sequence_ = quint16(QDateTime::currentMSecsSinceEpoch());
-    // Automatically reconnect
-    connect(this, &SiYiTcpClient::finished, this, [=](){start();});
+    // Automatically reconnect. Back off before restarting: when the SiYi device is
+    // absent, connectToHost fails within milliseconds and an immediate restart
+    // spins run() hundreds of times per second.
+    connect(this, &SiYiTcpClient::finished, this, [=](){
+        QTimer::singleShot(kReconnectDelayMs, this, [=](){
+            if (!isRunning()) {
+                start();
+            }
+        });
+    });
 }
 
 SiYiTcpClient::~SiYiTcpClient()
@@ -156,8 +164,14 @@ void SiYiTcpClient::run()
     //txTimer->start();
     rxTimer->start();
     exec();
-    txTimer->deleteLater();
-    tcpClient->deleteLater();
+
+    // The event loop has stopped, so deleteLater() would never run here and every
+    // reconnect leaked the socket, all three timers, their connections and any
+    // events still queued for them. Delete synchronously on this thread instead.
+    delete heartbeatTimer;
+    delete rxTimer;
+    delete txTimer;
+    delete tcpClient;
 }
 
 quint32 SiYiTcpClient::checkSum32(const QByteArray &bytes)
