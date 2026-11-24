@@ -14,6 +14,12 @@ SComboBox {
     readonly property var languageNames:  ["English", "한국어", "Tiếng Việt", "Deutsch", "Dansk", "Português (Brasil)", "日本語"]
 
     model: [qsTr("System")].concat(languageNames)
-    currentIndex: languageValues.indexOf(Number(_fact.rawValue))
     onActivated: _fact.rawValue = languageValues[index]
+
+    // Not a binding: choosing an item sets currentIndex (the binding would be lost), and the language change
+    // rebuilds the model (qsTr), which resets a ComboBox to index 0 ("System"). Set it again after both.
+    function _sync() { currentIndex = languageValues.indexOf(Number(_fact.rawValue)) }
+    Component.onCompleted: _sync()
+    onModelChanged: _sync()
+    Connections { target: box._fact; function onRawValueChanged() { box._sync() } }
 }
