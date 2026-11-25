@@ -140,7 +140,6 @@ static constexpr int kPostZoomSettingsSyncDelayMs = 1000;
 static constexpr int kZoomResetTravelTimeoutMs = 10000;
 static constexpr qint64 kFreshCameraReportMaxAgeMs = 5000;
 static constexpr int kMaxZoomStepsInFlight = 2;
-static constexpr int kMaxZoomCatchUpAttempts = 3;
 static constexpr int kZoomSettleResendDelayMs = 400;
 
 static bool _isStaleZoomDropToMin(float reported, float beforeRange)
@@ -2222,7 +2221,8 @@ void CodevCameraControl::handleSettings(const mavlink_camera_settings_t& setting
             qCDebug(CodevCameraLog) << "handleSettings bootstrap optical range"
                                     << "reported" << reported;
         } else if (!suppressSync) {
-            if (_isStaleZoomDropToMin(reported, trustedRange)) {
+            if (_isStaleZoomDropToMin(reported, trustedRange)
+                    && (_isZoomHoldActive() || _hasPendingZoomCommand())) {
                 qCDebug(CodevCameraLog) << "handleSettings ignore stale drop to min"
                                         << "reported" << reported
                                         << "trustedRange" << trustedRange;
@@ -2231,34 +2231,10 @@ void CodevCameraControl::handleSettings(const mavlink_camera_settings_t& setting
                                         << "reported" << reported
                                         << "trustedRange" << trustedRange;
             } else if (!_isZoomHoldActive() && !_hasPendingZoomCommand()) {
-                const int reportedStep = qRound(reported);
-                const int confirmedStep = qRound(trustedRange);
-                if (reportedStep >= confirmedStep) {
-                    _pendingDownwardReport = -1;
-                    _zoomCatchUpAttempts = 0;
-                    _adoptCameraReportedOptical(reported, "idle");
-                } else if (_zoomCatchUpAttempts < kMaxZoomCatchUpAttempts) {
-                    ++_zoomCatchUpAttempts;
-                    _pendingDownwardReport = -1;
-                    qCInfo(CodevCameraLog) << "handleSettings lens short of confirmed, catch-up"
-                                           << "reported" << reported
-                                           << "confirmed" << trustedRange
-                                           << "attempt" << _zoomCatchUpAttempts;
-                    _commandedRange = _opticalRange;
-                    _zoomSettingsSyncSuppressUntilMs = nowMs + kZoomSettingsSyncSuppressMs;
-                    _queueZoomRange(_opticalRange, "catchUp");
-                    _schedulePostZoomSettingsSync();
-                } else if (_pendingDownwardReport == reportedStep) {
-                    _pendingDownwardReport = -1;
-                    _zoomCatchUpAttempts = 0;
-                    _adoptCameraReportedOptical(reported, "idle-stable");
-                } else {
-                    qCInfo(CodevCameraLog) << "handleSettings camera below confirmed after catch-up, re-check"
-                                           << "reported" << reported
-                                           << "confirmed" << trustedRange;
-                    _pendingDownwardReport = reportedStep;
-                    _schedulePostZoomSettingsSync();
-                }
+                // Idle reports may come from another controller, such as Argos.
+                _pendingDownwardReport = -1;
+                _zoomCatchUpAttempts = 0;
+                _adoptCameraReportedOptical(reported, "idle");
             } else if (reported > trustedRange + 0.01f) {
                 _reconcileCameraAheadReport();
             } else {
