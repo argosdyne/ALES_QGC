@@ -35,6 +35,7 @@ protected:
     quint32 checkSum32(const QByteArray &bytes);
     void resetIp(const QString &ip);
 private:
+    static constexpr int kReconnectDelayMs = 1000;
     quint16 sequence_;
 signals:
     void connected();
