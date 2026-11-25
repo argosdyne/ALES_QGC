@@ -168,10 +168,13 @@ void SiYiTcpClient::run()
     // The event loop has stopped, so deleteLater() would never run here and every
     // reconnect leaked the socket, all three timers, their connections and any
     // events still queued for them. Delete synchronously on this thread instead.
+    // The socket goes first: after a heartbeat timeout, resetIp() or shutdown it is
+    // still connected, and its destructor aborts it and emits disconnected(), whose
+    // handler stops heartbeatTimer and clears isConnected_. The timers must outlive it.
+    delete tcpClient;
     delete heartbeatTimer;
     delete rxTimer;
     delete txTimer;
-    delete tcpClient;
 }
 
 quint32 SiYiTcpClient::checkSum32(const QByteArray &bytes)
