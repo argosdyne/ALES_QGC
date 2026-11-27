@@ -7,6 +7,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QDateTime>
+#include <QTimeZone>
 #include <algorithm>
 #include <cmath>
 #include <algorithm>
@@ -436,9 +437,12 @@ void CodevCameraControl::_sendR3TimeZone()
     }
 
     mavlink_param_ext_set_t param{};
-    // R3 already converts SYSTEM_TIME to its local time. Keep this parameter at
-    // UTC to prevent the local offset from being applied a second time.
-    const QByteArray timeZone = QByteArrayLiteral("UTC");
+    // SYSTEM_TIME is a UTC Unix timestamp; the camera uses TIME_ZONE for display.
+    const QByteArray timeZone = QTimeZone::systemTimeZoneId();
+    if (timeZone.isEmpty() || timeZone.size() > MAVLINK_MSG_PARAM_EXT_SET_FIELD_PARAM_VALUE_LEN) {
+        qWarning() << "Cannot send R3 system time zone:" << timeZone;
+        return;
+    }
     memcpy(param.param_value,
            timeZone.constData(),
            static_cast<size_t>(qMin(timeZone.size(), MAVLINK_MSG_PARAM_EXT_SET_FIELD_PARAM_VALUE_LEN)));
