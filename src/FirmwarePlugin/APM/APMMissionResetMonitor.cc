@@ -273,6 +273,11 @@ void APMMissionResetMonitor::handleMissionStartResult(int mavResult, int failure
     if (!_vehicle || _probeActive) {
         return;
     }
+    // Bug #8501: the MISSION_START answer was lost on the radio link, but the drone already flies the mission.
+    if (_missionRunning()) {
+        _startFailureStatusText.clear();
+        return;
+    }
     if (_vehicle->missionManager() && _vehicle->missionManager()->inProgress()) {
         _presentOtherStartFailure();
         return;
@@ -427,8 +432,18 @@ void APMMissionResetMonitor::_presentEmptyStart(int count, int purpose)
     emit startFailureChanged();
 }
 
+bool APMMissionResetMonitor::_missionRunning() const
+{
+    return _vehicle && _vehicle->armed() && _vehicle->flightMode() == _vehicle->missionFlightMode();
+}
+
 void APMMissionResetMonitor::_presentOtherStartFailure()
 {
+    // the count check after a missing / refused answer takes a few seconds: the drone may be flying the mission by now
+    if (_missionRunning()) {
+        _startFailureStatusText.clear();
+        return;
+    }
     QString fcText = _startFailureStatusText;
     if (fcText.isEmpty()) {
         if (_rejectedFailureCode == Vehicle::MavCmdResultFailureNoResponseToCommand) {
