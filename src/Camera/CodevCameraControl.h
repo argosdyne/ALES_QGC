@@ -271,6 +271,7 @@ protected:
     void _requestStreamStatus(uint8_t streamID) final;
     void _requestThermometryData();
     bool _sendGimbalManagerPitchYaw(float pitch, float yaw, uint32_t flags, const char* sourceTag);
+    bool _apmMountWithoutPan() const;
     bool _sendGimbalManagerPitchYawRate(float pitchRate, float yawRate, uint32_t flags, const char* sourceTag);
     void _sendR3RcChannels(const mavlink_rc_channels_t& rc, const char* sourceTag);
     void _startR3TimeSync();

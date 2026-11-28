@@ -17,6 +17,7 @@
 #include "VideoManager.h"
 #include "SettingsManager.h"
 #include "GimbalController.h"
+#include "ParameterManager.h"
 #include "LinkManager.h"
 #include "VehicleLinkManager.h"
 #include <QCoreApplication>
@@ -289,10 +290,63 @@ CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info,
     connect(this, &CodevCameraControl::zoomLevelChanged, this, &CodevCameraControl::displayZoomLevelChanged);
 }
 
+// ArduPilot: the autopilot drives a servo mount (MNT1_TYPE 1 Servo / 7 BrushlessPWM) with no output assigned to
+// mount yaw (SERVOn_FUNCTION 6): AP_Mount has no pan control, so ArduCopter yaws the vehicle on DO_MOUNT_CONTROL.
+bool CodevCameraControl::_apmMountWithoutPan() const
+{
+    if (!_vehicle || !_vehicle->apmFirmware()) {
+        return false;
+    }
+    ParameterManager* pm = _vehicle->parameterManager();
+    const int compId = _vehicle->defaultComponentId();
+    if (!pm || !pm->parametersReady() || !pm->parameterExists(compId, QStringLiteral("MNT1_TYPE"))) {
+        return false;
+    }
+    const int type = pm->getParameter(compId, QStringLiteral("MNT1_TYPE"))->rawValue().toInt();
+    if (type != 1 && type != 7) {
+        return false;                               // no mount, or a gimbal type with its own yaw control
+    }
+    for (int i = 1; i <= 32; i++) {
+        const QString name = QStringLiteral("SERVO%1_FUNCTION").arg(i);
+        if (pm->parameterExists(compId, name) && pm->getParameter(compId, name)->rawValue().toInt() == 6) {
+            return false;                           // a mount yaw (pan) servo is assigned
+        }
+    }
+    return true;
+}
+
 bool CodevCameraControl::_sendGimbalManagerPitchYaw(float pitch, float yaw, uint32_t flags, const char* sourceTag)
 {
     if (!_vehicle->px4Firmware()) {
-        return false;
+        // ArduPilot (Tuleap bug #17595): when the autopilot drives a mount without a yaw axis, ArduCopter takes
+        // param3 of every DO_MOUNT_CONTROL as an absolute heading and turns the vehicle in modes with automatic yaw
+        // (RTL, Guided, Auto: "Align" sent yaw 0 and the drone turned north while landing; reproduced on the
+        // company SITL). DO_GIMBAL_MANAGER_PITCHYAW is not turned into a vehicle yaw, so use it for such a mount.
+        // Otherwise (no autopilot mount, e.g. a camera with its own gimbal, or a mount with yaw control) the legacy
+        // DO_MOUNT_CONTROL to the gimbal component is kept: ArduCopter does not yaw the vehicle for it.
+        if (!_apmMountWithoutPan()) {
+            return false;
+        }
+        const int autopilotCompId = _vehicle->defaultComponentId();
+        qCInfo(CodevCameraLog) << "[CameraFlow]"
+                << sourceTag
+                << "using ArduPilot gimbal manager"
+                << "cameraCompId" << _compID
+                << "targetCompId" << autopilotCompId
+                << "pitch" << pitch
+                << "yaw" << yaw
+                << "flags" << flags;
+        sendMavCommandWithTarget(
+            MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW,
+            autopilotCompId,
+            pitch,
+            yaw,
+            NAN,
+            NAN,
+            static_cast<float>(flags),
+            0.0f,
+            0.0f);                                  // gimbal device id 0 = primary mount
+        return true;
     }
 
     GimbalController* gimbalController = _vehicle->gimbalController();
