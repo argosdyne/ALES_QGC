@@ -199,6 +199,7 @@ public:
     Q_PROPERTY(bool                 geoFenceMarginWarning       READ geoFenceMarginWarning                                          NOTIFY geoFenceMarginWarningChanged)
     Q_PROPERTY(bool                 geoFenceBreached            READ geoFenceBreached                                               NOTIFY geoFenceBreachedChanged)
     Q_PROPERTY(int                  geoFenceAlertTier           READ geoFenceAlertTier                                              NOTIFY geoFenceAlertTierChanged)
+    Q_PROPERTY(int                  fcFenceBreachCount          READ fcFenceBreachCount                                             NOTIFY fcFenceBreachCountChanged)   ///< FC-reported fence breaches seen in this connection (Simple UI return reason)
     Q_PROPERTY(bool                 geoFenceLoaded              READ geoFenceLoaded                                                 NOTIFY geoFenceLoadedChanged)
     Q_PROPERTY(bool                 geoFenceActive              READ geoFenceActive                                                 NOTIFY geoFenceActiveChanged)
     Q_PROPERTY(bool                 geoFenceParamsMissing       READ geoFenceParamsMissing                                          NOTIFY geoFenceParamsMissingChanged)
@@ -653,6 +654,8 @@ public:
     bool            geoFenceBreached            () const { return _geoFenceBreached; }
     /// true while the flight controller's FENCE_STATUS reports a breach (not the app's own geometry check)
     Q_INVOKABLE bool fenceStatusBreached        () const { return _fenceStatusBreached; }
+    /// counts each breach the flight controller reports (breach_status turns on, or breach_count grows) while the fence is on
+    int             fcFenceBreachCount          () const { return _fcFenceBreachCount; }
     int             geoFenceAlertTier           () const { return _geoFenceAlertTier; }
     bool            geoFenceLoaded              () const { return _geoFenceLoaded; }
     bool            geoFenceActive              () const { return _geoFenceActive; }
@@ -1044,6 +1047,7 @@ signals:
     void geoFenceMarginWarningChanged  ();
     void geoFenceBreachedChanged       (bool breached);
     void geoFenceAlertTierChanged      (int tier);
+    void fcFenceBreachCountChanged     (void);
     void defaultComponentIdChanged     (void);
     void geoFenceLoadedChanged         (bool loaded);
     void geoFenceActiveChanged         (bool active);
@@ -1305,6 +1309,7 @@ private:
     GeoFenceAlertTier _geoFenceAlertTier                    = GeoFenceAlertTierNone;
     bool            _fenceStatusReceived                    = false;
     bool            _fenceStatusBreached                    = false;
+    int             _fcFenceBreachCount                     = 0;
     uint16_t        _lastFenceBreachCount                   = 0;
     qint64          _lastGeoFenceMarginWarningMSecs         = 0;
     qint64          _lastGeoFenceBreachMessageMSecs         = 0;
