@@ -1068,16 +1068,16 @@
         <translation>높이</translation>
     </message>
     <message>
-        <source>%1 m (limit %2 m)</source>
-        <translation>%1 m (제한 %2 m)</translation>
+        <source>%1 (limit %2)</source>
+        <translation>%1 (제한 %2)</translation>
     </message>
     <message>
         <source>Distance</source>
         <translation>거리</translation>
     </message>
     <message>
-        <source>Farthest point %1 m (limit %2 m)</source>
-        <translation>가장 먼 지점 %1 m (제한 %2 m)</translation>
+        <source>Farthest point %1 (limit %2)</source>
+        <translation>가장 먼 지점 %1 (제한 %2)</translation>
     </message>
     <message>
         <source>Battery</source>
@@ -1156,16 +1156,16 @@
         <translation>드론이 미션을 받지 않았습니다. 메시지를 확인하고 미션을 고친 뒤 다시 보내세요.</translation>
     </message>
     <message>
-        <source>Over the limit: %1 m (limit %2 m). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
-        <translation>제한 초과: %1 m (제한 %2 m). 영역을 줄이거나 설정 › 안전에서 최대 거리를 늘리세요.</translation>
+        <source>Over the limit: %1 (limit %2). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
+        <translation>제한 초과: %1 (제한 %2). 영역을 줄이거나 설정 › 안전에서 최대 거리를 늘리세요.</translation>
     </message>
     <message>
-        <source>Not enforced (geofence off): %1 m, limit %2 m</source>
-        <translation>적용 안 됨(지오펜스 꺼짐): %1 m, 제한 %2 m</translation>
+        <source>Not enforced (geofence off): %1, limit %2</source>
+        <translation>적용 안 됨(지오펜스 꺼짐): %1, 제한 %2</translation>
     </message>
     <message>
-        <source>Not enforced (no distance limit in the drone's fence): %1 m, limit %2 m</source>
-        <translation>적용 안 됨(드론 펜스에 거리 제한 없음): %1 m, 제한 %2 m</translation>
+        <source>Not enforced (no distance limit in the drone's fence): %1, limit %2</source>
+        <translation>적용 안 됨(드론 펜스에 거리 제한 없음): %1, 제한 %2</translation>
     </message>
 </context>
 <context>
@@ -1251,12 +1251,12 @@
         <translation>비행 높이</translation>
     </message>
     <message>
-        <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translation>사진 해상도 ≈ 픽셀당 %1 · 최대 %2 m</translation>
+        <source>Photo detail ≈ %1 per pixel · limited to %2</source>
+        <translation>사진 해상도 ≈ 픽셀당 %1 · 최대 %2</translation>
     </message>
     <message>
-        <source>Limited to %1 m (maximum altitude)</source>
-        <translation>최대 %1 m (최대 고도)</translation>
+        <source>Limited to %1 (maximum altitude)</source>
+        <translation>최대 %1 (최대 고도)</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -4658,8 +4658,8 @@
         <translation>고정 방향</translation>
     </message>
     <message>
-        <source>Height is above the take-off point · max %1 m.</source>
-        <translation>높이는 이륙 지점 기준 · 최대 %1 m.</translation>
+        <source>Height is above the take-off point · max %1.</source>
+        <translation>높이는 이륙 지점 기준 · 최대 %1.</translation>
     </message>
     <message>
         <source>Height profile</source>
@@ -4900,20 +4900,20 @@
         <translation>비행 높이</translation>
     </message>
     <message>
-        <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translation>사진 해상도 ≈ 픽셀당 %1 · 최대 %2 m</translation>
+        <source>Photo detail ≈ %1 per pixel · limited to %2</source>
+        <translation>사진 해상도 ≈ 픽셀당 %1 · 최대 %2</translation>
     </message>
     <message>
-        <source>Limited to %1 m (maximum altitude)</source>
-        <translation>최대 %1 m (최대 고도)</translation>
+        <source>Limited to %1 (maximum altitude)</source>
+        <translation>최대 %1 (최대 고도)</translation>
     </message>
     <message>
         <source>Corridor width</source>
         <translation>회랑 폭</translation>
     </message>
     <message>
-        <source>Strip mapped on both sides of the line (%1 m each side)</source>
-        <translation>선 양쪽을 매핑합니다 (한쪽 %1 m)</translation>
+        <source>Strip mapped on both sides of the line (%1 each side)</source>
+        <translation>선 양쪽을 매핑합니다 (한쪽 %1)</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -5004,8 +5004,8 @@
         <translation>다음: 확인 및 전송</translation>
     </message>
     <message>
-        <source>Line spacing %1 m · limited to %2 m</source>
-        <translation>라인 간격 %1 m · 최대 %2 m</translation>
+        <source>Line spacing %1 · limited to %2</source>
+        <translation>라인 간격 %1 · 최대 %2</translation>
     </message>
     <message>
         <source>Speed</source>
@@ -7774,8 +7774,8 @@
         <translation>제외</translation>
     </message>
     <message>
-        <source>Circle %1 · %2 m</source>
-        <translation>원 %1 · %2 m</translation>
+        <source>Circle %1 · %2</source>
+        <translation>원 %1 · %2</translation>
     </message>
     <message>
         <source>No fence in this mission.</source>

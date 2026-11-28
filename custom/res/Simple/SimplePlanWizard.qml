@@ -565,15 +565,15 @@ Item {
                 SText { text: qsTr("Flight height"); size: 26; medium: true; color: SimpleTheme.textSecondary; anchors.verticalCenter: parent.verticalCenter }
             }
             SStepper {
-                unit: "m"; step: 5; from: 10; to: wiz._maxAlt
-                value: wiz._cam ? Math.round(wiz._cam.distanceToSurface.rawValue) : 80
-                onEdited: if (wiz._cam) wiz._cam.distanceToSurface.rawValue = value
+                unit: SimpleTheme.vUnit(); step: SimpleTheme.vStep(5); from: Math.ceil(SimpleTheme.toV(10)); to: Math.floor(SimpleTheme.toV(wiz._maxAlt))
+                value: Math.round(SimpleTheme.toV(wiz._cam ? wiz._cam.distanceToSurface.rawValue : 80))
+                onEdited: if (wiz._cam) wiz._cam.distanceToSurface.rawValue = SimpleTheme.fromV(value)
             }
             SText {
                 width: parent.width
                 text: wiz._cam && !wiz._cam.isManualCamera
-                      ? qsTr("Photo detail ≈ %1 per pixel · limited to %2 m").arg(wiz._cam.imageDensity.valueString + " " + wiz._cam.imageDensity.units).arg(wiz._maxAlt)
-                      : qsTr("Limited to %1 m (maximum altitude)").arg(wiz._maxAlt)
+                      ? qsTr("Photo detail ≈ %1 per pixel · limited to %2").arg(wiz._cam.imageDensity.valueString + " " + wiz._cam.imageDensity.units).arg(SimpleTheme.vText(wiz._maxAlt))
+                      : qsTr("Limited to %1 (maximum altitude)").arg(SimpleTheme.vText(wiz._maxAlt))
                 size: 22; color: SimpleTheme.textTertiary; wrapMode: Text.WordWrap
             }
             SText { visible: wiz._cam && !wiz._cam.isManualCamera; text: qsTr("Image overlap"); size: 26; medium: true; color: SimpleTheme.textSecondary }
@@ -597,7 +597,7 @@ Item {
                         { l: qsTr("FLIGHT TIME"), v: wiz._fmtTime(wiz._mission ? wiz._mission.missionTime : 0) },
                         { l: qsTr("PHOTOS"),      v: wiz.survey ? String(wiz.survey.cameraShots) : "—" },
                         { l: qsTr("BATTERIES"),   v: wiz._mission && wiz._mission.batteriesRequired > 0 ? String(wiz._mission.batteriesRequired) : "—" },
-                        { l: qsTr("AREA"),        v: wiz.survey ? (wiz.survey.coveredArea / 10000).toFixed(1) + " ha" : "—" }
+                        { l: qsTr("AREA"),        v: wiz.survey ? SimpleTheme.areaText(wiz.survey.coveredArea) : "—" }
                     ]
                     Column {
                         width: parent.width / 2

@@ -1068,16 +1068,16 @@
         <translation>Altura</translation>
     </message>
     <message>
-        <source>%1 m (limit %2 m)</source>
-        <translation>%1 m (limite %2 m)</translation>
+        <source>%1 (limit %2)</source>
+        <translation>%1 (limite %2)</translation>
     </message>
     <message>
         <source>Distance</source>
         <translation>Distância</translation>
     </message>
     <message>
-        <source>Farthest point %1 m (limit %2 m)</source>
-        <translation>Ponto mais distante %1 m (limite %2 m)</translation>
+        <source>Farthest point %1 (limit %2)</source>
+        <translation>Ponto mais distante %1 (limite %2)</translation>
     </message>
     <message>
         <source>Battery</source>
@@ -1156,16 +1156,16 @@
         <translation>O drone não aceitou a missão. Verifique a mensagem, altere a missão e envie de novo.</translation>
     </message>
     <message>
-        <source>Over the limit: %1 m (limit %2 m). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
-        <translation>Acima do limite: %1 m (limite %2 m). Reduza a área ou aumente a Distância máxima em Configurações › Segurança.</translation>
+        <source>Over the limit: %1 (limit %2). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
+        <translation>Acima do limite: %1 (limite %2). Reduza a área ou aumente a Distância máxima em Configurações › Segurança.</translation>
     </message>
     <message>
-        <source>Not enforced (geofence off): %1 m, limit %2 m</source>
-        <translation>Não aplicado (geocerca desligada): %1 m, limite %2 m</translation>
+        <source>Not enforced (geofence off): %1, limit %2</source>
+        <translation>Não aplicado (geocerca desligada): %1, limite %2</translation>
     </message>
     <message>
-        <source>Not enforced (no distance limit in the drone's fence): %1 m, limit %2 m</source>
-        <translation>Não aplicado (sem limite de distância na geocerca do drone): %1 m, limite %2 m</translation>
+        <source>Not enforced (no distance limit in the drone's fence): %1, limit %2</source>
+        <translation>Não aplicado (sem limite de distância na geocerca do drone): %1, limite %2</translation>
     </message>
 </context>
 <context>
@@ -1251,12 +1251,12 @@
         <translation>Altura de voo</translation>
     </message>
     <message>
-        <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translation>Detalhe da foto ≈ %1 por pixel · limitado a %2 m</translation>
+        <source>Photo detail ≈ %1 per pixel · limited to %2</source>
+        <translation>Detalhe da foto ≈ %1 por pixel · limitado a %2</translation>
     </message>
     <message>
-        <source>Limited to %1 m (maximum altitude)</source>
-        <translation>Limitado a %1 m (altitude máxima)</translation>
+        <source>Limited to %1 (maximum altitude)</source>
+        <translation>Limitado a %1 (altitude máxima)</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -4658,8 +4658,8 @@
         <translation>Direção fixa</translation>
     </message>
     <message>
-        <source>Height is above the take-off point · max %1 m.</source>
-        <translation>A altura é acima do ponto de decolagem · máx. %1 m.</translation>
+        <source>Height is above the take-off point · max %1.</source>
+        <translation>A altura é acima do ponto de decolagem · máx. %1.</translation>
     </message>
     <message>
         <source>Height profile</source>
@@ -4900,20 +4900,20 @@
         <translation>Altura de voo</translation>
     </message>
     <message>
-        <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translation>Detalhe da foto ≈ %1 por pixel · limitado a %2 m</translation>
+        <source>Photo detail ≈ %1 per pixel · limited to %2</source>
+        <translation>Detalhe da foto ≈ %1 por pixel · limitado a %2</translation>
     </message>
     <message>
-        <source>Limited to %1 m (maximum altitude)</source>
-        <translation>Limitado a %1 m (altitude máxima)</translation>
+        <source>Limited to %1 (maximum altitude)</source>
+        <translation>Limitado a %1 (altitude máxima)</translation>
     </message>
     <message>
         <source>Corridor width</source>
         <translation>Largura do corredor</translation>
     </message>
     <message>
-        <source>Strip mapped on both sides of the line (%1 m each side)</source>
-        <translation>Faixa mapeada dos dois lados da linha (%1 m de cada lado)</translation>
+        <source>Strip mapped on both sides of the line (%1 each side)</source>
+        <translation>Faixa mapeada dos dois lados da linha (%1 de cada lado)</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -5004,8 +5004,8 @@
         <translation>Próximo: verificar e enviar</translation>
     </message>
     <message>
-        <source>Line spacing %1 m · limited to %2 m</source>
-        <translation>Espaçamento de linhas %1 m · limitado a %2 m</translation>
+        <source>Line spacing %1 · limited to %2</source>
+        <translation>Espaçamento de linhas %1 · limitado a %2</translation>
     </message>
     <message>
         <source>Speed</source>
@@ -7777,8 +7777,8 @@
         <translation>Exclusão</translation>
     </message>
     <message>
-        <source>Circle %1 · %2 m</source>
-        <translation>Círculo %1 · %2 m</translation>
+        <source>Circle %1 · %2</source>
+        <translation>Círculo %1 · %2</translation>
     </message>
     <message>
         <source>No fence in this mission.</source>

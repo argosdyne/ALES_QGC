@@ -1068,16 +1068,16 @@
         <translation>Độ cao</translation>
     </message>
     <message>
-        <source>%1 m (limit %2 m)</source>
-        <translation>%1 m (giới hạn %2 m)</translation>
+        <source>%1 (limit %2)</source>
+        <translation>%1 (giới hạn %2)</translation>
     </message>
     <message>
         <source>Distance</source>
         <translation>Khoảng cách</translation>
     </message>
     <message>
-        <source>Farthest point %1 m (limit %2 m)</source>
-        <translation>Điểm xa nhất %1 m (giới hạn %2 m)</translation>
+        <source>Farthest point %1 (limit %2)</source>
+        <translation>Điểm xa nhất %1 (giới hạn %2)</translation>
     </message>
     <message>
         <source>Battery</source>
@@ -1156,16 +1156,16 @@
         <translation>Drone không nhận nhiệm vụ. Kiểm tra thông báo, sửa nhiệm vụ và gửi lại.</translation>
     </message>
     <message>
-        <source>Over the limit: %1 m (limit %2 m). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
-        <translation>Vượt giới hạn: %1 m (giới hạn %2 m). Thu nhỏ khu vực hoặc tăng Khoảng cách tối đa trong Cài đặt › An toàn.</translation>
+        <source>Over the limit: %1 (limit %2). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
+        <translation>Vượt giới hạn: %1 (giới hạn %2). Thu nhỏ khu vực hoặc tăng Khoảng cách tối đa trong Cài đặt › An toàn.</translation>
     </message>
     <message>
-        <source>Not enforced (geofence off): %1 m, limit %2 m</source>
-        <translation>Không áp dụng (geofence tắt): %1 m, giới hạn %2 m</translation>
+        <source>Not enforced (geofence off): %1, limit %2</source>
+        <translation>Không áp dụng (geofence tắt): %1, giới hạn %2</translation>
     </message>
     <message>
-        <source>Not enforced (no distance limit in the drone's fence): %1 m, limit %2 m</source>
-        <translation>Không áp dụng (geofence của drone không giới hạn khoảng cách): %1 m, giới hạn %2 m</translation>
+        <source>Not enforced (no distance limit in the drone's fence): %1, limit %2</source>
+        <translation>Không áp dụng (geofence của drone không giới hạn khoảng cách): %1, giới hạn %2</translation>
     </message>
 </context>
 <context>
@@ -1251,12 +1251,12 @@
         <translation>Độ cao bay</translation>
     </message>
     <message>
-        <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translation>Chi tiết ảnh ≈ %1 mỗi pixel · giới hạn %2 m</translation>
+        <source>Photo detail ≈ %1 per pixel · limited to %2</source>
+        <translation>Chi tiết ảnh ≈ %1 mỗi pixel · giới hạn %2</translation>
     </message>
     <message>
-        <source>Limited to %1 m (maximum altitude)</source>
-        <translation>Giới hạn %1 m (độ cao tối đa)</translation>
+        <source>Limited to %1 (maximum altitude)</source>
+        <translation>Giới hạn %1 (độ cao tối đa)</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -4658,8 +4658,8 @@
         <translation>Hướng cố định</translation>
     </message>
     <message>
-        <source>Height is above the take-off point · max %1 m.</source>
-        <translation>Độ cao so với điểm cất cánh · tối đa %1 m.</translation>
+        <source>Height is above the take-off point · max %1.</source>
+        <translation>Độ cao so với điểm cất cánh · tối đa %1.</translation>
     </message>
     <message>
         <source>Height profile</source>
@@ -4900,20 +4900,20 @@
         <translation>Độ cao bay</translation>
     </message>
     <message>
-        <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translation>Chi tiết ảnh ≈ %1 mỗi pixel · giới hạn %2 m</translation>
+        <source>Photo detail ≈ %1 per pixel · limited to %2</source>
+        <translation>Chi tiết ảnh ≈ %1 mỗi pixel · giới hạn %2</translation>
     </message>
     <message>
-        <source>Limited to %1 m (maximum altitude)</source>
-        <translation>Giới hạn %1 m (độ cao tối đa)</translation>
+        <source>Limited to %1 (maximum altitude)</source>
+        <translation>Giới hạn %1 (độ cao tối đa)</translation>
     </message>
     <message>
         <source>Corridor width</source>
         <translation>Chiều rộng hành lang</translation>
     </message>
     <message>
-        <source>Strip mapped on both sides of the line (%1 m each side)</source>
-        <translation>Dải được lập bản đồ ở hai bên đường (mỗi bên %1 m)</translation>
+        <source>Strip mapped on both sides of the line (%1 each side)</source>
+        <translation>Dải được lập bản đồ ở hai bên đường (mỗi bên %1)</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -5004,8 +5004,8 @@
         <translation>Tiếp: kiểm tra &amp; gửi</translation>
     </message>
     <message>
-        <source>Line spacing %1 m · limited to %2 m</source>
-        <translation>Khoảng cách đường bay %1 m · giới hạn %2 m</translation>
+        <source>Line spacing %1 · limited to %2</source>
+        <translation>Khoảng cách đường bay %1 · giới hạn %2</translation>
     </message>
     <message>
         <source>Speed</source>
@@ -7774,8 +7774,8 @@
         <translation>Vùng loại trừ</translation>
     </message>
     <message>
-        <source>Circle %1 · %2 m</source>
-        <translation>Vòng tròn %1 · %2 m</translation>
+        <source>Circle %1 · %2</source>
+        <translation>Vòng tròn %1 · %2</translation>
     </message>
     <message>
         <source>No fence in this mission.</source>

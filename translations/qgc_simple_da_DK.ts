@@ -1068,16 +1068,16 @@
         <translation>Højde</translation>
     </message>
     <message>
-        <source>%1 m (limit %2 m)</source>
-        <translation>%1 m (grænse %2 m)</translation>
+        <source>%1 (limit %2)</source>
+        <translation>%1 (grænse %2)</translation>
     </message>
     <message>
         <source>Distance</source>
         <translation>Afstand</translation>
     </message>
     <message>
-        <source>Farthest point %1 m (limit %2 m)</source>
-        <translation>Fjerneste punkt %1 m (grænse %2 m)</translation>
+        <source>Farthest point %1 (limit %2)</source>
+        <translation>Fjerneste punkt %1 (grænse %2)</translation>
     </message>
     <message>
         <source>Battery</source>
@@ -1156,16 +1156,16 @@
         <translation>Dronen accepterede ikke missionen. Kontrollér beskeden, ret missionen, og send igen.</translation>
     </message>
     <message>
-        <source>Over the limit: %1 m (limit %2 m). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
-        <translation>Over grænsen: %1 m (grænse %2 m). Gør området mindre, eller hæv Maks. afstand under Indstillinger › Sikkerhed.</translation>
+        <source>Over the limit: %1 (limit %2). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
+        <translation>Over grænsen: %1 (grænse %2). Gør området mindre, eller hæv Maks. afstand under Indstillinger › Sikkerhed.</translation>
     </message>
     <message>
-        <source>Not enforced (geofence off): %1 m, limit %2 m</source>
-        <translation>Håndhæves ikke (geofence fra): %1 m, grænse %2 m</translation>
+        <source>Not enforced (geofence off): %1, limit %2</source>
+        <translation>Håndhæves ikke (geofence fra): %1, grænse %2</translation>
     </message>
     <message>
-        <source>Not enforced (no distance limit in the drone's fence): %1 m, limit %2 m</source>
-        <translation>Håndhæves ikke (ingen afstandsgrænse i dronens geofence): %1 m, grænse %2 m</translation>
+        <source>Not enforced (no distance limit in the drone's fence): %1, limit %2</source>
+        <translation>Håndhæves ikke (ingen afstandsgrænse i dronens geofence): %1, grænse %2</translation>
     </message>
 </context>
 <context>
@@ -1251,12 +1251,12 @@
         <translation>Flyvehøjde</translation>
     </message>
     <message>
-        <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translation>Fotodetalje ≈ %1 pr. pixel · begrænset til %2 m</translation>
+        <source>Photo detail ≈ %1 per pixel · limited to %2</source>
+        <translation>Fotodetalje ≈ %1 pr. pixel · begrænset til %2</translation>
     </message>
     <message>
-        <source>Limited to %1 m (maximum altitude)</source>
-        <translation>Begrænset til %1 m (maks. højde)</translation>
+        <source>Limited to %1 (maximum altitude)</source>
+        <translation>Begrænset til %1 (maks. højde)</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -4658,8 +4658,8 @@
         <translation>Fast retning</translation>
     </message>
     <message>
-        <source>Height is above the take-off point · max %1 m.</source>
-        <translation>Højden er over startpunktet · maks. %1 m.</translation>
+        <source>Height is above the take-off point · max %1.</source>
+        <translation>Højden er over startpunktet · maks. %1.</translation>
     </message>
     <message>
         <source>Height profile</source>
@@ -4900,20 +4900,20 @@
         <translation>Flyvehøjde</translation>
     </message>
     <message>
-        <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translation>Fotodetalje ≈ %1 pr. pixel · begrænset til %2 m</translation>
+        <source>Photo detail ≈ %1 per pixel · limited to %2</source>
+        <translation>Fotodetalje ≈ %1 pr. pixel · begrænset til %2</translation>
     </message>
     <message>
-        <source>Limited to %1 m (maximum altitude)</source>
-        <translation>Begrænset til %1 m (maks. højde)</translation>
+        <source>Limited to %1 (maximum altitude)</source>
+        <translation>Begrænset til %1 (maks. højde)</translation>
     </message>
     <message>
         <source>Corridor width</source>
         <translation>Korridorbredde</translation>
     </message>
     <message>
-        <source>Strip mapped on both sides of the line (%1 m each side)</source>
-        <translation>Strimmel kortlagt på begge sider af linjen (%1 m på hver side)</translation>
+        <source>Strip mapped on both sides of the line (%1 each side)</source>
+        <translation>Strimmel kortlagt på begge sider af linjen (%1 på hver side)</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -5004,8 +5004,8 @@
         <translation>Næste: kontrollér &amp; send</translation>
     </message>
     <message>
-        <source>Line spacing %1 m · limited to %2 m</source>
-        <translation>Linjeafstand %1 m · begrænset til %2 m</translation>
+        <source>Line spacing %1 · limited to %2</source>
+        <translation>Linjeafstand %1 · begrænset til %2</translation>
     </message>
     <message>
         <source>Speed</source>
@@ -7777,8 +7777,8 @@
         <translation>Eksklusion</translation>
     </message>
     <message>
-        <source>Circle %1 · %2 m</source>
-        <translation>Cirkel %1 · %2 m</translation>
+        <source>Circle %1 · %2</source>
+        <translation>Cirkel %1 · %2</translation>
     </message>
     <message>
         <source>No fence in this mission.</source>

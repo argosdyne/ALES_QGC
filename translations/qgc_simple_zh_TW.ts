@@ -1068,16 +1068,16 @@
         <translation>高度</translation>
     </message>
     <message>
-        <source>%1 m (limit %2 m)</source>
-        <translation>%1 m（上限 %2 m）</translation>
+        <source>%1 (limit %2)</source>
+        <translation>%1（上限 %2）</translation>
     </message>
     <message>
         <source>Distance</source>
         <translation>距離</translation>
     </message>
     <message>
-        <source>Farthest point %1 m (limit %2 m)</source>
-        <translation>最遠點 %1 m（上限 %2 m）</translation>
+        <source>Farthest point %1 (limit %2)</source>
+        <translation>最遠點 %1（上限 %2）</translation>
     </message>
     <message>
         <source>Battery</source>
@@ -1156,16 +1156,16 @@
         <translation>無人機未接受任務。請檢查訊息、修改任務後再傳送。</translation>
     </message>
     <message>
-        <source>Over the limit: %1 m (limit %2 m). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
-        <translation>超過上限：%1 m（上限 %2 m）。請縮小區域，或在設定 › 安全 中提高最大距離。</translation>
+        <source>Over the limit: %1 (limit %2). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
+        <translation>超過上限：%1（上限 %2）。請縮小區域，或在設定 › 安全 中提高最大距離。</translation>
     </message>
     <message>
-        <source>Not enforced (geofence off): %1 m, limit %2 m</source>
-        <translation>未強制執行（地理圍欄已關閉）：%1 m，上限 %2 m</translation>
+        <source>Not enforced (geofence off): %1, limit %2</source>
+        <translation>未強制執行（地理圍欄已關閉）：%1，上限 %2</translation>
     </message>
     <message>
-        <source>Not enforced (no distance limit in the drone's fence): %1 m, limit %2 m</source>
-        <translation>未強制執行（無人機圍欄沒有距離限制）：%1 m，上限 %2 m</translation>
+        <source>Not enforced (no distance limit in the drone's fence): %1, limit %2</source>
+        <translation>未強制執行（無人機圍欄沒有距離限制）：%1，上限 %2</translation>
     </message>
 </context>
 <context>
@@ -1251,12 +1251,12 @@
         <translation>飛行高度</translation>
     </message>
     <message>
-        <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translation>照片解析度 ≈ 每像素 %1 · 上限 %2 m</translation>
+        <source>Photo detail ≈ %1 per pixel · limited to %2</source>
+        <translation>照片解析度 ≈ 每像素 %1 · 上限 %2</translation>
     </message>
     <message>
-        <source>Limited to %1 m (maximum altitude)</source>
-        <translation>上限 %1 m（最大高度）</translation>
+        <source>Limited to %1 (maximum altitude)</source>
+        <translation>上限 %1（最大高度）</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -4658,8 +4658,8 @@
         <translation>固定方向</translation>
     </message>
     <message>
-        <source>Height is above the take-off point · max %1 m.</source>
-        <translation>高度以起飛點為基準 · 最高 %1 m。</translation>
+        <source>Height is above the take-off point · max %1.</source>
+        <translation>高度以起飛點為基準 · 最高 %1。</translation>
     </message>
     <message>
         <source>Height profile</source>
@@ -4900,20 +4900,20 @@
         <translation>飛行高度</translation>
     </message>
     <message>
-        <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translation>照片解析度 ≈ 每像素 %1 · 上限 %2 m</translation>
+        <source>Photo detail ≈ %1 per pixel · limited to %2</source>
+        <translation>照片解析度 ≈ 每像素 %1 · 上限 %2</translation>
     </message>
     <message>
-        <source>Limited to %1 m (maximum altitude)</source>
-        <translation>上限 %1 m（最大高度）</translation>
+        <source>Limited to %1 (maximum altitude)</source>
+        <translation>上限 %1（最大高度）</translation>
     </message>
     <message>
         <source>Corridor width</source>
         <translation>廊道寬度</translation>
     </message>
     <message>
-        <source>Strip mapped on both sides of the line (%1 m each side)</source>
-        <translation>沿線兩側測繪（每側 %1 m）</translation>
+        <source>Strip mapped on both sides of the line (%1 each side)</source>
+        <translation>沿線兩側測繪（每側 %1）</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -5004,8 +5004,8 @@
         <translation>下一步：檢查並傳送</translation>
     </message>
     <message>
-        <source>Line spacing %1 m · limited to %2 m</source>
-        <translation>航線間距 %1 m · 上限 %2 m</translation>
+        <source>Line spacing %1 · limited to %2</source>
+        <translation>航線間距 %1 · 上限 %2</translation>
     </message>
     <message>
         <source>Speed</source>
@@ -7774,8 +7774,8 @@
         <translation>排除</translation>
     </message>
     <message>
-        <source>Circle %1 · %2 m</source>
-        <translation>圓形 %1 · %2 m</translation>
+        <source>Circle %1 · %2</source>
+        <translation>圓形 %1 · %2</translation>
     </message>
     <message>
         <source>No fence in this mission.</source>

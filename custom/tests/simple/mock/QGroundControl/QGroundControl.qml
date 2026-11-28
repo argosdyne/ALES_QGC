@@ -50,6 +50,7 @@ QtObject {
         function metersToAppSettingsVerticalDistanceUnits(m)   { return m }
         function appSettingsVerticalDistanceUnitsToMeters(d)   { return d }
         function metersToAppSettingsHorizontalDistanceUnits(m) { return m }
+        function appSettingsHorizontalDistanceUnitsToMeters(d) { return d }
     }
     property QtObject multiVehicleManager: QtObject { property var activeVehicle: null }
 }

@@ -1068,16 +1068,16 @@
         <translation>高度</translation>
     </message>
     <message>
-        <source>%1 m (limit %2 m)</source>
-        <translation>%1 m（上限 %2 m）</translation>
+        <source>%1 (limit %2)</source>
+        <translation>%1（上限 %2）</translation>
     </message>
     <message>
         <source>Distance</source>
         <translation>距離</translation>
     </message>
     <message>
-        <source>Farthest point %1 m (limit %2 m)</source>
-        <translation>最遠地点 %1 m（上限 %2 m）</translation>
+        <source>Farthest point %1 (limit %2)</source>
+        <translation>最遠地点 %1（上限 %2）</translation>
     </message>
     <message>
         <source>Battery</source>
@@ -1156,16 +1156,16 @@
         <translation>機体がミッションを受け付けませんでした。メッセージを確認し、ミッションを修正して再送信してください。</translation>
     </message>
     <message>
-        <source>Over the limit: %1 m (limit %2 m). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
-        <translation>上限超過：%1 m（上限 %2 m）。エリアを小さくするか、設定 › 安全 で最大距離を上げてください。</translation>
+        <source>Over the limit: %1 (limit %2). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
+        <translation>上限超過：%1（上限 %2）。エリアを小さくするか、設定 › 安全 で最大距離を上げてください。</translation>
     </message>
     <message>
-        <source>Not enforced (geofence off): %1 m, limit %2 m</source>
-        <translation>適用なし（ジオフェンスオフ）：%1 m、上限 %2 m</translation>
+        <source>Not enforced (geofence off): %1, limit %2</source>
+        <translation>適用なし（ジオフェンスオフ）：%1、上限 %2</translation>
     </message>
     <message>
-        <source>Not enforced (no distance limit in the drone's fence): %1 m, limit %2 m</source>
-        <translation>適用なし（機体のフェンスに距離制限なし）：%1 m、上限 %2 m</translation>
+        <source>Not enforced (no distance limit in the drone's fence): %1, limit %2</source>
+        <translation>適用なし（機体のフェンスに距離制限なし）：%1、上限 %2</translation>
     </message>
 </context>
 <context>
@@ -1251,12 +1251,12 @@
         <translation>飛行高度</translation>
     </message>
     <message>
-        <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translation>写真の解像度 ≈ %1/ピクセル · %2 m に制限</translation>
+        <source>Photo detail ≈ %1 per pixel · limited to %2</source>
+        <translation>写真の解像度 ≈ %1/ピクセル · %2 に制限</translation>
     </message>
     <message>
-        <source>Limited to %1 m (maximum altitude)</source>
-        <translation>%1 m に制限（最大高度）</translation>
+        <source>Limited to %1 (maximum altitude)</source>
+        <translation>%1 に制限（最大高度）</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -4658,8 +4658,8 @@
         <translation>固定方向</translation>
     </message>
     <message>
-        <source>Height is above the take-off point · max %1 m.</source>
-        <translation>高度は離陸地点基準 · 最大 %1 m。</translation>
+        <source>Height is above the take-off point · max %1.</source>
+        <translation>高度は離陸地点基準 · 最大 %1。</translation>
     </message>
     <message>
         <source>Height profile</source>
@@ -4900,20 +4900,20 @@
         <translation>飛行高度</translation>
     </message>
     <message>
-        <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translation>写真の解像度 ≈ %1/ピクセル · %2 m に制限</translation>
+        <source>Photo detail ≈ %1 per pixel · limited to %2</source>
+        <translation>写真の解像度 ≈ %1/ピクセル · %2 に制限</translation>
     </message>
     <message>
-        <source>Limited to %1 m (maximum altitude)</source>
-        <translation>%1 m に制限（最大高度）</translation>
+        <source>Limited to %1 (maximum altitude)</source>
+        <translation>%1 に制限（最大高度）</translation>
     </message>
     <message>
         <source>Corridor width</source>
         <translation>回廊幅</translation>
     </message>
     <message>
-        <source>Strip mapped on both sides of the line (%1 m each side)</source>
-        <translation>ラインの両側を測量（片側 %1 m）</translation>
+        <source>Strip mapped on both sides of the line (%1 each side)</source>
+        <translation>ラインの両側を測量（片側 %1）</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -5004,8 +5004,8 @@
         <translation>次へ：確認と送信</translation>
     </message>
     <message>
-        <source>Line spacing %1 m · limited to %2 m</source>
-        <translation>ライン間隔 %1 m · %2 m に制限</translation>
+        <source>Line spacing %1 · limited to %2</source>
+        <translation>ライン間隔 %1 · %2 に制限</translation>
     </message>
     <message>
         <source>Speed</source>
@@ -7774,8 +7774,8 @@
         <translation>除外</translation>
     </message>
     <message>
-        <source>Circle %1 · %2 m</source>
-        <translation>円 %1 · %2 m</translation>
+        <source>Circle %1 · %2</source>
+        <translation>円 %1 · %2</translation>
     </message>
     <message>
         <source>No fence in this mission.</source>
