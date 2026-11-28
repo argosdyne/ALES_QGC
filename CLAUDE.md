@@ -298,6 +298,13 @@ Reply to the user in Korean unless they write in English.
   UI checks. Gimbal / yaw tests: `aqgc-build/mountsetup.py` (tilt-only servo mount + reboot), `mounttest.py`,
   `mountcand.py`, `run17595.sh` (#17595: on a mount without yaw axis ArduCopter turns the vehicle to param3 of every
   DO_MOUNT_CONTROL; same on Z01.07.00BT01 and Z01.08.00).
+- R3 (RHYTHM 3) gimbal on the FC: **MNT1_TYPE = 6** (user 2026-11-28; "Gremsy" = MAVLink Gimbal v2). Firmware facts
+  (Z01.08.00): the backend accepts only a HEARTBEAT with MAV_TYPE_GIMBAL from component 154 on a link the FC has (search
+  10–60 s after boot, until arming), then needs GIMBAL_DEVICE_INFORMATION and attitude status every second, else the mount
+  is "not healthy" (blocks arming only with ARMING_CHECK bit 16 camera; the company value 32254 has it off). Once found,
+  the FC streams its own target (RC ch9/10 by default) and overrides commands sent straight to the gimbal. The R3 SDK says
+  the R3 sends its heartbeat as MAV_COMP_ID_CAMERA (100) on UDP 192.168.2.119:14551: check on an R3 drone whether the
+  FC finds it before changing the app's gimbal command path. The company reference file has MNT1_TYPE 0 (S60 flags 6).
 - `guidedMaximumAltitude` default 120 m. "EasyGripper" is the smart-controller name, not a payload (use "Winch").
 
 ## Build and run
