@@ -242,6 +242,29 @@ CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info,
             _storageRefreshTimer.start();
         }
     });
+    // Free space in video mode (Tuleap bug #9422): the camera does not send storage information by itself while it
+    // records, and capture-status capacity is applied to the photo pool only, so the video pool shown in video mode
+    // stayed at its value from before the recording until the next switch to photo mode. Ask for every storage
+    // pool every 10 s while recording and once shortly after it stops (the camera closes the file first); each
+    // STORAGE_INFORMATION carries its storage id and usage, so the right pool is updated.
+    _recordingStorageTimer.setInterval(10000);
+    connect(&_recordingStorageTimer, &QTimer::timeout, this, &CodevCameraControl::_requestAllStoragePools);
+    connect(this, &QGCCameraControl::videoStatusChanged, this, [this]() {
+        const VideoStatus status = videoStatus();
+        if (status == _lastStorageVideoStatus) {
+            return;
+        }
+        const bool wasRecording = _lastStorageVideoStatus == VIDEO_CAPTURE_STATUS_RUNNING;
+        _lastStorageVideoStatus = status;
+        if (status == VIDEO_CAPTURE_STATUS_RUNNING) {
+            _recordingStorageTimer.start();
+        } else {
+            _recordingStorageTimer.stop();
+            if (wasRecording) {
+                QTimer::singleShot(1500, this, &CodevCameraControl::_requestAllStoragePools);
+            }
+        }
+    });
     _modeSwitchRecoveryTimer.setSingleShot(true);
     _modeSwitchRecoveryTimer.setInterval(3000);
     connect(&_modeSwitchRecoveryTimer, &QTimer::timeout, this, &CodevCameraControl::_checkModeSwitchRecovery);

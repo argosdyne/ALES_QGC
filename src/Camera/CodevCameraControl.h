@@ -424,6 +424,8 @@ private:
     PendingRcAction _pendingRcAction{PendingRcAction::None};
     QTimer _rcActionFallbackTimer;
     QTimer _storageRefreshTimer;
+    QTimer _recordingStorageTimer;              // free space while recording (Tuleap bug #9422)
+    VideoStatus _lastStorageVideoStatus{VIDEO_CAPTURE_STATUS_UNDEFINED};
     QTimer _modeSwitchRecoveryTimer;
     QTimer _modeSwitchProactiveRetryTimer;
     QTimer _modeSwitchNudgeReturnTimer;
