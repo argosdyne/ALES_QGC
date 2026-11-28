@@ -157,6 +157,7 @@ private slots:
 
 private:
     void        _prepareDownload        ();
+    void        _stopDownloads          ();
     void        _doneWithDownload       ();
     void        _storeDownloadedTile    (const QString& hash, const QString& type, const QByteArray& image, const QString& format);
     void        _failHybridOverlayDownload(const QString& hash);

@@ -73,6 +73,10 @@ QGCCachedTileSet::QGCCachedTileSet(const QString& name)
 //-----------------------------------------------------------------------------
 QGCCachedTileSet::~QGCCachedTileSet()
 {
+    // Requests still running (a set deleted while downloading, or right after Cancel) are aborted and deleted
+    // before their network manager: they have no parent and would otherwise call back into a deleted set
+    // (Tuleap bug #22472: app crash on Cancel Download -> Delete).
+    _stopDownloads();
     delete _networkManager;
     _networkManager = nullptr;
 }
@@ -180,6 +184,28 @@ QGCCachedTileSet::cancelDownloadTask()
         _downloading = false;
         emit downloadingChanged();
     }
+    // Cancel stops the download: before, only the flag was cleared, the open requests kept finishing and each one
+    // started the next, and the next tile batch switched the set back to downloading (Tuleap bug #22471).
+    _stopDownloads();
+}
+
+//-----------------------------------------------------------------------------
+void
+QGCCachedTileSet::_stopDownloads()
+{
+    const QList<QNetworkReply*> replies = _replies.values();
+    _replies.clear();
+    for (QNetworkReply* reply : replies) {
+        if (reply) {
+            disconnect(reply, nullptr, this, nullptr);
+            reply->abort();
+            delete reply;
+        }
+    }
+    qDeleteAll(_tilesToDownload);
+    _tilesToDownload.clear();
+    _hybridBaseImages.clear();
+    _hybridOverlayPending.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -187,6 +213,11 @@ void
 QGCCachedTileSet::_tileListFetched(QList<QGCTile *> tiles)
 {
     _batchRequested = false;
+    // a batch asked for before Cancel: drop it (Resume asks again)
+    if (!_downloading) {
+        qDeleteAll(tiles);
+        return;
+    }
     //-- Done?
     if(tiles.size() < TILE_BATCH_SIZE) {
         _noMoreTiles = true;
@@ -325,6 +356,9 @@ QGCCachedTileSet::_startHybridOverlay(const QString& hash, const QByteArray& bas
 //-----------------------------------------------------------------------------
 void QGCCachedTileSet::_prepareDownload()
 {
+    if (!_downloading) {
+        return;                                     // cancelled: start nothing new
+    }
     if(!_tilesToDownload.count()) {
         //-- Are we done?
         if(_noMoreTiles) {
