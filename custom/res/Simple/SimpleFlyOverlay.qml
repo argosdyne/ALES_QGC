@@ -7,6 +7,7 @@ import QtQuick.Shapes 1.12
 import QtPositioning 5.12
 import QGroundControl 1.0
 import "."
+import "SimpleLidarQueue.js" as LidarQueue
 
 Item {
     id: fly
@@ -79,15 +80,17 @@ Item {
     readonly property int _lidarQueueMax: 5
     property var lidarCriticalQueue: []
     property int lidarCriticalDropped: 0
-    function pushLidarCritical(message) {
-        if (lidarCriticalQueue.indexOf(message) !== -1) return
-        var q = lidarCriticalQueue.slice(); q.push(message)
-        // drop the oldest waiting message, never the one on screen (index 0)
-        while (q.length > _lidarQueueMax) { q.splice(1, 1); lidarCriticalDropped++ }
-        lidarCriticalQueue = q
+    // texts already dropped: a repeat is not queued and counted again; a Start rejected is never dropped
+    // (SimpleLidarQueue.js, Tuleap bug #28595)
+    property var _lidarDroppedTexts: LidarQueue.empty().droppedTexts
+    function _isLidarStartRejected(message) {
+        return String(message).indexOf(qsTranslate("LiDARAcquisition", "LiDAR: Start rejected")) === 0
     }
-    function popLidarCritical() { lidarCriticalQueue = lidarCriticalQueue.slice(1); if (lidarCriticalQueue.length === 0) lidarCriticalDropped = 0 }
-    function clearLidarCritical() { lidarCriticalQueue = []; lidarCriticalDropped = 0 }
+    function _setLidarQueue(st) { _lidarDroppedTexts = st.droppedTexts; lidarCriticalDropped = st.dropped; lidarCriticalQueue = st.queue }
+    function _lidarQueueState() { return { queue: lidarCriticalQueue, dropped: lidarCriticalDropped, droppedTexts: _lidarDroppedTexts } }
+    function pushLidarCritical(message) { _setLidarQueue(LidarQueue.push(_lidarQueueState(), message, _lidarQueueMax, _isLidarStartRejected)) }
+    function popLidarCritical()         { _setLidarQueue(LidarQueue.pop(_lidarQueueState())) }
+    function clearLidarCritical()       { _setLidarQueue(LidarQueue.empty()) }
     Timer { id: lidarRefusalTimer; interval: 10000; onTriggered: fly.lidarRefusal = "" }
 
     // Layer rule 1: a critical alert closes confirm sheets; so does a lost link on the ground (nothing can be sent)

@@ -49,6 +49,7 @@ TestCase {
             property int    sensorsUnhealthyBits: 0
             signal textMessageReceived(int uasid, int componentid, int severity, string text, string description)
             signal geoFenceAlertTierChanged(int tier)
+            signal fcFenceBreachCountChanged()
             property int    defaultComponentId: 1
             property bool   fcFenceBreach: true
             function fenceStatusBreached() { return fcFenceBreach }
@@ -391,6 +392,138 @@ TestCase {
         v.geoFenceAlertTierChanged(3)
         v.textMessageReceived(1, 1, 3, "GeoFence breach: boundary", "")
         compare(s.recentCause, "")
+    }
+    // ---- Tuleap bug #28594: return reason in edge cases (code review round 12)
+    // 1. RTL -> Brake keeps the return latch, so a long pause and a new return keep the cause
+    function test_bug28594_pause_keeps_latch() {
+        v.armed = true; v.flying = true
+        v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")
+        v.flightMode = "RTL"
+        verify(s._returnLatch); verify(s._holdCauses)
+        v.flightMode = "Brake"
+        verify(s._returnLatch, "Pause during a return keeps the latch")
+        verify(s._holdCauses, "the hold goes on while paused")
+        s._holdSince = Date.now() - 20000                                 // paused for 20 s
+        s._causes["battery"].h = Date.now() - 20000
+        s._expireCauses()                                                 // timer tick while paused: still held
+        compare(s.recentCause, "Battery low")
+        v.flightMode = "RTL"
+        compare(s.recentCause, "Battery low")
+        v.flightMode = "Loiter"                                           // the pilot flies on: latch and hold end
+        verify(!s._returnLatch); verify(!s._holdCauses)
+        v.flightMode = "Brake"
+        verify(!s._holdCauses, "a pause outside a return is not a hold")
+    }
+    // 2. a "... cleared" line does not remove the cause that started the return; later causes still clear
+    function test_bug28594_cleared_keeps_start_cause() {
+        v.armed = true; v.flying = true
+        v.textMessageReceived(1, 1, 2, "Radio Failsafe", "")
+        v.flightMode = "RTL"
+        v.textMessageReceived(1, 1, 6, "Radio Failsafe Cleared", "")
+        compare(s.recentCause, "Controller signal lost")
+        s._holdSince = Date.now() - 10000                                 // 10 s into the return
+        v.textMessageReceived(1, 1, 4, "GPS Glitch", "")                  // not a start cause
+        verify(!s._isStartCause(s._causes["gps"]))
+        compare(s.recentCause, "Controller signal lost")
+        v.textMessageReceived(1, 1, 6, "GPS Glitch cleared", "")
+        verify(s._causes["gps"] === undefined, "a later cause is still cleared")
+        v.flying = false; v.armed = false; v.flightMode = "Loiter"         // landed: S92 reads the start cause
+        compare(s.recentCause, "Controller signal lost")
+    }
+    // 3. an event-only FC fence breach (breach_count up, breach_status 0) is the fence cause
+    function test_bug28594_fence_event_only() {
+        v.fcFenceBreach = false
+        v.fcFenceBreachCountChanged()
+        compare(s.recentCause, "Geofence reached")
+        compare(s.recentWarning, "")
+        QGroundControl.corePlugin.advancedMode = true
+        compare(s.recentReason, "Geofence reached", "no empty brackets in Advanced mode")
+        v.geoFenceAlertTierChanged(3)                                     // the app's breach text follows
+        v.textMessageReceived(1, 1, 3, "GeoFence breach: boundary", "")
+        compare(s.recentWarning, "GeoFence breach: boundary")
+        compare(s.recentReason, "Geofence reached (GeoFence breach: boundary)")
+        QGroundControl.corePlugin.advancedMode = false
+        s._clearCause()
+        s._fcFenceBreachAt = Date.now() - 10000                           // an old event does not make an app breach the FC's
+        v.geoFenceAlertTierChanged(3)
+        v.textMessageReceived(1, 1, 3, "GeoFence breach: boundary", "")
+        compare(s.recentCause, "")
+    }
+    // 3b. a fence event during a return fills in the text of the start cause, nothing else
+    function test_bug28594_fence_event_in_return() {
+        v.armed = true; v.flying = true; v.fcFenceBreach = false
+        v.fcFenceBreachCountChanged()
+        v.flightMode = "RTL"
+        verify(s._isStartCause(s._causes["fence"]))
+        v.geoFenceAlertTierChanged(3)
+        v.textMessageReceived(1, 1, 3, "GeoFence breach: boundary", "")
+        compare(s.recentWarning, "GeoFence breach: boundary")
+    }
+    // 4. a higher warning during the return does not replace the starting cause (also after disarm)
+    function test_bug28594_higher_rank_does_not_replace() {
+        v.armed = true; v.flying = true
+        v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")
+        v.flightMode = "RTL"
+        s._holdSince = Date.now() - 5000; s._causes["battery"].t = Date.now() - 6000
+        v.textMessageReceived(1, 1, 2, "EKF Failsafe", "")                // 5 s into the return
+        compare(s.recentCause, "Battery low")
+        v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")            // a repeat keeps the start time
+        verify(s._causes["battery"].t < Date.now() - 5000)
+        v.flightMode = "Land"
+        compare(s.recentCause, "Battery low")
+        v.flying = false; v.armed = false; v.flightMode = "Loiter"
+        compare(s.recentCause, "Battery low", "the S92 card shows the cause that started the return")
+        v.armed = true
+        compare(s.recentCause, "")
+    }
+    // 4b. no cause at the start: a warning during the return is shown; when the pilot flies on, rank rules again
+    function test_bug28594_no_start_cause_and_fly_on() {
+        v.armed = true; v.flying = true
+        v.flightMode = "RTL"                                              // manual return
+        s._holdSince = Date.now() - 5000
+        v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")
+        compare(s.recentCause, "Battery low")
+        s._clearCause()
+        v.flightMode = "Loiter"
+        s._holdEndedAt = Date.now() - 6000
+        v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")
+        v.flightMode = "RTL"
+        verify(s._isStartCause(s._causes["battery"]))
+        v.flightMode = "Loiter"                                           // flies on: the mark goes
+        verify(!s._isStartCause(s._causes["battery"]))
+        v.textMessageReceived(1, 1, 2, "EKF Failsafe", "")
+        compare(s.recentCause, "GPS or position lost")
+    }
+    // 5. another active drone resets latch, hold times and the app alert tier
+    function test_bug28594_vehicle_change_resets() {
+        v.armed = true; v.flying = true; v.flightMode = "RTL"
+        v.geoFenceAlertTierChanged(3)
+        verify(s._returnLatch); verify(s._holdSince > 0); compare(s._appTier, 3)
+        var v2 = createTemporaryObject(vehicleComp, tc)
+        s.vehicle = v2
+        verify(!s._returnLatch); compare(s._holdSince, 0); compare(s._appTier, -1)
+        compare(s.recentCause, "")
+        v2.textMessageReceived(1, 1, 4, "Battery 1 is low", "")          // a stale app tier would skip this FC line
+        compare(s.recentCause, "Battery low")
+        s._clearCause()
+        v2.armed = true; v2.flying = true; v2.flightMode = "Brake"
+        verify(!s._holdCauses)
+        v2.flightMode = "RTL"                                             // the new drone's return (within 5 s) gets its own start
+        verify(s._holdSince > 0)
+    }
+    // random: mode sequences never leave a latch while disarmed, and a hold always has a start time
+    function test_bug28594_random_modes() {
+        var modes = ["Loiter", "RTL", "Smart RTL", "Land", "Brake", "Auto"]
+        var texts = ["Battery 1 is low", "EKF Failsafe", "Radio Failsafe", "Radio Failsafe Cleared", "GPS Glitch cleared", "Crash: Disarming"]
+        for (var i = 0; i < 3000; i++) {
+            v.armed = Math.random() < 0.8
+            v.flying = v.armed && Math.random() < 0.9
+            v.flightMode = modes[Math.floor(Math.random() * modes.length)]
+            if (Math.random() < 0.3) v.textMessageReceived(1, 1, Math.floor(Math.random() * 7), texts[i % texts.length], "")
+            if (!v.armed) verify(!s._returnLatch)
+            if (s._holdCauses) verify(s._holdSince > 0)
+            if (s.recentCause !== "") verify(s._causeRank > 0)
+        }
     }
     function test_random_states() {
         var modes = ["Loiter", "RTL", "Smart RTL", "Land", "Auto", "Brake", "Stabilize", ""]

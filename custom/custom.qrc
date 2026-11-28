@@ -166,6 +166,7 @@
         <file alias="SimpleScanSettings.qml">res/Simple/SimpleScanSettings.qml</file>
         <file alias="SimpleSavedMissions.qml">res/Simple/SimpleSavedMissions.qml</file>
         <file alias="SimpleMissionInfo.js">res/Simple/SimpleMissionInfo.js</file>
+        <file alias="SimpleLidarQueue.js">res/Simple/SimpleLidarQueue.js</file>
         <file alias="SimplePayloadPanel.qml">res/Simple/SimplePayloadPanel.qml</file>
         <file alias="SimpleGoHereCard.qml">res/Simple/SimpleGoHereCard.qml</file>
         <file alias="SimpleCoordSheet.qml">res/Simple/SimpleCoordSheet.qml</file>
