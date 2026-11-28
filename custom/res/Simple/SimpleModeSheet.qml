@@ -42,8 +42,19 @@ SPanel {
         _asked = n; _askedTitle = t; _askedAt = Date.now()
         vehicle.flightMode = n
     }
+    // ArduCopter mode numbers by the names the APM plugin reports (ArduCopterFirmwarePlugin): the "No such mode N"
+    // line must name the requested mode, not e.g. a mode an RC switch asked for (code review)
+    readonly property var _copterModeNumbers: ({
+        "Stabilize": 0, "Acro": 1, "Altitude Hold": 2, "Auto": 3, "Guided": 4, "Loiter": 5, "RTL": 6, "Circle": 7,
+        "Land": 9, "Drift": 11, "Sport": 13, "Flip": 14, "Autotune": 15, "Position Hold": 16, "Brake": 17, "Throw": 18,
+        "Avoid ADSB": 19, "Guided No GPS": 20, "Smart RTL": 21, "Flow Hold": 22, "Follow": 23, "ZigZag": 24,
+        "SystemID": 25, "AutoRotate": 26, "AutoRTL": 27, "Turtle": 28, "Slow": 30 })
     function _onDroneText(text) {
-        if (_asked === "" || Date.now() - _askedAt > 5000 || !/no such mode/i.test(text)) return
+        if (_asked === "" || Date.now() - _askedAt > 5000) return
+        var m = /no such mode\s*(\d+)?/i.exec(text)
+        if (!m) return
+        var asked = _copterModeNumbers[_asked]
+        if (m[1] !== undefined && asked !== undefined && Number(m[1]) !== asked) return
         var r = {}
         for (var k in _refused) r[k] = true
         r[_asked] = true
@@ -52,6 +63,14 @@ SPanel {
         _asked = ""
     }
     onVehicleChanged: { _refused = ({}); _asked = "" }
+    // the drone took the requested mode: a later "No such mode" is not about it
+    Connections {
+        target: sheet.vehicle
+        ignoreUnknownSignals: true
+        function onFlightModeChanged() {
+            Qt.callLater(function() { if (sheet._asked !== "" && sheet.vehicle && sheet.vehicle.flightMode === sheet._asked) sheet._asked = "" })
+        }
+    }
     Connections {
         target: sheet.vehicle
         ignoreUnknownSignals: true

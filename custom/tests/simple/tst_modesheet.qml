@@ -13,6 +13,10 @@ Item {
         QtObject {
             property var    flightModes: ["Stabilize", "Altitude Hold", "Loiter", "RTL", "Land", "Auto", "Guided", "Slow"]
             property string flightMode: "Loiter"
+            // like a drone that refuses the mode: the reported mode stays the old one
+            property bool   refuseModes: false
+            property string _lastMode: "Loiter"
+            onFlightModeChanged: { if (refuseModes) { if (flightMode !== _lastMode) flightMode = _lastMode } else _lastMode = flightMode }
             signal textMessageReceived(int uasid, int componentid, int severity, string text, string description)
         }
     }
@@ -52,8 +56,10 @@ TestCase {
     function test_refused_mode_is_hidden() {
         var spy = createTemporaryObject(spyComp, tc, { target: s, signalName: "modeRefused" })
         verify(_availNames().indexOf("Guided") !== -1)
+        v.refuseModes = true
         s._pick({ n: "Guided", t: "Guided", d: "" })
-        compare(v.flightMode, "Guided")
+        compare(v.flightMode, "Loiter", "the drone did not take it")
+        wait(0)
         v.textMessageReceived(1, 1, 4, "No such mode 4", "")
         compare(spy.count, 1)
         compare(spy.signalArguments[0][0], "Guided")
@@ -73,9 +79,24 @@ TestCase {
         compare(spy.count, 0)
         verify(_availNames().indexOf("Guided") !== -1)
     }
+    // code review: "No such mode 30" from an RC switch after a successful change does not hide the asked mode
+    function test_other_mode_number_or_success_ignored() {
+        var spy = createTemporaryObject(spyComp, tc, { target: s, signalName: "modeRefused" })
+        s._pick({ n: "Guided", t: "Guided", d: "" })                     // Guided = 4
+        v.textMessageReceived(1, 1, 4, "No such mode 30", "")         // another number: not this request
+        compare(spy.count, 0)
+        verify(_availNames().indexOf("Guided") !== -1)
+        v.flightMode = "Stabilize"
+        s._pick({ n: "Loiter", t: "Position hold", d: "" })              // the drone takes it
+        tryCompare(s, "_asked", "", 1000, "the drone took Loiter: nothing is waited for")
+        v.textMessageReceived(1, 1, 4, "No such mode 5", "")
+        compare(spy.count, 0)
+        verify(_availNames().indexOf("Loiter") !== -1)
+    }
     function test_simple_choice_and_other_drone() {
         QGroundControl.corePlugin.advancedMode = false
         compare(s._available(["Altitude Hold", "AltHold"]), "Altitude Hold")
+        v.refuseModes = true
         s._setMode("Altitude Hold", "Altitude hold")
         v.textMessageReceived(1, 1, 4, "No such mode 2", "")
         compare(s._available(["Altitude Hold", "AltHold"]), "", "hidden in the Simple choice too")

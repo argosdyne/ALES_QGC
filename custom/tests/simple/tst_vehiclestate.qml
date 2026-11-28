@@ -491,7 +491,8 @@ TestCase {
         v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")
         v.flightMode = "RTL"
         verify(s._isStartCause(s._causes["battery"]))
-        v.flightMode = "Loiter"                                           // flies on: the mark goes
+        v.flightMode = "Loiter"                                           // flies on: the mark stops counting after 5 s
+        s._holdEndedAt = Date.now() - 6000
         verify(!s._isStartCause(s._causes["battery"]))
         v.textMessageReceived(1, 1, 2, "EKF Failsafe", "")
         compare(s.recentCause, "GPS or position lost")
@@ -512,6 +513,36 @@ TestCase {
         verify(!s._holdCauses)
         v2.flightMode = "RTL"                                             // the new drone's return (within 5 s) gets its own start
         verify(s._holdSince > 0)
+    }
+    // code review (important): a new return 3 s after the pilot ended a GPS return is named by its own cause
+    function test_new_return_after_takeover() {
+        v.armed = true; v.flying = true
+        v.textMessageReceived(1, 1, 2, "GPS Glitch", "")
+        v.flightMode = "RTL"                                              // GPS failsafe return
+        compare(s.recentCause, "GPS or position lost")
+        verify(s._isStartCause(s._causes["gps"]))
+        s._holdSince = Date.now() - 60000; s._causes["gps"].t = Date.now() - 61000
+        v.flightMode = "Loiter"                                           // pilot takes over
+        s._holdEndedAt = Date.now() - 3000                                // ... 3 s ago
+        v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")
+        v.flightMode = "RTL"                                              // battery failsafe return
+        compare(s.recentCause, "Battery low")
+        verify(!s._isStartCause(s._causes["gps"]))
+        v.flying = false; v.armed = false; v.flightMode = "Loiter"         // S92 card at disarm
+        compare(s.recentCause, "Battery low")
+    }
+    // a hold that comes back within 1 s (mode-switch binding order) is the same return
+    function test_hold_blip_is_same_return() {
+        v.armed = true; v.flying = true
+        v.textMessageReceived(1, 1, 4, "Battery 1 is low", "")
+        v.flightMode = "RTL"
+        var since = s._holdSince
+        s._holdSince = since - 30000; s._causes["battery"].t = since - 31000; since = s._holdSince
+        v.flightMode = "Loiter"; v.flightMode = "RTL"                     // ends and comes back at once
+        compare(s._holdSince, since)
+        verify(s._isStartCause(s._causes["battery"]))
+        v.textMessageReceived(1, 1, 2, "EKF Failsafe", "")
+        compare(s.recentCause, "Battery low")
     }
     // code review nit: switching to another drone that is already returning starts its own hold window
     function test_vehicle_switch_while_returning() {

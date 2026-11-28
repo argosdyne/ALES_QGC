@@ -114,17 +114,25 @@ QtObject {
     onFlyingChanged:    _updateReturnLatch()
     readonly property bool   _holdCauses: armed && (returning || landing || (paused && _returnLatch))
     property real            _holdSince: 0                   // when the return / landing began
-    property real            _holdEndedAt: 0                 // a hold that ends and starts again within 5 s is the same one
+    property real            _holdEndedAt: 0                 // when the last hold ended
+    property real            _startFloor: 0                  // a new return: only causes after the previous one ended start it
     readonly property int    _holdWindowMs: 15000            // only causes from the 15 s before it are held
     readonly property int    _startGraceMs: 2000             // the FC's failsafe line may follow its mode change
     function _now() { return Date.now() }
     function _clearCause() { _causes = ({}); _refreshCause() }
     // The cause that started this return / landing (it came before the hold began, or up to 2 s after it) is marked
     // `st`: it is shown before any later or higher warning, a "... cleared" line does not remove it, and the mark
-    // stays after disarm so the S92 card reads it (Tuleap bug #28594). The mark goes when the pilot flies on in
-    // another mode (hold ends while armed) and with the next arming.
-    function _inStartWindow(t) { return _holdCauses && t <= _holdSince + _startGraceMs }
-    function _isStartCause(e) { return !!e && (e.st === true || _inStartWindow(e.t)) }
+    // stays after disarm so the S92 card reads it (Tuleap bug #28594). When the pilot flies on in another mode (hold
+    // ended while armed) the mark stops counting after 5 s; it goes with the next arming. A hold that comes back
+    // within 1 s is the same return (binding order on a mode switch); a later one is a new return, started only by
+    // causes that arrived after the previous return ended (code review: GPS return, pilot takes over, battery
+    // failsafe return 3 s later named "GPS").
+    function _inStartWindow(t) { return _holdCauses && t > _startFloor && t <= _holdSince + _startGraceMs }
+    function _isStartCause(e) {
+        if (!e) return false
+        if (e.st === true && (_holdCauses || !vehicle || !vehicle.armed || _now() - _holdEndedAt <= 5000)) return true
+        return _inStartWindow(e.t)
+    }
     function _refreshCause() {
         var best = null, k, e
         for (k in _causes) {
@@ -162,7 +170,7 @@ QtObject {
             else changed = true
         }
         _causes = c
-        if (changed) _refreshCause()
+        _refreshCause()             // also when nothing expired: a start mark stops counting 5 s after the pilot flew on
     }
     property Timer _warnTimer: Timer {
         interval: 1000; repeat: true
@@ -171,12 +179,12 @@ QtObject {
     }
     // a new flight (or another drone) starts without the old causes
     onArmedChanged: {
-        if (armed) { _holdEndedAt = 0; _clearCause() }
+        if (armed) { _holdEndedAt = 0; _startFloor = 0; _clearCause() }
         _updateReturnLatch()
     }
     // another active drone: nothing of the previous one is kept (latch, hold times, app alert tier; bug #28594)
     onVehicleChanged: {
-        _returnLatch = false; _holdSince = 0; _holdEndedAt = 0; _appTier = -1; _fcFenceBreachAt = 0
+        _returnLatch = false; _holdSince = 0; _holdEndedAt = 0; _startFloor = 0; _appTier = -1; _fcFenceBreachAt = 0
         _clearCause()
         _updateReturnLatch()
         // the new drone may already be returning: the hold then does not change and on_HoldCausesChanged does not
@@ -184,19 +192,24 @@ QtObject {
         Qt.callLater(function() { if (s._holdCauses && s._holdSince === 0) s._holdSince = s._now() })
     }
     on_HoldCausesChanged: {
+        var now = _now()
         if (_holdCauses) {
-            if (_holdSince === 0 || _holdEndedAt === 0 || _now() - _holdEndedAt > 5000) _holdSince = _now()
-        } else {
-            _holdEndedAt = _now()
-            // still armed: the pilot flies on, the return is over (a disarm keeps the mark for the S92 card)
-            if (!!vehicle && vehicle.armed) {
+            var sameReturn = _holdSince !== 0 && _holdEndedAt !== 0 && now - _holdEndedAt < 1000
+            if (!sameReturn) {
+                // a new return: earlier start marks do not start it
+                _startFloor = _holdEndedAt
+                _holdSince = now
                 var c = {}
-                for (var k in _causes) { var e = _causes[k]; c[k] = { rank: e.rank, cause: e.cause, text: e.text, t: e.t, h: e.h } }
+                for (var k in _causes) {
+                    var e = _causes[k]
+                    c[k] = { rank: e.rank, cause: e.cause, text: e.text, t: e.t, h: e.h, st: e.st === true && e.t > _startFloor }
+                }
                 _causes = c
             }
+        } else {
+            _holdEndedAt = now
         }
         _expireCauses()
-        _refreshCause()
     }
     function _causeOf(t) {          // { kind, rank, cause }; rank 0 = not a cause
         function r(kind, rank, cause) { return { kind: kind, rank: rank, cause: cause } }
