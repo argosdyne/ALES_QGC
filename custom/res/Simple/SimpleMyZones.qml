@@ -7,6 +7,7 @@
  * motors run (Figma G-01b rule).
  ****************************************************************************/
 import QtQuick 2.12
+import QtQuick.Controls 2.4
 import QtLocation 5.3
 import QtPositioning 5.3
 import QGroundControl 1.0
@@ -256,136 +257,152 @@ Rectangle {
         border.width: SimpleTheme.px(1); border.color: SimpleTheme.line
         MouseArea { anchors.fill: parent }
 
-        // ---- list of my zones
-        Column {
+        // ---- list of my zones (scrolls: 5 or more zones pushed the fence buttons off the panel, bug #36953)
+        Flickable {
+            id: listFlick
             visible: !mz.editing
-            x: SimpleTheme.px(28); y: SimpleTheme.px(28)
-            width: parent.width - SimpleTheme.px(56)
-            spacing: SimpleTheme.px(14)
-            SText { text: qsTr("%1 zones you drew").arg(mz.zones.length); size: 30; bold: true }
-            SText { visible: mz.zones.length === 0; width: parent.width; wrapMode: Text.WordWrap; size: 24; color: SimpleTheme.textSecondary
-                    text: qsTr("Draw a zone the drone must not enter (for example a building or a crowd area) or a zone to be warned about.") }
-            Repeater {
-                model: mz.zones
-                Rectangle {
-                    width: parent.width; height: SimpleTheme.px(104); radius: SimpleTheme.px(16)
-                    color: SimpleTheme.surfaceRaised
-                    property bool confirmDel: false
-                    Rectangle { x: SimpleTheme.px(18); anchors.verticalCenter: parent.verticalCenter; width: SimpleTheme.px(14); height: SimpleTheme.px(56); radius: SimpleTheme.px(4)
-                                color: modelData.noEntry ? SimpleTheme.danger : SimpleTheme.warn }
-                    Column {
-                        x: SimpleTheme.px(48); anchors.verticalCenter: parent.verticalCenter
-                        width: parent.width - SimpleTheme.px(48) - btns.width - SimpleTheme.px(24)
-                        SText { text: modelData.name; size: 26; medium: true; width: parent.width; elide: Text.ElideRight }
-                        SText { size: 22; color: SimpleTheme.textSecondary; width: parent.width; elide: Text.ElideRight
-                                text: (modelData.noEntry ? qsTr("Do not enter") : qsTr("Warn only")) + " · " + Math.round(modelData.floor) + "–" + Math.round(modelData.ceiling) + " m" }
-                    }
-                    Row {
-                        id: btns
-                        anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(16); anchors.verticalCenter: parent.verticalCenter
-                        spacing: SimpleTheme.px(10)
-                        SButton { visible: !parent.parent.confirmDel; designHeight: 72; textSize: 24; text: qsTr("Edit"); enabled_: !mz._locked; onClicked: mz.startEdit(index) }
-                        SButton { visible: !parent.parent.confirmDel; designHeight: 72; textSize: 24; kind: "danger"; icon: "trash"; text: ""; enabled_: !mz._locked; onClicked: parent.parent.confirmDel = true }
-                        SButton { visible: parent.parent.confirmDel; designHeight: 72; textSize: 24; text: qsTr("Keep"); onClicked: parent.parent.confirmDel = false }
-                        SButton { visible: parent.parent.confirmDel; designHeight: 72; textSize: 24; kind: "danger"; text: qsTr("Delete"); onClicked: mz.remove(index) }
+            anchors.fill: parent; anchors.margins: SimpleTheme.px(28)
+            contentHeight: listCol.height
+            clip: true
+            boundsBehavior: Flickable.StopAtBounds
+            ScrollIndicator.vertical: ScrollIndicator { }
+            Column {
+                id: listCol
+                width: listFlick.width
+                spacing: SimpleTheme.px(14)
+                SText { text: qsTr("%1 zones you drew").arg(mz.zones.length); size: 30; bold: true }
+                SText { visible: mz.zones.length === 0; width: parent.width; wrapMode: Text.WordWrap; size: 24; color: SimpleTheme.textSecondary
+                        text: qsTr("Draw a zone the drone must not enter (for example a building or a crowd area) or a zone to be warned about.") }
+                Repeater {
+                    model: mz.zones
+                    Rectangle {
+                        width: parent.width; height: SimpleTheme.px(104); radius: SimpleTheme.px(16)
+                        color: SimpleTheme.surfaceRaised
+                        property bool confirmDel: false
+                        Rectangle { x: SimpleTheme.px(18); anchors.verticalCenter: parent.verticalCenter; width: SimpleTheme.px(14); height: SimpleTheme.px(56); radius: SimpleTheme.px(4)
+                                    color: modelData.noEntry ? SimpleTheme.danger : SimpleTheme.warn }
+                        Column {
+                            x: SimpleTheme.px(48); anchors.verticalCenter: parent.verticalCenter
+                            width: parent.width - SimpleTheme.px(48) - btns.width - SimpleTheme.px(24)
+                            SText { text: modelData.name; size: 26; medium: true; width: parent.width; elide: Text.ElideRight }
+                            SText { size: 22; color: SimpleTheme.textSecondary; width: parent.width; elide: Text.ElideRight
+                                    text: (modelData.noEntry ? qsTr("Do not enter") : qsTr("Warn only")) + " · " + Math.round(modelData.floor) + "–" + Math.round(modelData.ceiling) + " m" }
+                        }
+                        Row {
+                            id: btns
+                            anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(16); anchors.verticalCenter: parent.verticalCenter
+                            spacing: SimpleTheme.px(10)
+                            SButton { visible: !parent.parent.confirmDel; designHeight: 72; textSize: 24; text: qsTr("Edit"); enabled_: !mz._locked; onClicked: mz.startEdit(index) }
+                            SButton { visible: !parent.parent.confirmDel; designHeight: 72; textSize: 24; kind: "danger"; icon: "trash"; text: ""; enabled_: !mz._locked; onClicked: parent.parent.confirmDel = true }
+                            SButton { visible: parent.parent.confirmDel; designHeight: 72; textSize: 24; text: qsTr("Keep"); onClicked: parent.parent.confirmDel = false }
+                            SButton { visible: parent.parent.confirmDel; designHeight: 72; textSize: 24; kind: "danger"; text: qsTr("Delete"); onClicked: mz.remove(index) }
+                        }
                     }
                 }
-            }
-            SButton { kind: "primary"; icon: "plus"; text: qsTr("New zone"); enabled_: !mz._locked; onClicked: mz.startEdit(-1) }
+                SButton { kind: "primary"; icon: "plus"; text: qsTr("New zone"); enabled_: !mz._locked; onClicked: mz.startEdit(-1) }
 
-            // ---- drone fence
-            Rectangle { width: parent.width; height: SimpleTheme.px(1); color: SimpleTheme.line }
-            SText { text: qsTr("DRONE FENCE"); size: 24; medium: true; color: SimpleTheme.textTertiary }
-            SText {
-                width: parent.width; wrapMode: Text.WordWrap; size: 24
-                color: mz._canUpload ? SimpleTheme.textPrimary : SimpleTheme.textSecondary
-                text: !mz.vs || !mz.vs.connected ? qsTr("Connect the drone to upload the 'do not enter' zones to its fence.")
-                    : mz.vs.armed ? qsTr("The fence can be uploaded only on the ground with the motors off.")
-                    : !mz._fEnable ? qsTr("This drone has no fence parameters.")
-                    : mz._polygonOn ? qsTr("Polygon fence on. At a zone edge the drone %1.").arg(mz.actionText(mz._fAction ? mz._fAction.rawValue : 1))
-                    : qsTr("The drone's polygon fence is off.")
-            }
-            SText {
-                visible: mz.uploadState !== ""
-                width: parent.width; wrapMode: Text.WordWrap; size: 24
-                color: mz.uploadState === "done" ? SimpleTheme.ok : mz.uploadState === "sending" ? SimpleTheme.textSecondary : SimpleTheme.textDanger
-                text: mz.uploadState === "done" ? qsTr("Uploaded to the drone.")
-                    : mz.uploadState === "sending" ? qsTr("Uploading…")
-                    : mz.uploadState === "busy" ? qsTr("The drone is still sending its mission or fence. Try again in a moment.")
-                    : qsTr("The drone did not confirm the fence. Check the connection and try again.")
-            }
-            // inline confirm (Figma rule: confirm changes to the drone)
-            Rectangle {
-                visible: mz.confirmUpload
-                width: parent.width; height: confirmCol.height + SimpleTheme.px(32)
-                radius: SimpleTheme.px(16); color: SimpleTheme.withAlpha(SimpleTheme.warn, 0.14)
-                border.width: SimpleTheme.px(2); border.color: SimpleTheme.warn
-                Column {
-                    id: confirmCol
-                    x: SimpleTheme.px(18); y: SimpleTheme.px(16); width: parent.width - SimpleTheme.px(36)
-                    spacing: SimpleTheme.px(12)
-                    SText { width: parent.width; wrapMode: Text.WordWrap; size: 24
-                            text: (mz._fEnable && mz._fEnable.rawValue === 0
-                                   ? qsTr("Upload %1 'do not enter' zones to the drone? The drone's fence is off: only the polygon fence is turned on (FENCE_ENABLE = 1, FENCE_TYPE = polygon).")
-                                   : qsTr("Upload %1 'do not enter' zones to the drone? They replace the exclusion areas on the drone; the circle, altitude and inclusion fences stay as they are.")).arg(mz._noEntryCount) }
-                    Row {
+                // ---- drone fence
+                Rectangle { width: parent.width; height: SimpleTheme.px(1); color: SimpleTheme.line }
+                SText { text: qsTr("DRONE FENCE"); size: 24; medium: true; color: SimpleTheme.textTertiary }
+                SText {
+                    width: parent.width; wrapMode: Text.WordWrap; size: 24
+                    color: mz._canUpload ? SimpleTheme.textPrimary : SimpleTheme.textSecondary
+                    text: !mz.vs || !mz.vs.connected ? qsTr("Connect the drone to upload the 'do not enter' zones to its fence.")
+                        : mz.vs.armed ? qsTr("The fence can be uploaded only on the ground with the motors off.")
+                        : !mz._fEnable ? qsTr("This drone has no fence parameters.")
+                        : mz._polygonOn ? qsTr("Polygon fence on. At a zone edge the drone %1.").arg(mz.actionText(mz._fAction ? mz._fAction.rawValue : 1))
+                        : qsTr("The drone's polygon fence is off.")
+                }
+                SText {
+                    visible: mz.uploadState !== ""
+                    width: parent.width; wrapMode: Text.WordWrap; size: 24
+                    color: mz.uploadState === "done" ? SimpleTheme.ok : mz.uploadState === "sending" ? SimpleTheme.textSecondary : SimpleTheme.textDanger
+                    text: mz.uploadState === "done" ? qsTr("Uploaded to the drone.")
+                        : mz.uploadState === "sending" ? qsTr("Uploading…")
+                        : mz.uploadState === "busy" ? qsTr("The drone is still sending its mission or fence. Try again in a moment.")
+                        : qsTr("The drone did not confirm the fence. Check the connection and try again.")
+                }
+                // inline confirm (Figma rule: confirm changes to the drone)
+                Rectangle {
+                    visible: mz.confirmUpload
+                    width: parent.width; height: confirmCol.height + SimpleTheme.px(32)
+                    radius: SimpleTheme.px(16); color: SimpleTheme.withAlpha(SimpleTheme.warn, 0.14)
+                    border.width: SimpleTheme.px(2); border.color: SimpleTheme.warn
+                    Column {
+                        id: confirmCol
+                        x: SimpleTheme.px(18); y: SimpleTheme.px(16); width: parent.width - SimpleTheme.px(36)
                         spacing: SimpleTheme.px(12)
-                        SButton { designHeight: 72; textSize: 24; text: qsTr("Cancel"); onClicked: mz.confirmUpload = false }
-                        SButton { designHeight: 72; textSize: 24; kind: "primary"; text: qsTr("Upload"); onClicked: mz.upload() }
+                        SText { width: parent.width; wrapMode: Text.WordWrap; size: 24
+                                text: (mz._fEnable && mz._fEnable.rawValue === 0
+                                       ? qsTr("Upload %1 'do not enter' zones to the drone? The drone's fence is off: only the polygon fence is turned on (FENCE_ENABLE = 1, FENCE_TYPE = polygon).")
+                                       : qsTr("Upload %1 'do not enter' zones to the drone? They replace the exclusion areas on the drone; the circle, altitude and inclusion fences stay as they are.")).arg(mz._noEntryCount) }
+                        Row {
+                            spacing: SimpleTheme.px(12)
+                            SButton { designHeight: 72; textSize: 24; text: qsTr("Cancel"); onClicked: mz.confirmUpload = false }
+                            SButton { designHeight: 72; textSize: 24; kind: "primary"; text: qsTr("Upload"); onClicked: mz.upload() }
+                        }
                     }
                 }
-            }
-            SButton {
-                visible: !mz.confirmUpload
-                icon: "download"; text: qsTr("Upload to drone (%1 zones)").arg(mz._noEntryCount)
-                enabled_: mz._canUpload && !!mz._fEnable && mz.uploadState !== "sending"
-                onClicked: mz.confirmUpload = true
+                SButton {
+                    visible: !mz.confirmUpload
+                    icon: "download"; text: qsTr("Upload to drone (%1 zones)").arg(mz._noEntryCount)
+                    enabled_: mz._canUpload && !!mz._fEnable && mz.uploadState !== "sending"
+                    onClicked: mz.confirmUpload = true
+                }
             }
         }
 
-        // ---- zone settings (S32)
-        Column {
+        // ---- zone settings (S32; scrolls on short screens)
+        Flickable {
+            id: editFlick
             visible: mz.editing
-            x: SimpleTheme.px(28); y: SimpleTheme.px(28)
-            width: parent.width - SimpleTheme.px(56)
-            spacing: SimpleTheme.px(18)
-            STextField { id: nameField; designWidth: 544; label: qsTr("Name"); text: mz.zName }
-            SText { text: qsTr("What happens near this zone"); size: 24; color: SimpleTheme.textSecondary }
-            SSegmented {
-                designWidth: 544
-                model: [qsTr("Do not enter"), qsTr("Warn only")]
-                currentIndex: mz.zNoEntry ? 0 : 1
-                onActivated: { mz.zNoEntry = index === 0; currentIndex = Qt.binding(function() { return mz.zNoEntry ? 0 : 1 }) }
-            }
-            Repeater {
-                model: [[qsTr("From height"), 0], [qsTr("Up to height"), 1], [qsTr("Warn when closer than"), 2]]
-                Item {
-                    width: parent.width; height: SimpleTheme.px(80)
-                    SText { anchors.verticalCenter: parent.verticalCenter; width: parent.width - st.width - SimpleTheme.px(12); wrapMode: Text.WordWrap
-                            text: modelData[0]; size: 24 }
-                    SStepper {
-                        id: st
-                        anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
-                        unit: "m"; step: modelData[1] === 2 ? 5 : 10
-                        from: modelData[1] === 1 ? mz.zFloor + 10 : modelData[1] === 2 ? 5 : 0
-                        to: modelData[1] === 0 ? mz.zCeiling - 10 : modelData[1] === 1 ? 500 : 200
-                        value: modelData[1] === 0 ? mz.zFloor : modelData[1] === 1 ? mz.zCeiling : mz.zWarn
-                        onEdited: { if (modelData[1] === 0) mz.zFloor = value; else if (modelData[1] === 1) mz.zCeiling = value; else mz.zWarn = value }
+            anchors.fill: parent; anchors.margins: SimpleTheme.px(28)
+            contentHeight: editCol.height
+            clip: true
+            boundsBehavior: Flickable.StopAtBounds
+            ScrollIndicator.vertical: ScrollIndicator { }
+            Column {
+                id: editCol
+                width: editFlick.width
+                spacing: SimpleTheme.px(18)
+                STextField { id: nameField; designWidth: 544; label: qsTr("Name"); text: mz.zName }
+                SText { text: qsTr("What happens near this zone"); size: 24; color: SimpleTheme.textSecondary }
+                SSegmented {
+                    designWidth: 544
+                    model: [qsTr("Do not enter"), qsTr("Warn only")]
+                    currentIndex: mz.zNoEntry ? 0 : 1
+                    onActivated: { mz.zNoEntry = index === 0; currentIndex = Qt.binding(function() { return mz.zNoEntry ? 0 : 1 }) }
+                }
+                Repeater {
+                    model: [[qsTr("From height"), 0], [qsTr("Up to height"), 1], [qsTr("Warn when closer than"), 2]]
+                    Item {
+                        width: parent.width; height: SimpleTheme.px(80)
+                        SText { anchors.verticalCenter: parent.verticalCenter; width: parent.width - st.width - SimpleTheme.px(12); wrapMode: Text.WordWrap
+                                text: modelData[0]; size: 24 }
+                        SStepper {
+                            id: st
+                            anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+                            unit: "m"; step: modelData[1] === 2 ? 5 : 10
+                            from: modelData[1] === 1 ? mz.zFloor + 10 : modelData[1] === 2 ? 5 : 0
+                            to: modelData[1] === 0 ? mz.zCeiling - 10 : modelData[1] === 1 ? 500 : 200
+                            value: modelData[1] === 0 ? mz.zFloor : modelData[1] === 1 ? mz.zCeiling : mz.zWarn
+                            onEdited: { if (modelData[1] === 0) mz.zFloor = value; else if (modelData[1] === 1) mz.zCeiling = value; else mz.zWarn = value }
+                        }
                     }
                 }
+                SText {
+                    width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textTertiary
+                    text: mz.zNoEntry ? qsTr("'Do not enter' blocks take-off and plan sending inside the zone, and goes to the drone's fence when it is uploaded — the drone stops at the edge.")
+                                      : qsTr("'Warn only' shows an orange warning and speaks when the drone comes closer than the warning distance.")
+                }
+                Row {
+                    spacing: SimpleTheme.px(16)
+                    SButton { text: qsTr("Cancel"); onClicked: mz.editIndex = -2 }
+                    SButton { kind: "primary"; text: qsTr("Save zone"); enabled_: !mz._locked && mz.corners.length >= 3; onClicked: mz.save() }
+                }
+                SText { visible: mz.corners.length < 3; width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textSecondary
+                        text: qsTr("Add at least 3 corners.") }
             }
-            SText {
-                width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textTertiary
-                text: mz.zNoEntry ? qsTr("'Do not enter' blocks take-off and plan sending inside the zone, and goes to the drone's fence when it is uploaded — the drone stops at the edge.")
-                                  : qsTr("'Warn only' shows an orange warning and speaks when the drone comes closer than the warning distance.")
-            }
-            Row {
-                spacing: SimpleTheme.px(16)
-                SButton { text: qsTr("Cancel"); onClicked: mz.editIndex = -2 }
-                SButton { kind: "primary"; text: qsTr("Save zone"); enabled_: !mz._locked && mz.corners.length >= 3; onClicked: mz.save() }
-            }
-            SText { visible: mz.corners.length < 3; width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textSecondary
-                    text: qsTr("Add at least 3 corners.") }
         }
     }
 }

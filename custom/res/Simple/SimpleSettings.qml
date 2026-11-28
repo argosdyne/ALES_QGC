@@ -46,70 +46,80 @@ Rectangle {
         anchors.top: header.bottom; anchors.bottom: parent.bottom
         width: SimpleTheme.px(520)
         color: SimpleTheme.surfaceGlass
-        Column {
+        // scrolls when the rows are taller than the column (Advanced mode on a 16:9 screen: Devices was cut off, bug #36952)
+        Flickable {
+            id: catsFlick
             anchors.fill: parent
             anchors.margins: SimpleTheme.px(20)
-            spacing: SimpleTheme.px(8)
-            Repeater {
-                model: [
-                    { key: "general",    icon: "sliders", title: qsTr("General") },
-                    { key: "safety",     icon: "home",    title: qsTr("Safety") },
-                    { key: "maps",       icon: "map",     title: qsTr("Map & flight zones") },
-                    { key: "connection", icon: "link",    title: qsTr("Connection") },
-                    { key: "payloads",   icon: "grid",    title: qsTr("Payloads") },
-                    { key: "rid",        icon: "rid",     title: qsTr("Remote ID") },
-                    { key: "about",      icon: "help",    title: qsTr("About & support") }
-                ]
+            contentHeight: catsCol.height
+            clip: true
+            boundsBehavior: Flickable.StopAtBounds
+            ScrollIndicator.vertical: ScrollIndicator { }
+            Column {
+                id: catsCol
+                width: catsFlick.width
+                spacing: SimpleTheme.px(8)
+                Repeater {
+                    model: [
+                        { key: "general",    icon: "sliders", title: qsTr("General") },
+                        { key: "safety",     icon: "home",    title: qsTr("Safety") },
+                        { key: "maps",       icon: "map",     title: qsTr("Map & flight zones") },
+                        { key: "connection", icon: "link",    title: qsTr("Connection") },
+                        { key: "payloads",   icon: "grid",    title: qsTr("Payloads") },
+                        { key: "rid",        icon: "rid",     title: qsTr("Remote ID") },
+                        { key: "about",      icon: "help",    title: qsTr("About & support") }
+                    ]
+                    Rectangle {
+                        width: parent.width; height: SimpleTheme.px(page._adv ? 72 : 88); radius: SimpleTheme.px(18)
+                        color: (page.category === modelData.key || (modelData.key === "about" && (page.category === "licenses" || page.category === "privacy"))
+                                || (modelData.key === "connection" && page.category === "linksec")) ? SimpleTheme.brandGreen : "transparent"
+                        Row {
+                            anchors.left: parent.left; anchors.leftMargin: SimpleTheme.px(20); anchors.verticalCenter: parent.verticalCenter
+                            spacing: SimpleTheme.px(18)
+                            SIcon { name: modelData.icon; size: 40; anchors.verticalCenter: parent.verticalCenter }
+                            SText { text: modelData.title; size: 30; medium: true; anchors.verticalCenter: parent.verticalCenter }
+                        }
+                        MouseArea { anchors.fill: parent; onClicked: page.category = modelData.key }
+                    }
+                }
+                Rectangle { width: parent.width; height: 1; color: SimpleTheme.line }
                 Rectangle {
-                    width: parent.width; height: SimpleTheme.px(page._adv ? 72 : 88); radius: SimpleTheme.px(18)
-                    color: (page.category === modelData.key || (modelData.key === "about" && (page.category === "licenses" || page.category === "privacy"))
-                            || (modelData.key === "connection" && page.category === "linksec")) ? SimpleTheme.brandGreen : "transparent"
+                    visible: !QGroundControl.corePlugin.advancedMode
+                    width: parent.width; height: SimpleTheme.px(88); radius: SimpleTheme.px(18); color: "transparent"
                     Row {
                         anchors.left: parent.left; anchors.leftMargin: SimpleTheme.px(20); anchors.verticalCenter: parent.verticalCenter
                         spacing: SimpleTheme.px(18)
-                        SIcon { name: modelData.icon; size: 40; anchors.verticalCenter: parent.verticalCenter }
-                        SText { text: modelData.title; size: 30; medium: true; anchors.verticalCenter: parent.verticalCenter }
+                        SIcon { name: "lock"; size: 40; color: SimpleTheme.textTertiary; anchors.verticalCenter: parent.verticalCenter }
+                        SText { text: qsTr("Advanced"); size: 30; medium: true; color: SimpleTheme.textTertiary; anchors.verticalCenter: parent.verticalCenter }
                     }
-                    MouseArea { anchors.fill: parent; onClicked: page.category = modelData.key }
+                    MouseArea { anchors.fill: parent; onClicked: simpleRoot.requestAdvanced("advanced") }
                 }
-            }
-            Rectangle { width: parent.width; height: 1; color: SimpleTheme.line }
-            Rectangle {
-                visible: !QGroundControl.corePlugin.advancedMode
-                width: parent.width; height: SimpleTheme.px(88); radius: SimpleTheme.px(18); color: "transparent"
+                // Advanced mode: five more categories in the same frame (Figma S64 / S69, option A)
                 Row {
-                    anchors.left: parent.left; anchors.leftMargin: SimpleTheme.px(20); anchors.verticalCenter: parent.verticalCenter
-                    spacing: SimpleTheme.px(18)
-                    SIcon { name: "lock"; size: 40; color: SimpleTheme.textTertiary; anchors.verticalCenter: parent.verticalCenter }
-                    SText { text: qsTr("Advanced"); size: 30; medium: true; color: SimpleTheme.textTertiary; anchors.verticalCenter: parent.verticalCenter }
+                    visible: QGroundControl.corePlugin.advancedMode
+                    x: SimpleTheme.px(20); height: SimpleTheme.px(52); spacing: SimpleTheme.px(12)
+                    SIcon { name: "layers"; size: 28; color: SimpleTheme.textSecondary; anchors.verticalCenter: parent.verticalCenter }
+                    SText { text: qsTr("ADVANCED MODE"); size: 20; medium: true; color: SimpleTheme.textSecondary; anchors.verticalCenter: parent.verticalCenter }
                 }
-                MouseArea { anchors.fill: parent; onClicked: simpleRoot.requestAdvanced("advanced") }
-            }
-            // Advanced mode: five more categories in the same frame (Figma S64 / S69, option A)
-            Row {
-                visible: QGroundControl.corePlugin.advancedMode
-                x: SimpleTheme.px(20); height: SimpleTheme.px(52); spacing: SimpleTheme.px(12)
-                SIcon { name: "layers"; size: 28; color: SimpleTheme.textSecondary; anchors.verticalCenter: parent.verticalCenter }
-                SText { text: qsTr("ADVANCED MODE"); size: 20; medium: true; color: SimpleTheme.textSecondary; anchors.verticalCenter: parent.verticalCenter }
-            }
-            Repeater {
-                model: QGroundControl.corePlugin.advancedMode ? [
-                    { key: "flyscreen", icon: "drone",    title: qsTr("Fly screen") },
-                    { key: "video",     icon: "video",    title: qsTr("Video") },
-                    { key: "plan",      icon: "plan",     title: qsTr("Plan") },
-                    { key: "datalogs",  icon: "folder",   title: qsTr("Data & logs") },
-                    { key: "devices",   icon: "gps",      title: qsTr("Devices") }
-                ] : []
-                Rectangle {
-                    width: parent.width; height: SimpleTheme.px(72); radius: SimpleTheme.px(18)
-                    color: page.category === modelData.key || (modelData.key === "devices" && page.category === "gamepad") ? SimpleTheme.brandGreen : "transparent"
-                    Row {
-                        anchors.left: parent.left; anchors.leftMargin: SimpleTheme.px(20); anchors.verticalCenter: parent.verticalCenter
-                        spacing: SimpleTheme.px(18)
-                        SIcon { name: modelData.icon; size: 36; anchors.verticalCenter: parent.verticalCenter }
-                        SText { text: modelData.title; size: 28; medium: true; anchors.verticalCenter: parent.verticalCenter }
+                Repeater {
+                    model: QGroundControl.corePlugin.advancedMode ? [
+                        { key: "flyscreen", icon: "drone",    title: qsTr("Fly screen") },
+                        { key: "video",     icon: "video",    title: qsTr("Video") },
+                        { key: "plan",      icon: "plan",     title: qsTr("Plan") },
+                        { key: "datalogs",  icon: "folder",   title: qsTr("Data & logs") },
+                        { key: "devices",   icon: "gps",      title: qsTr("Devices") }
+                    ] : []
+                    Rectangle {
+                        width: parent.width; height: SimpleTheme.px(72); radius: SimpleTheme.px(18)
+                        color: page.category === modelData.key || (modelData.key === "devices" && page.category === "gamepad") ? SimpleTheme.brandGreen : "transparent"
+                        Row {
+                            anchors.left: parent.left; anchors.leftMargin: SimpleTheme.px(20); anchors.verticalCenter: parent.verticalCenter
+                            spacing: SimpleTheme.px(18)
+                            SIcon { name: modelData.icon; size: 36; anchors.verticalCenter: parent.verticalCenter }
+                            SText { text: modelData.title; size: 28; medium: true; anchors.verticalCenter: parent.verticalCenter }
+                        }
+                        MouseArea { anchors.fill: parent; onClicked: page.category = modelData.key }
                     }
-                    MouseArea { anchors.fill: parent; onClicked: page.category = modelData.key }
                 }
             }
         }
