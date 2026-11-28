@@ -84,9 +84,13 @@ SPanel {
             { n: "Land", t: qsTr("Land"), d: qsTr("Lands where it is"), land: true } ] }
     ]
     // modes the drone offers that are not in a group (shown last)
+    // Slow (mode 30) is not listed (Figma S79, decision 2026-11-21 plan A): low speed becomes a drone state (SLOW_ON
+    // switch, S104 / S105) once the firmware has it; older company firmware has no mode 30 at all (bug #8378).
+    readonly property var _hidden: ({ "Slow": true })
     readonly property var _others: {
         if (!vehicle) return []
         var known = {}
+        for (var h in _hidden) known[h] = true
         for (var g = 0; g < _groups.length; g++) for (var m = 0; m < _groups[g].modes.length; m++) known[_groups[g].modes[m].n] = true
         var out = []
         for (var i = 0; i < vehicle.flightModes.length; i++) if (!known[vehicle.flightModes[i]]) out.push({ n: vehicle.flightModes[i], t: vehicle.flightModes[i], d: "" })

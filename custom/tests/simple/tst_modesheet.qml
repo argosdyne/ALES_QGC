@@ -44,15 +44,20 @@ TestCase {
         return out
     }
 
+    // Figma S79 (2026-11-21 plan A): Slow (mode 30) is never listed
+    function test_slow_not_listed() {
+        verify(_availNames().indexOf("Slow") === -1)
+        verify(_availNames().indexOf("Loiter") !== -1)
+    }
     function test_refused_mode_is_hidden() {
         var spy = createTemporaryObject(spyComp, tc, { target: s, signalName: "modeRefused" })
-        verify(_availNames().indexOf("Slow") !== -1)
-        s._pick({ n: "Slow", t: "Slow", d: "" })
-        compare(v.flightMode, "Slow")
-        v.textMessageReceived(1, 1, 4, "No such mode 30", "")
+        verify(_availNames().indexOf("Guided") !== -1)
+        s._pick({ n: "Guided", t: "Guided", d: "" })
+        compare(v.flightMode, "Guided")
+        v.textMessageReceived(1, 1, 4, "No such mode 4", "")
         compare(spy.count, 1)
-        compare(spy.signalArguments[0][0], "Slow")
-        verify(_availNames().indexOf("Slow") === -1, "Slow hidden for this drone")
+        compare(spy.signalArguments[0][0], "Guided")
+        verify(_availNames().indexOf("Guided") === -1, "Guided hidden for this drone")
         verify(_availNames().indexOf("Loiter") !== -1)
     }
     function test_text_without_request_or_late_is_ignored() {
