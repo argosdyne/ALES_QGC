@@ -1,6 +1,6 @@
 # 작업 인계 (handoff) — AQGC Simple UI
 
-다른 PC에서 이어서 작업하기 위한 현황 정리입니다. **2026-11-21 기준**입니다.
+다른 PC에서 이어서 작업하기 위한 현황 정리입니다. **2026-11-28 기준**입니다(2장 맨 위가 최신 세션).
 작업 규칙과 결정 사항의 원본은 `CLAUDE.md`, 고급 모드 개편 기록은 `custom/docs/TASK-advanced-mode-redesign.md`,
 화면별 파일 목록은 `custom/res/Simple/README.md`입니다. 이 문서는 그 위에 "지금 어디까지 왔고 무엇이 남았는지"만 적습니다.
 
@@ -10,7 +10,8 @@
 
 | 항목 | 상태 |
 |---|---|
-| 작업 브랜치 | `feature/aqgc-simple-v1` (원격과 같음, 최신 커밋은 이 문서를 넣은 커밋) |
+| 현재 작업 브랜치 (2026-11-28) | **`support_multi_lang`** (`feature/aqgc-simple-v1`의 b39159a36에서 분기). **PR #324** → `feature/aqgc-simple-v1`, OPEN. base 이름에 "/"가 있어 PR CI가 돌지 않으므로 빌드는 태그 `simple_ui_*`로 만듭니다(최신 `simple_ui_i18n_2026112801` = 5ece45951) |
+| 작업 브랜치 (이전) | `feature/aqgc-simple-v1` |
 | PR | **#311** → `Argos_Stable4.4`, **draft**. 병합하지 않습니다(사용자 지시) |
 | CI | `de4606db9` 기준 Windows Release, Android 32/64-bit Release **성공**(그 뒤 커밋은 PR #311 Actions에서 확인). "Deploy Docs"는 매번 실패하는 기존 문제(옛 upload-artifact v3) |
 | 기반 브랜치 동기화 | 2026-11-18 `Argos_Stable4.4`의 #308–#310, #314, #315를 병합(`c17723f3c`). 충돌은 `PhotoVideoControl.qml` 1개 — 클래식 UI 삭제로 없앤 파일이라 삭제 유지 |
@@ -27,7 +28,26 @@
 - 새 QML 파일은 `custom/custom.qrc`(prefix `/simple`)와 `custom/res/Simple/qmldir` 두 곳에 등록.
 - 빌드가 실제로 쓰는 qrc는 **`custom/qgroundcontrol.qrc`**(손으로 고친 파일). `custom/updateqrc.py`로 다시 만들지 마세요.
 
-## 2. 2026-11-21 세션에서 한 일
+## 2. 2026-11-28 세션에서 한 일 (`support_multi_lang`)
+
+- **번체 중국어(대만) zh_TW** 추가(값 10000, Noto Sans TC 부분 글꼴, 대만 드론 용어). Simple 언어 모두 릴리스 언어.
+- **Tuleap alesQGC 열린 Bug 121건 코드 대조**(수정됨 38, 남음 17, 삭제된 화면 40, 코드 아님 5, 장비 확인 20).
+- **Bug 수정**(사용자가 정한 순서, 커밋 메시지에 `bug #번호`):
+  #28594·#28595(코드 리뷰 지적), #8501(미션 시작 오류 팝업), #36993(Go here 보낼 때 재검사), #8378(거부된 비행 모드, Slow 임시 표시),
+  #9428(SD 카드 선택 포맷), #27851(Leo 수정 cherry-pick), #17595(요 축 없는 짐벌 정렬 시 기체 회전, SITL 재현),
+  #28119(Android USB 권한 null), #22471·#22472(오프라인 지도 취소·삭제), #25427(서베이 짐벌 -90°, GIMBAL_MANAGER 항목),
+  #9422(녹화 중 남은 용량), #22586(계획 화면 단위), #36952·#36953(설정 목록·내 구역 스크롤),
+  #36983·#36984·#36986(Go here 도착음, 사유 전부, 조치 안내), #36763(게임패드 기체는 Radio 대신 Joystick, A안).
+  정리: Joystick.cc 임시 진단 로그 삭제, qrc 중복 2줄 삭제.
+- **Figma**: 각 수정의 UX 노트, 새 상태 그림 "S35 state · Go here refused".
+- **SITL 펌웨어**를 회사 `main` **Z01.08.00**(`~/APM-Z01.08`)으로 바꿈. 짐벌 시험 도구 `mountsetup.py`, `mounttest.py`, `run17595.sh` 등.
+- **R3 = `MNT1_TYPE 6`**(사용자 결정). FC가 R3를 짐벌로 찾는지 실기 확인 필요(CLAUDE.md 메모: heartbeat 조건, FC 덮어쓰기).
+- **Tuleap**: 위 Bug에 Resolved 7항목 코멘트(한/영). In Progress였던 #8378·#9428·#9422·#28119·#27851 → **In QA**.
+  New였던 나머지는 **New 유지**: Bugs tracker workflow의 New → In Progress 전환에 "Close Date 필수" 조건이 있어 개발자가 바꿀 수 없음
+  (tracker 관리자 확인 필요).
+- 시험: Qt Quick 시험 203개 통과, 정적 검사 실패 0. 밤샘 SITL 시험(기본·부하·비정상·무작위) 결과는 `aqgc-build/runs/` 참고.
+
+## 2-c. 2026-11-21 세션에서 한 일
 
 - **SITL 시험 → Bug 21건 수정** (#28551–#28564, #28581, #28582, #28585–#28589): 모두 In QA, SITL 재시험 PASS.
   시험 결과서 AGD-TRP-ALQGC-400 R00(Word, 사내 보관).
@@ -133,8 +153,15 @@
 
 ## 3. 남은 일
 
-**0. 다음 세션에서 먼저 (2026-11-21 기준)**
-- **#28119 Show Stopper**(조종기 충전기 연결·분리 시 앱 종료) 재현·원인 확인 — G2 전 필수, 아직 미조사.
+**0-a. 다음 세션에서 먼저 (2026-11-28 기준)**
+- 밤샘 SITL 시험 결과 확인·대응, PR #324 검토 후 `feature/aqgc-simple-v1`로 병합 여부(사용자 결정).
+- 장비 확인: Go here 도착음(#36983), EasyGripper 조이스틱 화면(#36763), Sony SD 포맷(#9428), 충전기 연결·분리(#28119),
+  R3에서 MNT1_TYPE 6일 때 FC가 짐벌을 찾는지와 서베이 -90°(#25427).
+- Tuleap Bugs workflow의 New → In Progress "Close Date 필수" 조건 정리(관리자) 뒤 New인 수정 완료 Bug를 In QA로.
+- 남은 Tuleap 항목: #36982(조건 미충족 경로선 색), #9508(Dragon Eye 기본 주소, 페이로드 팀). Argos_Stable4.4 병합(023766997 #321)은 맨 마지막.
+
+**0. (2026-11-21 기준, 일부 끝남)**
+- ~~**#28119 Show Stopper**(조종기 충전기 연결·분리 시 앱 종료) 재현·원인 확인~~ — 2026-11-28 null 확인 수정, 장비 확인 대기.
 - BT01 품질팀 Test Campaign 결과 대응(Reopen된 Bug 수정), BT02에 #28594·#28595 반영.
 - 개발계획서 결정 사항: PM·릴리스 담당 지정, PiDS/NPI 일정(G2 12-04, G3 12-16 안), #20603·ST-13/14 포함 여부, 저속 모드 범위,
   12시간 SITL·HIL 통합 시험(AGD-PRC-COM-100 4.3.5) — 아직 미실시.
