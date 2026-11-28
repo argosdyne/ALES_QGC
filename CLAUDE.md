@@ -291,8 +291,13 @@ Reply to the user in Korean unless they write in English.
   stored in plain QSettings and NTRIP sent over plain TCP with Basic auth; no MAVLink 2 signing in this QGC
   (ArduPilot supports it via SETUP_SIGNING). No "skip password" option anywhere (EN 18031 restriction). Values on the
   S65 mock (support period, security contact) are examples: the company must set them.
-- Tests (2026-11-15): flight-state and memory tests run on ArduPilot SITL — company firmware Z01.07.00EASA
-  (`~/APM4.5/build/sitl/bin/arducopter` in WSL Ubuntu-22.04; do not build or edit that tree). MockLink only for quick UI checks.
+- Tests (2026-11-15): flight-state and memory tests run on ArduPilot SITL — company firmware. Since 2026-11-28 (user):
+  firmware `main` Z01.08.00 (`4c9b3258`, Tuleap APM4.5.git), built in its own WSL copy `~/APM-Z01.08` (branch
+  z0108-main, `aqgc-build/build_z0108.sh`); `aqgc-build/sitl.sh` uses it (`AQGC_FW=~/APM4.5` for the old tree, whose
+  binary is Z01.07.00BT01 `c40bf8f2`, branch Z01.07.00_EASA). Do not build or edit `~/APM4.5`. MockLink only for quick
+  UI checks. Gimbal / yaw tests: `aqgc-build/mountsetup.py` (tilt-only servo mount + reboot), `mounttest.py`,
+  `mountcand.py`, `run17595.sh` (#17595: on a mount without yaw axis ArduCopter turns the vehicle to param3 of every
+  DO_MOUNT_CONTROL; same on Z01.07.00BT01 and Z01.08.00).
 - `guidedMaximumAltitude` default 120 m. "EasyGripper" is the smart-controller name, not a payload (use "Winch").
 
 ## Build and run
