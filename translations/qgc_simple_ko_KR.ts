@@ -707,6 +707,10 @@
         <source>This drone does not have the %1 flight mode.</source>
         <translation>이 드론에는 %1 비행 모드가 없습니다.</translation>
     </message>
+    <message>
+        <source>Arrived</source>
+        <translation>도착했습니다</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -4119,6 +4123,10 @@
         <source>Height is above the home point, not above the ground. Check for hills and buildings on the way.</source>
         <translation>높이는 지면이 아니라 홈 위치 기준입니다. 경로에 언덕이나 건물이 없는지 확인하세요.</translation>
     </message>
+    <message>
+        <source>%1 (and %2 more)</source>
+        <translation>%1 (외 %2건)</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMapTapMenu</name>
@@ -4149,10 +4157,6 @@
     <message>
         <source>a prohibited zone</source>
         <translation>금지 구역</translation>
-    </message>
-    <message>
-        <source>The way crosses %1 — choose another point</source>
-        <translation>경로가 %1을(를) 지납니다 — 다른 지점을 고르세요</translation>
     </message>
     <message>
         <source>Too far — Go here reaches up to %1</source>
@@ -4207,8 +4211,28 @@
         <translation>위도 / 경도 입력</translation>
     </message>
     <message>
-        <source>Outside the geofence or in an excluded area — choose another point</source>
-        <translation>지오펜스 밖이거나 제외 구역입니다 — 다른 지점을 고르세요</translation>
+        <source>Choose a point outside the zone.</source>
+        <translation>구역 밖의 지점을 고르세요.</translation>
+    </message>
+    <message>
+        <source>The way crosses %1</source>
+        <translation>경로가 %1을(를) 지납니다</translation>
+    </message>
+    <message>
+        <source>Choose a point the drone can reach in a straight line without crossing the zone.</source>
+        <translation>구역을 지나지 않고 직선으로 갈 수 있는 지점을 고르세요.</translation>
+    </message>
+    <message>
+        <source>Outside the geofence or in an excluded area</source>
+        <translation>지오펜스 밖이거나 제외 구역입니다</translation>
+    </message>
+    <message>
+        <source>Choose a point inside the drone's fence.</source>
+        <translation>드론 펜스 안의 지점을 고르세요.</translation>
+    </message>
+    <message>
+        <source>Choose a closer point. The limit is in Settings › Fly screen (Advanced mode).</source>
+        <translation>더 가까운 지점을 고르세요. 한도는 설정 › 비행 화면(고급 모드)에 있습니다.</translation>
     </message>
 </context>
 <context>

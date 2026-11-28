@@ -707,6 +707,10 @@
         <source>This drone does not have the %1 flight mode.</source>
         <translation>Drone này không có chế độ bay %1.</translation>
     </message>
+    <message>
+        <source>Arrived</source>
+        <translation>Đã tới nơi</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -4119,6 +4123,10 @@
         <source>Height is above the home point, not above the ground. Check for hills and buildings on the way.</source>
         <translation>Độ cao tính từ Home Point, không phải từ mặt đất. Kiểm tra đồi và tòa nhà trên đường bay.</translation>
     </message>
+    <message>
+        <source>%1 (and %2 more)</source>
+        <translation>%1 (và %2 mục khác)</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMapTapMenu</name>
@@ -4149,10 +4157,6 @@
     <message>
         <source>a prohibited zone</source>
         <translation>vùng cấm</translation>
-    </message>
-    <message>
-        <source>The way crosses %1 — choose another point</source>
-        <translation>Đường bay cắt qua %1 — hãy chọn điểm khác</translation>
     </message>
     <message>
         <source>Too far — Go here reaches up to %1</source>
@@ -4207,8 +4211,28 @@
         <translation>Nhập vĩ độ / kinh độ</translation>
     </message>
     <message>
-        <source>Outside the geofence or in an excluded area — choose another point</source>
-        <translation>Ngoài geofence hoặc trong vùng loại trừ — hãy chọn điểm khác</translation>
+        <source>Choose a point outside the zone.</source>
+        <translation>Hãy chọn điểm bên ngoài vùng.</translation>
+    </message>
+    <message>
+        <source>The way crosses %1</source>
+        <translation>Đường bay cắt qua %1</translation>
+    </message>
+    <message>
+        <source>Choose a point the drone can reach in a straight line without crossing the zone.</source>
+        <translation>Hãy chọn điểm drone có thể bay thẳng tới mà không cắt qua vùng.</translation>
+    </message>
+    <message>
+        <source>Outside the geofence or in an excluded area</source>
+        <translation>Ngoài geofence hoặc trong vùng loại trừ</translation>
+    </message>
+    <message>
+        <source>Choose a point inside the drone's fence.</source>
+        <translation>Hãy chọn điểm bên trong hàng rào drone.</translation>
+    </message>
+    <message>
+        <source>Choose a closer point. The limit is in Settings › Fly screen (Advanced mode).</source>
+        <translation>Hãy chọn điểm gần hơn. Giới hạn nằm ở Cài đặt › Màn hình bay (Chế độ nâng cao).</translation>
     </message>
 </context>
 <context>

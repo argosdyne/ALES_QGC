@@ -707,6 +707,10 @@
         <source>This drone does not have the %1 flight mode.</source>
         <translation>このドローンには %1 フライトモードがありません。</translation>
     </message>
+    <message>
+        <source>Arrived</source>
+        <translation>到着しました</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -4119,6 +4123,10 @@
         <source>Height is above the home point, not above the ground. Check for hills and buildings on the way.</source>
         <translation>高度は地表ではなくホームポイントからの高さです。経路上の丘や建物を確認してください。</translation>
     </message>
+    <message>
+        <source>%1 (and %2 more)</source>
+        <translation>%1（他 %2 件）</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMapTapMenu</name>
@@ -4149,10 +4157,6 @@
     <message>
         <source>a prohibited zone</source>
         <translation>禁止ゾーン</translation>
-    </message>
-    <message>
-        <source>The way crosses %1 — choose another point</source>
-        <translation>経路が %1 を横切ります — 別の地点を選択してください</translation>
     </message>
     <message>
         <source>Too far — Go here reaches up to %1</source>
@@ -4207,8 +4211,28 @@
         <translation>緯度 / 経度を入力</translation>
     </message>
     <message>
-        <source>Outside the geofence or in an excluded area — choose another point</source>
-        <translation>ジオフェンスの外、または除外エリアです — 別の地点を選択してください</translation>
+        <source>Choose a point outside the zone.</source>
+        <translation>エリアの外の地点を選択してください。</translation>
+    </message>
+    <message>
+        <source>The way crosses %1</source>
+        <translation>経路が %1 を横切ります</translation>
+    </message>
+    <message>
+        <source>Choose a point the drone can reach in a straight line without crossing the zone.</source>
+        <translation>エリアを横切らずに直線で行ける地点を選択してください。</translation>
+    </message>
+    <message>
+        <source>Outside the geofence or in an excluded area</source>
+        <translation>ジオフェンスの外、または除外エリアです</translation>
+    </message>
+    <message>
+        <source>Choose a point inside the drone's fence.</source>
+        <translation>機体ジオフェンスの内側の地点を選択してください。</translation>
+    </message>
+    <message>
+        <source>Choose a closer point. The limit is in Settings › Fly screen (Advanced mode).</source>
+        <translation>より近い地点を選択してください。上限は 設定 › 飛行画面（詳細モード）にあります。</translation>
     </message>
 </context>
 <context>

@@ -427,7 +427,11 @@ Item {
         map: fly._map
         vehicle: fly._veh
         onChangeTargetRequested: fly.toast(qsTr("Tap the map to choose a new point"))
-        onArrived: { fly.toast(qsTr("Arrived — holding position"), "ok"); arrivedClear.restart() }
+        // chime + voice as well (Tuleap bug #36983); silent when Settings › General › Voice alerts is off
+        onArrived: {
+            fly.toast(qsTr("Arrived — holding position"), "ok"); arrivedClear.restart()
+            if (QGroundControl.corePlugin.simpleArrivalAlert) QGroundControl.corePlugin.simpleArrivalAlert(qsTr("Arrived"))
+        }
     }
     // keep the "Arrived" pin a few seconds, then clear the Go here target from the map
     Timer { id: arrivedClear; interval: 5000; onTriggered: if (fly._map && fly._map.gotoArrivalConfirmed) fly._map.clearGotoProgress() }

@@ -63,7 +63,11 @@ SPanel {
     function send() {
         if (typeof recheck === "function") {
             var block = recheck()
-            if (block && block.text !== "") { refused(block.text); return }
+            if (block && block.text !== "") {
+                var n = block.reasons ? block.reasons.length : 0
+                refused(n > 1 ? qsTr("%1 (and %2 more)").arg(block.text).arg(n - 1) : block.text)
+                return
+            }
         }
         var g = globals.guidedControllerFlyView
         if (!g || !_ok || !map) { sent(false); return }

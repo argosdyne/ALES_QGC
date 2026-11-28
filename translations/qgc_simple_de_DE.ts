@@ -707,6 +707,10 @@
         <source>This drone does not have the %1 flight mode.</source>
         <translation>Diese Drohne hat den Flugmodus %1 nicht.</translation>
     </message>
+    <message>
+        <source>Arrived</source>
+        <translation>Angekommen</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -4119,6 +4123,10 @@
         <source>Height is above the home point, not above the ground. Check for hills and buildings on the way.</source>
         <translation>Die Höhe gilt über dem Startpunkt, nicht über dem Boden. Auf Hügel und Gebäude auf dem Weg achten.</translation>
     </message>
+    <message>
+        <source>%1 (and %2 more)</source>
+        <translation>%1 (und %2 weitere)</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMapTapMenu</name>
@@ -4149,10 +4157,6 @@
     <message>
         <source>a prohibited zone</source>
         <translation>einer Verbotszone</translation>
-    </message>
-    <message>
-        <source>The way crosses %1 — choose another point</source>
-        <translation>Der Weg kreuzt %1 — anderen Punkt wählen</translation>
     </message>
     <message>
         <source>Too far — Go here reaches up to %1</source>
@@ -4207,8 +4211,28 @@
         <translation>Breiten- / Längengrad eingeben</translation>
     </message>
     <message>
-        <source>Outside the geofence or in an excluded area — choose another point</source>
-        <translation>Außerhalb des Geofence oder in einer Ausschlussfläche — anderen Punkt wählen</translation>
+        <source>Choose a point outside the zone.</source>
+        <translation>Einen Punkt außerhalb der Zone wählen.</translation>
+    </message>
+    <message>
+        <source>The way crosses %1</source>
+        <translation>Der Weg kreuzt %1</translation>
+    </message>
+    <message>
+        <source>Choose a point the drone can reach in a straight line without crossing the zone.</source>
+        <translation>Einen Punkt wählen, den die Drohne in gerader Linie erreicht, ohne die Zone zu kreuzen.</translation>
+    </message>
+    <message>
+        <source>Outside the geofence or in an excluded area</source>
+        <translation>Außerhalb des Geofence oder in einer Ausschlussfläche</translation>
+    </message>
+    <message>
+        <source>Choose a point inside the drone's fence.</source>
+        <translation>Einen Punkt innerhalb des Drohnen-Geofence wählen.</translation>
+    </message>
+    <message>
+        <source>Choose a closer point. The limit is in Settings › Fly screen (Advanced mode).</source>
+        <translation>Einen näheren Punkt wählen. Die Grenze steht unter Einstellungen › Flugbildschirm (Erweiterter Modus).</translation>
     </message>
 </context>
 <context>

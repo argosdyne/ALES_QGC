@@ -707,6 +707,10 @@
         <source>This drone does not have the %1 flight mode.</source>
         <translation>此無人機沒有 %1 飛行模式。</translation>
     </message>
+    <message>
+        <source>Arrived</source>
+        <translation>已抵達</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -4119,6 +4123,10 @@
         <source>Height is above the home point, not above the ground. Check for hills and buildings on the way.</source>
         <translation>高度以返航點為基準，而非地面。請確認航線上的山丘與建築物。</translation>
     </message>
+    <message>
+        <source>%1 (and %2 more)</source>
+        <translation>%1（還有 %2 則）</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMapTapMenu</name>
@@ -4149,10 +4157,6 @@
     <message>
         <source>a prohibited zone</source>
         <translation>禁航區</translation>
-    </message>
-    <message>
-        <source>The way crosses %1 — choose another point</source>
-        <translation>航線會穿越%1，請選擇其他點</translation>
     </message>
     <message>
         <source>Too far — Go here reaches up to %1</source>
@@ -4207,8 +4211,28 @@
         <translation>輸入緯度 / 經度</translation>
     </message>
     <message>
-        <source>Outside the geofence or in an excluded area — choose another point</source>
-        <translation>在地理圍欄外或位於排除區域內，請選擇其他點</translation>
+        <source>Choose a point outside the zone.</source>
+        <translation>請選擇區域外的點。</translation>
+    </message>
+    <message>
+        <source>The way crosses %1</source>
+        <translation>航線會穿越%1</translation>
+    </message>
+    <message>
+        <source>Choose a point the drone can reach in a straight line without crossing the zone.</source>
+        <translation>請選擇不穿越該區域、可直線抵達的點。</translation>
+    </message>
+    <message>
+        <source>Outside the geofence or in an excluded area</source>
+        <translation>在地理圍欄外或位於排除區域內</translation>
+    </message>
+    <message>
+        <source>Choose a point inside the drone's fence.</source>
+        <translation>請選擇無人機圍欄內的點。</translation>
+    </message>
+    <message>
+        <source>Choose a closer point. The limit is in Settings › Fly screen (Advanced mode).</source>
+        <translation>請選擇較近的點。上限在 設定 › 飛行畫面（進階模式）。</translation>
     </message>
 </context>
 <context>

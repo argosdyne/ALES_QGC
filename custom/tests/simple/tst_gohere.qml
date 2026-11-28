@@ -52,7 +52,7 @@ TestCase {
         guided.showGotoLocation = true; guided.showSetHome = true
         veh.altitudeRelative.rawValue = 47
     }
-    function cleanup() { globals.guidedControllerFlyView = undefined; spy.clear() }
+    function cleanup() { globals.guidedControllerFlyView = undefined; globals.planMasterControllerFlyView = undefined; spy.clear() }
 
     function menuAt(dNorthM) {
         return createTemporaryObject(menuComp, root, { vs: vsd, coordinate: veh.coordinate.atDistanceAndAzimuth(dNorthM, 0) })
@@ -92,6 +92,43 @@ TestCase {
         var far = menuAt(1001)
         verify(far.goHereBlock.text.indexOf("Too far") === 0, far.goHereBlock.text)
         compare(far.goHereBlock.red, true)
+    }
+    // Tuleap bugs #36984 / #36986: every safety refusal is listed, each with what to do
+    QtObject {
+        id: fenceBlocks
+        property QtObject geoFenceController: QtObject {
+            property bool fenceLoaded: true
+            function goToTargetBlockReason(c) { return "outside" }
+        }
+    }
+    function test_menu_lists_every_refusal_with_action() {
+        globals.planMasterControllerFlyView = fenceBlocks
+        var m = menuAt(1001)                              // outside the fence and too far
+        compare(m.goHereBlock.red, true)
+        compare(m.goHereBlock.reasons.length, 2)
+        compare(m.goHereBlock.text, "Outside the geofence or in an excluded area")
+        verify(m.goHereBlock.reasons[1].text.indexOf("Too far") === 0, m.goHereBlock.reasons[1].text)
+        for (var i = 0; i < 2; i++) verify(m.goHereBlock.reasons[i].action !== "", "action for reason " + i)
+        var shown = 0
+        var walk = function(n) { if (n.objectName === "goReason" && n.visible) shown++; for (var k = 0; k < n.children.length; k++) walk(n.children[k]) }
+        walk(m)
+        compare(shown, 2, "both reasons drawn")
+        // the sheet's recheck names the first reason and how many more
+        var sh = createTemporaryObject(goComp, root, { vehicle: veh, coordinate: m.coordinate, recheck: m.goHereBlockNow })
+        var refused = createTemporaryObject(spyComp, tc, { target: sh, signalName: "refused" })
+        sh.send()
+        compare(refused.count, 1)
+        compare(refused.signalArguments[0][0], "Outside the geofence or in an excluded area (and 1 more)")
+        globals.planMasterControllerFlyView = undefined
+        var one = menuAt(1001)
+        compare(one.goHereBlock.reasons.length, 1)
+        compare(one.goHereBlock.reasons[0].action, "Choose a closer point. The limit is in Settings › Fly screen (Advanced mode).")
+    }
+    function test_menu_grey_states_have_no_reason_list() {
+        vsd.flying = false
+        var m = menuAt(1001)
+        compare(m.goHereBlock.red, false)
+        compare(m.goHereBlock.reasons.length, 0)
     }
     function test_menu_invalid_coordinate() {
         var m = createTemporaryObject(menuComp, root, { vs: vsd, coordinate: QtPositioning.coordinate() })

@@ -707,6 +707,10 @@
         <source>This drone does not have the %1 flight mode.</source>
         <translation>Denne drone har ikke flyvetilstanden %1.</translation>
     </message>
+    <message>
+        <source>Arrived</source>
+        <translation>Fremme</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -4119,6 +4123,10 @@
         <source>Height is above the home point, not above the ground. Check for hills and buildings on the way.</source>
         <translation>Højden er over hjemstedet, ikke over jorden. Hold øje med bakker og bygninger på vejen.</translation>
     </message>
+    <message>
+        <source>%1 (and %2 more)</source>
+        <translation>%1 (og %2 til)</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMapTapMenu</name>
@@ -4149,10 +4157,6 @@
     <message>
         <source>a prohibited zone</source>
         <translation>en forbudt zone</translation>
-    </message>
-    <message>
-        <source>The way crosses %1 — choose another point</source>
-        <translation>Vejen krydser %1 — vælg et andet punkt</translation>
     </message>
     <message>
         <source>Too far — Go here reaches up to %1</source>
@@ -4207,8 +4211,28 @@
         <translation>Indtast breddegrad / længdegrad</translation>
     </message>
     <message>
-        <source>Outside the geofence or in an excluded area — choose another point</source>
-        <translation>Uden for geofencen eller i et udelukket område — vælg et andet punkt</translation>
+        <source>Choose a point outside the zone.</source>
+        <translation>Vælg et punkt uden for zonen.</translation>
+    </message>
+    <message>
+        <source>The way crosses %1</source>
+        <translation>Vejen krydser %1</translation>
+    </message>
+    <message>
+        <source>Choose a point the drone can reach in a straight line without crossing the zone.</source>
+        <translation>Vælg et punkt, dronen kan nå i en lige linje uden at krydse zonen.</translation>
+    </message>
+    <message>
+        <source>Outside the geofence or in an excluded area</source>
+        <translation>Uden for geofencen eller i et udelukket område</translation>
+    </message>
+    <message>
+        <source>Choose a point inside the drone's fence.</source>
+        <translation>Vælg et punkt inden for dronens geofence.</translation>
+    </message>
+    <message>
+        <source>Choose a closer point. The limit is in Settings › Fly screen (Advanced mode).</source>
+        <translation>Vælg et nærmere punkt. Grænsen findes under Indstillinger › Flyveskærm (Avanceret tilstand).</translation>
     </message>
 </context>
 <context>

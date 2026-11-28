@@ -53,31 +53,38 @@ Item {
     readonly property real distance: _vehPos && _valid ? _veh.coordinate.distanceTo(coordinate) : NaN
     readonly property real bearing:  _vehPos && _valid ? _veh.coordinate.azimuthTo(coordinate) : NaN
 
-    // Why Go here cannot be used ("" = it can). red = refused for safety (shown in red instead of the button text).
-    // The Go here sheet runs the same checks again when the slide completes (Tuleap bug #36993).
+    // Why Go here cannot be used (text "" = it can). Grey states (no drone, signal lost, on the ground, ...) give one reason.
+    // red = refused for safety: every failed check is listed with what to do (Tuleap bugs #36984, #36986), as
+    // reasons [{ text, action }]; text = the first reason. The Go here sheet runs the same checks again when the slide
+    // completes (Tuleap bug #36993).
     readonly property var goHereBlock: goHereBlockNow()
     function goHereBlockNow() {
-        if (!vs || !vs.present)             return { text: qsTr("No drone connected"), red: false }
-        if (vs.lost)                        return { text: qsTr("Not available while the signal is lost"), red: false }
-        if (!vs.flying)                     return { text: qsTr("Available after take-off"), red: false }
-        if (!_guided || !_guided.showGotoLocation) return { text: qsTr("Not available now"), red: false }
-        if (!_valid || !_vehPos)            return { text: qsTr("Drone position unknown"), red: false }
+        if (!vs || !vs.present)             return { text: qsTr("No drone connected"), red: false, reasons: [] }
+        if (vs.lost)                        return { text: qsTr("Not available while the signal is lost"), red: false, reasons: [] }
+        if (!vs.flying)                     return { text: qsTr("Available after take-off"), red: false, reasons: [] }
+        if (!_guided || !_guided.showGotoLocation) return { text: qsTr("Not available now"), red: false, reasons: [] }
+        if (!_valid || !_vehPos)            return { text: qsTr("Drone position unknown"), red: false, reasons: [] }
+        var r = []
         if (_zm) {
             var here = _zm.zoneAt(coordinate)
-            if (here && (here.zoneClass === 1 || here.noEntry))
-                return { text: qsTr("Inside %1 — the drone may not fly there").arg(here.zoneName !== "" ? here.zoneName : qsTr("a prohibited zone")), red: true }
+            var hereBlocks = !!here && (here.zoneClass === 1 || here.noEntry)
+            if (hereBlocks)
+                r.push({ text: qsTr("Inside %1 — the drone may not fly there").arg(here.zoneName !== "" ? here.zoneName : qsTr("a prohibited zone")),
+                         action: qsTr("Choose a point outside the zone.") })
             var way = _zm.zoneOnPath([_veh.coordinate, coordinate])
-            if (way && (way.zoneClass === 1 || way.noEntry))
-                return { text: qsTr("The way crosses %1 — choose another point").arg(way.zoneName !== "" ? way.zoneName : qsTr("a prohibited zone")), red: true }
+            // the zone the point is in is also "on the way": list it once
+            if (way && (way.zoneClass === 1 || way.noEntry) && !(hereBlocks && way.zoneName === here.zoneName))
+                r.push({ text: qsTr("The way crosses %1").arg(way.zoneName !== "" ? way.zoneName : qsTr("a prohibited zone")),
+                         action: qsTr("Choose a point the drone can reach in a straight line without crossing the zone.") })
         }
-        if (_fence && _fence.fenceLoaded) {
-            // the core text is not translated in the Simple UI (Tuleap bug #28581): own words
-            if (_fence.goToTargetBlockReason(coordinate) !== "")
-                return { text: qsTr("Outside the geofence or in an excluded area — choose another point"), red: true }
-        }
+        // the core text is not translated in the Simple UI (Tuleap bug #28581): own words
+        if (_fence && _fence.fenceLoaded && _fence.goToTargetBlockReason(coordinate) !== "")
+            r.push({ text: qsTr("Outside the geofence or in an excluded area"), action: qsTr("Choose a point inside the drone's fence.") })
         var maxD = Number(_fly.maxGoToLocationDistance.rawValue)
-        if (maxD > 0 && distance > maxD)    return { text: qsTr("Too far — Go here reaches up to %1").arg(hDist(maxD)), red: true }
-        return { text: "", red: false }
+        if (maxD > 0 && distance > maxD)
+            r.push({ text: qsTr("Too far — Go here reaches up to %1").arg(hDist(maxD)),
+                     action: qsTr("Choose a closer point. The limit is in Settings › Fly screen (Advanced mode).") })
+        return r.length > 0 ? { text: r[0].text, red: true, reasons: r } : { text: "", red: false, reasons: [] }
     }
     readonly property bool canSetHome: !!vs && vs.connected && !!_guided && _guided.showSetHome && _valid
 
@@ -163,22 +170,36 @@ Item {
             Rectangle {
                 id: goRow
                 readonly property bool _ok: tm.goHereBlock.text === ""
-                width: parent.width; height: SimpleTheme.px(104); radius: SimpleTheme.px(16)
+                width: parent.width; height: Math.max(SimpleTheme.px(104), goCol.height + SimpleTheme.px(36)); radius: SimpleTheme.px(16)
                 color: _ok ? (goMa.pressed ? SimpleTheme.brandGreenDark : SimpleTheme.brandGreen)
                            : tm.goHereBlock.red ? SimpleTheme.withAlpha(SimpleTheme.danger, 0.25) : SimpleTheme.surfaceRaised
                 border.width: tm.goHereBlock.red ? SimpleTheme.px(2) : 0; border.color: SimpleTheme.danger
-                SIcon { id: goIcon; x: SimpleTheme.px(22); anchors.verticalCenter: parent.verticalCenter; name: tm.goHereBlock.red ? "warn" : "pin"; size: 36
+                SIcon { id: goIcon; x: SimpleTheme.px(22); y: tm.goHereBlock.red ? SimpleTheme.px(22) : (parent.height - height) / 2
+                        name: tm.goHereBlock.red ? "warn" : "pin"; size: 36
                         opacity: goRow._ok || tm.goHereBlock.red ? 1 : 0.45 }
                 Column {
+                    id: goCol
                     anchors.left: goIcon.right; anchors.leftMargin: SimpleTheme.px(18)
                     anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(14)
                     anchors.verticalCenter: parent.verticalCenter
+                    spacing: SimpleTheme.px(4)
                     SText { text: qsTr("Go here"); size: 28; bold: true; opacity: goRow._ok || tm.goHereBlock.red ? 1 : 0.45 }
                     SText {
+                        visible: !tm.goHereBlock.red
                         width: parent.width; wrapMode: Text.WordWrap; maximumLineCount: 2
                         size: 21
-                        color: goRow._ok ? SimpleTheme.textPrimary : tm.goHereBlock.red ? SimpleTheme.textDanger : SimpleTheme.textSecondary
+                        color: goRow._ok ? SimpleTheme.textPrimary : SimpleTheme.textSecondary
                         text: goRow._ok ? qsTr("Fly to this point at %1").arg(tm.vDist(Number(tm._veh.altitudeRelative.rawValue))) : tm.goHereBlock.text
+                    }
+                    // every refusal with what to do (Figma "S35 state · Go here refused")
+                    Repeater {
+                        model: tm.goHereBlock.red ? tm.goHereBlock.reasons : []
+                        Column {
+                            objectName: "goReason"
+                            width: goCol.width
+                            SText { width: parent.width; wrapMode: Text.WordWrap; size: 21; color: SimpleTheme.textDanger; text: "• " + modelData.text }
+                            SText { width: parent.width; wrapMode: Text.WordWrap; size: 20; color: SimpleTheme.textSecondary; text: "→ " + modelData.action }
+                        }
                     }
                 }
                 MouseArea { id: goMa; anchors.fill: parent; enabled: goRow._ok; onClicked: tm.goHereRequested(tm.coordinate) }
