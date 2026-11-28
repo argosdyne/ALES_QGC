@@ -103,9 +103,10 @@ SPanel {
             { n: "Land", t: qsTr("Land"), d: qsTr("Lands where it is"), land: true } ] }
     ]
     // modes the drone offers that are not in a group (shown last)
-    // Slow (mode 30) is not listed (Figma S79, decision 2026-11-21 plan A): low speed becomes a drone state (SLOW_ON
-    // switch, S104 / S105) once the firmware has it; older company firmware has no mode 30 at all (bug #8378).
-    readonly property var _hidden: ({ "Slow": true })
+    // Slow (mode 30) stays in OTHER until the firmware has SLOW_ON (Figma S79 note 2026-11-28, user option 1): EU C2
+    // needs a low-speed mode the pilot can choose. With SLOW_ON (plan A, S104 / S105 switch) the row goes. Older
+    // company firmware without mode 30 answers "No such mode 30": the row is then hidden for that drone (bug #8378).
+    readonly property var _hidden: ({})
     readonly property var _others: {
         if (!vehicle) return []
         var known = {}

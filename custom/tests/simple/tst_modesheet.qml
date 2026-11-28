@@ -48,10 +48,15 @@ TestCase {
         return out
     }
 
-    // Figma S79 (2026-11-21 plan A): Slow (mode 30) is never listed
-    function test_slow_not_listed() {
+    // Figma S79 note 2026-11-28: Slow (mode 30) is listed until the firmware has SLOW_ON; old firmware hides it
+    function test_slow_listed_until_refused() {
+        verify(_availNames().indexOf("Slow") !== -1)
+        var spy = createTemporaryObject(spyComp, tc, { target: s, signalName: "modeRefused" })
+        v.refuseModes = true
+        s._pick({ n: "Slow", t: "Slow", d: "" })
+        v.textMessageReceived(1, 1, 4, "No such mode 30", "")
+        compare(spy.count, 1)
         verify(_availNames().indexOf("Slow") === -1)
-        verify(_availNames().indexOf("Loiter") !== -1)
     }
     function test_refused_mode_is_hidden() {
         var spy = createTemporaryObject(spyComp, tc, { target: s, signalName: "modeRefused" })

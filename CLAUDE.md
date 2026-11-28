@@ -250,6 +250,10 @@ Reply to the user in Korean unless they write in English.
   on Android old text then drew kanji with Hangul glyphs, found 2026-11-24 on the device). Labels with a fixed width may shrink to
   80 % (`SText.fitMin`); Figma short forms are used where it shortened a text (hold-to-stop "… · %1/%2").
   Number / date formats stay the same for every language (later decision).
+- Slow mode (user 2026-11-28, option 1): until the firmware has `SLOW_ON` (plan A switch S104 / S105,
+  `custom/docs/TASK-firmware-low-speed-mode.md`) Advanced S79 lists Slow (mode 30) under OTHER (EU C2 needs a
+  low-speed mode the pilot can choose). A drone without mode 30 answers "No such mode 30": the mode is then hidden for
+  that drone. Remove the row when SLOW_ON exists. Simple S28 has no Slow.
 - Traditional Chinese (Taiwan) zh_TW (2026-11-28, `support_multi_lang`, user: Taiwan drone terms from the web):
   `qgc_simple_zh_TW.ts` (glossary column "zh": DJI zh-TW wording, CAA 遙控無人機管理規則 禁航區 / 限航區, 繫留, 喊話器,
   探照燈, 訊號 not 信號; Microsoft zh-TW punctuation), core `qgc_source_zh_TW.ts` / `qgc_json_zh_TW.ts` taken from
