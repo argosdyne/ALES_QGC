@@ -473,6 +473,26 @@ void CodevCameraControl::_applyStorageForCurrentMode()
     }
 }
 
+QVariantList CodevCameraControl::storagePools()
+{
+    QVariantList pools;
+    for (int i = 0; i < _storageInfos.count(); i++) {
+        const auto* storage = _storageInfos.value<CodevStorageInfo*>(i);
+        if (!storage) {
+            continue;
+        }
+        const mavlink_storage_information_t& st = storage->storageInfo();
+        QVariantMap pool;
+        pool[QStringLiteral("id")]    = static_cast<int>(st.storage_id);
+        pool[QStringLiteral("name")]  = QString::fromLatin1(st.name, static_cast<int>(strnlen(st.name, sizeof(st.name))));
+        pool[QStringLiteral("photo")] = (st.storage_usage & STORAGE_USAGE_FLAG_SET) && (st.storage_usage & STORAGE_USAGE_FLAG_PHOTO);
+        pool[QStringLiteral("video")] = (st.storage_usage & STORAGE_USAGE_FLAG_SET) && (st.storage_usage & STORAGE_USAGE_FLAG_VIDEO);
+        pool[QStringLiteral("ready")] = st.status == STORAGE_STATUS_READY;
+        pools.append(pool);
+    }
+    return pools;
+}
+
 QString CodevCameraControl::storageFreeStr()
 {
     for (int i = 0; i < _storageInfos.count(); i++) {
@@ -501,8 +521,10 @@ void CodevCameraControl::handleStorageInfo(const mavlink_storage_information_t& 
 
     if (_storageInfos.count() == static_cast<int>(st.storage_id - 1)) {
         _storageInfos.append(new CodevStorageInfo(st, this));
+        emit storagePoolsChanged();
     } else if (st.storage_id > 0 && st.storage_id <= static_cast<uint8_t>(_storageInfos.count())) {
         _storageInfos.value<CodevStorageInfo*>(st.storage_id - 1)->update(st);
+        emit storagePoolsChanged();
     }
 
     if (!(st.storage_usage & STORAGE_USAGE_FLAG_SET)) {

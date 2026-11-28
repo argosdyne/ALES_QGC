@@ -152,9 +152,13 @@ public:
     Q_INVOKABLE void setAreaTempRect(float x1, float y1, float x2, float y2);
 
     Q_PROPERTY(QPointF spotMeteringArea READ spotMeteringArea NOTIFY spotMeteringAreaChanged)
+    /// Storage pools the camera reported (STORAGE_INFORMATION), read-only, for the Simple UI SD format choice:
+    /// [{ id, name, photo, video, ready }] (id = storage_id for formatCard)
+    Q_PROPERTY(QVariantList storagePools READ storagePools NOTIFY storagePoolsChanged)
     Q_PROPERTY(QPointF spotFocusArea READ spotFocusArea NOTIFY spotFocusAreaChanged)
 
     QPointF spotMeteringArea();
+    QVariantList storagePools();
     QPointF spotFocusArea();
 
     Q_PROPERTY(bool dZoomInMax READ dZoomInMax NOTIFY dZoomInMaxChanged)
@@ -229,6 +233,7 @@ signals:
     void nvStatusChanged();
     void thermometryDataChanged();
     void spotMeteringAreaChanged();
+    void storagePoolsChanged();
     void spotFocusAreaChanged();
     void dZoomInMaxChanged();
     void displayZoomLevelChanged();
