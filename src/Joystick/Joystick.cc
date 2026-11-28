@@ -947,13 +947,6 @@ void Joystick::_handleButtons()
     //-- Process button press/release
     for (int buttonIndex = 0; buttonIndex < _totalButtonCount; buttonIndex++) {
         if(_rgButtonValues[buttonIndex] == BUTTON_DOWN || _rgButtonValues[buttonIndex] == BUTTON_REPEAT) {
-            // TEMP DIAGNOSTIC (remove after): log once per press to diagnose buttons 0/1.
-            if (_rgButtonValues[buttonIndex] == BUTTON_DOWN) {
-                qWarning() << "JSBTN_DIAG down idx=" << buttonIndex
-                           << "hasAction=" << (_buttonActionArray[buttonIndex] != nullptr)
-                           << "action=" << (_buttonActionArray[buttonIndex] ? _buttonActionArray[buttonIndex]->action : QString())
-                           << "repeat=" << (_buttonActionArray[buttonIndex] ? _buttonActionArray[buttonIndex]->repeat : false);
-            }
             if(_buttonActionArray[buttonIndex]) {
                 QString buttonAction = _buttonActionArray[buttonIndex]->action;
                 if(buttonAction.isEmpty() || buttonAction == _buttonActionNone)
@@ -1694,10 +1687,6 @@ void Joystick::_apmRtlBeepArmedChanged(bool armed)
 
 void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
 {
-    // TEMP DIAGNOSTIC (remove after): surfaces which action reached here and the gating state.
-    qWarning() << "JSBTN_DIAG execute action=" << action << "down=" << buttonDown
-               << "vehicle=" << (_activeVehicle != nullptr)
-               << "jsEnabled=" << (_activeVehicle ? _activeVehicle->joystickEnabled() : false);
     if (!_activeVehicle || !_activeVehicle->joystickEnabled() || action == _buttonActionNone) {
         return;
     }
