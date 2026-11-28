@@ -6364,6 +6364,18 @@
         <source>Mission</source>
         <translation>任務</translation>
     </message>
+    <message>
+        <source>Joystick</source>
+        <translation>遊戲手把</translation>
+    </message>
+    <message>
+        <source>Gamepad calibrated</source>
+        <translation>遊戲手把已校正</translation>
+    </message>
+    <message>
+        <source>Calibrate the gamepad</source>
+        <translation>請校正遊戲手把</translation>
+    </message>
 </context>
 <context>
     <name>SimpleSetupModes</name>

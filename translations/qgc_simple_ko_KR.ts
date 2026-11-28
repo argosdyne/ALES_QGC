@@ -6364,6 +6364,18 @@
         <source>Mission</source>
         <translation>임무</translation>
     </message>
+    <message>
+        <source>Joystick</source>
+        <translation>조이스틱</translation>
+    </message>
+    <message>
+        <source>Gamepad calibrated</source>
+        <translation>게임패드 보정됨</translation>
+    </message>
+    <message>
+        <source>Calibrate the gamepad</source>
+        <translation>게임패드를 보정하세요</translation>
+    </message>
 </context>
 <context>
     <name>SimpleSetupModes</name>

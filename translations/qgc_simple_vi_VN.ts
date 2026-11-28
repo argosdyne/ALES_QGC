@@ -6364,6 +6364,18 @@
         <source>Mission</source>
         <translation>Nhiệm vụ</translation>
     </message>
+    <message>
+        <source>Joystick</source>
+        <translation>Tay cầm</translation>
+    </message>
+    <message>
+        <source>Gamepad calibrated</source>
+        <translation>Đã hiệu chỉnh tay cầm</translation>
+    </message>
+    <message>
+        <source>Calibrate the gamepad</source>
+        <translation>Hiệu chỉnh tay cầm</translation>
+    </message>
 </context>
 <context>
     <name>SimpleSetupModes</name>

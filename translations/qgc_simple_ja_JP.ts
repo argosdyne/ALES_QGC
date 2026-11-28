@@ -6364,6 +6364,18 @@
         <source>Mission</source>
         <translation>ミッション</translation>
     </message>
+    <message>
+        <source>Joystick</source>
+        <translation>ジョイスティック</translation>
+    </message>
+    <message>
+        <source>Gamepad calibrated</source>
+        <translation>ゲームパッドのキャリブレーション済み</translation>
+    </message>
+    <message>
+        <source>Calibrate the gamepad</source>
+        <translation>ゲームパッドをキャリブレーションしてください</translation>
+    </message>
 </context>
 <context>
     <name>SimpleSetupModes</name>
