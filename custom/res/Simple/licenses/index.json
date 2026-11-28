@@ -166,5 +166,12 @@
   "license": "SIL Open Font License 1.1",
   "used": "Font (Japanese, subset)",
   "file": "NotoSansJP.txt"
+ },
+ {
+  "name": "Noto Sans TC",
+  "version": "2.004",
+  "license": "SIL Open Font License 1.1",
+  "used": "Font (Traditional Chinese, subset)",
+  "file": "NotoSansTC.txt"
  }
 ]

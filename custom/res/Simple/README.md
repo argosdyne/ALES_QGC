@@ -94,16 +94,20 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
   Noto Sans JP is subset to kana, CJK punctuation, the JIS level-1 kanji and every character of
   `qgc_simple_ja_JP.ts` (≈ 1.1 MB per weight; `custom/tools/i18n/subset_noto_jp.py`, run it again when the Japanese
   text gains a rarer kanji — `static_checks.py` reports missing glyphs). Licence files are next to the fonts.
+  Noto Sans TC is subset to CJK punctuation, Bopomofo, the Big5 common characters (常用字) and every character of
+  `qgc_simple_zh_TW.ts` and the core zh_TW files (≈ 1.7 MB per weight; `custom/tools/i18n/subset_noto_tc.py`).
   Roboto covers every character of Vietnamese, German, Danish and Portuguese.
 - All Simple UI text uses `SText` → `SimpleTheme.fontFamily` ("Roboto"). Latin letters and digits stay Roboto;
-  Hangul falls back to Noto Sans KR and kana / kanji to Noto Sans JP (`QFont::insertSubstitutions` in
-  `QGCApplication::setLanguage()`, order KR → JP, set once for every language: changing the list at runtime made
-  Android draw earlier text with glyphs of the other font, kanji shown as Hangul). 한국어 and 日本語 in the language
+  Hangul falls back to Noto Sans KR, kana / kanji to Noto Sans JP, other Han characters to Noto Sans TC
+  (`QFont::insertSubstitutions` in `QGCApplication::setLanguage()`, set once at start: changing the list at runtime
+  made Android draw earlier text with glyphs of the other font, kanji shown as Hangul). The order is KR → JP → TC,
+  or KR → TC → JP when the saved language is Traditional Chinese (Han characters shared with Japanese then use the
+  Taiwan glyph forms; after switching between Japanese and Traditional Chinese the forms are right after a restart). 한국어 and 日本語 in the language
   list are always drawn by the bundled fonts (日本語 by the KR subset). Roboto Medium may register as its own family "Roboto Medium" (Windows);
   `SimpleTheme.fontFamilyMedium` handles that.
 - Long translations: `SText.fitMin` (< 1) lets a label with a fixed width shrink to fit, down to that share of its
   size (0.8 in action buttons and segmented controls), then elide. Wrapped text is not shrunk.
-- Translations: `translations/qgc_simple_<locale>.ts` for ko_KR, vi_VN, de_DE, da_DK, pt_BR, ja_JP (contexts = QML
+- Translations: `translations/qgc_simple_<locale>.ts` for ko_KR, vi_VN, de_DE, da_DK, pt_BR, ja_JP, zh_TW (contexts = QML
   file names). They are built by the existing `TRANSLATIONS += translations/qgc_*.ts` + `embed_translations` rule and
   loaded by locale name. They also hold the Simple-only strings in core files (`FlyView`: Map / Camera,
   `FlightZoneManager` C++ texts). After changing text run
@@ -113,7 +117,10 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
   (terms: `custom/i18n/glossary.json`) and run `custom/tests/simple/static_checks.py`.
 - Language list (`SLanguageCombo.qml`, S57 and Settings › General): only the languages above plus System; names in
   their own language. A new language needs its `.ts`, an entry there and, if missing, in `qLocaleLanguage`
-  (`src/Settings/App.SettingsGroup.json`, QLocale::Language values).
+  (`src/Settings/App.SettingsGroup.json`, QLocale::Language values). Traditional Chinese (Taiwan) uses the value
+  10000 (`AppSettings::traditionalChineseTaiwanLanguageID`): QLocale::Language cannot tell it from Simplified
+  Chinese; `QGCApplication::setLanguage()` maps it to zh_TW. Every Simple language must be in
+  `AppSettings::_rgReleaseLanguages`, or a stable build falls back to the system language at start.
 - Still English in every language: ArduPilot mode names in Advanced mode lists (as the firmware reports them),
   FactMetaData enum / parameter texts shown in Simple rows, C++ messages outside `FlightZoneManager`, vehicle and
   QGC status texts (e.g. pre-arm reasons the app does not map), QGC voice announcements (core

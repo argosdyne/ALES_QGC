@@ -120,6 +120,9 @@ add('NotoSansKR.txt', 'Noto Sans KR', '2.004', 'SIL Open Font License 1.1', 'Fon
 add('NotoSansJP.txt', 'Noto Sans JP', '2.004', 'SIL Open Font License 1.1', 'Font (Japanese, subset)',
     head('Noto Sans JP', '', 'SIL Open Font License 1.1', 'Subset to kana, common kanji and the Japanese UI text for alesQGC.')
     + rd(os.path.join(REPO, 'custom/res/Simple/fonts/LICENSE-NotoSansJP.txt')))
+add('NotoSansTC.txt', 'Noto Sans TC', '2.004', 'SIL Open Font License 1.1', 'Font (Traditional Chinese, subset)',
+    head('Noto Sans TC', '', 'SIL Open Font License 1.1', 'Subset to common Traditional Chinese characters and the Taiwan UI text for alesQGC.')
+    + rd(os.path.join(REPO, 'custom/res/Simple/fonts/LICENSE-NotoSansTC.txt')))
 
 json.dump(items, open(os.path.join(OUT, 'index.json'), 'w', encoding='utf-8', newline='\n'), ensure_ascii=False, indent=1)
 # One combined file for the installer folder

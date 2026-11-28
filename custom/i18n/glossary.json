@@ -5,7 +5,8 @@
   "de": "Starten",
   "da": "Start",
   "pt": "Decolar",
-  "ja": "離陸"
+  "ja": "離陸",
+  "zh": "起飛"
  },
  {
   "en": "Land",
@@ -13,7 +14,8 @@
   "de": "Landen",
   "da": "Land",
   "pt": "Pousar",
-  "ja": "着陸"
+  "ja": "着陸",
+  "zh": "降落"
  },
  {
   "en": "Return home",
@@ -21,7 +23,8 @@
   "de": "Rückkehr",
   "da": "Returner hjem",
   "pt": "Retornar à base",
-  "ja": "帰還"
+  "ja": "帰還",
+  "zh": "返航"
  },
  {
   "en": "Returning home",
@@ -29,7 +32,8 @@
   "de": "Kehrt zum Startpunkt zurück",
   "da": "Returnerer hjem",
   "pt": "Retornando à base",
-  "ja": "帰還中"
+  "ja": "帰還中",
+  "zh": "返航中"
  },
  {
   "en": "Home point",
@@ -37,7 +41,8 @@
   "de": "Startpunkt",
   "da": "Hjemsted",
   "pt": "Ponto de origem",
-  "ja": "ホームポイント"
+  "ja": "ホームポイント",
+  "zh": "返航點"
  },
  {
   "en": "Set home here",
@@ -45,7 +50,8 @@
   "de": "Startpunkt hier setzen",
   "da": "Sæt hjem her",
   "pt": "Definir ponto de origem aqui",
-  "ja": "ここをホームに設定"
+  "ja": "ここをホームに設定",
+  "zh": "將返航點設於此"
  },
  {
   "en": "Pause",
@@ -53,7 +59,8 @@
   "de": "Pause",
   "da": "Pause",
   "pt": "Pausar",
-  "ja": "一時停止"
+  "ja": "一時停止",
+  "zh": "暫停"
  },
  {
   "en": "Resume mission",
@@ -61,7 +68,8 @@
   "de": "Mission fortsetzen",
   "da": "Genoptag mission",
   "pt": "Retomar missão",
-  "ja": "ミッションを再開"
+  "ja": "ミッションを再開",
+  "zh": "繼續任務"
  },
  {
   "en": "Hold",
@@ -69,7 +77,8 @@
   "de": "Halten",
   "da": "Hold",
   "pt": "Manter",
-  "ja": "保持"
+  "ja": "保持",
+  "zh": "懸停"
  },
  {
   "en": "Position hold",
@@ -77,7 +86,8 @@
   "de": "Position halten",
   "da": "Hold position",
   "pt": "Manter posição",
-  "ja": "位置保持"
+  "ja": "位置保持",
+  "zh": "定點懸停"
  },
  {
   "en": "Altitude hold",
@@ -85,7 +95,8 @@
   "de": "Höhe halten",
   "da": "Hold højde",
   "pt": "Manter altitude",
-  "ja": "高度保持"
+  "ja": "高度保持",
+  "zh": "定高"
  },
  {
   "en": "Battery",
@@ -93,7 +104,8 @@
   "de": "Akku",
   "da": "Batteri",
   "pt": "Bateria",
-  "ja": "バッテリー"
+  "ja": "バッテリー",
+  "zh": "電池"
  },
  {
   "en": "Low battery",
@@ -101,7 +113,8 @@
   "de": "Akku niedrig",
   "da": "Lavt batteri",
   "pt": "Bateria baixa",
-  "ja": "バッテリー低下"
+  "ja": "バッテリー低下",
+  "zh": "低電量"
  },
  {
   "en": "Critical battery",
@@ -109,7 +122,8 @@
   "de": "Akku kritisch",
   "da": "Kritisk batteri",
   "pt": "Bateria crítica",
-  "ja": "バッテリー危険"
+  "ja": "バッテリー危険",
+  "zh": "電量嚴重不足"
  },
  {
   "en": "Signal lost",
@@ -117,7 +131,8 @@
   "de": "Signal verloren",
   "da": "Signal tabt",
   "pt": "Sinal perdido",
-  "ja": "信号ロスト"
+  "ja": "信号ロスト",
+  "zh": "訊號中斷"
  },
  {
   "en": "Weak signal",
@@ -125,7 +140,8 @@
   "de": "Schwaches Signal",
   "da": "Svagt signal",
   "pt": "Sinal fraco",
-  "ja": "信号が弱い"
+  "ja": "信号が弱い",
+  "zh": "訊號微弱"
  },
  {
   "en": "Radio link",
@@ -133,7 +149,8 @@
   "de": "Funkverbindung",
   "da": "Radioforbindelse",
   "pt": "Link de rádio",
-  "ja": "無線リンク"
+  "ja": "無線リンク",
+  "zh": "無線鏈路"
  },
  {
   "en": "Controller signal lost",
@@ -141,7 +158,8 @@
   "de": "Fernsteuersignal verloren",
   "da": "Signal fra fjernbetjening tabt",
   "pt": "Sinal do controle perdido",
-  "ja": "送信機の信号ロスト"
+  "ja": "送信機の信号ロスト",
+  "zh": "遙控器訊號中斷"
  },
  {
   "en": "Payloads",
@@ -149,7 +167,8 @@
   "de": "Nutzlasten",
   "da": "Nyttelast",
   "pt": "Cargas úteis",
-  "ja": "ペイロード"
+  "ja": "ペイロード",
+  "zh": "酬載"
  },
  {
   "en": "Gimbal",
@@ -157,7 +176,8 @@
   "de": "Gimbal",
   "da": "Gimbal",
   "pt": "Gimbal",
-  "ja": "Gimbal"
+  "ja": "Gimbal",
+  "zh": "雲台"
  },
  {
   "en": "Camera",
@@ -165,7 +185,8 @@
   "de": "Kamera",
   "da": "Kamera",
   "pt": "Câmera",
-  "ja": "カメラ"
+  "ja": "カメラ",
+  "zh": "相機"
  },
  {
   "en": "Waypoint",
@@ -173,7 +194,8 @@
   "de": "Wegpunkt",
   "da": "Waypoint",
   "pt": "Waypoint",
-  "ja": "ウェイポイント"
+  "ja": "ウェイポイント",
+  "zh": "航點"
  },
  {
   "en": "Mission",
@@ -181,7 +203,8 @@
   "de": "Mission",
   "da": "Mission",
   "pt": "Missão",
-  "ja": "ミッション"
+  "ja": "ミッション",
+  "zh": "任務"
  },
  {
   "en": "Start mission",
@@ -189,7 +212,8 @@
   "de": "Mission starten",
   "da": "Start mission",
   "pt": "Iniciar missão",
-  "ja": "ミッション開始"
+  "ja": "ミッション開始",
+  "zh": "開始任務"
  },
  {
   "en": "Pre-flight check",
@@ -197,7 +221,8 @@
   "de": "Vorflug-Checkliste",
   "da": "Kontrol før flyvning",
   "pt": "Verificação pré-voo",
-  "ja": "飛行前チェック"
+  "ja": "飛行前チェック",
+  "zh": "起飛前檢查"
  },
  {
   "en": "Pre-arm checks",
@@ -205,7 +230,8 @@
   "de": "Prüfungen vor dem Scharfschalten",
   "da": "Kontroller før armering",
   "pt": "Verificações antes de armar",
-  "ja": "アーム前チェック"
+  "ja": "アーム前チェック",
+  "zh": "解鎖前檢查"
  },
  {
   "en": "Arm",
@@ -213,7 +239,8 @@
   "de": "Scharf schalten",
   "da": "Armér",
   "pt": "Armar",
-  "ja": "アーム"
+  "ja": "アーム",
+  "zh": "解鎖"
  },
  {
   "en": "Disarm",
@@ -221,7 +248,8 @@
   "de": "Entschärfen",
   "da": "Desarmér",
   "pt": "Desarmar",
-  "ja": "ディスアーム"
+  "ja": "ディスアーム",
+  "zh": "上鎖"
  },
  {
   "en": "Emergency stop",
@@ -229,7 +257,8 @@
   "de": "Not-Aus",
   "da": "Nødstop",
   "pt": "Parada de emergência",
-  "ja": "緊急停止"
+  "ja": "緊急停止",
+  "zh": "緊急停槳"
  },
  {
   "en": "Failsafe",
@@ -237,7 +266,8 @@
   "de": "Failsafe",
   "da": "Failsafe",
   "pt": "Failsafe",
-  "ja": "Failsafe"
+  "ja": "Failsafe",
+  "zh": "失效保護"
  },
  {
   "en": "Geofence",
@@ -245,7 +275,8 @@
   "de": "Geofence",
   "da": "Geofence",
   "pt": "Geofence",
-  "ja": "Geofence"
+  "ja": "Geofence",
+  "zh": "地理圍欄"
  },
  {
   "en": "Fence",
@@ -253,7 +284,8 @@
   "de": "Geofence",
   "da": "Geofence",
   "pt": "Geocerca",
-  "ja": "フェンス"
+  "ja": "フェンス",
+  "zh": "圍欄"
  },
  {
   "en": "Flight zones",
@@ -261,7 +293,8 @@
   "de": "Flugzonen",
   "da": "Flyzoner",
   "pt": "Zonas de voo",
-  "ja": "飛行ゾーン"
+  "ja": "飛行ゾーン",
+  "zh": "飛行區域"
  },
  {
   "en": "Do not enter",
@@ -269,7 +302,8 @@
   "de": "Nicht einfliegen",
   "da": "Ingen adgang",
   "pt": "Não entrar",
-  "ja": "進入禁止"
+  "ja": "進入禁止",
+  "zh": "禁止進入"
  },
  {
   "en": "Warn only",
@@ -277,7 +311,8 @@
   "de": "Nur warnen",
   "da": "Kun advarsel",
   "pt": "Só aviso",
-  "ja": "警告のみ"
+  "ja": "警告のみ",
+  "zh": "僅警告"
  },
  {
   "en": "Prohibited",
@@ -285,7 +320,8 @@
   "de": "Verboten",
   "da": "Forbudt",
   "pt": "Proibida",
-  "ja": "禁止"
+  "ja": "禁止",
+  "zh": "禁航"
  },
  {
   "en": "Restricted zone nearby",
@@ -293,7 +329,8 @@
   "de": "Beschränkungszone in der Nähe",
   "da": "Begrænset zone i nærheden",
   "pt": "Zona restrita próxima",
-  "ja": "近くに制限区域"
+  "ja": "近くに制限区域",
+  "zh": "附近有限航區"
  },
  {
   "en": "My zones",
@@ -301,7 +338,8 @@
   "de": "Meine Zonen",
   "da": "Mine zoner",
   "pt": "Minhas zonas",
-  "ja": "マイゾーン"
+  "ja": "マイゾーン",
+  "zh": "我的區域"
  },
  {
   "en": "Go here",
@@ -309,7 +347,8 @@
   "de": "Hierhin fliegen",
   "da": "Flyv hertil",
   "pt": "Ir para cá",
-  "ja": "ここへ飛行"
+  "ja": "ここへ飛行",
+  "zh": "飛往此處"
  },
  {
   "en": "Obstacle detection",
@@ -317,7 +356,8 @@
   "de": "Hinderniserkennung",
   "da": "Forhindringsdetektion",
   "pt": "Detecção de obstáculos",
-  "ja": "障害物検知"
+  "ja": "障害物検知",
+  "zh": "障礙物偵測"
  },
  {
   "en": "Compass",
@@ -325,7 +365,8 @@
   "de": "Kompass",
   "da": "Kompas",
   "pt": "Bússola",
-  "ja": "コンパス"
+  "ja": "コンパス",
+  "zh": "指南針"
  },
  {
   "en": "Calibrate",
@@ -333,7 +374,8 @@
   "de": "Kalibrieren",
   "da": "Kalibrér",
   "pt": "Calibrar",
-  "ja": "キャリブレーション"
+  "ja": "キャリブレーション",
+  "zh": "校正"
  },
  {
   "en": "Accelerometer",
@@ -341,7 +383,8 @@
   "de": "Beschleunigungssensor",
   "da": "Accelerometer",
   "pt": "Acelerômetro",
-  "ja": "加速度計"
+  "ja": "加速度計",
+  "zh": "加速度計"
  },
  {
   "en": "Flight mode",
@@ -349,7 +392,8 @@
   "de": "Flugmodus",
   "da": "Flyvetilstand",
   "pt": "Modo de voo",
-  "ja": "フライトモード"
+  "ja": "フライトモード",
+  "zh": "飛行模式"
  },
  {
   "en": "Flight modes",
@@ -357,7 +401,8 @@
   "de": "Flugmodi",
   "da": "Flyvetilstande",
   "pt": "Modos de voo",
-  "ja": "フライトモード"
+  "ja": "フライトモード",
+  "zh": "飛行模式"
  },
  {
   "en": "Low speed  ·  max 3 m/s",
@@ -365,7 +410,8 @@
   "de": "Langsamflug  ·  max. 3 m/s",
   "da": "Lav hastighed  ·  maks. 3 m/s",
   "pt": "Baixa velocidade  ·  máx. 3 m/s",
-  "ja": "低速  ·  最大 3 m/s"
+  "ja": "低速  ·  最大 3 m/s",
+  "zh": "低速  ·  最高 3 m/s"
  },
  {
   "en": "Offline maps",
@@ -373,7 +419,8 @@
   "de": "Offline-Karten",
   "da": "Offlinekort",
   "pt": "Mapas offline",
-  "ja": "オフラインマップ"
+  "ja": "オフラインマップ",
+  "zh": "離線地圖"
  },
  {
   "en": "Settings",
@@ -381,7 +428,8 @@
   "de": "Einstellungen",
   "da": "Indstillinger",
   "pt": "Configurações",
-  "ja": "設定"
+  "ja": "設定",
+  "zh": "設定"
  },
  {
   "en": "Advanced mode",
@@ -389,7 +437,8 @@
   "de": "Erweiterter Modus",
   "da": "Avanceret tilstand",
   "pt": "Modo avançado",
-  "ja": "詳細モード"
+  "ja": "詳細モード",
+  "zh": "進階模式"
  },
  {
   "en": "Vehicle setup",
@@ -397,7 +446,8 @@
   "de": "Drohnen-Einrichtung",
   "da": "Droneopsætning",
   "pt": "Configuração do veículo",
-  "ja": "機体設定"
+  "ja": "機体設定",
+  "zh": "飛行器設定"
  },
  {
   "en": "Parameters",
@@ -405,7 +455,8 @@
   "de": "Parameter",
   "da": "Parametre",
   "pt": "Parâmetros",
-  "ja": "パラメーター"
+  "ja": "パラメーター",
+  "zh": "參數"
  },
  {
   "en": "Flight logs",
@@ -413,7 +464,8 @@
   "de": "Fluglogs",
   "da": "Flyvelogs",
   "pt": "Logs de voo",
-  "ja": "フライトログ"
+  "ja": "フライトログ",
+  "zh": "飛行紀錄"
  },
  {
   "en": "Tether",
@@ -421,7 +473,8 @@
   "de": "Tether",
   "da": "Tether",
   "pt": "Tether",
-  "ja": "テザー"
+  "ja": "テザー",
+  "zh": "繫留"
  },
  {
   "en": "Winch",
@@ -429,7 +482,8 @@
   "de": "Winde",
   "da": "Spil",
   "pt": "Guincho",
-  "ja": "ウインチ"
+  "ja": "ウインチ",
+  "zh": "絞盤"
  },
  {
   "en": "Searchlight",
@@ -437,7 +491,8 @@
   "de": "Suchscheinwerfer",
   "da": "Projektør",
   "pt": "Holofote",
-  "ja": "サーチライト"
+  "ja": "サーチライト",
+  "zh": "探照燈"
  },
  {
   "en": "Megaphone",
@@ -445,7 +500,8 @@
   "de": "Megafon",
   "da": "Megafon",
   "pt": "Megafone",
-  "ja": "スピーカー"
+  "ja": "スピーカー",
+  "zh": "喊話器"
  },
  {
   "en": "Drop payload",
@@ -453,7 +509,8 @@
   "de": "Nutzlast abwerfen",
   "da": "Slip nyttelast",
   "pt": "Soltar carga",
-  "ja": "ペイロードを投下"
+  "ja": "ペイロードを投下",
+  "zh": "投放酬載"
  },
  {
   "en": "Remote ID",
@@ -461,7 +518,8 @@
   "de": "Remote ID",
   "da": "Remote ID",
   "pt": "Remote ID",
-  "ja": "Remote ID"
+  "ja": "Remote ID",
+  "zh": "Remote ID"
  },
  {
   "en": "Altitude",
@@ -469,7 +527,8 @@
   "de": "Höhe",
   "da": "Højde",
   "pt": "Altitude",
-  "ja": "高度"
+  "ja": "高度",
+  "zh": "高度"
  },
  {
   "en": "Distance",
@@ -477,7 +536,8 @@
   "de": "Entfernung",
   "da": "Afstand",
   "pt": "Distância",
-  "ja": "距離"
+  "ja": "距離",
+  "zh": "距離"
  },
  {
   "en": "Speed",
@@ -485,7 +545,8 @@
   "de": "Geschwindigkeit",
   "da": "Hastighed",
   "pt": "Velocidade",
-  "ja": "速度"
+  "ja": "速度",
+  "zh": "速度"
  },
  {
   "en": "Flight time",
@@ -493,7 +554,8 @@
   "de": "Flugzeit",
   "da": "Flyvetid",
   "pt": "Tempo de voo",
-  "ja": "飛行時間"
+  "ja": "飛行時間",
+  "zh": "飛行時間"
  },
  {
   "en": "Plan",
@@ -501,7 +563,8 @@
   "de": "Planen",
   "da": "Plan",
   "pt": "Planejar",
-  "ja": "プラン"
+  "ja": "プラン",
+  "zh": "規劃"
  },
  {
   "en": "Fly",
@@ -509,7 +572,8 @@
   "de": "Fliegen",
   "da": "Flyv",
   "pt": "Voar",
-  "ja": "飛行"
+  "ja": "飛行",
+  "zh": "飛行"
  },
  {
   "en": "Saved missions",
@@ -517,7 +581,8 @@
   "de": "Gespeicherte Missionen",
   "da": "Gemte missioner",
   "pt": "Missões salvas",
-  "ja": "保存したミッション"
+  "ja": "保存したミッション",
+  "zh": "已儲存的任務"
  },
  {
   "en": "Area mapping",
@@ -525,7 +590,8 @@
   "de": "Flächenkartierung",
   "da": "Områdekortlægning",
   "pt": "Mapeamento de área",
-  "ja": "エリア測量"
+  "ja": "エリア測量",
+  "zh": "區域測繪"
  },
  {
   "en": "Corridor mapping",
@@ -533,7 +599,8 @@
   "de": "Korridorkartierung",
   "da": "Korridorkortlægning",
   "pt": "Mapeamento de corredor",
-  "ja": "回廊測量"
+  "ja": "回廊測量",
+  "zh": "廊道測繪"
  },
  {
   "en": "Structure scan",
@@ -541,7 +608,8 @@
   "de": "Bauwerk-Scan",
   "da": "Bygværksscanning",
   "pt": "Varredura de estrutura",
-  "ja": "構造物スキャン"
+  "ja": "構造物スキャン",
+  "zh": "結構物掃描"
  },
  {
   "en": "LiDAR survey",
@@ -549,7 +617,8 @@
   "de": "LiDAR-Vermessung",
   "da": "LiDAR-opmåling",
   "pt": "Levantamento LiDAR",
-  "ja": "LiDAR 測量"
+  "ja": "LiDAR 測量",
+  "zh": "LiDAR 測繪"
  },
  {
   "en": "Init path",
@@ -557,7 +626,8 @@
   "de": "Init-Pfad",
   "da": "Init-rute",
   "pt": "Caminho de init",
-  "ja": "初期化経路"
+  "ja": "初期化経路",
+  "zh": "初始化路徑"
  },
  {
   "en": "Rally points",
@@ -565,7 +635,8 @@
   "de": "Sammelpunkte",
   "da": "Samlepunkter",
   "pt": "Pontos de reunião",
-  "ja": "ラリーポイント"
+  "ja": "ラリーポイント",
+  "zh": "集結點"
  },
  {
   "en": "Drone",
@@ -573,6 +644,7 @@
   "de": "Drohne",
   "da": "Drone",
   "pt": "Drone",
-  "ja": "機体"
+  "ja": "機体",
+  "zh": "無人機"
  }
 ]

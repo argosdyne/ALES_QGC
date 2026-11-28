@@ -10,7 +10,7 @@ import glob, json, os, re, sys, xml.etree.ElementTree as ET
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 SIMPLE = os.path.join(ROOT, 'custom', 'res', 'Simple')
 TS = os.path.join(ROOT, 'translations', 'qgc_simple_ko_KR.ts')
-# every Simple UI language: ko_KR + vi_VN, de_DE, da_DK, pt_BR, ja_JP (custom/docs/TASK-i18n-five-languages.md)
+# every Simple UI language: ko_KR + vi_VN, de_DE, da_DK, pt_BR, ja_JP (custom/docs/TASK-i18n-five-languages.md), zh_TW
 TS_FILES = sorted(glob.glob(os.path.join(ROOT, 'translations', 'qgc_simple_*.ts')))
 def lang_of(path):
     return os.path.basename(path)[len('qgc_simple_'):-3]
@@ -179,8 +179,10 @@ def check_licenses(aliases):
             fail('licenses', 'no entry for %s' % must)
 
 # ---------------------------------------------------------------- fonts and label widths (every language)
-# Fallback order as in QGCApplication::setLanguage(): Roboto, Noto Sans KR, Noto Sans JP (the same for every language)
-CJK_ORDER = {}
+# Fallback order as in QGCApplication::setLanguage(): Roboto, Noto Sans KR, then Noto Sans JP and Noto Sans TC
+# (Traditional Chinese puts TC before JP, chosen at start from the saved language)
+CJK_ORDER = {'zh_TW': ('KR', 'TC', 'JP')}
+DEFAULT_CJK = ('KR', 'JP', 'TC')
 
 def check_fonts(all_ts):
     try:
@@ -191,7 +193,8 @@ def check_fonts(all_ts):
     fonts = {}          # weight -> {'R'|'KR'|'JP': (cmap, hmtx, unitsPerEm)}
     for w in ('Regular', 'Medium', 'Bold'):
         fonts[w] = {}
-        for key, fname in (('R', 'Roboto-%s.ttf'), ('KR', 'NotoSansKR-%s.otf'), ('JP', 'NotoSansJP-%s.otf')):
+        for key, fname in (('R', 'Roboto-%s.ttf'), ('KR', 'NotoSansKR-%s.otf'), ('JP', 'NotoSansJP-%s.otf'),
+                           ('TC', 'NotoSansTC-%s.otf')):
             f = TTFont(os.path.join(fdir, fname % w))
             fonts[w][key] = (f.getBestCmap(), f['hmtx'], f['head'].unitsPerEm)
             want = {'Regular': 400, 'Medium': 500, 'Bold': 700}[w]
@@ -199,7 +202,7 @@ def check_fonts(all_ts):
                 fail('fonts', '%s weight class %d, expected %d' % (fname % w, f['OS/2'].usWeightClass, want))
 
     def width(text, size, weight='Regular', lang='ko_KR'):
-        chain = [fonts[weight][k] for k in ('R',) + CJK_ORDER.get(lang, ('KR', 'JP'))]
+        chain = [fonts[weight][k] for k in ('R',) + CJK_ORDER.get(lang, DEFAULT_CJK)]
         total = 0.0
         for ch in text:
             cp = ord(ch)
