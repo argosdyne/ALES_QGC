@@ -150,8 +150,11 @@ public class QGCActivity extends QtActivity
                         UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                         if (device != null) {
                             UsbSerialDriver driver = _findDriverByDeviceId(device.getDeviceId());
-
-                            if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+                            // The device can be gone again before the answer arrives (a charger plugged in and
+                            // out on the controller, Tuleap bug #28119): the driver list no longer has it.
+                            if (driver == null) {
+                                safeQgcLogDebug("Permission answer for a device no longer listed " + device.getDeviceName());
+                            } else if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                                 safeQgcLogDebug("Permission granted to " + device.getDeviceName());
                                 driver.setPermissionStatus(UsbSerialDriver.permissionStatusSuccess);
                             } else {
