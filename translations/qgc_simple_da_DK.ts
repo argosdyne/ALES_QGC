@@ -703,6 +703,10 @@
         <source>Dismiss all</source>
         <translation>Luk alle</translation>
     </message>
+    <message>
+        <source>This drone does not have the %1 flight mode.</source>
+        <translation>Denne drone har ikke flyvetilstanden %1.</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -9013,6 +9017,22 @@
     <message>
         <source>Done</source>
         <translation>Færdig</translation>
+    </message>
+    <message>
+        <source>Photo card</source>
+        <translation>Fotokort</translation>
+    </message>
+    <message>
+        <source>Video card</source>
+        <translation>Videokort</translation>
+    </message>
+    <message>
+        <source>Card %1</source>
+        <translation>Kort %1</translation>
+    </message>
+    <message>
+        <source>Which card?</source>
+        <translation>Hvilket kort?</translation>
     </message>
 </context>
 <context>

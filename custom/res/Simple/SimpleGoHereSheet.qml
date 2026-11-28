@@ -14,7 +14,11 @@ SPanel {
     property var  map:        null
     property var  coordinate: QtPositioning.coordinate()
     property real heightM:    NaN       // target height above home (m)
+    // the S35 checks (zone, geofence, distance, flying, link), run again when the slide completes: the drone or the
+    // fence may have changed since the menu was opened (Tuleap bug #36993). Returns { text, red }; "" = allowed.
+    property var  recheck:    null
     signal sent(bool ok)
+    signal refused(string reason)
 
     readonly property var  _units:  QGroundControl.unitsConversion
     readonly property var  _fly:    QGroundControl.settingsManager.flyViewSettings
@@ -57,6 +61,10 @@ SPanel {
     Component.onCompleted: _init()
 
     function send() {
+        if (typeof recheck === "function") {
+            var block = recheck()
+            if (block && block.text !== "") { refused(block.text); return }
+        }
         var g = globals.guidedControllerFlyView
         if (!g || !_ok || !map) { sent(false); return }
         var target = QtPositioning.coordinate(coordinate.latitude, coordinate.longitude, heightM + _homeAMSL)

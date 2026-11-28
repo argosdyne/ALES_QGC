@@ -703,6 +703,10 @@
         <source>Dismiss all</source>
         <translation>Dispensar tudo</translation>
     </message>
+    <message>
+        <source>This drone does not have the %1 flight mode.</source>
+        <translation>Este drone não tem o modo de voo %1.</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -9013,6 +9017,22 @@
     <message>
         <source>Done</source>
         <translation>Concluído</translation>
+    </message>
+    <message>
+        <source>Photo card</source>
+        <translation>Cartão de fotos</translation>
+    </message>
+    <message>
+        <source>Video card</source>
+        <translation>Cartão de vídeo</translation>
+    </message>
+    <message>
+        <source>Card %1</source>
+        <translation>Cartão %1</translation>
+    </message>
+    <message>
+        <source>Which card?</source>
+        <translation>Qual cartão?</translation>
     </message>
 </context>
 <context>

@@ -703,6 +703,10 @@
         <source>Dismiss all</source>
         <translation>Đóng tất cả</translation>
     </message>
+    <message>
+        <source>This drone does not have the %1 flight mode.</source>
+        <translation>Drone này không có chế độ bay %1.</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -9005,6 +9009,22 @@
     <message>
         <source>Done</source>
         <translation>Xong</translation>
+    </message>
+    <message>
+        <source>Photo card</source>
+        <translation>Thẻ ảnh</translation>
+    </message>
+    <message>
+        <source>Video card</source>
+        <translation>Thẻ video</translation>
+    </message>
+    <message>
+        <source>Card %1</source>
+        <translation>Thẻ %1</translation>
+    </message>
+    <message>
+        <source>Which card?</source>
+        <translation>Thẻ nào?</translation>
     </message>
 </context>
 <context>

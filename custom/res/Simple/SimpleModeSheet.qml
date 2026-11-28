@@ -13,6 +13,7 @@ SPanel {
     property var vehicle: null
     signal rtlRequested()
     signal landRequested()
+    signal modeRefused(string title)
     readonly property bool _adv: QGroundControl.corePlugin.advancedMode
     title: _adv ? qsTr("Flight mode · all modes") : qsTr("Flight mode")
     width:  SimpleTheme.px(_adv ? 980 : 760)
@@ -26,8 +27,35 @@ SPanel {
     ]
     function _available(names) {
         if (!vehicle) return ""
-        for (var i = 0; i < names.length; i++) if (vehicle.flightModes.indexOf(names[i]) !== -1) return names[i]
+        for (var i = 0; i < names.length; i++) if (vehicle.flightModes.indexOf(names[i]) !== -1 && !_refused[names[i]]) return names[i]
         return ""
+    }
+
+    // Tuleap bug #8378: the mode list comes from the firmware plugin, not from the drone, so it can offer a mode the
+    // drone's firmware does not have (Slow = 30 only on newer company firmware: "No such mode 30"). A mode the drone
+    // answers with "No such mode" (within 5 s of the request) is hidden for this drone and the pilot is told.
+    property var    _refused: ({})               // mode name -> true
+    property string _asked: ""
+    property string _askedTitle: ""
+    property real   _askedAt: 0
+    function _setMode(n, t) {
+        _asked = n; _askedTitle = t; _askedAt = Date.now()
+        vehicle.flightMode = n
+    }
+    function _onDroneText(text) {
+        if (_asked === "" || Date.now() - _askedAt > 5000 || !/no such mode/i.test(text)) return
+        var r = {}
+        for (var k in _refused) r[k] = true
+        r[_asked] = true
+        _refused = r
+        modeRefused(_askedTitle)
+        _asked = ""
+    }
+    onVehicleChanged: { _refused = ({}); _asked = "" }
+    Connections {
+        target: sheet.vehicle
+        ignoreUnknownSignals: true
+        function onTextMessageReceived(uasid, componentid, severity, text, description) { sheet._onDroneText(text) }
     }
 
     // Advanced: groups of ArduCopter modes (names as the firmware plugin reports them)
@@ -69,7 +97,7 @@ SPanel {
         if (m.land) { sheet.closeRequested(); sheet.landRequested(); return }
         if (m.warn && confirmMode !== m.n) { confirmMode = m.n; return }
         confirmMode = ""
-        vehicle.flightMode = m.n
+        _setMode(m.n, m.t)
         sheet.closeRequested()
     }
     onVisibleChanged: confirmMode = ""
@@ -93,7 +121,7 @@ SPanel {
                     SText { text: modelData.title; size: 30; bold: true }
                     SText { text: modelData.detail; size: 22; color: SimpleTheme.textSecondary }
                 }
-                MouseArea { anchors.fill: parent; onClicked: { sheet.vehicle.flightMode = parent.modeName; sheet.closeRequested() } }
+                MouseArea { anchors.fill: parent; onClicked: { sheet._setMode(parent.modeName, modelData.title); sheet.closeRequested() } }
             }
         }
         SText { text: qsTr("Other flight modes are available in Advanced mode."); size: 22; color: SimpleTheme.textTertiary }
@@ -113,7 +141,7 @@ SPanel {
             Repeater {
                 model: sheet._adv ? sheet._groups.concat(sheet._others.length ? [{ t: qsTr("OTHER"), modes: sheet._others }] : []) : []
                 Column {
-                    readonly property var avail: modelData.modes.filter(function(m) { return sheet.vehicle && sheet.vehicle.flightModes.indexOf(m.n) !== -1 })
+                    readonly property var avail: modelData.modes.filter(function(m) { return sheet.vehicle && sheet.vehicle.flightModes.indexOf(m.n) !== -1 && !sheet._refused[m.n] })
                     visible: avail.length > 0
                     width: advCol.width
                     spacing: SimpleTheme.px(8)

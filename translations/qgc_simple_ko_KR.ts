@@ -703,6 +703,10 @@
         <source>Dismiss all</source>
         <translation>모두 확인</translation>
     </message>
+    <message>
+        <source>This drone does not have the %1 flight mode.</source>
+        <translation>이 드론에는 %1 비행 모드가 없습니다.</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -9005,6 +9009,22 @@
     <message>
         <source>Done</source>
         <translation>완료</translation>
+    </message>
+    <message>
+        <source>Photo card</source>
+        <translation>사진 카드</translation>
+    </message>
+    <message>
+        <source>Video card</source>
+        <translation>영상 카드</translation>
+    </message>
+    <message>
+        <source>Card %1</source>
+        <translation>카드 %1</translation>
+    </message>
+    <message>
+        <source>Which card?</source>
+        <translation>어느 카드인가요?</translation>
     </message>
 </context>
 <context>

@@ -474,6 +474,7 @@ Item {
 
     // S35: map tap menu
     SimpleMapTapMenu {
+        id: tapMenu
         anchors.fill: parent
         visible: fly.tapCoord.isValid && vs.present && !fly.videoMain && fly.sheet === ""
         map: fly._map
@@ -822,6 +823,7 @@ Item {
         onCloseRequested: fly.closeSheet()
         onRtlRequested:   fly.openSheet("rtl")       // S79: same slide-to-confirm as Simple
         onLandRequested:  fly.openSheet("land")
+        onModeRefused:    fly.toast(qsTr("This drone does not have the %1 flight mode.").arg(title), "danger")
     }
     // S78 Advanced: More actions
     SimpleMoreSheet {
@@ -855,12 +857,15 @@ Item {
         vehicle: fly._veh
         map: fly._map
         coordinate: fly.tapCoord
+        recheck: tapMenu.goHereBlockNow
         onCloseRequested: fly.closeSheet()
         onSent: {
             fly.closeSheet()
             if (ok) fly.closeTapMenu()
             else fly.toast(qsTr("The drone did not take Go here. Try again."), "danger")
         }
+        // not sent: the menu shows the reason in red again
+        onRefused: { fly.closeSheet(); fly.toast(reason, "danger") }
     }
     SimpleConfirmSheet {
         visible: fly.sheet === "sethome"

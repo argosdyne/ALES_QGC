@@ -23,6 +23,22 @@ SSheet {
                                             || _cam.photoStatus === QGCCameraControl.PHOTO_CAPTURE_INTERVAL_IN_PROGRESS)
     readonly property bool _storage: !!_cam && _cam.storageStatus !== QGCCameraControl.STORAGE_NOT_SUPPORTED
     property string confirm: ""          // "" | "format" | "reset"
+    // SD format target (Tuleap bug #9428): a camera with a photo card and a video card (Sony body SD + gimbal
+    // microSD) reports two storage pools; the user picks which one is erased. One pool (or a camera without the
+    // list) keeps the old behaviour: storage 1.
+    readonly property var  _pools: !!_cam && _cam.storagePools !== undefined ? _cam.storagePools : []
+    property int formatId: 1
+    function _poolLabel(p) {
+        if (p.photo && !p.video) return qsTr("Photo card")
+        if (p.video && !p.photo) return qsTr("Video card")
+        return p.name !== "" ? p.name : qsTr("Card %1").arg(p.id)
+    }
+    // default: the card of the current camera mode
+    function _defaultFormatId() {
+        var video = !!_cam && _cam.cameraMode === QGCCameraControl.CAM_MODE_VIDEO
+        for (var i = 0; i < _pools.length; i++) if (video ? _pools[i].video : _pools[i].photo) return _pools[i].id
+        return _pools.length > 0 ? _pools[0].id : 1
+    }
     property string done: ""
 
     designWidth: 1000
@@ -112,7 +128,7 @@ SSheet {
         SButton {
             designHeight: 72; textSize: 26; kind: "danger"; text: qsTr("Format SD card…")
             enabled_: !ca._busy && ca.confirm === "" && ca._cam && ca._cam.storageStatus !== QGCCameraControl.STORAGE_EMPTY
-            onClicked: if (enabled_) { ca.confirm = "format"; ca.done = "" }
+            onClicked: if (enabled_) { ca.formatId = ca._defaultFormatId(); ca.confirm = "format"; ca.done = "" }
         }
     }
     SSettingRow {
@@ -120,6 +136,20 @@ SSheet {
         width: ca.innerWidth; title: qsTr("Camera settings back to factory values")
         SButton { designHeight: 72; textSize: 26; text: qsTr("Reset camera…"); enabled_: !ca._busy && ca.confirm === ""
                   onClicked: if (enabled_) { ca.confirm = "reset"; ca.done = "" } }
+    }
+    SText {
+        visible: ca.confirm === "format" && ca._pools.length > 1
+        text: qsTr("Which card?"); size: 24; medium: true
+    }
+    SSegmented {
+        id: formatSeg
+        visible: ca.confirm === "format" && ca._pools.length > 1
+        designWidth: 600
+        model: { var m = []; for (var i = 0; i < ca._pools.length; i++) m.push(ca._poolLabel(ca._pools[i])); return m }
+        // set when the question opens (a tap replaces a binding on currentIndex)
+        function sync() { currentIndex = 0; for (var i = 0; i < ca._pools.length; i++) if (ca._pools[i].id === ca.formatId) currentIndex = i }
+        onVisibleChanged: if (visible) sync()
+        onActivated: ca.formatId = ca._pools[index].id
     }
     SNotice {
         visible: ca.confirm !== ""
@@ -137,7 +167,7 @@ SSheet {
             enabled_: !ca._busy
             onClicked: {
                 if (!enabled_ || !ca._cam) return
-                if (ca.confirm === "format") { ca._cam.formatCard(); ca.done = qsTr("Formatting the SD card…") }
+                if (ca.confirm === "format") { ca._cam.formatCard(ca.formatId); ca.done = qsTr("Formatting the SD card…") }
                 else { ca._cam.resetSettings(); ca.done = qsTr("Camera settings reset.") }
                 ca.confirm = ""
             }

@@ -54,7 +54,9 @@ Item {
     readonly property real bearing:  _vehPos && _valid ? _veh.coordinate.azimuthTo(coordinate) : NaN
 
     // Why Go here cannot be used ("" = it can). red = refused for safety (shown in red instead of the button text).
-    readonly property var goHereBlock: {
+    // The Go here sheet runs the same checks again when the slide completes (Tuleap bug #36993).
+    readonly property var goHereBlock: goHereBlockNow()
+    function goHereBlockNow() {
         if (!vs || !vs.present)             return { text: qsTr("No drone connected"), red: false }
         if (vs.lost)                        return { text: qsTr("Not available while the signal is lost"), red: false }
         if (!vs.flying)                     return { text: qsTr("Available after take-off"), red: false }
