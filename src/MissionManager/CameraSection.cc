@@ -11,6 +11,7 @@
 #include "SimpleMissionItem.h"
 #include "FirmwarePlugin.h"
 #include "PlanMasterController.h"
+#include "Vehicle.h"
 
 QGC_LOGGING_CATEGORY(CameraSectionLog, "CameraSectionLog")
 
@@ -132,7 +133,25 @@ void CameraSection::appendSectionItems(QList<MissionItem*>& items, QObject* miss
         items.append(item);
     }
 
-    if (_specifyGimbal) {
+    if (_specifyGimbal && _useGimbalManagerItem()) {
+        // ArduPilot (Tuleap bugs #25427, #17595): ArduCopter takes the yaw of a DO_MOUNT_CONTROL mission item as an
+        // absolute vehicle heading when its mount has no yaw axis (the drone faced north for the whole survey).
+        // DO_GIMBAL_MANAGER_PITCHYAW only sets the mount: yaw in the vehicle frame, primary gimbal. Rates are 0, not NaN:
+        // ArduPilot refuses NaN in param3 / param4 of this mission item (MAV_MISSION_INVALID_PARAM3, company SITL).
+        MissionItem* item = new MissionItem(nextSequenceNumber++,
+                                            MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW,
+                                            MAV_FRAME_MISSION,
+                                            _gimbalPitchFact.rawValue().toDouble(),
+                                            _gimbalYawFact.rawValue().toDouble(),
+                                            0, 0,                                   // pitch / yaw rate: unused with angles set
+                                            kGimbalManagerItemFlags,
+                                            0,                                      // param 6 not used
+                                            0,                                      // gimbal device id 0 = primary
+                                            true,                                   // autoContinue
+                                            false,                                  // isCurrentItem
+                                            missionItemParent);
+        items.append(item);
+    } else if (_specifyGimbal) {
         MissionItem* item = new MissionItem(nextSequenceNumber++,
                                             MAV_CMD_DO_MOUNT_CONTROL,
                                             MAV_FRAME_MISSION,
@@ -252,6 +271,12 @@ void CameraSection::appendStopTakingVideo(QList<MissionItem*>& items, int& seqNu
     items.append(item);
 }
 
+bool CameraSection::_useGimbalManagerItem() const
+{
+    Vehicle* vehicle = _masterController ? _masterController->controllerVehicle() : nullptr;
+    return vehicle && vehicle->apmFirmware();
+}
+
 bool CameraSection::_scanGimbal(QmlObjectListModel* visualItems, int scanIndex)
 {
     if (scanIndex > visualItems->count() -1) {
@@ -265,6 +290,20 @@ bool CameraSection::_scanGimbal(QmlObjectListModel* visualItems, int scanIndex)
                 setSpecifyGimbal(true);
                 gimbalPitch()->setRawValue(missionItem.param1());
                 gimbalYaw()->setRawValue(missionItem.param3());
+                visualItems->removeAt(scanIndex)->deleteLater();
+                return true;
+            }
+        }
+        // the ArduPilot form written by appendSectionItems (rates NaN, or 0 after a round trip through some tools)
+        if ((MAV_CMD)item->command() == MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW) {
+            const auto unusedRate = [](double v) { return qIsNaN(v) || v == 0; };
+            if (unusedRate(missionItem.param3()) && unusedRate(missionItem.param4())
+                    && static_cast<int>(missionItem.param5()) == kGimbalManagerItemFlags
+                    && missionItem.param6() == 0 && missionItem.param7() == 0
+                    && !qIsNaN(missionItem.param1()) && !qIsNaN(missionItem.param2())) {
+                setSpecifyGimbal(true);
+                gimbalPitch()->setRawValue(missionItem.param1());
+                gimbalYaw()->setRawValue(missionItem.param2());
                 visualItems->removeAt(scanIndex)->deleteLater();
                 return true;
             }

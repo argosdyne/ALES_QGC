@@ -79,6 +79,19 @@ AutoPilotPlugin* APMFirmwarePlugin::autopilotPlugin(Vehicle* vehicle)
     return new APMAutoPilotPlugin(vehicle, vehicle);
 }
 
+// Surveys point the gimbal down at the start (MissionController) only when the plugin reports a gimbal (Tuleap bug
+// #25427: ArduPilot surveys never did). CameraSection writes the gimbal item for ArduPilot as
+// DO_GIMBAL_MANAGER_PITCHYAW, which only moves an autopilot mount (does nothing without one) and, unlike
+// DO_MOUNT_CONTROL, never turns a copter whose mount has no yaw axis (#17595).
+bool APMFirmwarePlugin::hasGimbal(Vehicle* vehicle, bool& rollSupported, bool& pitchSupported, bool& yawSupported)
+{
+    Q_UNUSED(vehicle)
+    rollSupported = false;
+    pitchSupported = true;
+    yawSupported = true;
+    return true;
+}
+
 bool APMFirmwarePlugin::isCapable(const Vehicle* vehicle, FirmwareCapabilities capabilities)
 {
     uint32_t available = SetFlightModeCapability | PauseVehicleCapability | GuidedModeCapability | ROIModeCapability;
