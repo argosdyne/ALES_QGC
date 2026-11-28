@@ -179,9 +179,9 @@ def check_licenses(aliases):
             fail('licenses', 'no entry for %s' % must)
 
 # ---------------------------------------------------------------- fonts and label widths (every language)
-# Fallback order as in QGCApplication::setLanguage(): Roboto, Noto Sans KR, then Noto Sans JP and Noto Sans TC
-# (Traditional Chinese puts TC before JP, chosen at start from the saved language)
-CJK_ORDER = {'zh_TW': ('KR', 'TC', 'JP')}
+# Fallback order as in QGCApplication::setLanguage() (chosen at start from the loaded language): Roboto, then
+# Traditional Chinese TC, JP, KR; Japanese JP, TC, KR; every other language KR, JP, TC
+CJK_ORDER = {'zh_TW': ('TC', 'JP', 'KR'), 'ja_JP': ('JP', 'TC', 'KR')}
 DEFAULT_CJK = ('KR', 'JP', 'TC')
 
 def check_fonts(all_ts):

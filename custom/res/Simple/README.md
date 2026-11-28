@@ -100,9 +100,10 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
 - All Simple UI text uses `SText` → `SimpleTheme.fontFamily` ("Roboto"). Latin letters and digits stay Roboto;
   Hangul falls back to Noto Sans KR, kana / kanji to Noto Sans JP, other Han characters to Noto Sans TC
   (`QFont::insertSubstitutions` in `QGCApplication::setLanguage()`, set once at start: changing the list at runtime
-  made Android draw earlier text with glyphs of the other font, kanji shown as Hangul). The order is KR → JP → TC,
-  or KR → TC → JP when the saved language is Traditional Chinese (Han characters shared with Japanese then use the
-  Taiwan glyph forms; after switching between Japanese and Traditional Chinese the forms are right after a restart). 한국어 and 日本語 in the language
+  made Android draw earlier text with glyphs of the other font, kanji shown as Hangul). The order follows the language
+  loaded at start (also "System" on a Taiwan device): Traditional Chinese TC → JP → KR, Japanese JP → TC → KR, every
+  other language KR → JP → TC, so shared Han characters and full-width punctuation use the regional forms (after
+  switching between these languages the forms are right after a restart). 한국어 and 日本語 in the language
   list are always drawn by the bundled fonts (日本語 by the KR subset). Roboto Medium may register as its own family "Roboto Medium" (Windows);
   `SimpleTheme.fontFamilyMedium` handles that.
 - Long translations: `SText.fitMin` (< 1) lets a label with a fixed width shrink to fit, down to that share of its

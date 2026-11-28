@@ -437,17 +437,29 @@ void QGCApplication::setLanguage()
         // Latin and digits stay Roboto; Hangul falls back to Noto Sans KR, kana and kanji to Noto Sans JP, other
         // Han characters to Noto Sans TC (the KR subset has no kana and no Han characters except 日本語). Set once:
         // changing the fallback list at runtime made Qt draw text laid out before the change with glyphs of the
-        // other font (kanji shown as Hangul on Android after switching languages, 2026-11-24). Han characters
-        // shared by Japanese and Chinese take the first font that has them, so the order follows the language
-        // saved at start: Traditional Chinese puts TC before JP (Taiwan glyph forms). Switching between Japanese
-        // and Traditional Chinese shows the right glyph forms after a restart.
-        const bool tcFirst = languageID == AppSettings::traditionalChineseTaiwanLanguageID;
-        const QString jp = QStringLiteral("Noto Sans JP"), tc = QStringLiteral("Noto Sans TC");
-        const QString jpM = QStringLiteral("Noto Sans JP Medium"), tcM = QStringLiteral("Noto Sans TC Medium");
-        QFont::insertSubstitutions(QStringLiteral("Roboto"), { QStringLiteral("Noto Sans KR"), tcFirst ? tc : jp, tcFirst ? jp : tc });
-        QFont::insertSubstitutions(QStringLiteral("Roboto Medium"), { QStringLiteral("Noto Sans KR Medium"), QStringLiteral("Noto Sans KR"),
-                                                                      tcFirst ? tcM : jpM, tcFirst ? tc : jp,
-                                                                      tcFirst ? jpM : tcM, tcFirst ? jp : tc });
+        // other font (kanji shown as Hangul on Android after switching languages, 2026-11-24). Han characters and
+        // full-width punctuation shared by the three fonts take the first font that has them, so the order follows
+        // the language loaded at start (also "System" on a Taiwan device): Traditional Chinese TC → JP → KR,
+        // Japanese JP → TC → KR (regional glyph forms, punctuation not in Korean form), else KR → JP → TC.
+        // Switching between these languages shows the right forms after a restart.
+        const bool traditionalChinese = _locale.language() == QLocale::Chinese &&
+                (_locale.script() == QLocale::TraditionalHanScript || _locale.country() == QLocale::Taiwan ||
+                 _locale.country() == QLocale::HongKong || _locale.country() == QLocale::Macau);
+        QStringList order = { QStringLiteral("KR"), QStringLiteral("JP"), QStringLiteral("TC") };
+        if (traditionalChinese) {
+            order = QStringList{ QStringLiteral("TC"), QStringLiteral("JP"), QStringLiteral("KR") };
+        } else if (_locale.language() == QLocale::Japanese) {
+            order = QStringList{ QStringLiteral("JP"), QStringLiteral("TC"), QStringLiteral("KR") };
+        }
+        QStringList regular, medium;
+        for (const QString& script : order) {
+            const QString family = QStringLiteral("Noto Sans ") + script;
+            regular << family;
+            medium << family + QStringLiteral(" Medium") << family;
+        }
+        QFont::insertSubstitutions(QStringLiteral("Roboto"), regular);
+        QFont::insertSubstitutions(QStringLiteral("Roboto Medium"), medium);
+        qCDebug(LocalizationLog) << "Simple UI CJK fallback" << regular;
     }
 
     qCDebug(LocalizationLog) << "Loading localizations for" << _locale.name();

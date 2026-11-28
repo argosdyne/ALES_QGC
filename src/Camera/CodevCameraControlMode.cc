@@ -2,6 +2,7 @@
 #include "QGCApplication.h"
 #include "QGCCameraIO.h"
 #include "VideoManager.h"
+#include <cstring>
 
 static constexpr int kModeSwitchGraceMs = 8000;
 static constexpr int kStorageRefreshInitialDelayMs = 800;
@@ -98,7 +99,11 @@ void CodevCameraControl::_syncPhotoPoolFromCaptureStatus(float availableCapacity
         if (st.status != STORAGE_STATUS_READY) {
             st.status = STORAGE_STATUS_READY;
         }
+        const bool statusChanged = storage->storageInfo().status != st.status;
         storage->update(st);
+        if (statusChanged) {
+            emit storagePoolsChanged();
+        }
         if (cameraMode() == CAM_MODE_PHOTO) {
             _applyStorageInfoToDisplay(st);
         }
@@ -484,7 +489,7 @@ QVariantList CodevCameraControl::storagePools()
         const mavlink_storage_information_t& st = storage->storageInfo();
         QVariantMap pool;
         pool[QStringLiteral("id")]    = static_cast<int>(st.storage_id);
-        pool[QStringLiteral("name")]  = QString::fromLatin1(st.name, static_cast<int>(strnlen(st.name, sizeof(st.name))));
+        pool[QStringLiteral("name")]  = QString::fromUtf8(st.name, static_cast<int>(strnlen(st.name, sizeof(st.name))));
         pool[QStringLiteral("photo")] = (st.storage_usage & STORAGE_USAGE_FLAG_SET) && (st.storage_usage & STORAGE_USAGE_FLAG_PHOTO);
         pool[QStringLiteral("video")] = (st.storage_usage & STORAGE_USAGE_FLAG_SET) && (st.storage_usage & STORAGE_USAGE_FLAG_VIDEO);
         pool[QStringLiteral("ready")] = st.status == STORAGE_STATUS_READY;
@@ -523,8 +528,16 @@ void CodevCameraControl::handleStorageInfo(const mavlink_storage_information_t& 
         _storageInfos.append(new CodevStorageInfo(st, this));
         emit storagePoolsChanged();
     } else if (st.storage_id > 0 && st.storage_id <= static_cast<uint8_t>(_storageInfos.count())) {
-        _storageInfos.value<CodevStorageInfo*>(st.storage_id - 1)->update(st);
-        emit storagePoolsChanged();
+        auto* storage = _storageInfos.value<CodevStorageInfo*>(st.storage_id - 1);
+        // storagePools lists id, name, usage and status only: capacity updates (several a second after a mode
+        // switch) must not rebuild the S100 card choice while the user taps it
+        const mavlink_storage_information_t& old = storage->storageInfo();
+        const bool poolChanged = old.storage_usage != st.storage_usage || old.status != st.status
+                || strncmp(old.name, st.name, sizeof(st.name)) != 0;
+        storage->update(st);
+        if (poolChanged) {
+            emit storagePoolsChanged();
+        }
     }
 
     if (!(st.storage_usage & STORAGE_USAGE_FLAG_SET)) {
