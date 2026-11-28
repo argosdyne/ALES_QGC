@@ -6,6 +6,12 @@ Needs fontTools (pip install fonttools) for the font checks.
 Exit code 0 = all checks passed (warnings allowed), 1 = at least one failure.
 """
 import glob, json, os, re, sys, xml.etree.ElementTree as ET
+# messages contain Korean / CJK text: do not crash on a Windows console with a legacy code page (cp949)
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(errors='replace')
+    except AttributeError:
+        pass
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 SIMPLE = os.path.join(ROOT, 'custom', 'res', 'Simple')
@@ -174,7 +180,7 @@ def check_licenses(aliases):
         txt = open(p, encoding='utf-8').read()
         if 'License' not in txt and 'LICENSE' not in txt and 'licen' not in txt.lower():
             warn('licenses', '%s has no licence wording' % it['file'])
-    for must in ('QGroundControl', 'Roboto', 'Noto Sans KR', 'Noto Sans JP'):
+    for must in ('QGroundControl', 'Roboto', 'Noto Sans KR', 'Noto Sans JP', 'Noto Sans TC'):
         if not any(i['name'].startswith(must) for i in items):
             fail('licenses', 'no entry for %s' % must)
 

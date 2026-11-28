@@ -40,6 +40,7 @@ QtObject {
             property QtObject offlineEditingHoverSpeed:   QtObject { property var rawValue: 5 }
             property QtObject offlineEditingAscentSpeed:  QtObject { property var rawValue: 2 }
             property QtObject offlineEditingDescentSpeed: QtObject { property var rawValue: 1 }
+            property QtObject qLocaleLanguage:            QtObject { property var rawValue: 0 }
         }
     }
     // metric: metres in, metres out

@@ -32,7 +32,7 @@ Rectangle {
         row(qsTr("Ground power"), _st.noPower ? qsTr("Lost") : _st.powerOn ? qsTr("On") : qsTr("Off"), _st.noPower ? "danger" : _st.powerOn ? "ok" : "warn"),
         row(qsTr("Backup battery"), isNaN(vs.batteryPct) ? "—" : Math.round(vs.batteryPct) + " %" + (/[1-9]/.test(vs.batteryTime) ? " · ≈ " + vs.batteryTime : ""),
             !isNaN(vs.batteryPct) && vs.batteryPct <= 15 ? "danger" : !isNaN(vs.batteryPct) && vs.batteryPct <= 30 ? "warn" : "ok"),
-        row(qsTr("Power"), !_mon ? "—" : Math.round(_st.powerWatts).toLocaleString(Qt.locale(), 'f', 0) + " W", ""),
+        row(qsTr("Power"), !_mon ? "—" : Math.round(_st.powerWatts).toString() + " W", ""),
         row(qsTr("Spool temperature"), !_mon ? "—" : Math.round(_st.spoolTemperature) + " °C", "")
     ]
     readonly property string statusLevel: !_st ? "off" : _st.noPower || _st.alarmActive || _st.linkLost ? "danger"

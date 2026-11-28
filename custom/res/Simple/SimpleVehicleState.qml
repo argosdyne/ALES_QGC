@@ -179,6 +179,9 @@ QtObject {
         _returnLatch = false; _holdSince = 0; _holdEndedAt = 0; _appTier = -1; _fcFenceBreachAt = 0
         _clearCause()
         _updateReturnLatch()
+        // the new drone may already be returning: the hold then does not change and on_HoldCausesChanged does not
+        // run, so start its window here once the bindings follow the new drone (code review)
+        Qt.callLater(function() { if (s._holdCauses && s._holdSince === 0) s._holdSince = s._now() })
     }
     on_HoldCausesChanged: {
         if (_holdCauses) {

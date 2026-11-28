@@ -1,6 +1,7 @@
 // S* components: stepper, slide-to-confirm, segmented, toggle, button, setting row (mouse-driven)
 import QtQuick 2.12
 import QtTest 1.12
+import QGroundControl 1.0
 import "../../res/Simple"
 
 Item {
@@ -21,6 +22,7 @@ TestCase {
                 SToggle { property bool state_: false; property bool ignore: false
                           checked: state_; onToggled: if (!ignore) state_ = checked } }
     Component { id: spyComp;     SignalSpy { } }
+    Component { id: langComp;    SLanguageCombo { } }
     Component { id: buttonComp;  SButton { text: "OK" } }
     Component { id: rowComp;     SSettingRow { width: 900; title: "Legal & licenses"; sub: "x" } }
     Component { id: actionComp;  SActionButton { icon: "takeoff"; text: "Take off" } }
@@ -211,6 +213,21 @@ TestCase {
         for (var i = 0; i < 500; i++) mouseClick(t)
         verify(!t.checked); verify(!t.state_)
         mouseClick(t); verify(t.checked, "binding still alive after 501 taps")
+    }
+
+    // language list: a saved value the list does not offer shows System, not a blank box (code review)
+    function test_language_combo_unknown_value() {
+        var f = QGroundControl.settingsManager.appSettings.qLocaleLanguage
+        f.rawValue = 10000
+        var c = createTemporaryObject(langComp, root)
+        compare(c.currentIndex, c.languageValues.indexOf(10000))
+        f.rawValue = 125                                  // Türk, saved by an older build
+        compare(c.currentIndex, 0)
+        f.rawValue = 25                                   // 简体中文
+        compare(c.currentIndex, 0)
+        f.rawValue = 66
+        compare(c.currentIndex, c.languageValues.indexOf(66))
+        f.rawValue = 0
     }
 }
 }

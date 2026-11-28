@@ -19,7 +19,8 @@ SComboBox {
 
     // Not a binding: choosing an item sets currentIndex (the binding would be lost), and the language change
     // rebuilds the model (qsTr), which resets a ComboBox to index 0 ("System"). Set it again after both.
-    function _sync() { currentIndex = languageValues.indexOf(Number(_fact.rawValue)) }
+    // a language this list does not offer (saved by an older build, e.g. 简体中文 or Türk) shows as System, not blank
+    function _sync() { var i = languageValues.indexOf(Number(_fact.rawValue)); currentIndex = i < 0 ? 0 : i }
     Component.onCompleted: _sync()
     onModelChanged: _sync()
     Connections { target: box._fact; function onRawValueChanged() { box._sync() } }

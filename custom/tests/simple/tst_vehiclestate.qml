@@ -64,6 +64,8 @@ TestCase {
         s = createTemporaryObject(stateComp, tc, { vehicle: v })
         globals.planMasterControllerFlyView = null
     }
+    // a failed compare must not leave Advanced mode on for the next tests (recentReason adds the FC text there)
+    function cleanup() { QGroundControl.corePlugin.advancedMode = false }
 
     // ---- basic state table
     function test_no_vehicle() {
@@ -510,6 +512,17 @@ TestCase {
         verify(!s._holdCauses)
         v2.flightMode = "RTL"                                             // the new drone's return (within 5 s) gets its own start
         verify(s._holdSince > 0)
+    }
+    // code review nit: switching to another drone that is already returning starts its own hold window
+    function test_vehicle_switch_while_returning() {
+        v.armed = true; v.flying = true; v.flightMode = "RTL"
+        verify(s._holdCauses)
+        var v2 = createTemporaryObject(vehicleComp, tc)
+        v2.armed = true; v2.flying = true; v2.flightMode = "RTL"
+        s.vehicle = v2
+        tryVerify(function() { return s._holdSince > 0 }, 1000, "hold window started for the new drone")
+        v2.textMessageReceived(1, 1, 2, "Battery 1 is low", "")
+        verify(s._isStartCause(s._causes["battery"]))
     }
     // random: mode sequences never leave a latch while disarmed, and a hold always has a start time
     function test_bug28594_random_modes() {
