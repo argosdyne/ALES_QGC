@@ -55,6 +55,12 @@ QList<int> AppSettings::_rgReleaseLanguages = {
     QLocale::English,
     QLocale::Korean,
     QLocale::Azerbaijani,
+    // AQGC Simple UI languages (SLanguageCombo): a stable build must keep them after a restart
+    QLocale::Vietnamese,
+    QLocale::Danish,
+    QLocale::Portuguese,
+    QLocale::Japanese,
+    AppSettings::traditionalChineseTaiwanLanguageID,
 };
 // Partial languages are 40%+ complete
 QList<int> AppSettings::_rgPartialLanguages = {
@@ -250,7 +256,7 @@ DECLARE_SETTINGSFACT_NO_FUNC(AppSettings, qLocaleLanguage)
         // Only daily builds include full set
         for (int i=0; i<rgOriginalStrings.count(); i++) {
             int languageId = rgOriginalValues[i].toInt();
-            if (!_rgReleaseLanguages.contains(languageId)  || !_rgPartialLanguages.contains(languageId)) {
+            if (!_rgReleaseLanguages.contains(languageId) && !_rgPartialLanguages.contains(languageId)) {
                 rgUpdatedStrings.append(rgOriginalStrings[i] + AppSettings::tr(" (Test only)"));
                 rgUpdatedValues.append(rgOriginalValues[i].toInt());
             }
@@ -417,7 +423,7 @@ void AppSettings::firstRunPromptIdsMarkIdAsShown(int id)
 
 /// Hack to provide language settings as early in the boot process as possible. Must be known
 /// prior to loading any json files.
-QLocale::Language AppSettings::_qLocaleLanguageID(void)
+int AppSettings::_qLocaleLanguageID(void)
 {
     QSettings settings;
 
@@ -435,15 +441,14 @@ QLocale::Language AppSettings::_qLocaleLanguageID(void)
         settings.remove("language");
     }
 
-    QLocale::Language id = settings.value(qLocaleLanguageName, QLocale::AnyLanguage).value<QLocale::Language>();
-    if (id == QLocale::AnyLanguage) {
+    int id = settings.value(qLocaleLanguageName, QLocale::AnyLanguage).toInt();
 #ifndef DAILY_BUILD
-        // Stable builds only support released and partial languages
-        if (!_rgReleaseLanguages.contains(id) && _rgPartialLanguages.contains(id)) {
-            id = QLocale::English;
-        }
-#endif
+    // Stable builds only support released and partial languages, so a language saved by a
+    // daily build that is not offered here falls back to the system language
+    if (!_rgReleaseLanguages.contains(id) && !_rgPartialLanguages.contains(id)) {
+        id = QLocale::AnyLanguage;
     }
+#endif
 
     return id;
 }
