@@ -63,6 +63,7 @@ public:
     QString             rtlFlightMode                   (void) const override { return QString("RTL"); }
     QString             smartRTLFlightMode              (void) const override { return QString("Smart RTL"); }
     QString             missionFlightMode               (void) const override { return QString("Auto"); }
+    bool                hasGimbal                       (Vehicle* vehicle, bool& rollSupported, bool& pitchSupported, bool& yawSupported) override;
     void                pauseVehicle                    (Vehicle* vehicle) override;
     void                guidedModeRTL                   (Vehicle* vehicle, bool smartRTL) override;
     void                guidedModeChangeAltitude        (Vehicle* vehicle, double altitudeChange, bool pauseVehicle) override;

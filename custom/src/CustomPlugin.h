@@ -118,6 +118,10 @@ public:
     QObject* privacyData() { return _privacyData; }
     CustomSettings* settings(){ return _settings; }
 
+    // Simple UI Go here arrival (S36, Tuleap bug #36983): short chime + spoken text. Silent when the app's voice alerts
+    // are off (Settings › General › Voice alerts = appSettings.audioMuted), like the other voice warnings.
+    Q_INVOKABLE void    simpleArrivalAlert(const QString& spokenText);
+
     // Simple UI saved missions (S24): number of mission items in a .plan, or -1 when the file cannot be read
     // (not a JSON object, fileType not "Plan", no "mission" object with an "items" array, empty or over 20 MB).
     // The preview loads only readable files of moderate size (the classic loader shows its own error popup).

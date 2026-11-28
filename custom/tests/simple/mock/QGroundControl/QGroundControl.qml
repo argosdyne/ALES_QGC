@@ -40,6 +40,7 @@ QtObject {
             property QtObject offlineEditingHoverSpeed:   QtObject { property var rawValue: 5 }
             property QtObject offlineEditingAscentSpeed:  QtObject { property var rawValue: 2 }
             property QtObject offlineEditingDescentSpeed: QtObject { property var rawValue: 1 }
+            property QtObject qLocaleLanguage:            QtObject { property var rawValue: 0 }
         }
     }
     // metric: metres in, metres out
@@ -49,6 +50,7 @@ QtObject {
         function metersToAppSettingsVerticalDistanceUnits(m)   { return m }
         function appSettingsVerticalDistanceUnitsToMeters(d)   { return d }
         function metersToAppSettingsHorizontalDistanceUnits(m) { return m }
+        function appSettingsHorizontalDistanceUnitsToMeters(d) { return d }
     }
     property QtObject multiVehicleManager: QtObject { property var activeVehicle: null }
 }

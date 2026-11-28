@@ -60,27 +60,27 @@ SPanel {
                 width: parent.width; height: SimpleTheme.px(80)
                 SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Flight height"); size: 24; color: SimpleTheme.textSecondary }
                 SStepper { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
-                    unit: "m"; step: 5; from: 10; to: sp.maxAlt
-                    value: sp._cam ? Math.round(sp._cam.distanceToSurface.rawValue) : 80
-                    onEdited: sp._cam.distanceToSurface.rawValue = value; objectName: "dist" }
+                    unit: SimpleTheme.vUnit(); step: SimpleTheme.vStep(5); from: Math.ceil(SimpleTheme.toV(10)); to: Math.floor(SimpleTheme.toV(sp.maxAlt))
+                    value: Math.round(SimpleTheme.toV(sp._cam ? sp._cam.distanceToSurface.rawValue : 80))
+                    onEdited: sp._cam.distanceToSurface.rawValue = SimpleTheme.fromV(value); objectName: "dist" }
             }
             SText {
                 width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textTertiary
                 text: sp._cam && !sp._cam.isManualCamera
-                      ? qsTr("Photo detail ≈ %1 per pixel · limited to %2 m").arg(sp._cam.imageDensity.valueString + " " + sp._cam.imageDensity.units).arg(sp.maxAlt)
-                      : qsTr("Limited to %1 m (maximum altitude)").arg(sp.maxAlt)
+                      ? qsTr("Photo detail ≈ %1 per pixel · limited to %2").arg(sp._cam.imageDensity.valueString + " " + sp._cam.imageDensity.units).arg(SimpleTheme.vText(sp.maxAlt))
+                      : qsTr("Limited to %1 (maximum altitude)").arg(SimpleTheme.vText(sp.maxAlt))
             }
             Item {
                 width: parent.width; height: SimpleTheme.px(80)
                 SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Corridor width"); size: 24; color: SimpleTheme.textSecondary }
                 SStepper { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
-                    unit: "m"; step: 10; from: 10; to: 300
-                    value: Math.round(sp._v("corridorWidth"))
-                    onEdited: sp.item.corridorWidth.rawValue = value; objectName: "width" }
+                    unit: SimpleTheme.hUnit(); step: SimpleTheme.hStep(10); from: Math.ceil(SimpleTheme.toH(10)); to: Math.floor(SimpleTheme.toH(300))
+                    value: Math.round(SimpleTheme.toH(sp._v("corridorWidth")))
+                    onEdited: sp.item.corridorWidth.rawValue = SimpleTheme.fromH(value); objectName: "width" }
             }
             SText {
                 width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textTertiary
-                text: qsTr("Strip mapped on both sides of the line (%1 m each side)").arg(Math.round(sp._v("corridorWidth") / 2))
+                text: qsTr("Strip mapped on both sides of the line (%1 each side)").arg(SimpleTheme.hText(sp._v("corridorWidth") / 2))
             }
             SText { visible: !!sp._cam && !sp._cam.isManualCamera; text: qsTr("Image overlap"); size: 24; color: SimpleTheme.textSecondary }
             SSegmented {
@@ -103,13 +103,13 @@ SPanel {
                 width: parent.width; height: SimpleTheme.px(76)
                 SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Flight height"); size: 24; color: SimpleTheme.textSecondary }
                 SStepper { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
-                    unit: "m"; step: 5; from: 20; to: sp.maxAlt
-                    value: sp._cam ? Math.round(sp._cam.distanceToSurface.rawValue) : 60
-                    objectName: "dist"; onEdited: { sp._cam.distanceToSurface.rawValue = value; sp.ysEdited() } }
+                    unit: SimpleTheme.vUnit(); step: SimpleTheme.vStep(5); from: Math.ceil(SimpleTheme.toV(20)); to: Math.floor(SimpleTheme.toV(sp.maxAlt))
+                    value: Math.round(SimpleTheme.toV(sp._cam ? sp._cam.distanceToSurface.rawValue : 60))
+                    objectName: "dist"; onEdited: { sp._cam.distanceToSurface.rawValue = SimpleTheme.fromV(value); sp.ysEdited() } }
             }
             SText {
                 width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textTertiary
-                text: qsTr("Line spacing %1 m · limited to %2 m").arg(sp._cam ? Math.round(sp._cam.adjustedFootprintSide.rawValue) : "—").arg(sp.maxAlt)
+                text: qsTr("Line spacing %1 · limited to %2").arg(sp._cam ? SimpleTheme.hText(sp._cam.adjustedFootprintSide.rawValue) : "—").arg(SimpleTheme.vText(sp.maxAlt))
             }
             Item {
                 visible: !!sp._speed
@@ -169,9 +169,9 @@ SPanel {
                 width: parent.width; height: SimpleTheme.px(76)
                 SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Distance from structure"); size: 24; color: SimpleTheme.textSecondary }
                 SStepper { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
-                    unit: "m"; step: 1; from: 3; to: 100
-                    value: sp._cam ? Math.round(sp._cam.distanceToSurface.rawValue) : 15
-                    onEdited: sp._cam.distanceToSurface.rawValue = value; objectName: "dist" }
+                    unit: SimpleTheme.hUnit(); step: SimpleTheme.hStep(1); from: Math.ceil(SimpleTheme.toH(3)); to: Math.floor(SimpleTheme.toH(100))
+                    value: Math.round(SimpleTheme.toH(sp._cam ? sp._cam.distanceToSurface.rawValue : 15))
+                    onEdited: sp._cam.distanceToSurface.rawValue = SimpleTheme.fromH(value); objectName: "dist" }
             }
             SText {
                 visible: !!sp._cam && sp._cam.distanceToSurface.rawValue < 10
@@ -182,17 +182,19 @@ SPanel {
                 width: parent.width; height: SimpleTheme.px(76)
                 SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Bottom height"); size: 24; color: SimpleTheme.textSecondary }
                 SStepper { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
-                    unit: "m"; step: 1; from: 2; to: Math.max(2, Math.round(sp._v("structureHeight")) - 1)
-                    value: Math.round(sp._v("scanBottomAlt"))
-                    onEdited: sp.item.scanBottomAlt.rawValue = value; objectName: "bottom" }
+                    unit: SimpleTheme.vUnit(); step: SimpleTheme.vStep(1); from: Math.ceil(SimpleTheme.toV(2))
+                    to: Math.max(from, Math.round(SimpleTheme.toV(sp._v("structureHeight"))) - step)
+                    value: Math.round(SimpleTheme.toV(sp._v("scanBottomAlt")))
+                    onEdited: sp.item.scanBottomAlt.rawValue = SimpleTheme.fromV(value); objectName: "bottom" }
             }
             Item {
                 width: parent.width; height: SimpleTheme.px(76)
                 SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Top height"); size: 24; color: SimpleTheme.textSecondary }
                 SStepper { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
-                    unit: "m"; step: 1; from: Math.round(sp._v("scanBottomAlt")) + 1; to: sp.maxAlt
-                    value: Math.round(sp._v("structureHeight"))
-                    onEdited: sp.item.structureHeight.rawValue = value; objectName: "top" }
+                    unit: SimpleTheme.vUnit(); step: SimpleTheme.vStep(1); from: Math.round(SimpleTheme.toV(sp._v("scanBottomAlt"))) + step
+                    to: Math.floor(SimpleTheme.toV(sp.maxAlt))
+                    value: Math.round(SimpleTheme.toV(sp._v("structureHeight")))
+                    onEdited: sp.item.structureHeight.rawValue = SimpleTheme.fromV(value); objectName: "top" }
             }
             Item {
                 width: parent.width; height: SimpleTheme.px(56)
@@ -222,12 +224,12 @@ SPanel {
             Repeater {
                 model: [
                     { l: qsTr("FLIGHT TIME"), v: sp._fmtTime(sp.mission ? sp.mission.missionTime : 0) },
-                    sp.kind === "lidar" ? { l: qsTr("AREA"), v: sp.item && sp.item.coveredArea !== undefined ? (sp.item.coveredArea / 10000).toFixed(1) + " ha" : "—" }
+                    sp.kind === "lidar" ? { l: qsTr("AREA"), v: sp.item && sp.item.coveredArea !== undefined ? SimpleTheme.areaText(sp.item.coveredArea) : "—" }
                                         : { l: qsTr("PHOTOS"), v: sp.item && sp.item.cameraShots !== undefined ? String(sp.item.cameraShots) : "—" },
                     { l: qsTr("BATTERIES"),   v: sp.mission && sp.mission.batteriesRequired > 0 ? String(sp.mission.batteriesRequired) : "—" },
-                    sp.kind === "lidar" ? { l: qsTr("SPACING"), v: sp._cam ? Math.round(sp._cam.adjustedFootprintSide.rawValue) + " m" : "—" }
+                    sp.kind === "lidar" ? { l: qsTr("SPACING"), v: sp._cam ? SimpleTheme.hText(sp._cam.adjustedFootprintSide.rawValue) : "—" }
                   : sp.kind === "structure" ? { l: qsTr("LAYERS"), v: sp.item ? (sp.item && sp.item.layers ? sp.item.layers.valueString : "—") : "—" }
-                                            : { l: qsTr("LENGTH"), v: (sp.lineLength / 1000).toFixed(1) + " km" }
+                                            : { l: qsTr("LENGTH"), v: SimpleTheme.longText(sp.lineLength) }
                 ]
                 Column {
                     width: parent.width / 4

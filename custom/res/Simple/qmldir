@@ -72,6 +72,7 @@ SimpleTakeoffSheet 1.0 SimpleTakeoffSheet.qml
 SimpleTopBar 1.0 SimpleTopBar.qml
 SimpleVehicleState 1.0 SimpleVehicleState.qml
 SComboBox 1.0 SComboBox.qml
+SLanguageCombo 1.0 SLanguageCombo.qml
 SimpleWelcome 1.0 SimpleWelcome.qml
 SSheet 1.0 SSheet.qml
 SNotice 1.0 SNotice.qml

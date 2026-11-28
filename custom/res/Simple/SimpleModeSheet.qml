@@ -13,6 +13,7 @@ SPanel {
     property var vehicle: null
     signal rtlRequested()
     signal landRequested()
+    signal modeRefused(string title)
     readonly property bool _adv: QGroundControl.corePlugin.advancedMode
     title: _adv ? qsTr("Flight mode · all modes") : qsTr("Flight mode")
     width:  SimpleTheme.px(_adv ? 980 : 760)
@@ -26,8 +27,54 @@ SPanel {
     ]
     function _available(names) {
         if (!vehicle) return ""
-        for (var i = 0; i < names.length; i++) if (vehicle.flightModes.indexOf(names[i]) !== -1) return names[i]
+        for (var i = 0; i < names.length; i++) if (vehicle.flightModes.indexOf(names[i]) !== -1 && !_refused[names[i]]) return names[i]
         return ""
+    }
+
+    // Tuleap bug #8378: the mode list comes from the firmware plugin, not from the drone, so it can offer a mode the
+    // drone's firmware does not have (Slow = 30 only on newer company firmware: "No such mode 30"). A mode the drone
+    // answers with "No such mode" (within 5 s of the request) is hidden for this drone and the pilot is told.
+    property var    _refused: ({})               // mode name -> true
+    property string _asked: ""
+    property string _askedTitle: ""
+    property real   _askedAt: 0
+    function _setMode(n, t) {
+        _asked = n; _askedTitle = t; _askedAt = Date.now()
+        vehicle.flightMode = n
+    }
+    // ArduCopter mode numbers by the names the APM plugin reports (ArduCopterFirmwarePlugin): the "No such mode N"
+    // line must name the requested mode, not e.g. a mode an RC switch asked for (code review)
+    readonly property var _copterModeNumbers: ({
+        "Stabilize": 0, "Acro": 1, "Altitude Hold": 2, "Auto": 3, "Guided": 4, "Loiter": 5, "RTL": 6, "Circle": 7,
+        "Land": 9, "Drift": 11, "Sport": 13, "Flip": 14, "Autotune": 15, "Position Hold": 16, "Brake": 17, "Throw": 18,
+        "Avoid ADSB": 19, "Guided No GPS": 20, "Smart RTL": 21, "Flow Hold": 22, "Follow": 23, "ZigZag": 24,
+        "SystemID": 25, "AutoRotate": 26, "AutoRTL": 27, "Turtle": 28, "Slow": 30 })
+    function _onDroneText(text) {
+        if (_asked === "" || Date.now() - _askedAt > 5000) return
+        var m = /no such mode\s*(\d+)?/i.exec(text)
+        if (!m) return
+        var asked = _copterModeNumbers[_asked]
+        if (m[1] !== undefined && asked !== undefined && Number(m[1]) !== asked) return
+        var r = {}
+        for (var k in _refused) r[k] = true
+        r[_asked] = true
+        _refused = r
+        modeRefused(_askedTitle)
+        _asked = ""
+    }
+    onVehicleChanged: { _refused = ({}); _asked = "" }
+    // the drone took the requested mode: a later "No such mode" is not about it
+    Connections {
+        target: sheet.vehicle
+        ignoreUnknownSignals: true
+        function onFlightModeChanged() {
+            Qt.callLater(function() { if (sheet._asked !== "" && sheet.vehicle && sheet.vehicle.flightMode === sheet._asked) sheet._asked = "" })
+        }
+    }
+    Connections {
+        target: sheet.vehicle
+        ignoreUnknownSignals: true
+        function onTextMessageReceived(uasid, componentid, severity, text, description) { sheet._onDroneText(text) }
     }
 
     // Advanced: groups of ArduCopter modes (names as the firmware plugin reports them)
@@ -56,9 +103,14 @@ SPanel {
             { n: "Land", t: qsTr("Land"), d: qsTr("Lands where it is"), land: true } ] }
     ]
     // modes the drone offers that are not in a group (shown last)
+    // Slow (mode 30) stays in OTHER until the firmware has SLOW_ON (Figma S79 note 2026-11-28, user option 1): EU C2
+    // needs a low-speed mode the pilot can choose. With SLOW_ON (plan A, S104 / S105 switch) the row goes. Older
+    // company firmware without mode 30 answers "No such mode 30": the row is then hidden for that drone (bug #8378).
+    readonly property var _hidden: ({})
     readonly property var _others: {
         if (!vehicle) return []
         var known = {}
+        for (var h in _hidden) known[h] = true
         for (var g = 0; g < _groups.length; g++) for (var m = 0; m < _groups[g].modes.length; m++) known[_groups[g].modes[m].n] = true
         var out = []
         for (var i = 0; i < vehicle.flightModes.length; i++) if (!known[vehicle.flightModes[i]]) out.push({ n: vehicle.flightModes[i], t: vehicle.flightModes[i], d: "" })
@@ -69,7 +121,7 @@ SPanel {
         if (m.land) { sheet.closeRequested(); sheet.landRequested(); return }
         if (m.warn && confirmMode !== m.n) { confirmMode = m.n; return }
         confirmMode = ""
-        vehicle.flightMode = m.n
+        _setMode(m.n, m.t)
         sheet.closeRequested()
     }
     onVisibleChanged: confirmMode = ""
@@ -93,7 +145,7 @@ SPanel {
                     SText { text: modelData.title; size: 30; bold: true }
                     SText { text: modelData.detail; size: 22; color: SimpleTheme.textSecondary }
                 }
-                MouseArea { anchors.fill: parent; onClicked: { sheet.vehicle.flightMode = parent.modeName; sheet.closeRequested() } }
+                MouseArea { anchors.fill: parent; onClicked: { sheet._setMode(parent.modeName, modelData.title); sheet.closeRequested() } }
             }
         }
         SText { text: qsTr("Other flight modes are available in Advanced mode."); size: 22; color: SimpleTheme.textTertiary }
@@ -113,7 +165,7 @@ SPanel {
             Repeater {
                 model: sheet._adv ? sheet._groups.concat(sheet._others.length ? [{ t: qsTr("OTHER"), modes: sheet._others }] : []) : []
                 Column {
-                    readonly property var avail: modelData.modes.filter(function(m) { return sheet.vehicle && sheet.vehicle.flightModes.indexOf(m.n) !== -1 })
+                    readonly property var avail: modelData.modes.filter(function(m) { return sheet.vehicle && sheet.vehicle.flightModes.indexOf(m.n) !== -1 && !sheet._refused[m.n] })
                     visible: avail.length > 0
                     width: advCol.width
                     spacing: SimpleTheme.px(8)

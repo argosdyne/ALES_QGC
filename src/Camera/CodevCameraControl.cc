@@ -17,6 +17,7 @@
 #include "VideoManager.h"
 #include "SettingsManager.h"
 #include "GimbalController.h"
+#include "ParameterManager.h"
 #include "LinkManager.h"
 #include "VehicleLinkManager.h"
 #include <QCoreApplication>
@@ -140,7 +141,6 @@ static constexpr int kPostZoomSettingsSyncDelayMs = 1000;
 static constexpr int kZoomResetTravelTimeoutMs = 10000;
 static constexpr qint64 kFreshCameraReportMaxAgeMs = 5000;
 static constexpr int kMaxZoomStepsInFlight = 2;
-static constexpr int kMaxZoomCatchUpAttempts = 3;
 static constexpr int kZoomSettleResendDelayMs = 400;
 
 static bool _isStaleZoomDropToMin(float reported, float beforeRange)
@@ -242,6 +242,29 @@ CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info,
             _storageRefreshTimer.start();
         }
     });
+    // Free space in video mode (Tuleap bug #9422): the camera does not send storage information by itself while it
+    // records, and capture-status capacity is applied to the photo pool only, so the video pool shown in video mode
+    // stayed at its value from before the recording until the next switch to photo mode. Ask for every storage
+    // pool every 10 s while recording and once shortly after it stops (the camera closes the file first); each
+    // STORAGE_INFORMATION carries its storage id and usage, so the right pool is updated.
+    _recordingStorageTimer.setInterval(10000);
+    connect(&_recordingStorageTimer, &QTimer::timeout, this, &CodevCameraControl::_requestAllStoragePools);
+    connect(this, &QGCCameraControl::videoStatusChanged, this, [this]() {
+        const VideoStatus status = videoStatus();
+        if (status == _lastStorageVideoStatus) {
+            return;
+        }
+        const bool wasRecording = _lastStorageVideoStatus == VIDEO_CAPTURE_STATUS_RUNNING;
+        _lastStorageVideoStatus = status;
+        if (status == VIDEO_CAPTURE_STATUS_RUNNING) {
+            _recordingStorageTimer.start();
+        } else {
+            _recordingStorageTimer.stop();
+            if (wasRecording) {
+                QTimer::singleShot(1500, this, &CodevCameraControl::_requestAllStoragePools);
+            }
+        }
+    });
     _modeSwitchRecoveryTimer.setSingleShot(true);
     _modeSwitchRecoveryTimer.setInterval(3000);
     connect(&_modeSwitchRecoveryTimer, &QTimer::timeout, this, &CodevCameraControl::_checkModeSwitchRecovery);
@@ -290,10 +313,63 @@ CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info,
     connect(this, &CodevCameraControl::zoomLevelChanged, this, &CodevCameraControl::displayZoomLevelChanged);
 }
 
+// ArduPilot: the autopilot drives a servo mount (MNT1_TYPE 1 Servo / 7 BrushlessPWM) with no output assigned to
+// mount yaw (SERVOn_FUNCTION 6): AP_Mount has no pan control, so ArduCopter yaws the vehicle on DO_MOUNT_CONTROL.
+bool CodevCameraControl::_apmMountWithoutPan() const
+{
+    if (!_vehicle || !_vehicle->apmFirmware()) {
+        return false;
+    }
+    ParameterManager* pm = _vehicle->parameterManager();
+    const int compId = _vehicle->defaultComponentId();
+    if (!pm || !pm->parametersReady() || !pm->parameterExists(compId, QStringLiteral("MNT1_TYPE"))) {
+        return false;
+    }
+    const int type = pm->getParameter(compId, QStringLiteral("MNT1_TYPE"))->rawValue().toInt();
+    if (type != 1 && type != 7) {
+        return false;                               // no mount, or a gimbal type with its own yaw control
+    }
+    for (int i = 1; i <= 32; i++) {
+        const QString name = QStringLiteral("SERVO%1_FUNCTION").arg(i);
+        if (pm->parameterExists(compId, name) && pm->getParameter(compId, name)->rawValue().toInt() == 6) {
+            return false;                           // a mount yaw (pan) servo is assigned
+        }
+    }
+    return true;
+}
+
 bool CodevCameraControl::_sendGimbalManagerPitchYaw(float pitch, float yaw, uint32_t flags, const char* sourceTag)
 {
     if (!_vehicle->px4Firmware()) {
-        return false;
+        // ArduPilot (Tuleap bug #17595): when the autopilot drives a mount without a yaw axis, ArduCopter takes
+        // param3 of every DO_MOUNT_CONTROL as an absolute heading and turns the vehicle in modes with automatic yaw
+        // (RTL, Guided, Auto: "Align" sent yaw 0 and the drone turned north while landing; reproduced on the
+        // company SITL). DO_GIMBAL_MANAGER_PITCHYAW is not turned into a vehicle yaw, so use it for such a mount.
+        // Otherwise (no autopilot mount, e.g. a camera with its own gimbal, or a mount with yaw control) the legacy
+        // DO_MOUNT_CONTROL to the gimbal component is kept: ArduCopter does not yaw the vehicle for it.
+        if (!_apmMountWithoutPan()) {
+            return false;
+        }
+        const int autopilotCompId = _vehicle->defaultComponentId();
+        qCInfo(CodevCameraLog) << "[CameraFlow]"
+                << sourceTag
+                << "using ArduPilot gimbal manager"
+                << "cameraCompId" << _compID
+                << "targetCompId" << autopilotCompId
+                << "pitch" << pitch
+                << "yaw" << yaw
+                << "flags" << flags;
+        sendMavCommandWithTarget(
+            MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW,
+            autopilotCompId,
+            pitch,
+            yaw,
+            NAN,
+            NAN,
+            static_cast<float>(flags),
+            0.0f,
+            0.0f);                                  // gimbal device id 0 = primary mount
+        return true;
     }
 
     GimbalController* gimbalController = _vehicle->gimbalController();
@@ -2222,7 +2298,8 @@ void CodevCameraControl::handleSettings(const mavlink_camera_settings_t& setting
             qCDebug(CodevCameraLog) << "handleSettings bootstrap optical range"
                                     << "reported" << reported;
         } else if (!suppressSync) {
-            if (_isStaleZoomDropToMin(reported, trustedRange)) {
+            if (_isStaleZoomDropToMin(reported, trustedRange)
+                    && (_isZoomHoldActive() || _hasPendingZoomCommand())) {
                 qCDebug(CodevCameraLog) << "handleSettings ignore stale drop to min"
                                         << "reported" << reported
                                         << "trustedRange" << trustedRange;
@@ -2231,34 +2308,10 @@ void CodevCameraControl::handleSettings(const mavlink_camera_settings_t& setting
                                         << "reported" << reported
                                         << "trustedRange" << trustedRange;
             } else if (!_isZoomHoldActive() && !_hasPendingZoomCommand()) {
-                const int reportedStep = qRound(reported);
-                const int confirmedStep = qRound(trustedRange);
-                if (reportedStep >= confirmedStep) {
-                    _pendingDownwardReport = -1;
-                    _zoomCatchUpAttempts = 0;
-                    _adoptCameraReportedOptical(reported, "idle");
-                } else if (_zoomCatchUpAttempts < kMaxZoomCatchUpAttempts) {
-                    ++_zoomCatchUpAttempts;
-                    _pendingDownwardReport = -1;
-                    qCInfo(CodevCameraLog) << "handleSettings lens short of confirmed, catch-up"
-                                           << "reported" << reported
-                                           << "confirmed" << trustedRange
-                                           << "attempt" << _zoomCatchUpAttempts;
-                    _commandedRange = _opticalRange;
-                    _zoomSettingsSyncSuppressUntilMs = nowMs + kZoomSettingsSyncSuppressMs;
-                    _queueZoomRange(_opticalRange, "catchUp");
-                    _schedulePostZoomSettingsSync();
-                } else if (_pendingDownwardReport == reportedStep) {
-                    _pendingDownwardReport = -1;
-                    _zoomCatchUpAttempts = 0;
-                    _adoptCameraReportedOptical(reported, "idle-stable");
-                } else {
-                    qCInfo(CodevCameraLog) << "handleSettings camera below confirmed after catch-up, re-check"
-                                           << "reported" << reported
-                                           << "confirmed" << trustedRange;
-                    _pendingDownwardReport = reportedStep;
-                    _schedulePostZoomSettingsSync();
-                }
+                // Idle reports may come from another controller, such as Argos.
+                _pendingDownwardReport = -1;
+                _zoomCatchUpAttempts = 0;
+                _adoptCameraReportedOptical(reported, "idle");
             } else if (reported > trustedRange + 0.01f) {
                 _reconcileCameraAheadReport();
             } else {

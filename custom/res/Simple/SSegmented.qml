@@ -32,6 +32,7 @@ Rectangle {
                     text: modelData
                     size: 24
                     bold: true
+                    fitMin: 0.8
                     color: index === seg.currentIndex ? SimpleTheme.textPrimary : SimpleTheme.textSecondary
                 }
                 MouseArea {

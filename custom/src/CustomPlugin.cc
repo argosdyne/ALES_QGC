@@ -39,6 +39,9 @@
 #include "QGroundControlQmlGlobal.h"
 #include <QFile>
 #include <QNetworkInterface>
+#include <QSoundEffect>
+#include "AudioOutput.h"
+#include "AppSettings.h"
 #include <QtConcurrent>
 
 #if defined(Q_OS_ANDROID)
@@ -1268,5 +1271,24 @@ void CustomPlugin::showMessage(const QString& message, SystemMessage::SystemMess
     qInfo() << "Show Message : "<< message;
     if(_qmlInterface) {
         _qmlInterface->showMessage(message, type);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void CustomPlugin::simpleArrivalAlert(const QString& spokenText)
+{
+    if (qgcApp()->toolbox()->settingsManager()->appSettings()->audioMuted()->rawValue().toBool()) {
+        return;
+    }
+    // one shared effect (no plugin member: the toolbox builds the plugin through a macro include, see CLAUDE.md)
+    static QSoundEffect* chime = nullptr;
+    if (!chime) {
+        chime = new QSoundEffect(qgcApp());
+        chime->setSource(QUrl(QStringLiteral("qrc:/res/audio/beep-stop")));
+        chime->setVolume(1.0);
+    }
+    chime->play();
+    if (!spokenText.isEmpty()) {
+        qgcApp()->toolbox()->audioOutput()->say(spokenText);
     }
 }

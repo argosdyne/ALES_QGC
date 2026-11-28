@@ -403,9 +403,12 @@ void QGCApplication::setLanguage()
     _locale = QLocale::system();
     qDebug() << "System reported locale:" << _locale << "; Name" << _locale.name() << "; Preffered (used in maps): " << (QLocale::system().uiLanguages().length() > 0 ? QLocale::system().uiLanguages()[0] : "None");
 
-    QLocale::Language possibleLocale = AppSettings::_qLocaleLanguageID();
-    if (possibleLocale != QLocale::AnyLanguage) {
-        _locale = QLocale(possibleLocale);
+    const int languageID = AppSettings::_qLocaleLanguageID();
+    if (languageID == AppSettings::traditionalChineseTaiwanLanguageID) {
+        //-- Loads the qgc_*_zh_TW translations; QLocale(QLocale::Chinese) alone resolves to zh_CN
+        _locale = QLocale(QLocale::Chinese, QLocale::TraditionalHanScript, QLocale::Taiwan);
+    } else if (languageID != QLocale::AnyLanguage) {
+        _locale = QLocale(static_cast<QLocale::Language>(languageID));
     }
     //-- We have specific fonts for Korean
     if(_locale == QLocale::Korean) {
@@ -417,25 +420,46 @@ void QGCApplication::setLanguage()
             qCWarning(LocalizationLog) << "Could not load /fonts/NanumGothic-Bold font";
         }
     }
-    //-- Simple UI fonts (Roboto; Noto Sans KR for Hangul, see custom/res/Simple/fonts)
+    //-- Simple UI fonts (Roboto; Noto Sans KR for Hangul, Noto Sans JP for Japanese, Noto Sans TC for Traditional
+    //-- Chinese, see custom/res/Simple/fonts)
     static bool simpleFontsLoaded = false;
     if (!simpleFontsLoaded) {
         simpleFontsLoaded = true;
         const char* simpleFonts[] = { "Roboto-Regular.ttf", "Roboto-Medium.ttf", "Roboto-Bold.ttf",
-                                      "NotoSansKR-Regular.otf", "NotoSansKR-Medium.otf", "NotoSansKR-Bold.otf" };
+                                      "NotoSansKR-Regular.otf", "NotoSansKR-Medium.otf", "NotoSansKR-Bold.otf",
+                                      "NotoSansJP-Regular.otf", "NotoSansJP-Medium.otf", "NotoSansJP-Bold.otf",
+                                      "NotoSansTC-Regular.otf", "NotoSansTC-Medium.otf", "NotoSansTC-Bold.otf" };
         for (const char* font : simpleFonts) {
             if (QFontDatabase::addApplicationFont(QStringLiteral(":/simple/fonts/") + QLatin1String(font)) < 0) {
                 qCWarning(LocalizationLog) << "Could not load Simple UI font" << font;
             }
         }
-    }
-    // Latin and digits stay Roboto; Hangul falls back to Noto Sans KR
-    if (_locale.language() == QLocale::Korean) {
-        QFont::insertSubstitutions(QStringLiteral("Roboto"),        { QStringLiteral("Noto Sans KR") });
-        QFont::insertSubstitutions(QStringLiteral("Roboto Medium"), { QStringLiteral("Noto Sans KR Medium"), QStringLiteral("Noto Sans KR") });
-    } else {
-        QFont::removeSubstitutions(QStringLiteral("Roboto"));
-        QFont::removeSubstitutions(QStringLiteral("Roboto Medium"));
+        // Latin and digits stay Roboto; Hangul falls back to Noto Sans KR, kana and kanji to Noto Sans JP, other
+        // Han characters to Noto Sans TC (the KR subset has no kana and no Han characters except 日本語). Set once:
+        // changing the fallback list at runtime made Qt draw text laid out before the change with glyphs of the
+        // other font (kanji shown as Hangul on Android after switching languages, 2026-11-24). Han characters and
+        // full-width punctuation shared by the three fonts take the first font that has them, so the order follows
+        // the language loaded at start (also "System" on a Taiwan device): Traditional Chinese TC → JP → KR,
+        // Japanese JP → TC → KR (regional glyph forms, punctuation not in Korean form), else KR → JP → TC.
+        // Switching between these languages shows the right forms after a restart.
+        const bool traditionalChinese = _locale.language() == QLocale::Chinese &&
+                (_locale.script() == QLocale::TraditionalHanScript || _locale.country() == QLocale::Taiwan ||
+                 _locale.country() == QLocale::HongKong || _locale.country() == QLocale::Macau);
+        QStringList order = { QStringLiteral("KR"), QStringLiteral("JP"), QStringLiteral("TC") };
+        if (traditionalChinese) {
+            order = QStringList{ QStringLiteral("TC"), QStringLiteral("JP"), QStringLiteral("KR") };
+        } else if (_locale.language() == QLocale::Japanese) {
+            order = QStringList{ QStringLiteral("JP"), QStringLiteral("TC"), QStringLiteral("KR") };
+        }
+        QStringList regular, medium;
+        for (const QString& script : order) {
+            const QString family = QStringLiteral("Noto Sans ") + script;
+            regular << family;
+            medium << family + QStringLiteral(" Medium") << family;
+        }
+        QFont::insertSubstitutions(QStringLiteral("Roboto"), regular);
+        QFont::insertSubstitutions(QStringLiteral("Roboto Medium"), medium);
+        qCDebug(LocalizationLog) << "Simple UI CJK fallback" << regular;
     }
 
     qCDebug(LocalizationLog) << "Loading localizations for" << _locale.name();

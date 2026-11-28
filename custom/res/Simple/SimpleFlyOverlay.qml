@@ -7,6 +7,7 @@ import QtQuick.Shapes 1.12
 import QtPositioning 5.12
 import QGroundControl 1.0
 import "."
+import "SimpleLidarQueue.js" as LidarQueue
 
 Item {
     id: fly
@@ -79,15 +80,17 @@ Item {
     readonly property int _lidarQueueMax: 5
     property var lidarCriticalQueue: []
     property int lidarCriticalDropped: 0
-    function pushLidarCritical(message) {
-        if (lidarCriticalQueue.indexOf(message) !== -1) return
-        var q = lidarCriticalQueue.slice(); q.push(message)
-        // drop the oldest waiting message, never the one on screen (index 0)
-        while (q.length > _lidarQueueMax) { q.splice(1, 1); lidarCriticalDropped++ }
-        lidarCriticalQueue = q
+    // texts already dropped: a repeat is not queued and counted again; a Start rejected is never dropped
+    // (SimpleLidarQueue.js, Tuleap bug #28595)
+    property var _lidarDroppedTexts: LidarQueue.empty().droppedTexts
+    function _isLidarStartRejected(message) {
+        return String(message).indexOf(qsTranslate("LiDARAcquisition", "LiDAR: Start rejected")) === 0
     }
-    function popLidarCritical() { lidarCriticalQueue = lidarCriticalQueue.slice(1); if (lidarCriticalQueue.length === 0) lidarCriticalDropped = 0 }
-    function clearLidarCritical() { lidarCriticalQueue = []; lidarCriticalDropped = 0 }
+    function _setLidarQueue(st) { _lidarDroppedTexts = st.droppedTexts; lidarCriticalDropped = st.dropped; lidarCriticalQueue = st.queue }
+    function _lidarQueueState() { return { queue: lidarCriticalQueue, dropped: lidarCriticalDropped, droppedTexts: _lidarDroppedTexts } }
+    function pushLidarCritical(message) { _setLidarQueue(LidarQueue.push(_lidarQueueState(), message, _lidarQueueMax, _isLidarStartRejected)) }
+    function popLidarCritical()         { _setLidarQueue(LidarQueue.pop(_lidarQueueState())) }
+    function clearLidarCritical()       { _setLidarQueue(LidarQueue.empty()) }
     Timer { id: lidarRefusalTimer; interval: 10000; onTriggered: fly.lidarRefusal = "" }
 
     // Layer rule 1: a critical alert closes confirm sheets; so does a lost link on the ground (nothing can be sent)
@@ -424,7 +427,11 @@ Item {
         map: fly._map
         vehicle: fly._veh
         onChangeTargetRequested: fly.toast(qsTr("Tap the map to choose a new point"))
-        onArrived: { fly.toast(qsTr("Arrived — holding position"), "ok"); arrivedClear.restart() }
+        // chime + voice as well (Tuleap bug #36983); silent when Settings › General › Voice alerts is off
+        onArrived: {
+            fly.toast(qsTr("Arrived — holding position"), "ok"); arrivedClear.restart()
+            if (QGroundControl.corePlugin.simpleArrivalAlert) QGroundControl.corePlugin.simpleArrivalAlert(qsTr("Arrived"))
+        }
     }
     // keep the "Arrived" pin a few seconds, then clear the Go here target from the map
     Timer { id: arrivedClear; interval: 5000; onTriggered: if (fly._map && fly._map.gotoArrivalConfirmed) fly._map.clearGotoProgress() }
@@ -471,6 +478,7 @@ Item {
 
     // S35: map tap menu
     SimpleMapTapMenu {
+        id: tapMenu
         anchors.fill: parent
         visible: fly.tapCoord.isValid && vs.present && !fly.videoMain && fly.sheet === ""
         map: fly._map
@@ -819,6 +827,7 @@ Item {
         onCloseRequested: fly.closeSheet()
         onRtlRequested:   fly.openSheet("rtl")       // S79: same slide-to-confirm as Simple
         onLandRequested:  fly.openSheet("land")
+        onModeRefused:    fly.toast(qsTr("This drone does not have the %1 flight mode.").arg(title), "danger")
     }
     // S78 Advanced: More actions
     SimpleMoreSheet {
@@ -852,12 +861,15 @@ Item {
         vehicle: fly._veh
         map: fly._map
         coordinate: fly.tapCoord
+        recheck: tapMenu.goHereBlockNow
         onCloseRequested: fly.closeSheet()
         onSent: {
             fly.closeSheet()
             if (ok) fly.closeTapMenu()
             else fly.toast(qsTr("The drone did not take Go here. Try again."), "danger")
         }
+        // not sent: the menu shows the reason in red again
+        onRefused: { fly.closeSheet(); fly.toast(reason, "danger") }
     }
     SimpleConfirmSheet {
         visible: fly.sheet === "sethome"

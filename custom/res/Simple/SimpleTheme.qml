@@ -4,6 +4,7 @@
  ****************************************************************************/
 pragma Singleton
 import QtQuick 2.12
+import QGroundControl 1.0
 
 QtObject {
     // Set by SimpleRoot from the window size (1920x1080 = 1.0)
@@ -39,7 +40,8 @@ QtObject {
     readonly property color textDanger:     "#ff7a80"
 
     // Fonts: Roboto, bundled in fonts/ and registered in QGCApplication::setLanguage().
-    // Korean: Hangul falls back to Noto Sans KR (QFont substitution); Latin and digits stay Roboto.
+    // Hangul falls back to Noto Sans KR, kana / kanji to Noto Sans JP (QFont substitution, set once for every
+    // language); Latin and digits stay Roboto.
     // Some platforms register Roboto Medium as its own family "Roboto Medium".
     readonly property string fontFamily:        "Roboto"
     readonly property string fontFamilyMedium:  Qt.fontFamilies().indexOf("Roboto Medium") >= 0 ? "Roboto Medium" : "Roboto"
@@ -54,6 +56,27 @@ QtObject {
     readonly property int touchMin:         96
 
     function withAlpha(c, a) { var q = Qt.lighter(c, 1.0); return Qt.rgba(q.r, q.g, q.b, a) }
+
+    // Units on the plan screens (Tuleap bug #22586: heights and distances were always shown in metres). Values stay in
+    // metres; these convert for display and back from a stepper. The unit system is set in Settings › General (it
+    // applies after a restart, like every QGC unit).
+    readonly property var _uc: QGroundControl.unitsConversion
+    function vUnit()   { return _uc.appSettingsVerticalDistanceUnitsString }
+    function hUnit()   { return _uc.appSettingsHorizontalDistanceUnitsString }
+    function toV(m)    { return Number(_uc.metersToAppSettingsVerticalDistanceUnits(m)) }
+    function fromV(d)  { return Number(_uc.appSettingsVerticalDistanceUnitsToMeters(d)) }
+    function toH(m)    { return Number(_uc.metersToAppSettingsHorizontalDistanceUnits(m)) }
+    function fromH(d)  { return Number(_uc.appSettingsHorizontalDistanceUnitsToMeters(d)) }
+    // whole numbers with the unit, "—" for no value
+    function vText(m)  { return isFinite(m) ? Math.round(toV(m)) + " " + vUnit() : "—" }
+    function hText(m)  { return isFinite(m) ? Math.round(toH(m)) + " " + hUnit() : "—" }
+    // stepper step for a step given in metres: 5 m = 15 ft, 10 m = 35 ft, 1 m = 3 ft
+    function vStep(mStep) { return _unitStep(toV(mStep)) }
+    function hStep(mStep) { return _unitStep(toH(mStep)) }
+    function _unitStep(s) { return s < 5 ? Math.max(1, Math.round(s)) : Math.round(s / 5) * 5 }
+    // area and route length as on the saved-missions list (ha / km or ac / mi)
+    function areaText(m2) { return !isFinite(m2) ? "—" : hUnit() === "m" ? (m2 / 10000).toFixed(1) + " ha" : (m2 / 4046.86).toFixed(1) + " ac" }
+    function longText(m)  { return !isFinite(m) ? "—" : hUnit() === "m" ? (m / 1000).toFixed(1) + " km" : (m / 1609.34).toFixed(1) + " mi" }
 
     // Unit system used by Settings › General and the first-start welcome (S57).
     // Metric: m, m, ha, m/s, °C · Imperial: ft, ft, acres, mph, °F (UnitsSettings enum values)

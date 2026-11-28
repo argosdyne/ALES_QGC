@@ -105,6 +105,9 @@ private slots:
     void _dirtyIfSpecified(void);
 
 private:
+    // ArduPilot gimbal item: GIMBAL_MANAGER_FLAGS_ROLL_LOCK (4) | GIMBAL_MANAGER_FLAGS_PITCH_LOCK (8), yaw in the vehicle frame
+    static constexpr int kGimbalManagerItemFlags = 12;
+    bool _useGimbalManagerItem() const;
     bool _scanGimbal(QmlObjectListModel* visualItems, int scanIndex);
     bool _scanTakePhoto(QmlObjectListModel* visualItems, int scanIndex);
     bool _scanTakePhotosIntervalTime(QmlObjectListModel* visualItems, int scanIndex);

@@ -703,6 +703,14 @@
         <source>Dismiss all</source>
         <translation>모두 확인</translation>
     </message>
+    <message>
+        <source>This drone does not have the %1 flight mode.</source>
+        <translation>이 드론에는 %1 비행 모드가 없습니다.</translation>
+    </message>
+    <message>
+        <source>Arrived</source>
+        <translation>도착했습니다</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -1064,16 +1072,16 @@
         <translation>높이</translation>
     </message>
     <message>
-        <source>%1 m (limit %2 m)</source>
-        <translation>%1 m (제한 %2 m)</translation>
+        <source>%1 (limit %2)</source>
+        <translation>%1 (제한 %2)</translation>
     </message>
     <message>
         <source>Distance</source>
         <translation>거리</translation>
     </message>
     <message>
-        <source>Farthest point %1 m (limit %2 m)</source>
-        <translation>가장 먼 지점 %1 m (제한 %2 m)</translation>
+        <source>Farthest point %1 (limit %2)</source>
+        <translation>가장 먼 지점 %1 (제한 %2)</translation>
     </message>
     <message>
         <source>Battery</source>
@@ -1152,16 +1160,16 @@
         <translation>드론이 미션을 받지 않았습니다. 메시지를 확인하고 미션을 고친 뒤 다시 보내세요.</translation>
     </message>
     <message>
-        <source>Over the limit: %1 m (limit %2 m). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
-        <translation>제한 초과: %1 m (제한 %2 m). 영역을 줄이거나 설정 › 안전에서 최대 거리를 늘리세요.</translation>
+        <source>Over the limit: %1 (limit %2). Make the area smaller or raise Maximum distance in Settings › Safety.</source>
+        <translation>제한 초과: %1 (제한 %2). 영역을 줄이거나 설정 › 안전에서 최대 거리를 늘리세요.</translation>
     </message>
     <message>
-        <source>Not enforced (geofence off): %1 m, limit %2 m</source>
-        <translation>적용 안 됨(지오펜스 꺼짐): %1 m, 제한 %2 m</translation>
+        <source>Not enforced (geofence off): %1, limit %2</source>
+        <translation>적용 안 됨(지오펜스 꺼짐): %1, 제한 %2</translation>
     </message>
     <message>
-        <source>Not enforced (no distance limit in the drone's fence): %1 m, limit %2 m</source>
-        <translation>적용 안 됨(드론 펜스에 거리 제한 없음): %1 m, 제한 %2 m</translation>
+        <source>Not enforced (no distance limit in the drone's fence): %1, limit %2</source>
+        <translation>적용 안 됨(드론 펜스에 거리 제한 없음): %1, 제한 %2</translation>
     </message>
 </context>
 <context>
@@ -1247,12 +1255,12 @@
         <translation>비행 높이</translation>
     </message>
     <message>
-        <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translation>사진 해상도 ≈ 픽셀당 %1 · 최대 %2 m</translation>
+        <source>Photo detail ≈ %1 per pixel · limited to %2</source>
+        <translation>사진 해상도 ≈ 픽셀당 %1 · 최대 %2</translation>
     </message>
     <message>
-        <source>Limited to %1 m (maximum altitude)</source>
-        <translation>최대 %1 m (최대 고도)</translation>
+        <source>Limited to %1 (maximum altitude)</source>
+        <translation>최대 %1 (최대 고도)</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -1562,7 +1570,7 @@
         <translation>조종기가 준비되지 않았습니다. 조종기와 보정을 확인하세요.</translation>
     </message>
     <message>
-        <source>The drone&apos;s battery check failed.</source>
+        <source>The drone's battery check failed.</source>
         <translation>드론 배터리 점검에 실패했습니다.</translation>
     </message>
     <message>
@@ -1839,10 +1847,6 @@
     <message>
         <source>Legal &amp; licenses</source>
         <translation>법적 고지 및 라이선스</translation>
-    </message>
-    <message>
-        <source>Open-source licenses: QGroundControl, Qt, GStreamer, fonts and more</source>
-        <translation>오픈소스 라이선스: QGroundControl, Qt, GStreamer, 폰트 등</translation>
     </message>
     <message>
         <source>alesQGC uses this open-source software. Tap an item to show the full license.</source>
@@ -2361,10 +2365,6 @@
         <translation>Altitude Angel</translation>
     </message>
     <message>
-        <source>%1 zones in the visible map area · needs internet</source>
-        <translation>보이는 지도 범위의 구역 %1개 · 인터넷 필요</translation>
-    </message>
-    <message>
         <source>API key</source>
         <translation>API 키</translation>
     </message>
@@ -2735,10 +2735,6 @@
     <message>
         <source>Language</source>
         <translation>언어</translation>
-    </message>
-    <message>
-        <source>English, 한국어, Deutsch, Français, 日本語</source>
-        <translation>English, 한국어, Deutsch, Français, 日本語</translation>
     </message>
     <message>
         <source>Units</source>
@@ -3515,10 +3511,6 @@
         <translation>짐벌 종류, 서보 출력, 각도 범위: 기체 설정 › 짐벌 ›</translation>
     </message>
     <message>
-        <source>Starts at the first survey line of a mission and stops at the last. Start / Stop on the flight screen still works.</source>
-        <translation>임무의 첫 측량 라인에서 시작하고 마지막 라인에서 정지합니다. 비행 화면의 시작·정지도 그대로 쓸 수 있습니다.</translation>
-    </message>
-    <message>
         <source>From the LiDAR panel on the flight screen</source>
         <translation>비행 화면의 LiDAR 패널에서</translation>
     </message>
@@ -4131,6 +4123,10 @@
         <source>Height is above the home point, not above the ground. Check for hills and buildings on the way.</source>
         <translation>높이는 지면이 아니라 홈 위치 기준입니다. 경로에 언덕이나 건물이 없는지 확인하세요.</translation>
     </message>
+    <message>
+        <source>%1 (and %2 more)</source>
+        <translation>%1 (외 %2건)</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMapTapMenu</name>
@@ -4161,10 +4157,6 @@
     <message>
         <source>a prohibited zone</source>
         <translation>금지 구역</translation>
-    </message>
-    <message>
-        <source>The way crosses %1 — choose another point</source>
-        <translation>경로가 %1을(를) 지납니다 — 다른 지점을 고르세요</translation>
     </message>
     <message>
         <source>Too far — Go here reaches up to %1</source>
@@ -4219,8 +4211,28 @@
         <translation>위도 / 경도 입력</translation>
     </message>
     <message>
-        <source>Outside the geofence or in an excluded area — choose another point</source>
-        <translation>지오펜스 밖이거나 제외 구역입니다 — 다른 지점을 고르세요</translation>
+        <source>Choose a point outside the zone.</source>
+        <translation>구역 밖의 지점을 고르세요.</translation>
+    </message>
+    <message>
+        <source>The way crosses %1</source>
+        <translation>경로가 %1을(를) 지납니다</translation>
+    </message>
+    <message>
+        <source>Choose a point the drone can reach in a straight line without crossing the zone.</source>
+        <translation>구역을 지나지 않고 직선으로 갈 수 있는 지점을 고르세요.</translation>
+    </message>
+    <message>
+        <source>Outside the geofence or in an excluded area</source>
+        <translation>지오펜스 밖이거나 제외 구역입니다</translation>
+    </message>
+    <message>
+        <source>Choose a point inside the drone's fence.</source>
+        <translation>드론 펜스 안의 지점을 고르세요.</translation>
+    </message>
+    <message>
+        <source>Choose a closer point. The limit is in Settings › Fly screen (Advanced mode).</source>
+        <translation>더 가까운 지점을 고르세요. 한도는 설정 › 비행 화면(고급 모드)에 있습니다.</translation>
     </message>
 </context>
 <context>
@@ -4670,8 +4682,8 @@
         <translation>고정 방향</translation>
     </message>
     <message>
-        <source>Height is above the take-off point · max %1 m.</source>
-        <translation>높이는 이륙 지점 기준 · 최대 %1 m.</translation>
+        <source>Height is above the take-off point · max %1.</source>
+        <translation>높이는 이륙 지점 기준 · 최대 %1.</translation>
     </message>
     <message>
         <source>Height profile</source>
@@ -4912,20 +4924,20 @@
         <translation>비행 높이</translation>
     </message>
     <message>
-        <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
-        <translation>사진 해상도 ≈ 픽셀당 %1 · 최대 %2 m</translation>
+        <source>Photo detail ≈ %1 per pixel · limited to %2</source>
+        <translation>사진 해상도 ≈ 픽셀당 %1 · 최대 %2</translation>
     </message>
     <message>
-        <source>Limited to %1 m (maximum altitude)</source>
-        <translation>최대 %1 m (최대 고도)</translation>
+        <source>Limited to %1 (maximum altitude)</source>
+        <translation>최대 %1 (최대 고도)</translation>
     </message>
     <message>
         <source>Corridor width</source>
         <translation>회랑 폭</translation>
     </message>
     <message>
-        <source>Strip mapped on both sides of the line (%1 m each side)</source>
-        <translation>선 양쪽을 매핑합니다 (한쪽 %1 m)</translation>
+        <source>Strip mapped on both sides of the line (%1 each side)</source>
+        <translation>선 양쪽을 매핑합니다 (한쪽 %1)</translation>
     </message>
     <message>
         <source>Image overlap</source>
@@ -5016,8 +5028,8 @@
         <translation>다음: 확인 및 전송</translation>
     </message>
     <message>
-        <source>Line spacing %1 m · limited to %2 m</source>
-        <translation>라인 간격 %1 m · 최대 %2 m</translation>
+        <source>Line spacing %1 · limited to %2</source>
+        <translation>라인 간격 %1 · 최대 %2</translation>
     </message>
     <message>
         <source>Speed</source>
@@ -5058,13 +5070,6 @@
     <message>
         <source>SPACING</source>
         <translation>간격</translation>
-    </message>
-</context>
-<context>
-    <name>GeneralSettings</name>
-    <message>
-        <source>Simple UI product profile</source>
-        <translation>간편 UI 제품 프로파일</translation>
     </message>
 </context>
 <context>
@@ -6117,9 +6122,11 @@
         <source>Done · date unknown</source>
         <translation>완료 · 날짜 모름</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>%n compass(es)</source>
-        <translation>나침반 %n개</translation>
+        <translation>
+            <numerusform>나침반 %n개</numerusform>
+        </translation>
     </message>
     <message>
         <source>Calibrate</source>
@@ -6356,6 +6363,18 @@
     <message>
         <source>Mission</source>
         <translation>임무</translation>
+    </message>
+    <message>
+        <source>Joystick</source>
+        <translation>조이스틱</translation>
+    </message>
+    <message>
+        <source>Gamepad calibrated</source>
+        <translation>게임패드 보정됨</translation>
+    </message>
+    <message>
+        <source>Calibrate the gamepad</source>
+        <translation>게임패드를 보정하세요</translation>
     </message>
 </context>
 <context>
@@ -6637,10 +6656,6 @@
     <message>
         <source>ESC calibration</source>
         <translation>ESC 보정</translation>
-    </message>
-    <message>
-        <source>Propellers off, battery connected. Only after replacing ESCs.</source>
-        <translation>프로펠러를 떼고 배터리를 연결하세요. ESC를 바꾼 뒤에만 합니다.</translation>
     </message>
     <message>
         <source>Propellers off. Only after replacing ESCs.</source>
@@ -7516,9 +7531,11 @@
         <source>Put a .json file in %1</source>
         <translation>%1에 .json 파일을 넣으세요</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>%n action(s) loaded</source>
-        <translation>동작 %n개 불러옴</translation>
+        <translation>
+            <numerusform>동작 %n개 불러옴</numerusform>
+        </translation>
     </message>
     <message>
         <source>No actions in this file (check the file format)</source>
@@ -7635,9 +7652,11 @@
         <source>Custom actions</source>
         <translation>사용자 동작</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>From the actions file · %n button(s)</source>
-        <translation>동작 파일 · 버튼 %n개</translation>
+        <translation>
+            <numerusform>동작 파일 · 버튼 %n개</numerusform>
+        </translation>
     </message>
     <message>
         <source>Send “%1” to the drone now?</source>
@@ -7791,8 +7810,8 @@
         <translation>제외</translation>
     </message>
     <message>
-        <source>Circle %1 · %2 m</source>
-        <translation>원 %1 · %2 m</translation>
+        <source>Circle %1 · %2</source>
+        <translation>원 %1 · %2</translation>
     </message>
     <message>
         <source>No fence in this mission.</source>
@@ -7837,9 +7856,11 @@
         <source>Step 3 of 3 · Check the values. Channels you did not move keep their old values.</source>
         <translation>3/3단계 · 값을 확인하세요. 움직이지 않은 채널은 이전 값을 유지합니다.</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>Saved %n channel(s).</source>
-        <translation>채널 %n개를 저장했습니다.</translation>
+        <translation>
+            <numerusform>채널 %n개를 저장했습니다.</numerusform>
+        </translation>
     </message>
     <message>
         <source>Nothing moved: no values changed.</source>
@@ -8091,9 +8112,11 @@
         <source>Off in the company setting</source>
         <translation>회사 설정에서도 꺼짐</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>%n check(s) off that the company setting has on: %1. Turn them back on before normal flights.</source>
-        <translation>회사 설정에서는 켜져 있는데 꺼진 점검 %n개: %1. 평소 비행 전에 다시 켜세요.</translation>
+        <translation>
+            <numerusform>회사 설정에서는 켜져 있는데 꺼진 점검 %n개: %1. 평소 비행 전에 다시 켜세요.</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -8118,17 +8141,21 @@
         <source>This file cannot be read.</source>
         <translation>이 파일을 읽을 수 없습니다.</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>%n value(s) sent to the drone.</source>
-        <translation>값 %n개를 드론에 보냈습니다.</translation>
+        <translation>
+            <numerusform>값 %n개를 드론에 보냈습니다.</numerusform>
+        </translation>
     </message>
     <message>
         <source>No parameter files yet. Use “Save to file” first.</source>
         <translation>아직 파라미터 파일이 없습니다. 먼저 “파일로 저장”을 쓰세요.</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>%n value(s) differ</source>
-        <translation>다른 값 %n개</translation>
+        <translation>
+            <numerusform>다른 값 %n개</numerusform>
+        </translation>
     </message>
     <message>
         <source>Same as the drone</source>
@@ -8174,9 +8201,11 @@
         <source>Save</source>
         <translation>저장</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>Send %n value(s)</source>
-        <translation>값 %n개 보내기</translation>
+        <translation>
+            <numerusform>값 %n개 보내기</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -9017,6 +9046,22 @@
         <source>Done</source>
         <translation>완료</translation>
     </message>
+    <message>
+        <source>Photo card</source>
+        <translation>사진 카드</translation>
+    </message>
+    <message>
+        <source>Video card</source>
+        <translation>영상 카드</translation>
+    </message>
+    <message>
+        <source>Card %1</source>
+        <translation>카드 %1</translation>
+    </message>
+    <message>
+        <source>Which card?</source>
+        <translation>어느 카드인가요?</translation>
+    </message>
 </context>
 <context>
     <name>SimpleRoot</name>
@@ -9031,6 +9076,13 @@
     <message>
         <source>“%1” changes after the app restarts.</source>
         <translation>“%1” 설정은 앱을 다시 시작하면 바뀝니다.</translation>
+    </message>
+</context>
+<context>
+    <name>SLanguageCombo</name>
+    <message>
+        <source>System</source>
+        <translation>시스템</translation>
     </message>
 </context>
 </TS>

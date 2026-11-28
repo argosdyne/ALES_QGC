@@ -1,6 +1,7 @@
 // S* components: stepper, slide-to-confirm, segmented, toggle, button, setting row (mouse-driven)
 import QtQuick 2.12
 import QtTest 1.12
+import QGroundControl 1.0
 import "../../res/Simple"
 
 Item {
@@ -21,8 +22,11 @@ TestCase {
                 SToggle { property bool state_: false; property bool ignore: false
                           checked: state_; onToggled: if (!ignore) state_ = checked } }
     Component { id: spyComp;     SignalSpy { } }
+    Component { id: langComp;    SLanguageCombo { } }
     Component { id: buttonComp;  SButton { text: "OK" } }
     Component { id: rowComp;     SSettingRow { width: 900; title: "Legal & licenses"; sub: "x" } }
+    Component { id: actionComp;  SActionButton { icon: "takeoff"; text: "Take off" } }
+    Component { id: fitComp;     SText { width: 200; size: 24; fitMin: 0.8 } }
     SignalSpy { id: spy }
 
     function cleanup() { SimpleTheme.scale = 1.0; SimpleTheme.textScale = 1.0; spy.clear() }
@@ -179,11 +183,51 @@ TestCase {
         compare(spy.count, 0, "and the row does not open at the same time")
     }
     // ---- stress: rapid taps
+    // ---- SText.fitMin (long translations, TASK-i18n-five-languages.md §3.5)
+    function test_fit_short_text_keeps_size() {
+        var t = createTemporaryObject(fitComp, root, { text: "Land" })
+        compare(t.fontInfo.pixelSize, SimpleTheme.fs(24))
+    }
+    function test_fit_long_text_shrinks_not_below_min() {
+        var t = createTemporaryObject(fitComp, root, { text: "Bắt đầu nhiệm vụ" })   // just over 200 px at 24
+        verify(t.contentWidth <= t.width + 1, "fits: " + t.contentWidth)
+        verify(t.fontInfo.pixelSize >= Math.round(SimpleTheme.fs(24) * 0.8), "min 80 %: " + t.fontInfo.pixelSize)
+        var w = createTemporaryObject(fitComp, root, { text: "Hold 2 s to stop · 12 of 30 lines left · very long" })
+        compare(w.fontInfo.pixelSize, Math.round(SimpleTheme.fs(24) * 0.8), "very long text stops at 80 %")
+        verify(w.truncated, "then elides")
+    }
+    function test_fit_off_by_default() {
+        var t = createTemporaryObject(fitComp, root, { text: "A much too long label for this box", fitMin: 1 })
+        compare(t.fontInfo.pixelSize, SimpleTheme.fs(24))
+    }
+    function test_action_button_label_stays_in_button() {
+        var b = createTemporaryObject(actionComp, root, { text: "Bắt đầu nhiệm vụ" })     // 171 px at 22 > 140
+        var label = b.children[2]
+        verify(label.contentWidth <= b.width + 1, "label " + label.contentWidth + " in " + b.width)
+        verify(label.fontInfo.pixelSize < SimpleTheme.fs(22), "shrunk")
+        SimpleTheme.textScale = 1.2
+        verify(label.contentWidth <= b.width + 1, "large text: label " + label.contentWidth)
+    }
     function test_stress_rapid_taps() {
         var t = createTemporaryObject(boundToggleComp, root, { x: 100, y: 100 })
         for (var i = 0; i < 500; i++) mouseClick(t)
         verify(!t.checked); verify(!t.state_)
         mouseClick(t); verify(t.checked, "binding still alive after 501 taps")
+    }
+
+    // language list: a saved value the list does not offer shows System, not a blank box (code review)
+    function test_language_combo_unknown_value() {
+        var f = QGroundControl.settingsManager.appSettings.qLocaleLanguage
+        f.rawValue = 10000
+        var c = createTemporaryObject(langComp, root)
+        compare(c.currentIndex, c.languageValues.indexOf(10000))
+        f.rawValue = 125                                  // Türk, saved by an older build
+        compare(c.currentIndex, 0)
+        f.rawValue = 25                                   // 简体中文
+        compare(c.currentIndex, 0)
+        f.rawValue = 66
+        compare(c.currentIndex, c.languageValues.indexOf(66))
+        f.rawValue = 0
     }
 }
 }

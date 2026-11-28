@@ -2,7 +2,7 @@
 
 | Level | What | How to run |
 |---|---|---|
-| Static (no Qt) | Translations (coverage, placeholders, stale entries), `custom.qrc` / `qmldir` / icons, licence index, font glyph coverage, Korean label widths measured with the bundled fonts | `python custom/tests/simple/static_checks.py` (needs `pip install fonttools`) |
+| Static (no Qt) | Translations (coverage, placeholders, stale entries), `custom.qrc` / `qmldir` / icons, licence index, font glyph coverage, label widths of every Simple language (ko, vi, de, da, pt-BR, ja; `--widths` lists all grown short labels) measured with the bundled fonts | `python custom/tests/simple/static_checks.py` (needs `pip install fonttools`) |
 | Unit (Qt Quick Test) | `SimpleTheme` (px/fs, unit system), `SimpleVehicleState` (state rules, boundaries), S35/S38 (`SimpleMapTapMenu` Go here rules, `SimpleCoordSheet`, `SimpleAltitudeSheet` steps and limits), S10 (`SimplePayloadPanel` cards, `SHoldButton`), S24 (`SimpleMissionInfo.js`, incl. random / damaged / 5000-item missions), S40-S42 settings panel (`tst_scansettings.qml`), controls (stepper, slide-to-confirm, segmented, toggle, button, setting row). Each has basic, boundary, abnormal, random and stress cases | see below |
 
 Unit tests use test doubles in `mock/` for the `QGroundControl` QML modules and a small runner (`main.cpp`) that sets

@@ -98,24 +98,49 @@ QtObject {
     property int    _appTier: -1                             // the next text is the app's geofence alert of this tier
     // a Pause during a return (and Land from it) is the same return: the latch keeps the hold until the drone flies
     // in another mode or disarms (code review 2026-11-21)
+    // The latch reads the vehicle itself, not the returning / paused bindings: on RTL -> Brake the returning handler
+    // ran before `paused` was re-evaluated, saw "not paused" and dropped the latch (Tuleap bug #28594)
     property bool            _returnLatch: false
     function _updateReturnLatch() {
-        if (!armed) _returnLatch = false
-        else if (returning || landing) _returnLatch = true
-        else if (!paused) _returnLatch = false
+        if (!vehicle || !vehicle.armed) { _returnLatch = false; return }      // `present` may still be stale here
+        var m = vehicle.flightMode
+        if (m === vehicle.rtlFlightMode || m === vehicle.smartRTLFlightMode || vehicle.landing || m === vehicle.landFlightMode)
+            _returnLatch = true
+        else if (!(vehicle.flying && m === vehicle.pauseFlightMode))
+            _returnLatch = false
     }
-    onReturningChanged: _updateReturnLatch()
+    onModeChanged:      _updateReturnLatch()
     onLandingChanged:   _updateReturnLatch()
-    onPausedChanged:    _updateReturnLatch()
+    onFlyingChanged:    _updateReturnLatch()
     readonly property bool   _holdCauses: armed && (returning || landing || (paused && _returnLatch))
     property real            _holdSince: 0                   // when the return / landing began
+    property real            _holdEndedAt: 0                 // when the last hold ended
+    property real            _startFloor: 0                  // a new return: only causes after the previous one ended start it
     readonly property int    _holdWindowMs: 15000            // only causes from the 15 s before it are held
+    readonly property int    _startGraceMs: 2000             // the FC's failsafe line may follow its mode change
     function _now() { return Date.now() }
     function _clearCause() { _causes = ({}); _refreshCause() }
+    // The cause that started this return / landing (it came before the hold began, or up to 2 s after it) is marked
+    // `st`: it is shown before any later or higher warning, a "... cleared" line does not remove it, and the mark
+    // stays after disarm so the S92 card reads it (Tuleap bug #28594). When the pilot flies on in another mode (hold
+    // ended while armed) the mark stops counting after 5 s; it goes with the next arming. A hold that comes back
+    // within 1 s is the same return (binding order on a mode switch); a later one is a new return, started only by
+    // causes that arrived after the previous return ended (code review: GPS return, pilot takes over, battery
+    // failsafe return 3 s later named "GPS").
+    function _inStartWindow(t) { return _holdCauses && t > _startFloor && t <= _holdSince + _startGraceMs }
+    function _isStartCause(e) {
+        if (!e) return false
+        if (e.st === true && (_holdCauses || !vehicle || !vehicle.armed || _now() - _holdEndedAt <= 5000)) return true
+        return _inStartWindow(e.t)
+    }
     function _refreshCause() {
-        var best = null
-        for (var k in _causes) {
-            var e = _causes[k]
+        var best = null, k, e
+        for (k in _causes) {
+            e = _causes[k]
+            if (_isStartCause(e) && (!best || e.rank > best.rank || (e.rank === best.rank && e.t >= best.t))) best = e
+        }
+        if (!best) for (k in _causes) {
+            e = _causes[k]
             if (!best || e.rank > best.rank || (e.rank === best.rank && e.t >= best.t)) best = e
         }
         _causeRank = best ? best.rank : 0
@@ -138,14 +163,14 @@ QtObject {
                 // in this hold: arrived in the window before it, or already held since it began (not in an earlier hold)
                 // (held until up to 5 s before: the same return across a mode switch, not an earlier return)
                 if (e.t >= _holdSince - _holdWindowMs || (e.h !== undefined && e.h >= _holdSince - 5000))
-                    c[k] = { rank: e.rank, cause: e.cause, text: e.text, t: e.t, h: now }
+                    c[k] = { rank: e.rank, cause: e.cause, text: e.text, t: e.t, h: now, st: e.st === true || _inStartWindow(e.t) }
                 else changed = true
             }
             else if (now - Math.max(e.t, e.h || 0) < _causeKeepMs) c[k] = e
             else changed = true
         }
         _causes = c
-        if (changed) _refreshCause()
+        _refreshCause()             // also when nothing expired: a start mark stops counting 5 s after the pilot flew on
     }
     property Timer _warnTimer: Timer {
         interval: 1000; repeat: true
@@ -153,9 +178,39 @@ QtObject {
         onTriggered: s._expireCauses()
     }
     // a new flight (or another drone) starts without the old causes
-    onArmedChanged: if (armed) _clearCause()
-    onVehicleChanged: _clearCause()
-    on_HoldCausesChanged: { if (_holdCauses) _holdSince = _now(); _expireCauses() }
+    onArmedChanged: {
+        if (armed) { _holdEndedAt = 0; _startFloor = 0; _clearCause() }
+        _updateReturnLatch()
+    }
+    // another active drone: nothing of the previous one is kept (latch, hold times, app alert tier; bug #28594)
+    onVehicleChanged: {
+        _returnLatch = false; _holdSince = 0; _holdEndedAt = 0; _startFloor = 0; _appTier = -1; _fcFenceBreachAt = 0
+        _clearCause()
+        _updateReturnLatch()
+        // the new drone may already be returning: the hold then does not change and on_HoldCausesChanged does not
+        // run, so start its window here once the bindings follow the new drone (code review)
+        Qt.callLater(function() { if (s._holdCauses && s._holdSince === 0) s._holdSince = s._now() })
+    }
+    on_HoldCausesChanged: {
+        var now = _now()
+        if (_holdCauses) {
+            var sameReturn = _holdSince !== 0 && _holdEndedAt !== 0 && now - _holdEndedAt < 1000
+            if (!sameReturn) {
+                // a new return: earlier start marks do not start it
+                _startFloor = _holdEndedAt
+                _holdSince = now
+                var c = {}
+                for (var k in _causes) {
+                    var e = _causes[k]
+                    c[k] = { rank: e.rank, cause: e.cause, text: e.text, t: e.t, h: e.h, st: e.st === true && e.t > _startFloor }
+                }
+                _causes = c
+            }
+        } else {
+            _holdEndedAt = now
+        }
+        _expireCauses()
+    }
     function _causeOf(t) {          // { kind, rank, cause }; rank 0 = not a cause
         function r(kind, rank, cause) { return { kind: kind, rank: rank, cause: cause } }
         if (/crash/i.test(t))                                     return r("crash", 9, qsTr("Crash detected"))
@@ -177,8 +232,19 @@ QtObject {
     }
     function _addCause(kind, rank, cause, text) {
         var n = {}
+        // during a return the starting cause of this kind keeps its time and text (bug #28594); only a missing text
+        // is filled in (an FC fence event first, the app's breach text right after it)
+        var ex = _causes[kind]
+        if (_isStartCause(ex)) {
+            if (ex.text !== "" || text === "") return
+            for (var k1 in _causes) n[k1] = _causes[k1]
+            n[kind] = { rank: ex.rank, cause: ex.cause, text: text, t: ex.t, h: ex.h, st: ex.st }
+            _setCauses(n)
+            return
+        }
         for (var k in _causes) n[k] = _causes[k]
-        n[kind] = { rank: rank, cause: cause, text: text, t: _now() }
+        var now = _now()
+        n[kind] = { rank: rank, cause: cause, text: text, t: now, st: _inStartWindow(now) }
         _setCauses(n)
     }
     function _onFcWarning(componentid, severity, text) {
@@ -187,8 +253,10 @@ QtObject {
         // The app's geofence texts: a breach / contingency the FC reported (FENCE_STATUS) is the fence cause
         // (the text may be translated, so no regex); margin, altitude warning and exit lines are not causes.
         if (tier >= 3) {
-            // only a breach the FC reported (FENCE_STATUS), not one from the app's own geometry check
-            if (present && typeof vehicle.fenceStatusBreached === "function" && vehicle.fenceStatusBreached())
+            // only a breach the FC reported (FENCE_STATUS breach_status, or a new breach_count just now: bug #28594),
+            // not one from the app's own geometry check
+            if (present && ((typeof vehicle.fenceStatusBreached === "function" && vehicle.fenceStatusBreached())
+                            || (_fcFenceBreachAt > 0 && _now() - _fcFenceBreachAt < 3000)))
                 _addCause("fence", 4, qsTr("Geofence reached"), text)
             return
         }
@@ -198,7 +266,8 @@ QtObject {
         // a problem reported gone (any severity): forget that kind ("GPS Glitch cleared", "Radio failsafe cleared")
         if (/\bclear(ed)?\b|\brestored\b|\brecovered\b|\bresolved\b/i.test(text)) {
             var gone = _causeOf(text.replace(/\bclear(ed)?\b|\brestored\b|\brecovered\b|\bresolved\b/ig, ""))
-            if (gone.rank > 0 && _causes[gone.kind] !== undefined) {
+            // the cause that started the return stays until disarm (a "Radio Failsafe Cleared" during it: bug #28594)
+            if (gone.rank > 0 && _causes[gone.kind] !== undefined && !_isStartCause(_causes[gone.kind])) {
                 var c0 = {}
                 for (var k0 in _causes) if (k0 !== gone.kind) c0[k0] = _causes[k0]
                 _setCauses(c0)
@@ -219,10 +288,21 @@ QtObject {
         function onTextMessageReceived(uasid, componentid, severity, text, description) { s._onFcWarning(componentid, severity, text) }
         // the app's own geofence alert text follows this signal at once (Vehicle._updateGeoFenceAlert)
         function onGeoFenceAlertTierChanged(tier) { s._appTier = tier; Qt.callLater(function() { s._appTier = -1 }) }
+        // the FC reported a fence breach (FENCE_STATUS breach_status or a new breach_count; Vehicle.fcFenceBreachCount)
+        function onFcFenceBreachCountChanged() { s._onFcFenceBreach() }
+    }
+    // An event-only breach (breach_count up, breach_status 0) is a fence cause too (bug #28594). The app's alert text
+    // usually follows and adds the text; when the app was already in its breach tier no text follows, so the cause is
+    // added here at once.
+    property real _fcFenceBreachAt: 0
+    function _onFcFenceBreach() {
+        _fcFenceBreachAt = _now()
+        var old = _causes["fence"]
+        _addCause("fence", 4, qsTr("Geofence reached"), old !== undefined ? old.text : "")
     }
     // reason line for banners and the S92 card: plain cause; Advanced mode adds the FC text
     readonly property string recentReason: recentCause === "" ? ""
-                                         : (QGroundControl.corePlugin.advancedMode ? recentCause + " (" + recentWarning + ")" : recentCause)
+                                         : (QGroundControl.corePlugin.advancedMode && recentWarning !== "" ? recentCause + " (" + recentWarning + ")" : recentCause)
 
     // Overall state name used by the UI rules
     readonly property string state: !present ? "disconnected"

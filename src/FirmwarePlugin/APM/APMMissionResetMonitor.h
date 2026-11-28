@@ -101,6 +101,7 @@ private:
     void _finishProbe(int count);
     void _presentEmptyStart(int count, int purpose);
     void _presentOtherStartFailure();
+    bool _missionRunning() const;
 
     static const int        _clearMissionBit = 1;
     static const uint32_t   _rebootDropMs = 2000;

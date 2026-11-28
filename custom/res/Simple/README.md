@@ -88,20 +88,49 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
 
 ## Fonts and translations
 
-- Fonts (`fonts/`, in `custom.qrc` under `/simple/fonts/`): Roboto Regular / Medium / Bold (v2.138, Apache 2.0)
-  and Noto Sans KR Regular / Medium / Bold (OFL 1.1). Noto Sans KR is subset to Latin, punctuation, Hangul
-  syllables and jamo (no Hanja except 日本語 for the language list) to keep the app small (≈ 2 MB per weight). Licence files are next to the fonts.
-- All Simple UI text uses `SText` → `SimpleTheme.fontFamily` ("Roboto"). In Korean, Latin letters and digits stay
-  Roboto and Hangul falls back to Noto Sans KR (`QFont::insertSubstitutions`). Roboto Medium may register as its own
-  family "Roboto Medium" (Windows); `SimpleTheme.fontFamilyMedium` handles that.
-- Translations: `translations/qgc_simple_ko_KR.ts` (contexts = QML file names). It is built by the existing
-  `TRANSLATIONS += translations/qgc_*.ts` + `embed_translations` rule. It also holds the Simple-only strings in core
-  files (`FlyView`: Map / Camera, `MainRootWindow`: Lock and return to Simple). After changing text, update it with
-  `lupdate custom/res/Simple -ts translations/qgc_simple_ko_KR.ts` (keep the two core contexts) and translate in Qt Linguist.
-- Licence notices: Settings › About & support › Legal & licenses (S48) lists all third-party software (22 items:
+- Fonts (`fonts/`, in `custom.qrc` under `/simple/fonts/`): Roboto Regular / Medium / Bold (v2.138, Apache 2.0),
+  Noto Sans KR and Noto Sans JP Regular / Medium / Bold (v2.004, OFL 1.1). Noto Sans KR is subset to Latin,
+  punctuation, Hangul syllables and jamo (no Hanja except 日本語 for the language list), ≈ 2 MB per weight.
+  Noto Sans JP is subset to kana, CJK punctuation, the JIS level-1 kanji and every character of
+  `qgc_simple_ja_JP.ts` (≈ 1.1 MB per weight; `custom/tools/i18n/subset_noto_jp.py`, run it again when the Japanese
+  text gains a rarer kanji — `static_checks.py` reports missing glyphs). Licence files are next to the fonts.
+  Noto Sans TC is subset to CJK punctuation, Bopomofo, the Big5 common characters (常用字) and every character of
+  `qgc_simple_zh_TW.ts` and the core zh_TW files (≈ 1.7 MB per weight; `custom/tools/i18n/subset_noto_tc.py`).
+  Roboto covers every character of Vietnamese, German, Danish and Portuguese.
+- All Simple UI text uses `SText` → `SimpleTheme.fontFamily` ("Roboto"). Latin letters and digits stay Roboto;
+  Hangul falls back to Noto Sans KR, kana / kanji to Noto Sans JP, other Han characters to Noto Sans TC
+  (`QFont::insertSubstitutions` in `QGCApplication::setLanguage()`, set once at start: changing the list at runtime
+  made Android draw earlier text with glyphs of the other font, kanji shown as Hangul). The order follows the language
+  loaded at start (also "System" on a Taiwan device): Traditional Chinese TC → JP → KR, Japanese JP → TC → KR, every
+  other language KR → JP → TC, so shared Han characters and full-width punctuation use the regional forms (after
+  switching between these languages the forms are right after a restart). 한국어 and 日本語 in the language
+  list are always drawn by the bundled fonts (日本語 by the KR subset). Roboto Medium may register as its own family "Roboto Medium" (Windows);
+  `SimpleTheme.fontFamilyMedium` handles that.
+- Long translations: `SText.fitMin` (< 1) lets a label with a fixed width shrink to fit, down to that share of its
+  size (0.8 in action buttons and segmented controls), then elide. Wrapped text is not shrunk.
+- Translations: `translations/qgc_simple_<locale>.ts` for ko_KR, vi_VN, de_DE, da_DK, pt_BR, ja_JP, zh_TW (contexts = QML
+  file names). They are built by the existing `TRANSLATIONS += translations/qgc_*.ts` + `embed_translations` rule and
+  loaded by locale name. They also hold the Simple-only strings in core files (`FlyView`: Map / Camera,
+  `FlightZoneManager` C++ texts). After changing text run
+  `python custom/tools/i18n/sync_ts.py <Qt>/bin/lupdate.exe translations/qgc_simple_*.ts` (adds new messages, removes
+  stale ones, keeps the core contexts and the file format), fill what Figma has with
+  `custom/tools/i18n/fill_from_figma.py custom/i18n/figma_strings.json <ts> <vi|de|da|pt|ja>`, translate the rest
+  (terms: `custom/i18n/glossary.json`) and run `custom/tests/simple/static_checks.py`.
+- Language list (`SLanguageCombo.qml`, S57 and Settings › General): only the languages above plus System; names in
+  their own language. A new language needs its `.ts`, an entry there and, if missing, in `qLocaleLanguage`
+  (`src/Settings/App.SettingsGroup.json`, QLocale::Language values). Traditional Chinese (Taiwan) uses the value
+  10000 (`AppSettings::traditionalChineseTaiwanLanguageID`): QLocale::Language cannot tell it from Simplified
+  Chinese; `QGCApplication::setLanguage()` maps it to zh_TW. Every Simple language must be in
+  `AppSettings::_rgReleaseLanguages`, or a stable build falls back to the system language at start.
+- Still English in every language: ArduPilot mode names in Advanced mode lists (as the firmware reports them),
+  FactMetaData enum / parameter texts shown in Simple rows, C++ messages outside `FlightZoneManager`, vehicle and
+  QGC status texts (e.g. pre-arm reasons the app does not map), QGC voice announcements (core
+  translations only). The megaphone speech language (S56, marked *) stays English / Korean until the device
+  accepts more. Numbers, dates and times use one
+  format for all languages (2.1 km, 2026-10-28, 24-hour), as in Figma.
+- Licence notices: Settings › About & support › Legal & licenses (S48) lists all third-party software (24 items:
   QGroundControl, Qt third-party parts, GStreamer/GLib, OpenSSL, SDL2, fonts, …) from `licenses/index.json`, with
   full texts. Windows installs the same files in `<install dir>\licenses`. How to regenerate: `licenses/README.md`.
-- Add a language: copy the file as `qgc_simple_<locale>.ts`; the loader picks it up by locale name.
 
 ## Tests
 

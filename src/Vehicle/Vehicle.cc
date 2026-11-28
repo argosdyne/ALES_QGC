@@ -5081,7 +5081,15 @@ void Vehicle::_handleFenceStatus(const mavlink_message_t& message)
     if (!fenceActive) {
         breachedNow = false;
     }
+    // read-only counter for the Simple UI return reason: a breach the FC reports, also an event-only one
+    // (breach_count grows while breach_status stays 0). Emitted before the alert tier text below.
+    const bool fcBreachEvent = fenceActive && ((breachedNow && !_fenceStatusBreached) ||
+                                               (breachCountIncreased && fenceStatus.breach_type != FENCE_BREACH_NONE));
     _fenceStatusBreached = breachedNow;
+    if (fcBreachEvent) {
+        _fcFenceBreachCount++;
+        emit fcFenceBreachCountChanged();
+    }
 
     // If geofence is inactive, suppress both stateful and event-only alerts.
     shouldAlert = shouldAlert && fenceActive;

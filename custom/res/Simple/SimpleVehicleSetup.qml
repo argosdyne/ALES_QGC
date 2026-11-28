@@ -33,12 +33,18 @@ Rectangle {
         for (var i = 0; i < c.length; i++) if (c[i].setupSource.toString().indexOf("APMMissionComponent") >= 0) return true
         return false
     }
+    // Tuleap bug #36763 (user decision A, Figma S58 / S71 notes): a drone flown with a USB gamepad (e.g. EasyGripper:
+    // no RC receiver) gets the gamepad page (S95) in place of Radio, while the gamepad is connected and used for this
+    // drone (vehicle.joystickEnabled). Otherwise Radio = RC channels (S71) as before.
+    readonly property var  _joy: typeof joystickManager !== "undefined" ? joystickManager.activeJoystick : null
+    readonly property bool useJoystick: !!_joy && !!_veh && _veh.joystickEnabled
+    readonly property bool _joyCalOk: !!_joy && (_joy.calibrated || _joy.axisCount === 0)
     // category → new screen (classic: component QML name, used for the setup state)
     readonly property var cats: [
         { key: "summary",  icon: "info",     t: qsTr("Summary") },
         { key: "frame",    icon: "drone",    t: qsTr("Frame"),        classic: "APMAirframeComponent" },
         { key: "sensors",  icon: "gps",      t: qsTr("Sensors") },
-        { key: "radio",    icon: "signal",   t: qsTr("Radio"),        classic: "RadioComponent" },
+        { key: "radio",    icon: "signal",   t: useJoystick ? qsTr("Joystick") : qsTr("Radio"), classic: "RadioComponent" },
         { key: "modes",    icon: "sliders",  t: qsTr("Flight modes"), classic: "APMFlightModesComponent" },
         { key: "power",    icon: "battery",  t: qsTr("Power"),        classic: "APMPowerComponent" },
         { key: "motors",   icon: "power",    t: qsTr("Motors"),       classic: "APMMotorComponent" },
@@ -115,7 +121,7 @@ Rectangle {
         anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(24)
         sourceComponent: vsp.category === "summary" ? summaryComp : vsp.category === "sensors" ? sensorsComp
                        : vsp.category === "modes"   ? modesComp   : vsp.category === "safety" ? safetyComp
-                       : vsp.category === "power"   ? powerComp   : vsp.category === "radio"  ? radioComp
+                       : vsp.category === "power"   ? powerComp   : vsp.category === "radio"  ? (vsp.useJoystick ? joystickComp : radioComp)
                        : vsp.category === "gimbal"  ? gimbalComp  : vsp.category === "tuning" ? tuningComp
                        : vsp.category === "frame"   ? frameComp   : vsp.category === "motors" ? motorsComp
                        : vsp.category === "mission" ? missionComp
@@ -173,8 +179,9 @@ Rectangle {
                             { key: "sensors",  st: sm.stateOf("APMSensorsComponent") === "done" && !sm.levelDone ? "needs" : sm.stateOf("APMSensorsComponent"),
                               s: sm.stateOf("APMSensorsComponent") === "done" ? (sm.levelDone ? qsTr("Compass, accelerometer and level done") : qsTr("Compass and accelerometer done · level not done"))
                                                                               : qsTr("Compass or accelerometer needs calibration") },
-                            { key: "radio",    st: sm.stateOf("RadioComponent"),
-                              s: sm.stateOf("RadioComponent") === "done" ? qsTr("Sticks calibrated") : qsTr("Calibrate the sticks") },
+                            { key: "radio",    st: vsp.useJoystick ? (vsp._joyCalOk ? "done" : "needs") : sm.stateOf("RadioComponent"),
+                              s: vsp.useJoystick ? (vsp._joyCalOk ? qsTr("Gamepad calibrated") : qsTr("Calibrate the gamepad"))
+                               : sm.stateOf("RadioComponent") === "done" ? qsTr("Sticks calibrated") : qsTr("Calibrate the sticks") },
                             { key: "modes",    st: sm.stateOf("APMFlightModesComponent"),
                               s: qsTr("6 modes on channel %1 · %2 first").arg(sm.p("FLTMODE_CH") ? sm.p("FLTMODE_CH").rawValue : "—").arg(sm.en("FLTMODE1")) },
                             { key: "power",    st: sm.stateOf("APMPowerComponent"),
@@ -220,6 +227,14 @@ Rectangle {
     Component { id: powerComp;  SimpleSetupPower  { onEscCalRequested: escCal.open() } }
     SimpleEscCal { id: escCal }      // S83: outlives the Power page while the drone is unplugged
     Component { id: radioComp;  SimpleSetupRadio  { } }
+    Component {
+        id: joystickComp
+        Flickable {
+            contentHeight: joyPage.height + SimpleTheme.px(40)
+            clip: true
+            SimpleGamepad { id: joyPage; width: parent.width; showBack: false }
+        }
+    }
     Component { id: gimbalComp; SimpleSetupGimbal { } }
     Component { id: tuningComp; SimpleSetupTuning { } }
     Component { id: frameComp;  SimpleSetupFrame  { } }

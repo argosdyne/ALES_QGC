@@ -124,7 +124,7 @@ Item {
             width: lbl.implicitWidth + SimpleTheme.px(16); height: SimpleTheme.px(36); radius: SimpleTheme.px(8)
             color: we.lowPoints.indexOf(index + 1) >= 0 ? SimpleTheme.danger : SimpleTheme.withAlpha(SimpleTheme.bgBase, 0.85)
             SText { id: lbl; anchors.centerIn: parent; size: 22; medium: true
-                    text: Math.round(Number(modelData.altitude.rawValue)) + " m" }
+                    text: SimpleTheme.vText(Number(modelData.altitude.rawValue)) }
         }
     }
 
@@ -296,9 +296,9 @@ Item {
                 SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Height"); size: 24; color: SimpleTheme.textSecondary }
                 SStepper {
                     anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
-                    value: we.selected ? Math.round(Number(we.selected.altitude.rawValue)) : 0
-                    from: 5; to: we.maxAlt; step: 5; unit: "m"
-                    onEdited: we.selected.altitude.rawValue = value
+                    value: we.selected ? Math.round(SimpleTheme.toV(Number(we.selected.altitude.rawValue))) : 0
+                    from: Math.ceil(SimpleTheme.toV(5)); to: Math.floor(SimpleTheme.toV(we.maxAlt)); step: SimpleTheme.vStep(5); unit: SimpleTheme.vUnit()
+                    onEdited: we.selected.altitude.rawValue = SimpleTheme.fromV(value)
                 }
             }
             Item {
@@ -354,7 +354,7 @@ Item {
             }
             SText {
                 width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textTertiary
-                text: qsTr("Height is above the take-off point · max %1 m.").arg(we.maxAlt)
+                text: qsTr("Height is above the take-off point · max %1.").arg(SimpleTheme.vText(we.maxAlt))
             }
         }
         }

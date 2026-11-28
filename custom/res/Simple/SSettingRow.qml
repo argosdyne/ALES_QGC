@@ -30,7 +30,7 @@ Rectangle {
         anchors.right: ctl.left; anchors.rightMargin: SimpleTheme.px(24)
         anchors.verticalCenter: parent.verticalCenter
         SText { width: parent.width; text: row.title; size: 30; medium: true }
-        SText { width: parent.width; text: row.locked && row.lockReason !== "" ? row.lockReason : row.sub; size: 24; color: row.locked ? SimpleTheme.warn : SimpleTheme.textSecondary; visible: text !== ""; wrapMode: Text.WordWrap; maximumLineCount: 2 }
+        SText { width: parent.width; text: row.locked && row.lockReason !== "" ? row.lockReason : row.sub; size: 24; color: row.locked ? SimpleTheme.warn : SimpleTheme.textSecondary; visible: text !== ""; wrapMode: Text.WordWrap; maximumLineCount: 3 }   // 3: long translations (ja S57 units)
     }
     Item {
         id: ctl

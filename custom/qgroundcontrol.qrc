@@ -302,8 +302,6 @@
 
 		<file alias="RemoteID.SettingsGroup.json">../src/Settings/RemoteID.SettingsGroup.json</file>
 		<file alias="GimbalController.SettingsGroup.json">../src/Settings/GimbalController.SettingsGroup.json</file>
-		<file alias="Vehicle/GeneratorFact.json">../src/Vehicle/GeneratorFact.json</file>
-		<file alias="Vehicle/EFIFact.json">../src/Vehicle/EFIFact.json</file>
 	</qresource>
 	<qresource prefix="/MockLink">
 		<file alias="APMArduSubMockLink.params">../src/comm/APMArduSubMockLink.params</file>

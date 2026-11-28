@@ -142,7 +142,7 @@ Item {
                         SText { x: SimpleTheme.px(56); anchors.verticalCenter: parent.verticalCenter; width: parent.width * 0.55; elide: Text.ElideRight
                                 text: me.cmdName(modelData); size: 24 }
                         SText { anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(14); anchors.verticalCenter: parent.verticalCenter; size: 22; color: SimpleTheme.textSecondary
-                                text: modelData.isSimpleItem && modelData.specifiesCoordinate && modelData.altitude ? Math.round(Number(modelData.altitude.rawValue)) + " m" : "" }
+                                text: modelData.isSimpleItem && modelData.specifiesCoordinate && modelData.altitude ? SimpleTheme.vText(Number(modelData.altitude.rawValue)) : "" }
                         MouseArea { anchors.fill: parent; onClicked: me.select(modelData) }
                     }
                 }
@@ -254,7 +254,7 @@ Item {
                     Rectangle {
                         width: pcol.width; height: SimpleTheme.px(80); radius: SimpleTheme.px(14); color: SimpleTheme.surfaceRaised
                         SText { x: SimpleTheme.px(18); anchors.verticalCenter: parent.verticalCenter; size: 22; width: pcol.width - SimpleTheme.px(360); elide: Text.ElideRight
-                                text: qsTr("Circle %1 · %2 m").arg(index + 1).arg(Math.round(Number(object.radius.rawValue))) }
+                                text: qsTr("Circle %1 · %2").arg(index + 1).arg(SimpleTheme.hText(Number(object.radius.rawValue))) }
                         Row {
                             anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(12); anchors.verticalCenter: parent.verticalCenter
                             spacing: SimpleTheme.px(8)

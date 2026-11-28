@@ -12,6 +12,7 @@ import "."
 Column {
     id: gp
     signal backRequested()
+    property bool showBack: true       // false inside Vehicle setup › Joystick (Tuleap bug #36763)
     spacing: SimpleTheme.px(16)
 
     readonly property var  _jm:   typeof joystickManager !== "undefined" ? joystickManager : null
@@ -36,7 +37,7 @@ Column {
 
     Row {
         spacing: SimpleTheme.px(20)
-        SButton { designHeight: 64; textSize: 24; icon: "back"; text: qsTr("Devices"); onClicked: gp.backRequested() }
+        SButton { visible: gp.showBack; designHeight: 64; textSize: 24; icon: "back"; text: qsTr("Devices"); onClicked: gp.backRequested() }
         SText { text: qsTr("USB gamepad"); size: 40; bold: true; anchors.verticalCenter: parent.verticalCenter }
     }
     SText {

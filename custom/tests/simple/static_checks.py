@@ -6,10 +6,20 @@ Needs fontTools (pip install fonttools) for the font checks.
 Exit code 0 = all checks passed (warnings allowed), 1 = at least one failure.
 """
 import glob, json, os, re, sys, xml.etree.ElementTree as ET
+# messages contain Korean / CJK text: do not crash on a Windows console with a legacy code page (cp949)
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(errors='replace')
+    except AttributeError:
+        pass
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 SIMPLE = os.path.join(ROOT, 'custom', 'res', 'Simple')
 TS = os.path.join(ROOT, 'translations', 'qgc_simple_ko_KR.ts')
+# every Simple UI language: ko_KR + vi_VN, de_DE, da_DK, pt_BR, ja_JP (custom/docs/TASK-i18n-five-languages.md), zh_TW
+TS_FILES = sorted(glob.glob(os.path.join(ROOT, 'translations', 'qgc_simple_*.ts')))
+def lang_of(path):
+    return os.path.basename(path)[len('qgc_simple_'):-3]
 QRC = os.path.join(ROOT, 'custom', 'custom.qrc')
 CORE_CTX = {'FlyView': os.path.join(ROOT, 'src', 'FlightDisplay', 'FlyView.qml'),
             'MainRootWindow': os.path.join(ROOT, 'src', 'ui', 'MainRootWindow.qml')}
@@ -22,16 +32,17 @@ fails, warns = [], []
 def fail(area, msg): fails.append((area, msg))
 def warn(area, msg): warns.append((area, msg))
 
-QSTR = re.compile(r'qsTr\(\s*"((?:[^"\\]|\\.)*)"\s*\)')
+QSTR = re.compile(r'qsTr\(\s*"((?:[^"\\]|\\.)*)"\s*[,)]')   # also qsTr("%n item(s)", "", n)
 def qml_strings(path):
     return QSTR.findall(open(path, encoding='utf-8').read())
 
 # ---------------------------------------------------------------- translations
-def check_translations():
+def check_translations(path=TS):
+    lang = lang_of(path)
     try:
-        tree = ET.parse(TS)
+        tree = ET.parse(path)
     except ET.ParseError as e:
-        fail('ts', 'XML parse error: %s' % e); return {}
+        fail('ts', '%s: XML parse error: %s' % (lang, e)); return {}
     ts = {}
     for ctx in tree.getroot().findall('context'):
         name = ctx.findtext('name')
@@ -39,13 +50,19 @@ def check_translations():
         for m in ctx.findall('message'):
             src = m.findtext('source') or ''
             tr = m.find('translation')
+            forms = [f.text or '' for f in tr.findall('numerusform')] if tr is not None else []
+            text = ' | '.join(forms) if forms else ((tr.text or '') if tr is not None else '')
             if src in msgs:
-                fail('ts', 'duplicate source in %s: %r' % (name, src))
-            if tr is None or not (tr.text or '').strip():
-                fail('ts', 'empty translation in %s: %r' % (name, src))
+                fail('ts', '%s: duplicate source in %s: %r' % (lang, name, src))
+            if tr is None or not text.strip() or not all(f.strip() for f in forms):
+                fail('ts', '%s: empty translation in %s: %r' % (lang, name, src))
             elif tr.get('type') in ('unfinished', 'obsolete', 'vanished'):
-                warn('ts', '%s translation in %s: %r' % (tr.get('type'), name, src))
-            msgs[src] = (tr.text or '') if tr is not None else ''
+                warn('ts', '%s: %s translation in %s: %r' % (lang, tr.get('type'), name, src))
+            if m.findtext('translatorcomment'):
+                warn('ts', '%s: draft comment left in %s: %r' % (lang, name, src))
+            if any('%n' not in f for f in forms):
+                fail('ts', '%s: numerus form without %%n in %s: %r' % (lang, name, src))
+            msgs[src] = forms[-1] if forms else text      # the longest (plural) form for width checks
         ts[name] = msgs
     # every qsTr in Simple QML (and the Simple-only strings in core files) is translated
     files = glob.glob(os.path.join(SIMPLE, '*.qml'))
@@ -55,35 +72,35 @@ def check_translations():
         for s in qml_strings(f):
             used.setdefault(ctx, set()).add(s)
             if s not in ts.get(ctx, {}):
-                fail('ts', 'missing translation %s: %r' % (ctx, s))
-    for ctx, path in CORE_CTX.items():
+                fail('ts', '%s: missing translation %s: %r' % (lang, ctx, s))
+    for ctx, cpath in CORE_CTX.items():
         for s in ts.get(ctx, {}):
-            if s not in qml_strings(path):
-                fail('ts', 'core context %s: source %r not found in %s' % (ctx, s, os.path.basename(path)))
-    for ctx, path in CPP_CTX.items():       # only the strings already in the .ts must still exist in the source
-        src = set(TR.findall(open(path, encoding='utf-8').read()))
+            if s not in qml_strings(cpath):
+                fail('ts', '%s: core context %s: source %r not found in %s' % (lang, ctx, s, os.path.basename(cpath)))
+    for ctx, cpath in CPP_CTX.items():      # only the strings already in the .ts must still exist in the source
+        src = set(TR.findall(open(cpath, encoding='utf-8').read()))
         for s in ts.get(ctx, {}):
             if s not in src:
-                warn('ts', 'stale entry %s: %r (text changed or removed in C++)' % (ctx, s))
+                warn('ts', '%s: stale entry %s: %r (text changed or removed in C++)' % (lang, ctx, s))
     # no stale entries
     for ctx, msgs in ts.items():
         if ctx in CORE_CTX or ctx in CPP_CTX:
             continue
         for s in msgs:
             if s not in used.get(ctx, set()):
-                warn('ts', 'stale entry %s: %r (text changed or removed in QML)' % (ctx, s))
+                warn('ts', '%s: stale entry %s: %r (text changed or removed in QML)' % (lang, ctx, s))
     # placeholders %1..%9 match and are not duplicated / lost
     for ctx, msgs in ts.items():
         for s, t in msgs.items():
-            ps, pt = sorted(re.findall(r'%\d', s)), sorted(re.findall(r'%\d', t))
+            ps, pt = sorted(re.findall(r'%[\dn]', s)), sorted(re.findall(r'%[\dn]', t))
             if ps != pt:
-                fail('ts', 'placeholder mismatch %s: %r -> %r' % (ctx, s, t))
+                fail('ts', '%s: placeholder mismatch %s: %r -> %r' % (lang, ctx, s, t))
             if re.search(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', t):
-                fail('ts', 'control character in %s: %r' % (ctx, t))
+                fail('ts', '%s: control character in %s: %r' % (lang, ctx, t))
             if t != t.strip() and s == s.strip():
-                warn('ts', 'leading/trailing space added in %s: %r' % (ctx, t))
+                warn('ts', '%s: leading/trailing space added in %s: %r' % (lang, ctx, t))
             if s.startswith(' ') != t.startswith(' '):
-                fail('ts', 'leading space differs in %s: %r -> %r' % (ctx, s, t))
+                fail('ts', '%s: leading space differs in %s: %r -> %r' % (lang, ctx, s, t))
     return ts
 
 # ---------------------------------------------------------------- qrc, qmldir, icons
@@ -163,62 +180,71 @@ def check_licenses(aliases):
         txt = open(p, encoding='utf-8').read()
         if 'License' not in txt and 'LICENSE' not in txt and 'licen' not in txt.lower():
             warn('licenses', '%s has no licence wording' % it['file'])
-    for must in ('QGroundControl', 'Roboto', 'Noto Sans KR'):
+    for must in ('QGroundControl', 'Roboto', 'Noto Sans KR', 'Noto Sans JP', 'Noto Sans TC'):
         if not any(i['name'].startswith(must) for i in items):
             fail('licenses', 'no entry for %s' % must)
 
-# ---------------------------------------------------------------- fonts and Korean label widths
-def check_fonts(ts):
+# ---------------------------------------------------------------- fonts and label widths (every language)
+# Fallback order as in QGCApplication::setLanguage() (chosen at start from the loaded language): Roboto, then
+# Traditional Chinese TC, JP, KR; Japanese JP, TC, KR; every other language KR, JP, TC
+CJK_ORDER = {'zh_TW': ('TC', 'JP', 'KR'), 'ja_JP': ('JP', 'TC', 'KR')}
+DEFAULT_CJK = ('KR', 'JP', 'TC')
+
+def check_fonts(all_ts):
     try:
         from fontTools.ttLib import TTFont
     except ImportError:
         warn('fonts', 'fontTools not installed: font checks skipped'); return
     fdir = os.path.join(SIMPLE, 'fonts')
-    fonts = {}
+    fonts = {}          # weight -> {'R'|'KR'|'JP': (cmap, hmtx, unitsPerEm)}
     for w in ('Regular', 'Medium', 'Bold'):
-        r = TTFont(os.path.join(fdir, 'Roboto-%s.ttf' % w))
-        n = TTFont(os.path.join(fdir, 'NotoSansKR-%s.otf' % w))
-        fonts[w] = (r, r.getBestCmap(), r['hmtx'], r['head'].unitsPerEm,
-                    n, n.getBestCmap(), n['hmtx'], n['head'].unitsPerEm)
-        wr, wn = r['OS/2'].usWeightClass, n['OS/2'].usWeightClass
-        if {'Regular': 400, 'Medium': 500, 'Bold': 700}[w] not in (wr, wn) or wr != wn:
-            fail('fonts', '%s weight classes Roboto %d / Noto %d' % (w, wr, wn))
+        fonts[w] = {}
+        for key, fname in (('R', 'Roboto-%s.ttf'), ('KR', 'NotoSansKR-%s.otf'), ('JP', 'NotoSansJP-%s.otf'),
+                           ('TC', 'NotoSansTC-%s.otf')):
+            f = TTFont(os.path.join(fdir, fname % w))
+            fonts[w][key] = (f.getBestCmap(), f['hmtx'], f['head'].unitsPerEm)
+            want = {'Regular': 400, 'Medium': 500, 'Bold': 700}[w]
+            if f['OS/2'].usWeightClass != want:
+                fail('fonts', '%s weight class %d, expected %d' % (fname % w, f['OS/2'].usWeightClass, want))
 
-    def width(text, size, weight='Regular'):
-        r, rc, rh, ru, n, nc, nh, nu = fonts[weight]
+    def width(text, size, weight='Regular', lang='ko_KR'):
+        chain = [fonts[weight][k] for k in ('R',) + CJK_ORDER.get(lang, DEFAULT_CJK)]
         total = 0.0
         for ch in text:
             cp = ord(ch)
-            if cp in rc:
-                total += rh[rc[cp]][0] * size / ru
-            elif cp in nc:
-                total += nh[nc[cp]][0] * size / nu
+            for cmap, hmtx, upem in chain:
+                if cp in cmap:
+                    total += hmtx[cmap[cp]][0] * size / upem
+                    break
             else:
                 return None
         return total
 
-    # every character of every UI string (EN and KO) can be drawn by Roboto or Noto Sans KR
-    missing = {}
-    for ctx, msgs in ts.items():
-        for s, t in msgs.items():
-            for ch in s + t:
-                if ch in '\n\t':
-                    continue
-                if width(ch, 10) is None:
-                    missing.setdefault(ch, set()).add('%s: %s' % (ctx, (t or s)[:40]))
-    for ch, where in missing.items():
-        fail('fonts', 'no glyph for %r U+%04X (%s)' % (ch, ord(ch), sorted(where)[0]))
-    # all Hangul syllables (U+AC00..D7A3) are in the subset
-    nc = fonts['Regular'][5]
-    gap = [cp for cp in range(0xAC00, 0xD7A4) if cp not in nc]
+    # every character of every UI string can be drawn by the bundled fonts
+    for lang, ts in all_ts.items():
+        missing = {}
+        for ctx, msgs in ts.items():
+            for s, t in msgs.items():
+                for ch in s + t:
+                    if ch in '\n\t':
+                        continue
+                    if width(ch, 10, 'Regular', lang) is None:
+                        missing.setdefault(ch, set()).add('%s: %s' % (ctx, (t or s)[:40]))
+        for ch, where in missing.items():
+            fail('fonts', '%s: no glyph for %r U+%04X (%s)' % (lang, ch, ord(ch), sorted(where)[0]))
+    # all Hangul syllables (U+AC00..D7A3) are in the Korean subset; kana in the Japanese one
+    kc, jc = fonts['Regular']['KR'][0], fonts['Regular']['JP'][0]
+    gap = [cp for cp in range(0xAC00, 0xD7A4) if cp not in kc]
     if gap:
         fail('fonts', '%d Hangul syllables missing from Noto Sans KR subset' % len(gap))
+    gap = [cp for cp in list(range(0x3041, 0x3097)) + list(range(0x30A1, 0x30FB)) if cp not in jc]
+    if gap:
+        fail('fonts', '%d kana missing from Noto Sans JP subset' % len(gap))
 
     # fixed-width labels (design px at 1920x1080, Normal and Large text = x1.2)
-    ko = lambda ctx, s: ts.get(ctx, {}).get(s, s)
     checks = []
     for s in ('Take off', 'Start mission', 'Resume', 'Return home', 'Land', 'Pause'):
-        checks.append(('Action button (S01)', 'SimpleFlyOverlay', s, 22, 'Medium', 140))
+        checks.append(('Action button (S01)', 'SimpleFlyOverlay', s, 22, 'Medium', 140, 0.8))
     for s in ('ALTITUDE', 'DISTANCE', 'SPEED', 'FLIGHT TIME'):
         checks.append(('Telemetry label', 'STelemetryBar', s, 22, 'Medium', (902 - 28) / 4 - 8))
     seg = lambda W, n: (W - 8 - 4 * (n - 1)) / n - 8
@@ -226,28 +252,52 @@ def check_fonts(ts):
                            ('SimpleWelcome', ('Metric', 'Imperial'), 338),
                            ('SimplePlanWizard', ('Standard · 2D map', 'High · 3D model'), 556)):
         for s in labels:
-            checks.append(('Segmented (%d px, 2 items)' % W, ctx, s, 24, 'Bold', seg(W, 2)))
+            checks.append(('Segmented (%d px, 2 items)' % W, ctx, s, 24, 'Bold', seg(W, 2), 0.8))
     for s in ('Slide to take off', 'Slide to return home', 'Slide to land', 'Slide to start'):
         ctx = 'SimpleTakeoffSheet' if s == 'Slide to take off' else 'SimpleFlyOverlay'
         # track = sheet 980 - 2 x 28 padding; text is centred +40 px and must clear the knob (6 + 156 + 8)
         checks.append(('Slide confirm (924 px track)', ctx, s, 28, 'Medium', 924 + 2 * 40 - 2 * (6 + 156 + 8)))
+    checks += EXTRA_WIDTH_CHECKS
     for scale, tag in ((1.0, 'Normal'), (1.2, 'Large')):
-        for area, ctx, s, size, wgt, avail in checks:
-            for lang, txt in (('en', s), ('ko', ko(ctx, s))):
-                w = width(txt, size * scale, wgt)
-                if w is None:
+        for area, ctx, s, size, wgt, avail, *opt in checks:
+            fit = opt[0] if opt else 1.0          # SText.fit: the label may shrink to this share of its size
+            for lang, ts in [('en', {})] + sorted(all_ts.items()):
+                txt = ts.get(ctx, {}).get(s, s)
+                w = width(txt, size * scale, wgt, lang)
+                if w is None or w <= avail:
                     continue
-                if w > avail:
-                    ratio = (w - avail) / avail * 100
-                    (fail if tag == 'Normal' else warn)(
-                        'width', '%s [%s, %s text] %r = %.0f px > %.0f px (+%.0f%%)' % (area, lang, tag, txt, w, avail, ratio))
-    # general: Korean much wider than English for short labels (likely buttons / chips)
-    for ctx, msgs in ts.items():
-        for s, t in msgs.items():
-            if len(s) <= 16 and '%' not in s:
-                we, wk = width(s, 24, 'Medium'), width(t, 24, 'Medium')
-                if we and wk and wk > we * 1.35 and wk - we > 30:
-                    warn('width', 'short label grows in Korean %s: %r %.0f px -> %r %.0f px' % (ctx, s, we, t, wk))
+                ratio = (w - avail) / avail * 100
+                if w * fit <= avail:        # SText.fitMin: shrinks to fit (shown so the list stays short)
+                    warn('width', '%s [%s, %s text] %r shrinks to %.0f%% of its size' % (area, lang, tag, txt, avail / w * 100))
+                    continue
+                (fail if tag == 'Normal' else warn)(
+                    'width', '%s [%s, %s text] %r = %.0f px > %.0f px (+%.0f%%)' % (area, lang, tag, txt, w, avail, ratio))
+    # general: much wider than English for short labels (likely buttons / chips). Korean: one warning per label;
+    # the other languages: a count per language (run with --widths to list them).
+    for lang, ts in sorted(all_ts.items()):
+        grown = []
+        for ctx, msgs in ts.items():
+            for s, t in msgs.items():
+                if len(s) <= 16 and '%' not in s:
+                    we, wt = width(s, 24, 'Medium', lang), width(t, 24, 'Medium', lang)
+                    if we and wt and wt > we * 1.35 and wt - we > 30:
+                        grown.append('short label grows in %s %s: %r %.0f px -> %r %.0f px' % (lang, ctx, s, we, t, wt))
+        if lang == 'ko_KR' or '--widths' in sys.argv:
+            for g in grown:
+                warn('width', g)
+        elif grown:
+            warn('width', '%s: %d short labels are 35%%+ wider than English (run with --widths to list)' % (lang, len(grown)))
+
+# Labels that Figma shortened or let wrap in the translated screens (TASK-i18n-five-languages.md §3.5):
+# (area, context, source, design font px, weight, available px[, fit = smallest share of the size SText may shrink to])
+EXTRA_WIDTH_CHECKS = [
+    # S17 / S102 / S103: SHoldButton in a payload card (panel 640 - 2 x 16 margins - card 2 x 20 - button 56)
+    ('Hold button (payload card)', 'SimplePayloadPanel', 'Hold 2 s to stop', 26, 'Bold', 512),
+    ('Hold button (payload card)', 'SimplePayloadPanel', 'Hold 2 s to stop · %1 of %2 lines left', 26, 'Bold', 512),
+    ('Hold button (payload card)', 'SimplePayloadPanel', 'Hold 2 s to drop the life jacket', 26, 'Bold', 512),
+    # S02 compass hint, S28 position-hold note, S78 emergency-stop note: wrapped text (Figma allows 2 lines),
+    # S05 status pill: grows with its text. Not width-limited here; compared on the device / mock run.
+]
 
 # ---------------------------------------------------------------- desktop-only QML types
 # A QML type registered only in desktop builds (#ifndef __mobile__ in QGCApplication.cc) fails the whole file that
@@ -287,11 +337,11 @@ def check_platform_types():
                  'loaded with Loader.setSource, see SimpleFirmwareController.qml)' % (os.path.basename(f), m.group(1)))
 
 def main():
-    ts = check_translations()
+    all_ts = {lang_of(p): check_translations(p) for p in TS_FILES}
     check_platform_types()
     aliases = check_resources()
     check_licenses(aliases)
-    check_fonts(ts)
+    check_fonts(all_ts)
     for area, m in warns:
         print('WARN  [%s] %s' % (area, m))
     for area, m in fails:

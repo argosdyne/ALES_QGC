@@ -166,6 +166,7 @@
         <file alias="SimpleScanSettings.qml">res/Simple/SimpleScanSettings.qml</file>
         <file alias="SimpleSavedMissions.qml">res/Simple/SimpleSavedMissions.qml</file>
         <file alias="SimpleMissionInfo.js">res/Simple/SimpleMissionInfo.js</file>
+        <file alias="SimpleLidarQueue.js">res/Simple/SimpleLidarQueue.js</file>
         <file alias="SimplePayloadPanel.qml">res/Simple/SimplePayloadPanel.qml</file>
         <file alias="SimpleGoHereCard.qml">res/Simple/SimpleGoHereCard.qml</file>
         <file alias="SimpleCoordSheet.qml">res/Simple/SimpleCoordSheet.qml</file>
@@ -182,6 +183,7 @@
         <file alias="SimplePreflightSheet.qml">res/Simple/SimplePreflightSheet.qml</file>
         <file alias="SimpleRoot.qml">res/Simple/SimpleRoot.qml</file>
         <file alias="SComboBox.qml">res/Simple/SComboBox.qml</file>
+        <file alias="SLanguageCombo.qml">res/Simple/SLanguageCombo.qml</file>
         <file alias="SimpleWelcome.qml">res/Simple/SimpleWelcome.qml</file>
         <file alias="SimpleSettings.qml">res/Simple/SimpleSettings.qml</file>
         <file alias="SimpleLinkSecurity.qml">res/Simple/SimpleLinkSecurity.qml</file>
@@ -277,6 +279,12 @@
         <file alias="fonts/NotoSansKR-Regular.otf">res/Simple/fonts/NotoSansKR-Regular.otf</file>
         <file alias="fonts/NotoSansKR-Medium.otf">res/Simple/fonts/NotoSansKR-Medium.otf</file>
         <file alias="fonts/NotoSansKR-Bold.otf">res/Simple/fonts/NotoSansKR-Bold.otf</file>
+        <file alias="fonts/NotoSansJP-Regular.otf">res/Simple/fonts/NotoSansJP-Regular.otf</file>
+        <file alias="fonts/NotoSansJP-Medium.otf">res/Simple/fonts/NotoSansJP-Medium.otf</file>
+        <file alias="fonts/NotoSansJP-Bold.otf">res/Simple/fonts/NotoSansJP-Bold.otf</file>
+        <file alias="fonts/NotoSansTC-Regular.otf">res/Simple/fonts/NotoSansTC-Regular.otf</file>
+        <file alias="fonts/NotoSansTC-Medium.otf">res/Simple/fonts/NotoSansTC-Medium.otf</file>
+        <file alias="fonts/NotoSansTC-Bold.otf">res/Simple/fonts/NotoSansTC-Bold.otf</file>
         <file alias="licenses/index.json">res/Simple/licenses/index.json</file>
         <file alias="licenses/QGroundControl.txt">res/Simple/licenses/QGroundControl.txt</file>
         <file alias="licenses/Qt-third-party.txt">res/Simple/licenses/Qt-third-party.txt</file>
@@ -301,6 +309,8 @@
         <file alias="licenses/PX4-GpsDrivers.txt">res/Simple/licenses/PX4-GpsDrivers.txt</file>
         <file alias="licenses/Roboto.txt">res/Simple/licenses/Roboto.txt</file>
         <file alias="licenses/NotoSansKR.txt">res/Simple/licenses/NotoSansKR.txt</file>
+        <file alias="licenses/NotoSansJP.txt">res/Simple/licenses/NotoSansJP.txt</file>
+        <file alias="licenses/NotoSansTC.txt">res/Simple/licenses/NotoSansTC.txt</file>
     </qresource>
     <!-- ArduPilot parameter documentation generated from the ARGOSDYNE ArduCopter firmware (custom/tools/params) -->
     <qresource prefix="/FirmwarePlugin/APM">
